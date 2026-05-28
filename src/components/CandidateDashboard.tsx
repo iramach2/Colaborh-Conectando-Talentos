@@ -2567,16 +2567,24 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12">
-              {/* Coluna Esquerda: Ficha Visual do Candidato (Sticky no desktop) */}
-              <aside className="lg:col-span-4 bg-white p-7 rounded-[5px] shadow-sleek border border-white/50 space-y-6 lg:sticky lg:top-28">
-                {/* Destaque da Foto com Gradiente */}
-                <div className="w-full h-36 bg-gradient-to-r from-primary-500/10 to-highlight-500/10 rounded-[5px] flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute -top-6 -right-6 w-20 h-20 bg-primary-500/10 rounded-full" />
-                  <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-highlight-500/10 rounded-full" />
+              {/* Coluna Esquerda: Ficha Visual do Candidato (Sticky no desktop) - lg:col-span-3 */}
+              <aside className="lg:col-span-3 bg-white p-6 rounded-[5px] shadow-sleek border border-white/50 space-y-6 lg:sticky lg:top-28">
+                {/* Destaque da Foto com Blur da própria imagem de perfil ao fundo */}
+                <div className="w-full h-36 rounded-[5px] flex items-center justify-center relative overflow-hidden bg-slate-100">
+                  {resumeData.profilePic ? (
+                    <img 
+                      src={resumeData.profilePic} 
+                      alt="Profile Blur" 
+                      className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-125 select-none pointer-events-none" 
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-highlight-500/10" />
+                  )}
+                  <div className="absolute inset-0 bg-black/5 z-0 pointer-events-none" />
                   
                   {/* Container da Foto Redonda */}
                   <div className="relative group/photo shrink-0 z-10">
-                    <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-md overflow-hidden flex items-center justify-center relative ring-2 ring-primary-50/50 transition-transform duration-500 hover:scale-105">
+                    <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative ring-2 ring-white/30 transition-transform duration-500 hover:scale-105">
                       {resumeData.profilePic ? (
                         <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
@@ -2589,7 +2597,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <input 
                         type="file" 
                         ref={profilePicRef} 
-                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                        className="absolute inset-0 opacity-0 cursor-pointer z-20" 
                         accept="image/*" 
                         onChange={handleProfilePicSelect}
                       />
@@ -2641,8 +2649,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
               </aside>
 
-              {/* Coluna Direita: Seções Completas do Currículo */}
-              <div className="lg:col-span-8 space-y-6">
+              {/* Coluna Direita: Seções Completas do Currículo - lg:col-span-9 */}
+              <div className="lg:col-span-9 space-y-6">
                 {/* Seção Dados Pessoais (Inputs Editáveis) */}
                 <section className="bg-white p-7 rounded-[5px] shadow-sleek border border-white/50 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-primary-50 rounded-full -mr-12 -mt-12 opacity-40" />
