@@ -2849,9 +2849,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     <p className="text-slate-400 max-w-sm mx-auto text-[11px] font-medium uppercase tracking-wider">Focaremos na sua formação e habilidades.</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {resumeData.experiences.length === 0 ? (
-                      <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
+                      <div className="md:col-span-2 text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
                         <Briefcase size={32} className="text-slate-200 mx-auto mb-3" />
                         <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
                       </div>
@@ -5727,10 +5727,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         )}
       </AnimatePresence>
 
-      {/* Experience Modal */}
+      {/* Experience Drawer */}
       <AnimatePresence>
         {showExpModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex justify-end overflow-hidden">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -5739,10 +5739,11 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-[500px] bg-white rounded-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
+              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-l-[10px] rounded-r-none z-10"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
@@ -5842,10 +5843,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         )}
       </AnimatePresence>
 
-      {/* Education Modal */}
+      {/* Education Drawer */}
       <AnimatePresence>
         {showEduModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex justify-end overflow-hidden">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -5854,10 +5855,11 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-[500px] bg-white rounded-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
+              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-l-[10px] rounded-r-none z-10"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
