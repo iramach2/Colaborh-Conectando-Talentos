@@ -4189,9 +4189,9 @@ Equipe de Recrutamento & Seleção - Colaborh
               </motion.div>
             )}
 
-            {activeTab === 'Minhas Vagas' && (
+            {activeTab === 'Minhas Vagas' && selectedJob === null && (
               <motion.div 
-                key="minhas-vagas"
+                key="minhas-vagas-grid"
                 initial={{ opacity: 0, y: 20 }} 
                 animate={{ opacity: 1, y: 0 }} 
                 exit={{ opacity: 0, y: -20 }}
@@ -4204,13 +4204,21 @@ Equipe de Recrutamento & Seleção - Colaborh
                   </div>
                 ) : jobs.length > 0 ? (
                   jobs.map((job, i) => (
-                    <div key={job.id || i} className="bg-white p-6 rounded-[2rem] shadow-sleek border border-white/50 flex flex-wrap items-center justify-between gap-4">
+                    <div 
+                      key={job.id || i} 
+                      className="bg-white p-5 rounded-[5px] shadow-sm border border-slate-100 flex flex-wrap items-center justify-between gap-4 hover:shadow-md transition-all duration-300"
+                    >
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
-                          <Briefcase size={24} />
+                        <div className="w-10 h-10 bg-slate-50 rounded-[5px] flex items-center justify-center text-slate-400 border border-slate-100/50">
+                          <Briefcase size={20} />
                         </div>
                         <div>
-                          <h4 className="font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight">{job.title}</h4>
+                          <h4 
+                            onClick={() => handleViewApplicants(job)}
+                            className="font-bold text-slate-900 hover:text-[#533af6] cursor-pointer transition-colors uppercase tracking-tight text-sm select-none"
+                          >
+                            {job.title}
+                          </h4>
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                             {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'} • {job.modality}
                           </p>
@@ -4221,40 +4229,52 @@ Equipe de Recrutamento & Seleção - Colaborh
                           <p className="text-xl font-black text-slate-900">{job.candidates_count || 0}</p>
                           <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Inscritos</p>
                         </div>
-                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                          'bg-emerald-50 text-emerald-600'
-                        }`}>
-                          Ativa
-                        </span>
+                        {(() => {
+                          const status = job.status || 'active';
+                          let colorClasses = 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50';
+                          if (status === 'paused') colorClasses = 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/50';
+                          else if (status === 'closed') colorClasses = 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200/50';
+                          return (
+                            <select
+                              value={status}
+                              onChange={(e) => handleUpdateJobStatus(job.id, e.target.value)}
+                              className={`${colorClasses} px-2.5 py-1.5 rounded-[5px] text-[9.5px] font-black uppercase tracking-widest border outline-none cursor-pointer transition-all`}
+                            >
+                              <option value="active" className="bg-white text-slate-700 font-bold">Ativa</option>
+                              <option value="paused" className="bg-white text-slate-700 font-bold">Pausada</option>
+                              <option value="closed" className="bg-white text-slate-700 font-bold">Encerrada</option>
+                            </select>
+                          );
+                        })()}
                         <div className="flex gap-2">
                           <button 
                             onClick={() => handleViewApplicants(job)}
-                            className="p-2.5 bg-slate-50 text-slate-400 hover:text-primary-600 rounded-xl transition-all"
+                            className="p-2 bg-slate-50 text-slate-500 hover:text-[#533af6] hover:bg-slate-100 rounded-[5px] border border-slate-100/60 transition-all cursor-pointer"
                             title="Ver candidatos e triagem"
                           >
-                            <Eye size={18} />
+                            <Eye size={16} />
                           </button>
                           <button 
                             onClick={() => handleShareJob(job)}
-                            className="p-2.5 bg-slate-50 text-slate-400 hover:text-indigo-600 rounded-xl transition-all"
+                            className="p-2 bg-slate-50 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-[5px] border border-slate-100/60 transition-all cursor-pointer"
                             title="Compartilhar vaga"
                           >
-                            <Share2 size={18} />
+                            <Share2 size={16} />
                           </button>
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="bg-white p-20 rounded-[3rem] text-center border border-dashed border-slate-200">
-                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
-                      <Briefcase size={40} />
+                  <div className="bg-white p-20 rounded-[5px] text-center border border-dashed border-slate-200">
+                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 border border-slate-100/50">
+                      <Briefcase size={32} />
                     </div>
-                    <h3 className="text-xl font-black text-slate-900 mb-2">Nenhuma vaga publicada</h3>
-                    <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium">Você ainda não criou nenhuma oportunidade. Comece a contratar agora mesmo!</p>
+                    <h3 className="text-lg font-black text-slate-900 mb-1">Nenhuma vaga publicada</h3>
+                    <p className="text-slate-400 text-xs max-w-sm mx-auto mb-6 font-semibold">Você ainda não criou nenhuma oportunidade. Comece a contratar agora mesmo!</p>
                     <button 
                       onClick={() => setActiveTab('Cadastrar Vagas')}
-                      className="px-8 py-3.5 bg-primary-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary-100"
+                      className="px-6 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-[5px] font-black text-[10px] uppercase tracking-widest shadow-md transition-all cursor-pointer"
                     >
                       Publicar Primeira Vaga
                     </button>
@@ -4527,66 +4547,135 @@ Equipe de Recrutamento & Seleção - Colaborh
                         key={talent.id}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white p-8 rounded-[3rem] shadow-sleek border border-white hover:border-primary-100 hover:shadow-2xl transition-all group relative overflow-hidden flex flex-col h-full"
+                        className="bg-white rounded-[5px] border border-slate-100 hover:border-slate-200/80 shadow-sleek p-5 hover:shadow-md transition-all relative group text-left flex flex-col justify-between h-full"
                       >
-                        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-                          <BrainCircuit size={100} />
+                        <div className="absolute top-0 right-0 p-6 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity pointer-events-none">
+                          <BrainCircuit size={80} />
                         </div>
-                        
-                        <div className="flex items-start gap-5 mb-8">
-                          <div className="w-16 h-16 bg-slate-50 rounded-[1.8rem] overflow-hidden flex items-center justify-center text-slate-300 group-hover:bg-primary-50 group-hover:text-primary-500 transition-all shrink-0 border border-slate-100 shadow-sm">
-                            {talent.profile_pic ? (
-                              <img src={talent.profile_pic} alt={talent.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <User size={32} />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <h4 className="text-xl font-black text-slate-900 tracking-tight truncate">{talent.name}</h4>
-                              {talent.first_job && <span className="w-2 h-2 bg-emerald-500 rounded-full" />}
+
+                        <div>
+                          {/* Cabeçalho do Candidato */}
+                          <div className="flex items-start gap-3 mb-4">
+                            <div className="w-12 h-12 bg-slate-50 border border-slate-200/60 rounded-[5px] flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                              {talent.profile_pic ? (
+                                <img src={talent.profile_pic} alt={talent.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <User size={24} className="text-slate-400" />
+                              )}
                             </div>
-                            <p className="text-[11px] font-black text-primary-600 uppercase tracking-[0.15em] leading-none mb-2">{talent.role}</p>
-                            <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400">
-                              <div className="flex items-center gap-1">
-                                <MapPin size={12} className="text-slate-200" />
-                                <span>{talent.city}, {talent.state}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight truncate leading-tight">{talent.name}</h4>
+                                {talent.first_job && <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />}
                               </div>
-                              <span>•</span>
-                              <span>{talent.age || calculateAge(talent.birth_date)} anos</span>
+                              <p className="text-[9.5px] font-black text-[#533af6] uppercase tracking-wider mt-0.5">{talent.role}</p>
+                              <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400 mt-1">
+                                <MapPin size={10} className="text-slate-350 shrink-0" />
+                                <span className="truncate">{talent.city}, {talent.state}</span>
+                                <span>•</span>
+                                <span>{talent.age || calculateAge(talent.birth_date)} anos</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-3 mb-8">
-                           <div className="bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100/50">
-                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 opacity-60">Experiência</p>
-                              <p className="text-[11px] font-black text-slate-700 uppercase tracking-tight">{talent.experience}</p>
-                           </div>
-                           <div className="bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100/50">
-                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 opacity-60">Pretensão</p>
-                              <p className="text-[11px] font-black text-slate-700 uppercase tracking-tight">{talent.salary}</p>
-                           </div>
-                        </div>
+                          {/* Detalhes Rápidos de Contratação */}
+                          <div className="grid grid-cols-2 gap-2 mb-4">
+                            <div className="bg-slate-50/50 p-2 rounded-[5px] border border-slate-100/50">
+                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 opacity-60">Sexo</p>
+                              <p className="text-[9.5px] font-black text-slate-700 uppercase tracking-tight truncate">{talent.gender || 'Não Inf.'}</p>
+                            </div>
+                            <div className="bg-slate-50/50 p-2 rounded-[5px] border border-slate-100/50">
+                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 opacity-60">Pretensão</p>
+                              <p className="text-[9.5px] font-black text-slate-700 uppercase tracking-tight truncate">{talent.salary || 'Não Inf.'}</p>
+                            </div>
+                          </div>
 
-                        <div className="flex flex-wrap gap-1.5 mb-10">
-                          {Array.isArray(talent.skills) && talent.skills.slice(0, 4).map(skill => (
-                            <span key={skill} className="px-3 py-1 bg-white border border-slate-100 text-slate-500 rounded-xl text-[9px] font-black uppercase tracking-tight group-hover:bg-primary-50 group-hover:border-primary-100 group-hover:text-primary-600 transition-all">
-                              {skill}
-                            </span>
-                          ))}
-                          {Array.isArray(talent.skills) && talent.skills.length > 4 && (
-                            <span className="px-3 py-1 text-slate-300 text-[9px] font-black uppercase tracking-tight">+{talent.skills.length - 4}</span>
+                          {/* Resumo Profissional estilo chat bubble */}
+                          {talent.summary ? (
+                            <div className="bg-slate-50/50 p-3 rounded-[5px] border border-slate-100 text-left relative mb-4">
+                              <h5 className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider mb-1">Resumo Profissional</h5>
+                              <p className="text-[9.5px] font-semibold text-slate-500 leading-relaxed italic text-justify line-clamp-2">
+                                "{talent.summary}"
+                              </p>
+                            </div>
+                          ) : null}
+
+                          {/* Competências */}
+                          {Array.isArray(talent.skills) && talent.skills.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-4">
+                              {talent.skills.slice(0, 4).map((skill, sIdx) => (
+                                <span 
+                                  key={sIdx} 
+                                  className="px-1.5 py-0.5 rounded-[3px] text-[7.5px] font-black uppercase tracking-wider bg-slate-50 text-slate-500 border border-slate-100/50 select-none"
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                              {talent.skills.length > 4 && (
+                                <span className="px-1.5 py-0.5 rounded-[3px] text-[7.5px] font-black text-slate-355 bg-slate-50 border border-slate-100/50 select-none">
+                                  +{talent.skills.length - 4}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
 
-                        <div className="mt-auto flex gap-3">
-                          <button className="flex-1 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-100 transition-all active:scale-95">
-                            Currículo
-                          </button>
-                          <button className="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100 shadow-sm active:scale-95">
-                            <Mail size={22} />
-                          </button>
+                        {/* Rodapé do Card com Contatos Individuais e Ações */}
+                        <div>
+                          <div className="pt-3 border-t border-slate-50 space-y-1.5 mb-4">
+                            <div className="flex items-center gap-2 text-[9px] font-bold text-slate-450 truncate">
+                              <Mail size={11} className="text-slate-350 shrink-0" />
+                              <span>{talent.email}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[9px] font-bold text-slate-450">
+                              <Phone size={11} className="text-slate-350 shrink-0" />
+                              <span>{talent.phone}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                setSelectedResumeApplicant({
+                                  id: talent.id,
+                                  candidate_name: talent.name,
+                                  candidate_email: talent.email,
+                                  candidate_phone: talent.phone,
+                                  city: talent.city,
+                                  state: talent.state,
+                                  profile_pic: talent.profile_pic,
+                                  talentMatched: {
+                                    birth_date: talent.birth_date,
+                                    age: talent.age,
+                                    skills: talent.skills,
+                                    summary: talent.summary,
+                                    experiences: talent.experiences || [],
+                                    educations: talent.educations || []
+                                  }
+                                });
+                              }}
+                              className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-[5px] text-[8.5px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                            >
+                              Currículo
+                            </button>
+                            {(() => {
+                              const cleanPhone = talent.phone ? talent.phone.replace(/\D/g, '') : '';
+                              const whatsappUrl = `https://api.whatsapp.com/send?phone=55${cleanPhone}&text=Olá%20${encodeURIComponent(talent.name)},%20gostamos%20do%20seu%20perfil%20na%20Colaborh!`;
+                              return (
+                                <a 
+                                  href={whatsappUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-10 h-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[5px] flex items-center justify-center transition-all border border-emerald-600 shadow-sm cursor-pointer shrink-0"
+                                >
+                                  <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                                    <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.371a9.994 9.994 0 0 0 4.779 1.205h.004c5.505 0 9.988-4.479 9.99-9.985a9.983 9.983 0 0 0-9.994-9.849zm4.987 14.111c-.273.767-1.345 1.4-1.887 1.49-.49.08-1.129.13-3.268-.744-2.734-1.12-4.5-3.88-4.637-4.06-.137-.18-1.109-1.47-1.109-2.81 0-1.34.702-1.99.953-2.25.25-.26.55-.33.733-.33h.523c.16 0 .373-.06.58.45.22.53.73 1.77.8 1.91.07.14.11.31.02.49-.09.18-.14.28-.27.44-.13.16-.28.36-.39.49-.13.13-.26.27-.11.53.15.26.66 1.09 1.42 1.76.98.87 1.8 1.14 2.06 1.27.26.13.41.11.56-.05.15-.17.65-.76.83-.98.18-.22.37-.18.62-.09s1.6.76 1.87.9.46.26.52.37c.07.11.07.65-.2 1.41z"/>
+                                  </svg>
+                                </a>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </motion.div>
                     ))
