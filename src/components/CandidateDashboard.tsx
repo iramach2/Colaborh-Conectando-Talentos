@@ -2570,20 +2570,23 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* Coluna Esquerda: Ficha Visual do Candidato (Sticky no desktop) - lg:col-span-3 */}
               <aside className="lg:col-span-3 bg-white p-6 rounded-[5px] shadow-sleek border border-white/50 space-y-6 lg:sticky lg:top-28">
                 {/* Destaque da Foto com Blur da própria imagem de perfil ao fundo */}
-                <div className="w-full h-36 rounded-[5px] flex items-center justify-center relative overflow-hidden bg-slate-100">
+                <div className="w-full h-44 rounded-[5px] flex items-center justify-center relative overflow-hidden bg-slate-100">
                   {resumeData.profilePic ? (
                     <img 
                       src={resumeData.profilePic} 
                       alt="Profile Blur" 
-                      className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-125 select-none pointer-events-none" 
+                      className="absolute inset-0 w-full h-full object-cover blur-sm opacity-45 scale-125 select-none pointer-events-none" 
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-highlight-500/10" />
                   )}
                   <div className="absolute inset-0 bg-black/5 z-0 pointer-events-none" />
                   
+                  {/* Degradê suave para se fundir com o fundo branco do card */}
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/70 to-transparent pointer-events-none z-10" />
+                  
                   {/* Container da Foto Redonda */}
-                  <div className="relative group/photo shrink-0 z-10">
+                  <div className="relative group/photo shrink-0 z-20">
                     <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative ring-2 ring-white/30 transition-transform duration-500 hover:scale-105">
                       {resumeData.profilePic ? (
                         <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
@@ -2597,7 +2600,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <input 
                         type="file" 
                         ref={profilePicRef} 
-                        className="absolute inset-0 opacity-0 cursor-pointer z-20" 
+                        className="absolute inset-0 opacity-0 cursor-pointer z-30" 
                         accept="image/*" 
                         onChange={handleProfilePicSelect}
                       />
