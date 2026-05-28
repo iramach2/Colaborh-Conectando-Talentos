@@ -2402,22 +2402,26 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Main Container */}
       <div className={`flex-1 min-h-screen flex flex-col ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10`}>
         {/* Novo Cabeçalho Premium - Estilo Barra Horizontal do Mockup */}
-        <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Lado Esquerdo */}
-          <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
-            <div className="flex items-center gap-3">
-              {/* Botão de Toggle da Sidebar (visível apenas no desktop) */}
-              <button
-                onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                className="hidden lg:flex items-center justify-center w-9 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-full text-slate-500 transition-all active:scale-95 shrink-0 shadow-sm"
-                title={isSidebarExpanded ? "Recolher menu" : "Expandir menu"}
-              >
-                {isSidebarExpanded ? (
-                  <ChevronLeft size={16} />
-                ) : (
-                  <ChevronRight size={16} />
-                )}
-              </button>
+        <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 transition-all duration-200 ${
+          activeTab === 'Meu Currículo' ? 'pt-4 pb-3 flex flex-col gap-3' : 'py-4 flex flex-col sm:flex-row items-center justify-between gap-4'
+        }`}>
+          {/* Linha Principal do Cabeçalho */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+            {/* Lado Esquerdo */}
+            <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+              <div className="flex items-center gap-3">
+                {/* Botão de Toggle da Sidebar (visível apenas no desktop) */}
+                <button
+                  onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+                  className="hidden lg:flex items-center justify-center w-9 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-full text-slate-500 transition-all active:scale-95 shrink-0 shadow-sm"
+                  title={isSidebarExpanded ? "Recolher menu" : "Expandir menu"}
+                >
+                  {isSidebarExpanded ? (
+                    <ChevronLeft size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </button>
 
                 {/* Ícone e Nome da Aba Ativa */}
                 <div className="flex items-center gap-2.5">
@@ -2443,61 +2447,6 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
             {/* Lado Direito */}
             <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
-              {/* Botões do Meu Currículo no Cabeçalho */}
-              {activeTab === 'Meu Currículo' && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isParsing}
-                    className="flex items-center space-x-1 px-2.5 py-1.5 bg-gradient-to-r from-highlight-500 to-highlight-600 hover:from-highlight-600 hover:to-highlight-700 text-white rounded-full shadow-md shadow-highlight-500/10 transition-all font-bold border border-transparent shrink-0"
-                  >
-                    {isParsing ? <Loader2 className="animate-spin" size={12} /> : <Sparkles className="text-white" size={12} />}
-                    <span className="uppercase tracking-wider text-[8px]">Preencher com IA</span>
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      className="hidden" 
-                      accept=".pdf,.docx,.doc,image/*" 
-                      onChange={(e) => e.target.files?.[0] && handleAIParse(e.target.files[0])}
-                    />
-                  </motion.button>
-
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleSaveToSupabase}
-                    disabled={isSaving}
-                    className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-bold rounded-full shadow-md shadow-primary-500/10 transition-all border border-transparent shrink-0 cursor-pointer"
-                  >
-                    {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
-                    <span className="uppercase tracking-wider text-[8px]">{isSaving ? 'Salvando...' : 'Salvar'}</span>
-                  </motion.button>
-
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowResumePreview(true)}
-                    className="flex items-center space-x-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold rounded-full shadow-sm transition-all border border-indigo-150 shrink-0 cursor-pointer"
-                  >
-                    <Eye size={12} />
-                    <span className="uppercase tracking-wider text-[8px]">Visualizar</span>
-                  </motion.button>
-
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleDownloadResume}
-                    disabled={isExporting}
-                    className="flex items-center space-x-1 px-2.5 py-1.5 bg-white hover:bg-slate-50 text-primary-600 font-bold rounded-full shadow-sm transition-all border border-primary-100 shrink-0 disabled:opacity-50 cursor-pointer"
-                  >
-                    {isExporting ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
-                    <span className="uppercase tracking-wider text-[8px]">{isExporting ? 'Gerando...' : 'Baixar PDF'}</span>
-                  </motion.button>
-                </div>
-              )}
-
               {/* Botão de Chat (Circular Roxo preenchido com brilho/sombra) */}
               <button 
                 onClick={() => showCustomAlert("Suporte Colaborh: Como podemos te ajudar hoje?", "Suporte")}
@@ -2538,7 +2487,65 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 {resumeData.fullName ? resumeData.fullName.substring(0, 2).toUpperCase() : 'CA'}
               </div>
             </div>
-          </header>
+          </div>
+
+          {/* Segunda Linha: Botões de Ação do Currículo (Alinhados à direita, sem linha divisória intermediária) */}
+          {activeTab === 'Meu Currículo' && (
+            <div className="flex justify-end w-full pb-1 animate-fadeIn">
+              <div className="flex flex-wrap items-center gap-2">
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isParsing}
+                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-gradient-to-r from-highlight-500 to-highlight-600 hover:from-highlight-600 hover:to-highlight-700 text-white rounded-full shadow-md shadow-highlight-500/10 transition-all font-bold border border-transparent shrink-0"
+                >
+                  {isParsing ? <Loader2 className="animate-spin" size={12} /> : <Sparkles className="text-white" size={12} />}
+                  <span className="uppercase tracking-wider text-[8px]">Preencher com IA</span>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept=".pdf,.docx,.doc,image/*" 
+                    onChange={(e) => e.target.files?.[0] && handleAIParse(e.target.files[0])}
+                  />
+                </motion.button>
+
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleSaveToSupabase}
+                  disabled={isSaving}
+                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-bold rounded-full shadow-md shadow-primary-500/10 transition-all border border-transparent shrink-0 cursor-pointer"
+                >
+                  {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                  <span className="uppercase tracking-wider text-[8px]">{isSaving ? 'Salvando...' : 'Salvar'}</span>
+                </motion.button>
+
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowResumePreview(true)}
+                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold rounded-full shadow-sm transition-all border border-indigo-150 shrink-0 cursor-pointer"
+                >
+                  <Eye size={12} />
+                  <span className="uppercase tracking-wider text-[8px]">Visualizar</span>
+                </motion.button>
+
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleDownloadResume}
+                  disabled={isExporting}
+                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-white hover:bg-slate-50 text-primary-600 font-bold rounded-full shadow-sm transition-all border border-primary-100 shrink-0 disabled:opacity-50 cursor-pointer"
+                >
+                  {isExporting ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+                  <span className="uppercase tracking-wider text-[8px]">{isExporting ? 'Gerando...' : 'Baixar PDF'}</span>
+                </motion.button>
+              </div>
+            </div>
+          )}
+        </header>
 
           {/* Main Content */}
           <main className="flex-1 p-6 lg:p-10 relative z-10">
