@@ -2450,7 +2450,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   whileTap={{ scale: 0.98 }}
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isParsing}
-                  className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-highlight-500 to-highlight-600 hover:from-highlight-600 hover:to-highlight-700 text-white rounded-xl shadow-md shadow-highlight-500/10 transition-all font-bold border border-transparent shrink-0"
+                  className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-highlight-500 to-highlight-600 hover:from-highlight-600 hover:to-highlight-700 text-white rounded-full shadow-md shadow-highlight-500/10 transition-all font-bold border border-transparent shrink-0"
                 >
                   {isParsing ? <Loader2 className="animate-spin" size={13} /> : <Sparkles className="text-white" size={13} />}
                   <span className="uppercase tracking-wider text-[8px]">Preencher com IA</span>
@@ -2512,7 +2512,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           {activeTab === 'Meu Currículo' ? (
             <div className="space-y-6">
               {/* Profile section with round photo & crop */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sleek border border-white/50 relative overflow-hidden group">
+              <section className="bg-white p-8 rounded-[5px] shadow-sleek border border-white/50 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary-50 rounded-full -mr-12 -mt-12 opacity-40" />
                 
                 <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
@@ -2546,7 +2546,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         type="text"
                         value={resumeData.fullName}
                         onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
+                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
                         placeholder="Digite seu nome completo"
                       />
                     </div>
@@ -2557,7 +2557,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         type="email"
                         value={resumeData.email}
                         onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
+                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
                         placeholder="seu@email.com"
                       />
                     </div>
@@ -2569,7 +2569,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         <select 
                           value={resumeData.gender}
                           onChange={(e) => setResumeData({...resumeData, gender: e.target.value})}
-                          className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none pr-10 text-sm"
+                          className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none pr-10 text-sm"
                         >
                           <option value="">Selecione seu gênero</option>
                           {GENDER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -2585,7 +2585,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                           type="tel"
                           value={resumeData.phone}
                           onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
-                          className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
+                          className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
                           placeholder="(00) 00000-0000"
                         />
                       </div>
@@ -2597,7 +2597,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         type="date"
                         value={resumeData.birthDate}
                         onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
+                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
                       />
                     </div>
 
@@ -2608,7 +2608,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         <select 
                           value={resumeData.state}
                           onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
-                          className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-sm"
+                          className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-sm"
                         >
                           <option value="">UF</option>
                           {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
@@ -2624,7 +2624,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                           type="text"
                           value={resumeData.salary}
                           onChange={(e) => setResumeData({...resumeData, salary: e.target.value})}
-                          className="w-full pl-10 pr-5 py-3 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
+                          className="w-full pl-10 pr-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
                           placeholder="Ex: 2.500,00"
                         />
                       </div>
@@ -2652,7 +2652,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                   value={resumeData.city}
                                   onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
                                   disabled={isLoadingCities || !cities.length}
-                                  className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-sm disabled:opacity-50"
+                                  className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-sm disabled:opacity-50"
                                 >
                                   <option value="">{isLoadingCities ? 'Carregando cidades...' : 'Selecione a cidade'}</option>
                                   {cities.map(city => <option key={city} value={city}>{city}</option>)}
@@ -2666,7 +2666,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
                       <div className="flex flex-col gap-2">
                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Acessibilidade</label>
-                        <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-transparent h-[46px]">
+                        <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-[5px] border border-transparent h-[46px]">
                           <label className="flex items-center gap-3 cursor-pointer group/toggle shrink-0">
                             <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isPcd ? 'bg-primary-600' : 'bg-slate-200'}`}>
                               <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isPcd ? 'translate-x-5' : ''}`} />
@@ -2695,7 +2695,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                   type="text"
                                   value={resumeData.cid}
                                   onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
-                                  className="w-24 px-3 py-1.5 bg-white border border-slate-200 rounded-lg outline-none font-bold text-[10px] text-primary-600 uppercase placeholder:text-slate-300"
+                                  className="w-24 px-3 py-1.5 bg-white border border-slate-200 rounded-[5px] outline-none font-bold text-[10px] text-primary-600 uppercase placeholder:text-slate-300"
                                   placeholder="COD CID"
                                 />
                               </motion.div>
@@ -2709,10 +2709,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </section>
 
               {/* Summary Section */}
-              <section className="bg-white p-7 rounded-[2.5rem] shadow-[0_10px_40px_rgba(124,58,237,0.06)] border border-white">
+              <section className="bg-white p-7 rounded-[5px] shadow-[0_10px_40px_rgba(124,58,237,0.06)] border border-white">
                 <div className="flex justify-between items-center mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
+                    <div className="w-9 h-9 bg-primary-50 rounded-[5px] flex items-center justify-center text-primary-600">
                       <FileText size={18} />
                     </div>
                     <h2 className="text-lg font-black text-slate-900 tracking-tight">Resumo Profissional</h2>
@@ -2725,13 +2725,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 <textarea 
                   value={resumeData.summary}
                   onChange={(e) => setResumeData({...resumeData, summary: e.target.value})}
-                  className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[1.5rem] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all min-h-[140px] leading-relaxed font-medium text-slate-600 text-sm italic"
+                  className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all min-h-[140px] leading-relaxed font-medium text-slate-600 text-sm italic"
                   placeholder="Conte um pouco sobre sua trajetória..."
                 />
               </section>
 
               {/* Professional Experience */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sleek border border-white/50">
+              <section className="bg-white p-8 rounded-[5px] shadow-sleek border border-white/50">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                   <div className="flex items-center gap-2">
                     <Briefcase className="text-primary-600" size={22} />
@@ -2755,7 +2755,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     {!resumeData.isFirstJob && (
                       <button 
                         onClick={() => { setEditingExp(null); setShowExpModal(true); }}
-                        className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-xl transition-all"
+                        className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer"
                       >
                         <Plus size={20} />
                       </button>
@@ -2764,8 +2764,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
 
                 {resumeData.isFirstJob ? (
-                  <div className="bg-primary-50/20 p-8 rounded-[1.5rem] text-center border-2 border-dashed border-primary-50/50">
-                    <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 text-primary-500">
+                  <div className="bg-primary-50/20 p-8 rounded-[5px] text-center border-2 border-dashed border-primary-50/50">
+                    <div className="w-12 h-12 bg-white rounded-[5px] shadow-sm flex items-center justify-center mx-auto mb-4 text-primary-500 border border-slate-100/50">
                       <Sparkles size={24} />
                     </div>
                     <h3 className="text-base font-bold text-slate-800 mb-1">Pronto para sua jornada?</h3>
@@ -2774,16 +2774,16 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 ) : (
                   <div className="space-y-4">
                     {resumeData.experiences.length === 0 ? (
-                      <div className="text-center py-12 bg-slate-50 rounded-[1.5rem] border-2 border-dashed border-slate-200">
+                      <div className="text-center py-12 bg-slate-50 rounded-[5px] border-2 border-dashed border-slate-200">
                         <Briefcase size={32} className="text-slate-200 mx-auto mb-3" />
                         <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
                       </div>
                     ) : (
                       resumeData.experiences.map((exp) => (
-                        <div key={exp.id} className="group relative bg-white p-6 rounded-[1.5rem] border-2 border-slate-100 hover:border-primary-100 hover:bg-slate-50/50 transition-all shadow-sm">
+                        <div key={exp.id} className="group relative bg-white p-6 rounded-[5px] border-2 border-slate-100 hover:border-primary-100 hover:bg-slate-50/50 transition-all shadow-sm">
                           <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                             <div className="flex gap-4">
-                              <div className="w-12 h-12 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-primary-600 shadow-sm shrink-0">
+                              <div className="w-12 h-12 bg-white border border-slate-100 rounded-[5px] flex items-center justify-center text-primary-600 shadow-sm shrink-0">
                                 <Building size={20} />
                               </div>
                               <div>
@@ -2799,10 +2799,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               </div>
                             </div>
                             <div className="flex gap-1.5 self-end sm:self-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button onClick={() => { setEditingExp(exp); setShowExpModal(true); }} className="p-2.5 bg-white text-slate-400 hover:text-primary-600 rounded-lg shadow-sm border border-slate-100 transition-colors">
+                              <button onClick={() => { setEditingExp(exp); setShowExpModal(true); }} className="p-2.5 bg-white text-slate-400 hover:text-primary-600 rounded-full shadow-sm border border-slate-100 transition-colors cursor-pointer">
                                 <Settings size={16} />
                               </button>
-                              <button onClick={() => setResumeData({...resumeData, experiences: resumeData.experiences.filter(e => e.id !== exp.id)})} className="p-2.5 bg-white text-slate-400 hover:text-red-500 rounded-lg shadow-sm border border-slate-100 transition-colors">
+                              <button onClick={() => setResumeData({...resumeData, experiences: resumeData.experiences.filter(e => e.id !== exp.id)})} className="p-2.5 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-sm border border-slate-100 transition-colors cursor-pointer">
                                 <Trash2 size={16} />
                               </button>
                             </div>
@@ -2818,33 +2818,33 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </section>
 
               {/* Education Section */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sleek border border-white/50">
+              <section className="bg-white p-8 rounded-[5px] shadow-sleek border border-white/50">
                 <div className="flex justify-between items-center mb-8">
                   <div className="flex items-center gap-2">
                     <GraduationCap className="text-primary-600" size={22} />
                     <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Formação Acadêmica</h2>
                   </div>
-                  <button onClick={() => { setEditingEdu(null); setShowEduModal(true); }} className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-xl transition-all">
+                  <button onClick={() => { setEditingEdu(null); setShowEduModal(true); }} className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer">
                     <Plus size={20} />
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {resumeData.educations.length === 0 ? (
-                    <div className="md:col-span-2 text-center py-12 bg-slate-50 rounded-[1.5rem] border-2 border-dashed border-slate-200">
+                    <div className="md:col-span-2 text-center py-12 bg-slate-50 rounded-[5px] border-2 border-dashed border-slate-200">
                       <GraduationCap size={32} className="text-slate-200 mx-auto mb-3" />
                       <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
                     </div>
                   ) : (
                     resumeData.educations.map((edu) => (
-                      <div key={edu.id} className="group bg-white p-6 rounded-[1.5rem] border border-slate-100 hover:border-primary-100 hover:shadow-md transition-all relative">
+                      <div key={edu.id} className="group bg-white p-6 rounded-[5px] border border-slate-100 hover:border-primary-100 hover:shadow-md transition-all relative">
                         <div className="flex justify-between items-start mb-4">
-                          <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
+                          <div className="w-10 h-10 bg-primary-50 rounded-[5px] flex items-center justify-center text-primary-600 border border-slate-100/50">
                             <GraduationCap size={20} />
                           </div>
                           <div className="flex gap-1">
-                            <button onClick={() => { setEditingEdu(edu); setShowEduModal(true); }} className="p-2 text-slate-300 hover:text-primary-600"><Settings size={16} /></button>
-                            <button onClick={() => setResumeData({...resumeData, educations: resumeData.educations.filter(e => e.id !== edu.id)})} className="p-2 text-slate-300 hover:text-red-500"><Trash2 size={16} /></button>
+                            <button onClick={() => { setEditingEdu(edu); setShowEduModal(true); }} className="p-2 text-slate-300 hover:text-primary-600 cursor-pointer"><Settings size={16} /></button>
+                            <button onClick={() => setResumeData({...resumeData, educations: resumeData.educations.filter(e => e.id !== edu.id)})} className="p-2 text-slate-300 hover:text-red-500 cursor-pointer"><Trash2 size={16} /></button>
                           </div>
                         </div>
                         <h3 className="text-base font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight mb-1">{edu.course}</h3>
@@ -2865,7 +2865,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </section>
 
               {/* Skills Section */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sleek border border-white/50">
+              <section className="bg-white p-8 rounded-[5px] shadow-sleek border border-white/50">
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-2">
                     <Sparkles className="text-primary-600" size={22} />
@@ -2875,11 +2875,11 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {resumeData.skills.map((skill, index) => (
-                    <div key={index} className="flex items-center gap-2 px-4 py-2 bg-highlight-50 text-highlight-700 rounded-xl text-xs font-bold border border-highlight-100 group transition-all hover:bg-highlight-100">
+                    <div key={index} className="flex items-center gap-2 px-4 py-2 bg-highlight-50 text-highlight-700 rounded-[5px] text-xs font-bold border border-highlight-100 group transition-all hover:bg-highlight-100">
                       {skill}
                       <button 
                         onClick={() => setResumeData({...resumeData, skills: resumeData.skills.filter((_, i) => i !== index)})}
-                        className="text-primary-300 hover:text-red-500 transition-colors"
+                        className="text-primary-300 hover:text-red-500 transition-colors cursor-pointer"
                       >
                         <X size={14} />
                       </button>
@@ -2900,7 +2900,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         }
                       }
                     }}
-                    className="flex-1 px-5 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white outline-none transition-all font-semibold text-slate-700 text-sm"
+                    className="flex-1 px-5 py-3 bg-slate-50 border border-slate-100 rounded-[5px] focus:bg-white outline-none transition-all font-semibold text-slate-700 text-sm"
                   />
                   <button 
                     onClick={(e) => {
@@ -2911,7 +2911,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         input.value = '';
                       }
                     }}
-                    className="px-5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
+                    className="px-5 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors cursor-pointer"
                   >
                     <Plus size={20} />
                   </button>
@@ -2925,7 +2925,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSaveToSupabase}
                   disabled={isSaving}
-                  className="px-10 py-4 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-primary-900/30 transition-all flex items-center gap-3 text-xs disabled:opacity-50"
+                  className="px-10 py-4 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-xl hover:shadow-primary-900/30 transition-all flex items-center gap-3 text-xs disabled:opacity-50 cursor-pointer"
                 >
                   {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                   {isSaving ? 'Salvando...' : 'Salvar Currículo'}
@@ -2935,7 +2935,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowResumePreview(true)}
-                  className="px-10 py-4 bg-indigo-50 text-indigo-600 border-2 border-indigo-100 font-black uppercase tracking-[0.2em] rounded-2xl shadow-lg hover:shadow-indigo-500/10 transition-all flex items-center gap-3 text-xs"
+                  className="px-10 py-4 bg-indigo-50 text-indigo-600 border-2 border-indigo-100 font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-indigo-500/10 transition-all flex items-center gap-3 text-xs cursor-pointer"
                 >
                   <Eye size={18} />
                   Visualizar
@@ -2946,7 +2946,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   whileTap={{ scale: 0.98 }}
                   onClick={handleDownloadResume}
                   disabled={isExporting}
-                  className="px-10 py-4 bg-white text-primary-600 border-2 border-primary-100 font-black uppercase tracking-[0.2em] rounded-2xl shadow-lg hover:shadow-primary-500/10 transition-all flex items-center gap-3 text-xs disabled:opacity-50 whitespace-nowrap"
+                  className="px-10 py-4 bg-white text-primary-600 border-2 border-primary-100 font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-primary-500/10 transition-all flex items-center gap-3 text-xs disabled:opacity-50 whitespace-nowrap cursor-pointer"
                 >
                   {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                   {isExporting ? 'Gerando...' : 'Baixar PDF'}
@@ -5698,7 +5698,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-[500px] bg-white rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
+              className="relative w-full max-w-[500px] bg-white rounded-[5px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
@@ -5708,16 +5708,16 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     </h3>
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Detalhes profissionais</p>
                   </div>
-                  <button onClick={() => setShowExpModal(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-all">
+                  <button onClick={() => setShowExpModal(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-all cursor-pointer">
                     <X size={20} />
                   </button>
                 </div>
-
-                <form className="space-y-4" onSubmit={(e) => {
+ 
+                 <form className="space-y-4" onSubmit={(e) => {
                   e.preventDefault();
                   if (!tempExp) return;
-
-                  if (editingExp) {
+ 
+                   if (editingExp) {
                     setResumeData({...resumeData, experiences: resumeData.experiences.map(e => e.id === editingExp.id ? tempExp : e)});
                   } else {
                     setResumeData({...resumeData, experiences: [tempExp, ...resumeData.experiences]});
@@ -5731,7 +5731,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.company || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, company: e.target.value} : null)}
                         required 
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
+                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
                         placeholder="Ex: Google, Itaú, Ambev..." 
                       />
                     </div>
@@ -5741,7 +5741,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.role || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, role: e.target.value} : null)}
                         required 
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
+                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
                         placeholder="Ex: Vendedor, Analista, Coordenador..." 
                       />
                     </div>
@@ -5752,7 +5752,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.startDate || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, startDate: e.target.value} : null)}
                         required 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium" 
+                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium" 
                       />
                     </div>
                     <div>
@@ -5762,7 +5762,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.endDate || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, endDate: e.target.value} : null)}
                         disabled={tempExp?.current} 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium disabled:opacity-30" 
+                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium disabled:opacity-30" 
                       />
                     </div>
                     <div className="col-span-full pb-1 pl-1">
@@ -5782,14 +5782,14 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.description || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, description: e.target.value} : null)}
                         required 
-                        className="w-full px-5 py-4 bg-slate-50 border border-transparent rounded-xl outline-none min-h-[100px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium italic" 
+                        className="w-full px-5 py-4 bg-slate-50 border border-transparent rounded-[5px] outline-none min-h-[100px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium italic" 
                         placeholder="Descreva brevemente o que você entregou..." 
                       />
                     </div>
                   </div>
                   <div className="flex justify-end gap-3 mt-8">
-                    <button type="button" onClick={() => setShowExpModal(false)} className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600">Cancelar</button>
-                    <button type="submit" className="px-10 py-3.5 bg-slate-900 text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all">Salvar Registro</button>
+                    <button type="button" onClick={() => setShowExpModal(false)} className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600 cursor-pointer">Cancelar</button>
+                    <button type="submit" className="px-10 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border-0">Salvar Registro</button>
                   </div>
                 </form>
               </div>
@@ -5813,7 +5813,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-[500px] bg-white rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
+              className="relative w-full max-w-[500px] bg-white rounded-[5px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
@@ -5849,15 +5849,15 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-full">
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Instituição</label>
-                      <input name="institution" defaultValue={editingEdu?.institution} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: USP, Senac, Alura..." />
+                      <input name="institution" defaultValue={editingEdu?.institution} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: USP, Senac, Alura..." />
                     </div>
                     <div className="col-span-full">
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Curso</label>
-                      <input name="course" defaultValue={editingEdu?.course} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: Administração, Marketing..." />
+                      <input name="course" defaultValue={editingEdu?.course} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: Administração, Marketing..." />
                     </div>
                     <div>
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Status Atual</label>
-                      <select name="status" defaultValue={editingEdu?.status || 'Completo'} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
+                      <select name="status" defaultValue={editingEdu?.status || 'Completo'} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
                         <option value="Completo">Completo</option>
                         <option value="Incompleto">Incompleto</option>
                         <option value="Cursando">Cursando</option>
@@ -5865,12 +5865,12 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     </div>
                     <div>
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Ano Conclusão</label>
-                      <input name="gradYear" defaultValue={editingEdu?.gradYear} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: 2024" />
+                      <input name="gradYear" defaultValue={editingEdu?.gradYear} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: 2024" />
                     </div>
                   </div>
                   <div className="flex justify-end gap-3 mt-8">
                     <button type="button" onClick={() => setShowEduModal(false)} className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600">Cancelar</button>
-                    <button type="submit" className="px-10 py-3.5 bg-slate-900 text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all">Salvar Formação</button>
+                    <button type="submit" className="px-10 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all">Salvar Formação</button>
                   </div>
                 </form>
               </div>
