@@ -2618,218 +2618,166 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
                 <div className="border-t border-slate-100" />
 
-                {/* Ficha Técnica de Informações Rápidas (Estilo Mockup do usuário) */}
+                {/* Formulário de Informações Pessoais Mapeado na Barra Lateral */}
                 <div className="space-y-4 text-left">
                   <div>
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">WhatsApp / Telefone</span>
-                    <span className="font-bold text-xs text-slate-700">{resumeData.phone || 'Não informado'}</span>
+                    <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">Nome Completo</label>
+                    <input 
+                      type="text"
+                      value={resumeData.fullName}
+                      onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                      placeholder="Nome completo"
+                    />
                   </div>
+                  
                   <div>
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">E-mail</span>
-                    <span className="font-bold text-xs text-slate-700 break-all">{resumeData.email || 'Não informado'}</span>
+                    <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">E-mail</label>
+                    <input 
+                      type="email"
+                      value={resumeData.email}
+                      onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                      placeholder="seu@email.com"
+                    />
                   </div>
+
                   <div>
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">Localização</span>
-                    <span className="font-bold text-xs text-slate-700">
-                      {resumeData.city && resumeData.state ? `${resumeData.city} - ${resumeData.state}` : 'Não informada'}
-                    </span>
+                    <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">Gênero</label>
+                    <div className="relative">
+                      <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      <select 
+                        value={resumeData.gender}
+                        onChange={(e) => setResumeData({...resumeData, gender: e.target.value})}
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none pr-10 text-xs"
+                      >
+                        <option value="">Selecione seu gênero</option>
+                        {GENDER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                    </div>
                   </div>
+
                   <div>
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">Pretensão Salarial</span>
-                    <span className="font-bold text-xs text-slate-700">
-                      {resumeData.salary ? `R$ ${resumeData.salary}` : 'Não informada'}
-                    </span>
+                    <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">WhatsApp / Telefone</label>
+                    <div className="relative">
+                      <Phone size={12} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
+                      <input 
+                        type="tel"
+                        value={resumeData.phone}
+                        onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
+                        className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                        placeholder="(00) 00000-0000"
+                      />
+                    </div>
                   </div>
+
                   <div>
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">Acessibilidade</span>
-                    <span className="font-bold text-xs text-slate-700">
-                      {resumeData.isPcd ? `PCD ${resumeData.cid ? `(CID: ${resumeData.cid})` : ''}` : 'Não se aplica'}
-                    </span>
+                    <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">Data de Nascimento</label>
+                    <input 
+                      type="date"
+                      value={resumeData.birthDate}
+                      onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">Estado</label>
+                    <div className="relative">
+                      <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      <select 
+                        value={resumeData.state}
+                        onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs"
+                      >
+                        <option value="">UF</option>
+                        {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  {resumeData.state && (
+                    <div>
+                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">Cidade</label>
+                      <div className="relative">
+                        {isLoadingCities ? (
+                          <div className="absolute left-3.5 top-1/2 -translate-y-1/2">
+                            <Loader2 size={12} className="animate-spin text-primary-500" />
+                          </div>
+                        ) : (
+                          <MapPin size={12} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
+                        )}
+                        <select 
+                          value={resumeData.city}
+                          onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
+                          disabled={isLoadingCities || !cities.length}
+                          className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs disabled:opacity-50"
+                        >
+                          <option value="">{isLoadingCities ? 'Carregando...' : 'Selecione a cidade'}</option>
+                          {cities.map(city => <option key={city} value={city}>{city}</option>)}
+                        </select>
+                        {!isLoadingCities && <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />}
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">Pretensão Salarial</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">R$</span>
+                      <input 
+                        type="text"
+                        value={resumeData.salary}
+                        onChange={(e) => setResumeData({...resumeData, salary: e.target.value})}
+                        className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                        placeholder="Ex: 2.500,00"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">Acessibilidade</label>
+                    <div className="flex flex-col gap-2 bg-slate-50 p-3 rounded-[5px] border border-transparent">
+                      <label className="flex items-center gap-3 cursor-pointer group/toggle shrink-0">
+                        <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isPcd ? 'bg-primary-600' : 'bg-slate-200'}`}>
+                          <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isPcd ? 'translate-x-5' : ''}`} />
+                          <input 
+                            type="checkbox" 
+                            className="hidden" 
+                            checked={resumeData.isPcd} 
+                            onChange={(e) => setResumeData({...resumeData, isPcd: e.target.checked})} 
+                          />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                          <Accessibility size={14} /> PCD
+                        </span>
+                      </label>
+                      
+                      <AnimatePresence>
+                        {resumeData.isPcd && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden pt-1"
+                          >
+                            <input 
+                              type="text"
+                              value={resumeData.cid}
+                              onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-[5px] outline-none font-bold text-[10px] text-primary-600 uppercase placeholder:text-slate-350"
+                              placeholder="COD CID"
+                            />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
               </aside>
 
               {/* Coluna Direita: Seções Completas do Currículo - lg:col-span-9 */}
               <div className="lg:col-span-9 space-y-6">
-                {/* Seção Dados Pessoais (Inputs Editáveis) */}
-                <section className="bg-white p-7 rounded-[5px] shadow-sleek border border-white/50 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary-50 rounded-full -mr-12 -mt-12 opacity-40" />
-                  
-                  <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
-                    <div className="w-9 h-9 bg-primary-50 rounded-[5px] flex items-center justify-center text-primary-600">
-                      <User size={18} />
-                    </div>
-                    <h2 className="text-lg font-black text-slate-900 tracking-tight">Informações Pessoais</h2>
-                  </div>
-
-                  {/* Personal Info Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
-                    <div className="col-span-full">
-                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Nome Completo</label>
-                      <input 
-                        type="text"
-                        value={resumeData.fullName}
-                        onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
-                        placeholder="Digite seu nome completo"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">E-mail</label>
-                      <input 
-                        type="email"
-                        value={resumeData.email}
-                        onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
-                        placeholder="seu@email.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Gênero</label>
-                      <div className="relative">
-                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                        <select 
-                          value={resumeData.gender}
-                          onChange={(e) => setResumeData({...resumeData, gender: e.target.value})}
-                          className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none pr-10 text-sm"
-                        >
-                          <option value="">Selecione seu gênero</option>
-                          {GENDER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">WhatsApp / Telefone</label>
-                      <div className="relative">
-                        <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" />
-                        <input 
-                          type="tel"
-                          value={resumeData.phone}
-                          onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
-                          className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
-                          placeholder="(00) 00000-0000"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Data de Nascimento</label>
-                      <input 
-                        type="date"
-                        value={resumeData.birthDate}
-                        onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Estado</label>
-                      <div className="relative">
-                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                        <select 
-                          value={resumeData.state}
-                          onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
-                          className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-sm"
-                        >
-                          <option value="">UF</option>
-                          {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Pretensão Salarial</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">R$</span>
-                        <input 
-                          type="text"
-                          value={resumeData.salary}
-                          onChange={(e) => setResumeData({...resumeData, salary: e.target.value})}
-                          className="w-full pl-10 pr-5 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-sm"
-                          placeholder="Ex: 2.500,00"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
-                      <div className="min-h-[66px]">
-                        <AnimatePresence>
-                          {resumeData.state && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 10 }}
-                            >
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Cidade</label>
-                              <div className="relative">
-                                {isLoadingCities ? (
-                                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                    <Loader2 size={14} className="animate-spin text-primary-500" />
-                                  </div>
-                                ) : (
-                                  <MapPin size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" />
-                                )}
-                                <select 
-                                  value={resumeData.city}
-                                  onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
-                                  disabled={isLoadingCities || !cities.length}
-                                  className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-sm disabled:opacity-50"
-                                >
-                                  <option value="">{isLoadingCities ? 'Carregando cidades...' : 'Selecione a cidade'}</option>
-                                  {cities.map(city => <option key={city} value={city}>{city}</option>)}
-                                </select>
-                                {!isLoadingCities && <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Acessibilidade</label>
-                        <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-[5px] border border-transparent h-[46px]">
-                          <label className="flex items-center gap-3 cursor-pointer group/toggle shrink-0">
-                            <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isPcd ? 'bg-primary-600' : 'bg-slate-200'}`}>
-                              <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isPcd ? 'translate-x-5' : ''}`} />
-                              <input 
-                                type="checkbox" 
-                                className="hidden" 
-                                checked={resumeData.isPcd} 
-                                onChange={(e) => setResumeData({...resumeData, isPcd: e.target.checked})} 
-                              />
-                            </div>
-                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
-                              <Accessibility size={14} /> PCD
-                            </span>
-                          </label>
-                          
-                          <AnimatePresence>
-                            {resumeData.isPcd && (
-                              <motion.div
-                                initial={{ opacity: 0, width: 0 }}
-                                animate={{ opacity: 1, width: 'auto' }}
-                                exit={{ opacity: 0, width: 0 }}
-                                className="overflow-hidden flex items-center gap-2"
-                              >
-                                <div className="h-6 w-[1px] bg-slate-200 mx-1" />
-                                <input 
-                                  type="text"
-                                  value={resumeData.cid}
-                                  onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
-                                  className="w-24 px-3 py-1.5 bg-white border border-slate-200 rounded-[5px] outline-none font-bold text-[10px] text-primary-600 uppercase placeholder:text-slate-300"
-                                  placeholder="COD CID"
-                                />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
 
               {/* Summary Section */}
               <section className="bg-white p-7 rounded-[5px] shadow-[0_10px_40px_rgba(124,58,237,0.06)] border border-white">
