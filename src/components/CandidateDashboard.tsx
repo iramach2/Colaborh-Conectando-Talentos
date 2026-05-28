@@ -2568,9 +2568,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           {activeTab === 'Meu Currículo' ? (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12">
               {/* Coluna Esquerda: Ficha Visual do Candidato (Sticky no desktop) - lg:col-span-3 */}
-              <aside className="lg:col-span-3 bg-white p-6 rounded-[5px] shadow-sleek border border-white/50 space-y-6 lg:sticky lg:top-28">
+              <aside className="lg:col-span-3 bg-white p-6 rounded-[10px] shadow-sleek border border-white/50 space-y-6 lg:sticky lg:top-28">
                 {/* Destaque da Foto com Blur da própria imagem de perfil ao fundo */}
-                <div className="w-full h-44 rounded-[5px] flex items-center justify-center relative overflow-hidden bg-slate-100">
+                <div className="w-full h-44 rounded-[10px] flex items-center justify-center relative overflow-hidden bg-slate-100">
                   {resumeData.profilePic ? (
                     <img 
                       src={resumeData.profilePic} 
@@ -2629,7 +2629,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       type="text"
                       value={resumeData.fullName}
                       onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
                       placeholder="Nome completo"
                     />
                   </div>
@@ -2640,7 +2640,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       type="email"
                       value={resumeData.email}
                       onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
                       placeholder="seu@email.com"
                     />
                   </div>
@@ -2652,7 +2652,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <select 
                         value={resumeData.gender}
                         onChange={(e) => setResumeData({...resumeData, gender: e.target.value})}
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none pr-10 text-xs"
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none pr-10 text-xs"
                       >
                         <option value="">Selecione seu gênero</option>
                         {GENDER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -2668,7 +2668,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         type="tel"
                         value={resumeData.phone}
                         onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
-                        className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                        className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
                         placeholder="(00) 00000-0000"
                       />
                     </div>
@@ -2680,7 +2680,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       type="date"
                       value={resumeData.birthDate}
                       onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
                     />
                   </div>
 
@@ -2691,7 +2691,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <select 
                         value={resumeData.state}
                         onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs"
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs"
                       >
                         <option value="">UF</option>
                         {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
@@ -2714,7 +2714,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                           value={resumeData.city}
                           onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
                           disabled={isLoadingCities || !cities.length}
-                          className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs disabled:opacity-50"
+                          className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs disabled:opacity-50"
                         >
                           <option value="">{isLoadingCities ? 'Carregando...' : 'Selecione a cidade'}</option>
                           {cities.map(city => <option key={city} value={city}>{city}</option>)}
@@ -2732,7 +2732,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         type="text"
                         value={resumeData.salary}
                         onChange={(e) => setResumeData({...resumeData, salary: e.target.value})}
-                        className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
+                        className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs"
                         placeholder="Ex: 2.500,00"
                       />
                     </div>
@@ -2740,7 +2740,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
                   <div>
                     <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1 block pl-1">Acessibilidade</label>
-                    <div className="flex flex-col gap-2 bg-slate-50 p-3 rounded-[5px] border border-transparent">
+                    <div className="flex flex-col gap-2 bg-slate-50 p-3 rounded-[10px] border border-transparent">
                       <label className="flex items-center gap-3 cursor-pointer group/toggle shrink-0">
                         <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isPcd ? 'bg-primary-600' : 'bg-slate-200'}`}>
                           <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isPcd ? 'translate-x-5' : ''}`} />
@@ -2768,7 +2768,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               type="text"
                               value={resumeData.cid}
                               onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
-                              className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-[5px] outline-none font-bold text-[10px] text-primary-600 uppercase placeholder:text-slate-350"
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-[10px] outline-none font-bold text-[10px] text-primary-600 uppercase placeholder:text-slate-350"
                               placeholder="COD CID"
                             />
                           </motion.div>
@@ -2783,10 +2783,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               <div className="lg:col-span-9 space-y-6">
 
               {/* Summary Section */}
-              <section className="bg-white p-7 rounded-[5px] shadow-[0_10px_40px_rgba(124,58,237,0.06)] border border-white">
+              <section className="bg-white p-7 rounded-[10px] shadow-[0_10px_40px_rgba(124,58,237,0.06)] border border-white">
                 <div className="flex justify-between items-center mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-primary-50 rounded-[5px] flex items-center justify-center text-primary-600">
+                    <div className="w-9 h-9 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600">
                       <FileText size={18} />
                     </div>
                     <h2 className="text-lg font-black text-slate-900 tracking-tight">Resumo Profissional</h2>
@@ -2799,13 +2799,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 <textarea 
                   value={resumeData.summary}
                   onChange={(e) => setResumeData({...resumeData, summary: e.target.value})}
-                  className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[5px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all min-h-[140px] leading-relaxed font-medium text-slate-600 text-sm italic"
+                  className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all min-h-[140px] leading-relaxed font-medium text-slate-600 text-sm italic"
                   placeholder="Conte um pouco sobre sua trajetória..."
                 />
               </section>
 
               {/* Professional Experience */}
-              <section className="bg-white p-8 rounded-[5px] shadow-sleek border border-white/50">
+              <section className="bg-white p-8 rounded-[10px] shadow-sleek border border-white/50">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                   <div className="flex items-center gap-2">
                     <Briefcase className="text-primary-600" size={22} />
@@ -2838,8 +2838,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
 
                 {resumeData.isFirstJob ? (
-                  <div className="bg-primary-50/20 p-8 rounded-[5px] text-center border-2 border-dashed border-primary-50/50">
-                    <div className="w-12 h-12 bg-white rounded-[5px] shadow-sm flex items-center justify-center mx-auto mb-4 text-primary-500 border border-slate-100/50">
+                  <div className="bg-primary-50/20 p-8 rounded-[10px] text-center border-2 border-dashed border-primary-50/50">
+                    <div className="w-12 h-12 bg-white rounded-[10px] shadow-sm flex items-center justify-center mx-auto mb-4 text-primary-500 border border-slate-100/50">
                       <Sparkles size={24} />
                     </div>
                     <h3 className="text-base font-bold text-slate-800 mb-1">Pronto para sua jornada?</h3>
@@ -2848,16 +2848,16 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 ) : (
                   <div className="space-y-4">
                     {resumeData.experiences.length === 0 ? (
-                      <div className="text-center py-12 bg-slate-50 rounded-[5px] border-2 border-dashed border-slate-200">
+                      <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
                         <Briefcase size={32} className="text-slate-200 mx-auto mb-3" />
                         <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
                       </div>
                     ) : (
                       resumeData.experiences.map((exp) => (
-                        <div key={exp.id} className="group relative bg-white p-6 rounded-[5px] border-2 border-slate-100 hover:border-primary-100 hover:bg-slate-50/50 transition-all shadow-sm">
+                        <div key={exp.id} className="group relative bg-white p-6 rounded-[10px] border-2 border-slate-100 hover:border-primary-100 hover:bg-slate-50/50 transition-all shadow-sm">
                           <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                             <div className="flex gap-4">
-                              <div className="w-12 h-12 bg-white border border-slate-100 rounded-[5px] flex items-center justify-center text-primary-600 shadow-sm shrink-0">
+                              <div className="w-12 h-12 bg-white border border-slate-100 rounded-[10px] flex items-center justify-center text-primary-600 shadow-sm shrink-0">
                                 <Building size={20} />
                               </div>
                               <div>
@@ -2892,7 +2892,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </section>
 
               {/* Education Section */}
-              <section className="bg-white p-8 rounded-[5px] shadow-sleek border border-white/50">
+              <section className="bg-white p-8 rounded-[10px] shadow-sleek border border-white/50">
                 <div className="flex justify-between items-center mb-8">
                   <div className="flex items-center gap-2">
                     <GraduationCap className="text-primary-600" size={22} />
@@ -2905,15 +2905,15 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {resumeData.educations.length === 0 ? (
-                    <div className="md:col-span-2 text-center py-12 bg-slate-50 rounded-[5px] border-2 border-dashed border-slate-200">
+                    <div className="md:col-span-2 text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
                       <GraduationCap size={32} className="text-slate-200 mx-auto mb-3" />
                       <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
                     </div>
                   ) : (
                     resumeData.educations.map((edu) => (
-                      <div key={edu.id} className="group bg-white p-6 rounded-[5px] border border-slate-100 hover:border-primary-100 hover:shadow-md transition-all relative">
+                      <div key={edu.id} className="group bg-white p-6 rounded-[10px] border border-slate-100 hover:border-primary-100 hover:shadow-md transition-all relative">
                         <div className="flex justify-between items-start mb-4">
-                          <div className="w-10 h-10 bg-primary-50 rounded-[5px] flex items-center justify-center text-primary-600 border border-slate-100/50">
+                          <div className="w-10 h-10 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600 border border-slate-100/50">
                             <GraduationCap size={20} />
                           </div>
                           <div className="flex gap-1">
@@ -2939,7 +2939,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </section>
 
               {/* Skills Section */}
-              <section className="bg-white p-8 rounded-[5px] shadow-sleek border border-white/50">
+              <section className="bg-white p-8 rounded-[10px] shadow-sleek border border-white/50">
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-2">
                     <Sparkles className="text-primary-600" size={22} />
@@ -2949,7 +2949,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {resumeData.skills.map((skill, index) => (
-                    <div key={index} className="flex items-center gap-2 px-4 py-2 bg-highlight-50 text-highlight-700 rounded-[5px] text-xs font-bold border border-highlight-100 group transition-all hover:bg-highlight-100">
+                    <div key={index} className="flex items-center gap-2 px-4 py-2 bg-highlight-50 text-highlight-700 rounded-[10px] text-xs font-bold border border-highlight-100 group transition-all hover:bg-highlight-100">
                       {skill}
                       <button 
                         onClick={() => setResumeData({...resumeData, skills: resumeData.skills.filter((_, i) => i !== index)})}
@@ -2974,7 +2974,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         }
                       }
                     }}
-                    className="flex-1 px-5 py-3 bg-slate-50 border border-slate-100 rounded-[5px] focus:bg-white outline-none transition-all font-semibold text-slate-700 text-sm"
+                    className="flex-1 px-5 py-3 bg-slate-50 border border-slate-100 rounded-[10px] focus:bg-white outline-none transition-all font-semibold text-slate-700 text-sm"
                   />
                   <button 
                     onClick={(e) => {
@@ -5739,7 +5739,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-[500px] bg-white rounded-[5px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
+              className="relative w-full max-w-[500px] bg-white rounded-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
@@ -5772,7 +5772,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.company || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, company: e.target.value} : null)}
                         required 
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
+                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
                         placeholder="Ex: Google, Itaú, Ambev..." 
                       />
                     </div>
@@ -5782,7 +5782,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.role || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, role: e.target.value} : null)}
                         required 
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
+                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
                         placeholder="Ex: Vendedor, Analista, Coordenador..." 
                       />
                     </div>
@@ -5793,7 +5793,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.startDate || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, startDate: e.target.value} : null)}
                         required 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium" 
+                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium" 
                       />
                     </div>
                     <div>
@@ -5803,7 +5803,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.endDate || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, endDate: e.target.value} : null)}
                         disabled={tempExp?.current} 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium disabled:opacity-30" 
+                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium disabled:opacity-30" 
                       />
                     </div>
                     <div className="col-span-full pb-1 pl-1">
@@ -5823,7 +5823,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         value={tempExp?.description || ''} 
                         onChange={(e) => setTempExp(prev => prev ? {...prev, description: e.target.value} : null)}
                         required 
-                        className="w-full px-5 py-4 bg-slate-50 border border-transparent rounded-[5px] outline-none min-h-[100px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium italic" 
+                        className="w-full px-5 py-4 bg-slate-50 border border-transparent rounded-[10px] outline-none min-h-[100px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium italic" 
                         placeholder="Descreva brevemente o que você entregou..." 
                       />
                     </div>
@@ -5854,7 +5854,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-[500px] bg-white rounded-[5px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
+              className="relative w-full max-w-[500px] bg-white rounded-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden border border-white"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
@@ -5890,15 +5890,15 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-full">
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Instituição</label>
-                      <input name="institution" defaultValue={editingEdu?.institution} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: USP, Senac, Alura..." />
+                      <input name="institution" defaultValue={editingEdu?.institution} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: USP, Senac, Alura..." />
                     </div>
                     <div className="col-span-full">
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Curso</label>
-                      <input name="course" defaultValue={editingEdu?.course} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: Administração, Marketing..." />
+                      <input name="course" defaultValue={editingEdu?.course} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: Administração, Marketing..." />
                     </div>
                     <div>
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Status Atual</label>
-                      <select name="status" defaultValue={editingEdu?.status || 'Completo'} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
+                      <select name="status" defaultValue={editingEdu?.status || 'Completo'} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
                         <option value="Completo">Completo</option>
                         <option value="Incompleto">Incompleto</option>
                         <option value="Cursando">Cursando</option>
@@ -5906,7 +5906,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     </div>
                     <div>
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Ano Conclusão</label>
-                      <input name="gradYear" defaultValue={editingEdu?.gradYear} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: 2024" />
+                      <input name="gradYear" defaultValue={editingEdu?.gradYear} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: 2024" />
                     </div>
                   </div>
                   <div className="flex justify-end gap-3 mt-8">
@@ -6071,7 +6071,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="relative w-full max-w-sm bg-white rounded-[5px] shadow-2xl p-6 overflow-hidden flex flex-col z-10 text-left border border-slate-100"
+            className="relative w-full max-w-sm bg-white rounded-[10px] shadow-2xl p-6 overflow-hidden flex flex-col z-10 text-left border border-slate-100"
           >
             <div className="flex items-start gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
