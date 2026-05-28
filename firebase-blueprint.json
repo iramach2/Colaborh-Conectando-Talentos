@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "Candidate": {
+      "title": "Candidate Resume",
+      "description": "Full resume data and profile information for a candidate.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Auth UID of the candidate" },
+        "fullName": { "type": "string" },
+        "phone": { "type": "string" },
+        "state": { "type": "string" },
+        "city": { "type": "string" },
+        "gender": { "type": "string" },
+        "summary": { "type": "string" },
+        "isPcd": { "type": "boolean" },
+        "cid": { "type": "string" },
+        "isFirstJob": { "type": "boolean" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "experiences": { "type": "array", "items": { "$ref": "#/entities/Experience" } },
+        "educations": { "type": "array", "items": { "$ref": "#/entities/Education" } },
+        "profilePic": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "fullName"]
+    },
+    "Experience": {
+      "title": "Professional Experience",
+      "description": "Detail of a professional job position.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "company": { "type": "string" },
+        "role": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "current": { "type": "boolean" },
+        "description": { "type": "string" }
+      }
+    },
+    "Education": {
+      "title": "Academic Education",
+      "description": "Detail of an academic course or degree.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "institution": { "type": "string" },
+        "course": { "type": "string" },
+        "status": { "type": "string", "enum": ["Incompleto", "Completo", "Cursando"] },
+        "gradYear": { "type": "string" }
+      }
+    },
+    "UserRole": {
+      "title": "User Role",
+      "description": "Role mapping for users (candidate or company).",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "enum": ["candidate", "company"] },
+        "email": { "type": "string" }
+      },
+      "required": ["role", "email"]
+    }
+  },
+  "firestore": {
+    "/candidates/{userId}": {
+      "schema": "Candidate",
+      "description": "Stores candidate resumes indexed by their Auth UID."
+    },
+    "/users/{userId}": {
+      "schema": "UserRole",
+      "description": "Stores user roles and basic info."
+    }
+  }
+}
