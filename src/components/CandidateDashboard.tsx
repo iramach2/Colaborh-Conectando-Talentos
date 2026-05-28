@@ -2443,25 +2443,59 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
             {/* Lado Direito */}
             <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
-              {/* Botão Preencher com IA (apenas no Meu Currículo) */}
+              {/* Botões do Meu Currículo no Cabeçalho */}
               {activeTab === 'Meu Currículo' && (
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isParsing}
-                  className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-highlight-500 to-highlight-600 hover:from-highlight-600 hover:to-highlight-700 text-white rounded-full shadow-md shadow-highlight-500/10 transition-all font-bold border border-transparent shrink-0"
-                >
-                  {isParsing ? <Loader2 className="animate-spin" size={13} /> : <Sparkles className="text-white" size={13} />}
-                  <span className="uppercase tracking-wider text-[8px]">Preencher com IA</span>
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
-                    accept=".pdf,.docx,.doc,image/*" 
-                    onChange={(e) => e.target.files?.[0] && handleAIParse(e.target.files[0])}
-                  />
-                </motion.button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isParsing}
+                    className="flex items-center space-x-1 px-2.5 py-1.5 bg-gradient-to-r from-highlight-500 to-highlight-600 hover:from-highlight-600 hover:to-highlight-700 text-white rounded-full shadow-md shadow-highlight-500/10 transition-all font-bold border border-transparent shrink-0"
+                  >
+                    {isParsing ? <Loader2 className="animate-spin" size={12} /> : <Sparkles className="text-white" size={12} />}
+                    <span className="uppercase tracking-wider text-[8px]">Preencher com IA</span>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      accept=".pdf,.docx,.doc,image/*" 
+                      onChange={(e) => e.target.files?.[0] && handleAIParse(e.target.files[0])}
+                    />
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSaveToSupabase}
+                    disabled={isSaving}
+                    className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-bold rounded-full shadow-md shadow-primary-500/10 transition-all border border-transparent shrink-0 cursor-pointer"
+                  >
+                    {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                    <span className="uppercase tracking-wider text-[8px]">{isSaving ? 'Salvando...' : 'Salvar'}</span>
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowResumePreview(true)}
+                    className="flex items-center space-x-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold rounded-full shadow-sm transition-all border border-indigo-150 shrink-0 cursor-pointer"
+                  >
+                    <Eye size={12} />
+                    <span className="uppercase tracking-wider text-[8px]">Visualizar</span>
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleDownloadResume}
+                    disabled={isExporting}
+                    className="flex items-center space-x-1 px-2.5 py-1.5 bg-white hover:bg-slate-50 text-primary-600 font-bold rounded-full shadow-sm transition-all border border-primary-100 shrink-0 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isExporting ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+                    <span className="uppercase tracking-wider text-[8px]">{isExporting ? 'Gerando...' : 'Baixar PDF'}</span>
+                  </motion.button>
+                </div>
               )}
 
               {/* Botão de Chat (Circular Roxo preenchido com brilho/sombra) */}
@@ -2918,40 +2952,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
               </section>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4 pb-12">
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleSaveToSupabase}
-                  disabled={isSaving}
-                  className="px-10 py-4 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-xl hover:shadow-primary-900/30 transition-all flex items-center gap-3 text-xs disabled:opacity-50 cursor-pointer"
-                >
-                  {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                  {isSaving ? 'Salvando...' : 'Salvar Currículo'}
-                </motion.button>
-
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowResumePreview(true)}
-                  className="px-10 py-4 bg-indigo-50 text-indigo-600 border-2 border-indigo-100 font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-indigo-500/10 transition-all flex items-center gap-3 text-xs cursor-pointer"
-                >
-                  <Eye size={18} />
-                  Visualizar
-                </motion.button>
-                
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleDownloadResume}
-                  disabled={isExporting}
-                  className="px-10 py-4 bg-white text-primary-600 border-2 border-primary-100 font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-primary-500/10 transition-all flex items-center gap-3 text-xs disabled:opacity-50 whitespace-nowrap cursor-pointer"
-                >
-                  {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                  {isExporting ? 'Gerando...' : 'Baixar PDF'}
-                </motion.button>
-              </div>
+              {/* Rodapé Sem Botões de Ação */}
+              <div className="pb-12" />
             </div>
           ) : activeTab === 'Configurações' ? (
             <motion.div 
