@@ -1058,6 +1058,15 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [activeTab, setActiveTab] = useState('Meu Currículo');
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsHeaderScrolled(window.scrollY > 40);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Custom Alert / Confirm Dialog states
   const [customDialog, setCustomDialog] = useState<{
@@ -2402,8 +2411,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Main Container */}
       <div className={`flex-1 min-h-screen flex flex-col ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10`}>
         {/* Novo Cabeçalho Premium - Estilo Barra Horizontal do Mockup */}
-        <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 transition-all duration-200 ${
-          activeTab === 'Meu Currículo' ? 'pt-4 pb-3 flex flex-col gap-3' : 'py-4 flex flex-col sm:flex-row items-center justify-between gap-4'
+        <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 transition-all duration-300 ${
+          activeTab === 'Meu Currículo' 
+            ? (isHeaderScrolled ? 'pt-4 pb-3 flex flex-col gap-0 shadow-sm' : 'pt-4 pb-4 flex flex-col gap-5') 
+            : 'py-4 flex flex-col sm:flex-row items-center justify-between gap-4'
         }`}>
           {/* Linha Principal do Cabeçalho */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
@@ -2491,7 +2502,16 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
           {/* Segunda Linha: Botões de Ação do Currículo (Alinhados à direita, sem linha divisória intermediária) */}
           {activeTab === 'Meu Currículo' && (
-            <div className="flex justify-end w-full pb-1 animate-fadeIn">
+            <motion.div 
+              initial={{ height: 'auto', opacity: 1 }}
+              animate={{ 
+                height: isHeaderScrolled ? 0 : 'auto', 
+                opacity: isHeaderScrolled ? 0 : 1,
+                pointerEvents: isHeaderScrolled ? 'none' : 'auto'
+              }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="flex justify-end w-full pb-1 overflow-hidden"
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
@@ -2543,7 +2563,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   <span className="uppercase tracking-wider text-[8px]">{isExporting ? 'Gerando...' : 'Baixar PDF'}</span>
                 </motion.button>
               </div>
-            </div>
+            </motion.div>
           )}
         </header>
 
