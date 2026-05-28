@@ -2790,14 +2790,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* Summary Section */}
               <section className="bg-white p-7 rounded-[10px] shadow-[0_10px_40px_rgba(124,58,237,0.06)] border border-white">
                 <div className="flex justify-between items-center mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600">
-                      <FileText size={18} />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-black text-slate-900 tracking-tight">Resumo Profissional</h2>
-                      <div className="w-16 h-1 bg-[#8959f5] rounded-full mt-1.5" />
-                    </div>
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Resumo Profissional</h2>
+                    <div className="w-16 h-1 bg-[#8959f5] rounded-full mt-1.5" />
                   </div>
                   <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${resumeData.summary.length >= 300 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
                     {resumeData.summary.length >= 300 ? <CheckCircle2 size={10} /> : <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />}
@@ -2815,12 +2810,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* Professional Experience */}
               <section className="bg-white p-8 rounded-[10px] shadow-sleek border border-white/50">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="text-primary-600" size={22} />
-                    <div>
-                      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Experiência Profissional</h2>
-                      <div className="w-16 h-1 bg-[#8959f5] rounded-full mt-1.5" />
-                    </div>
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Experiência Profissional</h2>
+                    <div className="w-16 h-1 bg-[#8959f5] rounded-full mt-1.5" />
                   </div>
                   
                   <div className="flex items-center gap-4">
@@ -2905,12 +2897,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* Education Section */}
               <section className="bg-white p-8 rounded-[10px] shadow-sleek border border-white/50">
                 <div className="flex justify-between items-center mb-8">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="text-primary-600" size={22} />
-                    <div>
-                      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Formação Acadêmica</h2>
-                      <div className="w-16 h-1 bg-[#8959f5] rounded-full mt-1.5" />
-                    </div>
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Formação Acadêmica</h2>
+                    <div className="w-16 h-1 bg-[#8959f5] rounded-full mt-1.5" />
                   </div>
                   <button onClick={() => { setEditingEdu(null); setShowEduModal(true); }} className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer">
                     <Plus size={20} />
@@ -2955,12 +2944,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* Skills Section */}
               <section className="bg-white p-8 rounded-[10px] shadow-sleek border border-white/50">
                 <div className="flex justify-between items-center mb-6">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="text-primary-600" size={22} />
-                    <div>
-                      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Habilidades</h2>
-                      <div className="w-16 h-1 bg-[#8959f5] rounded-full mt-1.5" />
-                    </div>
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Habilidades</h2>
+                    <div className="w-16 h-1 bg-[#8959f5] rounded-full mt-1.5" />
                   </div>
                 </div>
                 
