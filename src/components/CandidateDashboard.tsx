@@ -2566,23 +2566,25 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           <main className="flex-1 p-6 lg:p-10 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
-            <div className="space-y-6">
-              {/* Profile section with round photo & crop */}
-              <section className="bg-white p-8 rounded-[5px] shadow-sleek border border-white/50 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary-50 rounded-full -mr-12 -mt-12 opacity-40" />
-                
-                <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
-                  {/* Round Photo Section */}
-                  <div className="relative group/photo shrink-0">
-                    <div className="w-32 h-32 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative ring-2 ring-primary-50 transition-transform duration-500 group-hover/photo:scale-105">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12">
+              {/* Coluna Esquerda: Ficha Visual do Candidato (Sticky no desktop) */}
+              <aside className="lg:col-span-4 bg-white p-7 rounded-[5px] shadow-sleek border border-white/50 space-y-6 lg:sticky lg:top-28">
+                {/* Destaque da Foto com Gradiente */}
+                <div className="w-full h-36 bg-gradient-to-r from-primary-500/10 to-highlight-500/10 rounded-[5px] flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute -top-6 -right-6 w-20 h-20 bg-primary-500/10 rounded-full" />
+                  <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-highlight-500/10 rounded-full" />
+                  
+                  {/* Container da Foto Redonda */}
+                  <div className="relative group/photo shrink-0 z-10">
+                    <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-md overflow-hidden flex items-center justify-center relative ring-2 ring-primary-50/50 transition-transform duration-500 hover:scale-105">
                       {resumeData.profilePic ? (
                         <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
-                        <User size={48} className="text-slate-200" />
+                        <User size={36} className="text-slate-200" />
                       )}
-                      <div className="absolute inset-0 bg-primary-600/80 flex flex-col items-center justify-center opacity-0 group-hover/photo:opacity-100 transition-all duration-300">
-                        <Camera size={20} className="text-white mb-1" />
-                        <span className="text-[8px] font-bold text-white uppercase tracking-widest">Alterar</span>
+                      <div className="absolute inset-0 bg-primary-600/80 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300 cursor-pointer">
+                        <Camera size={16} className="text-white mb-1" />
+                        <span className="text-[7px] font-bold text-white uppercase tracking-widest text-center leading-none">Alterar</span>
                       </div>
                       <input 
                         type="file" 
@@ -2593,9 +2595,67 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* Nome e Cargo */}
+                <div className="text-center space-y-1">
+                  <h3 className="text-base font-black text-slate-800 uppercase tracking-tight truncate px-2" title={resumeData.fullName}>
+                    {resumeData.fullName || 'Seu Nome'}
+                  </h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    {resumeData.experiences?.find(exp => exp.current)?.role 
+                      || (resumeData.experiences?.[0]?.role || 'Candidato')}
+                  </p>
+                </div>
+
+                <div className="border-t border-slate-100" />
+
+                {/* Ficha Técnica de Informações Rápidas (Estilo Mockup do usuário) */}
+                <div className="space-y-4 text-left">
+                  <div>
+                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">WhatsApp / Telefone</span>
+                    <span className="font-bold text-xs text-slate-700">{resumeData.phone || 'Não informado'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">E-mail</span>
+                    <span className="font-bold text-xs text-slate-700 break-all">{resumeData.email || 'Não informado'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">Localização</span>
+                    <span className="font-bold text-xs text-slate-700">
+                      {resumeData.city && resumeData.state ? `${resumeData.city} - ${resumeData.state}` : 'Não informada'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">Pretensão Salarial</span>
+                    <span className="font-bold text-xs text-slate-700">
+                      {resumeData.salary ? `R$ ${resumeData.salary}` : 'Não informada'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block leading-none mb-1">Acessibilidade</span>
+                    <span className="font-bold text-xs text-slate-700">
+                      {resumeData.isPcd ? `PCD ${resumeData.cid ? `(CID: ${resumeData.cid})` : ''}` : 'Não se aplica'}
+                    </span>
+                  </div>
+                </div>
+              </aside>
+
+              {/* Coluna Direita: Seções Completas do Currículo */}
+              <div className="lg:col-span-8 space-y-6">
+                {/* Seção Dados Pessoais (Inputs Editáveis) */}
+                <section className="bg-white p-7 rounded-[5px] shadow-sleek border border-white/50 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary-50 rounded-full -mr-12 -mt-12 opacity-40" />
+                  
+                  <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                    <div className="w-9 h-9 bg-primary-50 rounded-[5px] flex items-center justify-center text-primary-600">
+                      <User size={18} />
+                    </div>
+                    <h2 className="text-lg font-black text-slate-900 tracking-tight">Informações Pessoais</h2>
+                  </div>
 
                   {/* Personal Info Grid */}
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
                     <div className="col-span-full">
                       <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-4">Nome Completo</label>
                       <input 
@@ -2761,8 +2821,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       </div>
                     </div>
                   </div>
-                </div>
-              </section>
+                </section>
 
               {/* Summary Section */}
               <section className="bg-white p-7 rounded-[5px] shadow-[0_10px_40px_rgba(124,58,237,0.06)] border border-white">
@@ -2974,8 +3033,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
               </section>
 
-              {/* Rodapé Sem Botões de Ação */}
-              <div className="pb-12" />
+              </div>
             </div>
           ) : activeTab === 'Configurações' ? (
             <motion.div 
