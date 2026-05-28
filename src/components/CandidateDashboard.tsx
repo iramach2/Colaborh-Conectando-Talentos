@@ -2413,8 +2413,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         {/* Novo Cabeçalho Premium - Estilo Barra Horizontal do Mockup */}
         <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 transition-all duration-300 ${
           activeTab === 'Meu Currículo' 
-            ? (isHeaderScrolled ? 'pt-4 pb-3 flex flex-col gap-0 shadow-sm' : 'pt-4 pb-4 flex flex-col gap-5') 
-            : 'py-4 flex flex-col sm:flex-row items-center justify-between gap-4'
+            ? (isHeaderScrolled ? 'pt-4 pb-3 flex flex-col gap-0 shadow-sm' : 'pt-5 pb-5 flex flex-col gap-5') 
+            : 'py-5 flex flex-col sm:flex-row items-center justify-between gap-4'
         }`}>
           {/* Linha Principal do Cabeçalho */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
@@ -2424,26 +2424,26 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 {/* Botão de Toggle da Sidebar (visível apenas no desktop) */}
                 <button
                   onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                  className="hidden lg:flex items-center justify-center w-9 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-full text-slate-500 transition-all active:scale-95 shrink-0 shadow-sm"
+                  className="hidden lg:flex items-center justify-center w-10 h-10 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-full text-slate-500 transition-all active:scale-95 shrink-0 shadow-sm"
                   title={isSidebarExpanded ? "Recolher menu" : "Expandir menu"}
                 >
                   {isSidebarExpanded ? (
-                    <ChevronLeft size={16} />
+                    <ChevronLeft size={18} />
                   ) : (
-                    <ChevronRight size={16} />
+                    <ChevronRight size={18} />
                   )}
                 </button>
 
                 {/* Ícone e Nome da Aba Ativa */}
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 shrink-0">
-                    {activeTab === 'Meu Currículo' && <FileText size={16} />}
-                    {activeTab === 'Candidaturas' && <Briefcase size={16} />}
-                    {activeTab === 'Vagas' && <Star size={16} />}
-                    {activeTab === 'Testes' && <Brain size={16} />}
-                    {activeTab === 'Configurações' && <Settings size={16} />}
+                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 shrink-0">
+                    {activeTab === 'Meu Currículo' && <FileText size={18} />}
+                    {activeTab === 'Candidaturas' && <Briefcase size={18} />}
+                    {activeTab === 'Vagas' && <Star size={18} />}
+                    {activeTab === 'Testes' && <Brain size={18} />}
+                    {activeTab === 'Configurações' && <Settings size={18} />}
                   </div>
-                  <h1 className="text-sm font-bold text-slate-800 tracking-tight">{activeTab}</h1>
+                  <h1 className="text-base font-extrabold text-slate-800 tracking-tight">{activeTab}</h1>
                 </div>
               </div>
 
@@ -2461,40 +2461,40 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* Botão de Chat (Circular Roxo preenchido com brilho/sombra) */}
               <button 
                 onClick={() => showCustomAlert("Suporte Colaborh: Como podemos te ajudar hoje?", "Suporte")}
-                className="w-9 h-9 bg-primary-600 hover:bg-primary-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-primary-600/35 transition-all hover:scale-105 active:scale-95 shrink-0"
+                className="w-10 h-10 bg-primary-600 hover:bg-primary-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-primary-600/35 transition-all hover:scale-105 active:scale-95 shrink-0"
                 title="Suporte"
               >
-                <MessageSquare size={15} />
+                <MessageSquare size={18} />
               </button>
 
               {/* Botão de Notificações (Sino circular branco) */}
               <button
                 onClick={() => showCustomAlert("Você não possui novas notificações no momento.", "Notificações")}
-                className="w-9 h-9 bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-500 hover:text-slate-700 rounded-full flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-sm"
+                className="w-10 h-10 bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-500 hover:text-slate-700 rounded-full flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-sm"
                 title="Notificações"
               >
-                <Bell size={15} />
+                <Bell size={18} />
               </button>
 
               {/* Divisor Vertical */}
-              <div className="h-6 w-[1px] bg-slate-200" />
+              <div className="h-7 w-[1px] bg-slate-200" />
 
               {/* Info do Candidato */}
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500 shrink-0 border border-slate-100">
-                  <User size={15} />
+                <div className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500 shrink-0 border border-slate-100">
+                  <User size={18} />
                 </div>
                 <div className="flex flex-col text-left hidden sm:flex">
-                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider leading-none">Candidato</span>
-                  <span className="font-bold text-xs text-slate-700 max-w-[100px] truncate">{resumeData.fullName ? resumeData.fullName.split(' ')[0] : 'Cadastrado'}</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider leading-none">Candidato</span>
+                  <span className="font-bold text-sm text-slate-700 max-w-[120px] truncate">{resumeData.fullName ? resumeData.fullName.split(' ')[0] : 'Cadastrado'}</span>
                 </div>
               </div>
 
               {/* Divisor Vertical */}
-              <div className="h-6 w-[1px] bg-slate-200" />
+              <div className="h-7 w-[1px] bg-slate-200" />
 
               {/* Avatar com iniciais */}
-              <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-extrabold text-xs shadow-sm shrink-0" title={resumeData.fullName}>
+              <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-extrabold text-sm shadow-sm shrink-0" title={resumeData.fullName}>
                 {resumeData.fullName ? resumeData.fullName.substring(0, 2).toUpperCase() : 'CA'}
               </div>
             </div>
