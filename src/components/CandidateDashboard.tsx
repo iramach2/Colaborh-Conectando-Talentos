@@ -2332,12 +2332,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           
           {/* Símbolo minimalista no desktop recolhido */}
           <div className={`hidden ${isSidebarExpanded ? 'lg:hidden' : 'lg:flex'} justify-center items-center w-full`}>
-            <svg className="w-10 h-10 text-white" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M32 10C35 13 36.5 17 36.5 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"/>
-              <path d="M34.5 13.5C36.8 15.8 38 19 38 22" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
-              <circle cx="20" cy="21" r="13" fill="white" fillOpacity="0.25" stroke="white" strokeWidth="2"/>
-              <text x="20" y="26" fill="white" fontSize="14" fontWeight="900" textAnchor="middle" fontFamily="sans-serif">C</text>
-            </svg>
+            <img src="/logo-icon.png" alt="Colaborh" className="h-10 w-10 object-contain" />
           </div>
 
           <button 
