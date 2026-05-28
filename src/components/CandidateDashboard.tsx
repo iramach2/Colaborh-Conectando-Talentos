@@ -2518,10 +2518,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   whileTap={{ scale: 0.98 }}
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isParsing}
-                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-gradient-to-r from-highlight-500 to-highlight-600 hover:from-highlight-600 hover:to-highlight-700 text-white rounded-full shadow-md shadow-highlight-500/10 transition-all font-bold border border-transparent shrink-0"
+                  className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-highlight-500 to-highlight-600 hover:from-highlight-600 hover:to-highlight-700 text-white rounded-full shadow-md shadow-highlight-500/10 transition-all font-bold border border-transparent shrink-0"
                 >
-                  {isParsing ? <Loader2 className="animate-spin" size={12} /> : <Sparkles className="text-white" size={12} />}
-                  <span className="uppercase tracking-wider text-[8px]">Preencher com IA</span>
+                  {isParsing ? <Loader2 className="animate-spin" size={14} /> : <Sparkles className="text-white" size={14} />}
+                  <span className="uppercase tracking-wider text-[11px]">Preencher com IA</span>
                   <input 
                     type="file" 
                     ref={fileInputRef} 
@@ -2536,20 +2536,20 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSaveToSupabase}
                   disabled={isSaving}
-                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-bold rounded-full shadow-md shadow-primary-500/10 transition-all border border-transparent shrink-0 cursor-pointer"
+                  className="flex items-center space-x-2 px-4 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-bold rounded-full shadow-md shadow-primary-500/10 transition-all border border-transparent shrink-0 cursor-pointer"
                 >
-                  {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
-                  <span className="uppercase tracking-wider text-[8px]">{isSaving ? 'Salvando...' : 'Salvar'}</span>
+                  {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                  <span className="uppercase tracking-wider text-[11px]">{isSaving ? 'Salvando...' : 'Salvar'}</span>
                 </motion.button>
 
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowResumePreview(true)}
-                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold rounded-full shadow-sm transition-all border border-indigo-150 shrink-0 cursor-pointer"
+                  className="flex items-center space-x-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold rounded-full shadow-sm transition-all border border-indigo-150 shrink-0 cursor-pointer"
                 >
-                  <Eye size={12} />
-                  <span className="uppercase tracking-wider text-[8px]">Visualizar</span>
+                  <Eye size={14} />
+                  <span className="uppercase tracking-wider text-[11px]">Visualizar</span>
                 </motion.button>
 
                 <motion.button 
@@ -2557,10 +2557,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   whileTap={{ scale: 0.98 }}
                   onClick={handleDownloadResume}
                   disabled={isExporting}
-                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-white hover:bg-slate-50 text-primary-600 font-bold rounded-full shadow-sm transition-all border border-primary-100 shrink-0 disabled:opacity-50 cursor-pointer"
+                  className="flex items-center space-x-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-primary-600 font-bold rounded-full shadow-sm transition-all border border-primary-100 shrink-0 disabled:opacity-50 cursor-pointer"
                 >
-                  {isExporting ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
-                  <span className="uppercase tracking-wider text-[8px]">{isExporting ? 'Gerando...' : 'Baixar PDF'}</span>
+                  {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                  <span className="uppercase tracking-wider text-[11px]">{isExporting ? 'Gerando...' : 'Baixar PDF'}</span>
                 </motion.button>
               </div>
             </motion.div>
