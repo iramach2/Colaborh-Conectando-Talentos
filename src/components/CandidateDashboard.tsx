@@ -2508,7 +2508,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
           {/* Main Content */}
           <main className="flex-1 p-6 lg:p-10 relative z-10">
-            <div className="max-w-4xl mx-auto">
+            <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
             <div className="space-y-6">
               {/* Profile section with round photo & crop */}
