@@ -5,6 +5,23 @@ html {
   zoom: 90%;
 }
 
+:root {
+  --zoom-level: 0.85;
+}
+
+@media (max-w: 640px) {
+  :root {
+    --zoom-level: 0.45;
+  }
+}
+
+@media (min-w: 641px) and (max-w: 1024px) {
+  :root {
+    --zoom-level: 0.65;
+  }
+}
+
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Inter", sans-serif;

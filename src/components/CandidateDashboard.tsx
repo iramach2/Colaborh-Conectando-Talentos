@@ -5437,7 +5437,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         }}
         className="font-sans"
       >
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif', textRendering: 'geometricPrecision', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}>
           {/* Header Zone */}
           <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
             {/* Circular Photo */}
@@ -5608,8 +5608,15 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               
               <div className="flex-1 overflow-y-auto p-8 bg-slate-100 flex justify-center">
                 {/* The identical structure used for PDF capture */}
-                <div className="bg-white shadow-2xl w-[210mm] min-h-[297mm] origin-top transform scale-[0.8] sm:scale-[0.9] mb-12">
-                  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif' }}>
+                <div 
+                  className="bg-white shadow-2xl w-[210mm] min-h-[297mm] mb-12"
+                  style={{ 
+                    // @ts-ignore
+                    zoom: 'var(--zoom-level, 0.85)',
+                    transformOrigin: 'top center'
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif', textRendering: 'geometricPrecision', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}>
                     {/* Header Zone */}
                     <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
                       {/* Circular Photo */}
