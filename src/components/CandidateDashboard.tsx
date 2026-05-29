@@ -1059,6 +1059,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -1420,6 +1423,36 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
   const [isExporting, setIsExporting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword) {
+      showCustomAlert('Campo Obrigatório', 'Por favor, digite a nova senha.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      showCustomAlert('Senha Curta', 'A nova senha deve conter pelo menos 6 caracteres.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showCustomAlert('Senhas Diferentes', 'A nova senha e a confirmação não coincidem.');
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      
+      showCustomSuccess('Senha atualizada com sucesso!');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: any) {
+      showCustomAlert('Erro ao Atualizar', err.message || 'Ocorreu um erro ao atualizar sua senha.');
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
 
   const handleSaveToSupabase = async () => {
     if (!import.meta.env.VITE_SUPABASE_URL) {
@@ -3766,181 +3799,234 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="max-w-4xl mx-auto space-y-6"
+              className="w-full space-y-6"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Profile Summary Card */}
-                <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80 flex flex-col items-center">
-                  <div className="relative group shrink-0 mb-6">
-                    <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative ring-2 ring-primary-50">
-                      {resumeData.profilePic ? (
-                        <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
-                      ) : (
-                        <User size={32} className="text-slate-200" />
-                      )}
-                      <div className="absolute inset-0 bg-primary-600/80 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300 cursor-pointer">
-                        <Camera size={16} className="text-white mb-1" />
-                        <span className="text-[8px] font-bold text-white uppercase tracking-widest text-center">Mudar</span>
-                        <input 
-                          type="file" 
-                          className="absolute inset-0 opacity-0 cursor-pointer" 
-                          accept="image/*" 
-                          onChange={handleProfilePicSelect}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-black text-slate-900 tracking-tight text-center">{resumeData.fullName || 'Seu Nome'}</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Candidato</p>
-                  
-                  <div className="w-full pt-6 border-t border-slate-50 space-y-4">
-                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-                      <span className="text-slate-400">Currículo</span>
-                      <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Pronto</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-                      <span className="text-slate-400">Idade</span>
-                      <span className="text-slate-700">{calculateAge(resumeData.birthDate) || '--'} anos</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Form Card */}
-                <div className="lg:col-span-2 bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80">
-                  <div className="flex items-center gap-3 mb-8">
-                     <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
-                       <User size={20} />
-                     </div>
-                     <div>
-                       <h3 className="text-lg font-black text-slate-900 tracking-tight">Dados do Perfil</h3>
-                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Mantenha suas informações básicas em dia</p>
-                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div className="col-span-full">
-                       <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-2">Nome Completo</label>
-                       <input 
-                         type="text" 
-                         value={resumeData.fullName}
-                         onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
-                         placeholder="Seu nome" 
-                         className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
-                       />
-                     </div>
-                     <div className="col-span-full">
-                       <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-2">E-mail</label>
-                       <input 
-                         type="email" 
-                         value={resumeData.email}
-                         onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
-                         placeholder="seu@email.com" 
-                         className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
-                       />
-                     </div>
-                     <div>
-                       <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-2">WhatsApp / Telefone</label>
-                       <div className="relative">
-                         <Phone size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-400" />
-                         <input 
-                           type="tel" 
-                           value={resumeData.phone}
-                           onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
-                           placeholder="(00) 00000-0000" 
-                           className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
-                         />
-                       </div>
-                     </div>
-                     <div>
-                       <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-2">Data de Nascimento</label>
-                       <input 
-                         type="date"
-                         value={resumeData.birthDate}
-                         onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
-                         className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm"
-                       />
-                     </div>
-                  </div>
-                  
-                  <div className="mt-10 flex gap-4">
-                    <button 
-                      onClick={handleSaveToSupabase}
-                      disabled={isSaving}
-                      className="flex-1 py-3.5 px-6 bg-[#8959f5] hover:bg-[#784de3] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-primary-500/10 hover:-translate-y-0.5 transition-all text-[9px] disabled:opacity-50 border-0 cursor-pointer"
-                    >
-                      {isSaving ? 'Salvando...' : 'Salvar Alterações'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Location and Other Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
-                 <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 bg-indigo-50 rounded-[10px] flex items-center justify-center text-indigo-600">
-                        <MapPin size={16} />
-                      </div>
-                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Localização</h4>
-                    </div>
-                    <div className="space-y-4">
-                       <div className="grid grid-cols-2 gap-4">
-                         <div>
-                           <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Estado</label>
-                           <select 
-                             value={resumeData.state}
-                             onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
-                             className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm"
-                           >
-                             <option value="">UF</option>
-                             {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
-                           </select>
-                         </div>
-                         <div>
-                           <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Cidade</label>
-                           <select 
-                             value={resumeData.city}
-                             onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
-                             disabled={isLoadingCities || !cities.length}
-                             className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm disabled:opacity-50"
-                           >
-                             <option value="">Cidade</option>
-                             {cities.map(city => <option key={city} value={city}>{city}</option>)}
-                           </select>
-                         </div>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 bg-amber-50 rounded-[10px] flex items-center justify-center text-amber-600">
-                        <Accessibility size={16} />
-                      </div>
-                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Diversidade</h4>
-                    </div>
-                    <div className="space-y-5">
-                      <label className="flex items-center justify-between cursor-pointer">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Sou PCD</span>
-                        <div className={`w-8 h-4 rounded-full relative transition-colors ${resumeData.isPcd ? 'bg-primary-600' : 'bg-slate-200'}`}>
-                          <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${resumeData.isPcd ? 'right-0.5' : 'left-0.5'}`} />
-                          <input type="checkbox" className="hidden" checked={resumeData.isPcd} onChange={(e) => setResumeData({...resumeData, isPcd: e.target.checked})} />
-                        </div>
-                      </label>
-                      {resumeData.isPcd && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">CID</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12">
+                {/* Coluna Esquerda: Resumo do Perfil (lg:col-span-3) */}
+                <div className="lg:col-span-3 space-y-6">
+                  <div className="bg-white p-6 rounded-[10px] shadow-sleek border border-slate-100/80 flex flex-col items-center">
+                    <div className="relative group shrink-0 mb-6">
+                      <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative ring-2 ring-primary-50">
+                        {resumeData.profilePic ? (
+                          <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <User size={32} className="text-slate-200" />
+                        )}
+                        <div className="absolute inset-0 bg-[#8959f5]/80 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300 cursor-pointer">
+                          <Camera size={16} className="text-white mb-1" />
+                          <span className="text-[8px] font-bold text-white uppercase tracking-widest text-center">Mudar</span>
                           <input 
-                            type="text" 
-                            value={resumeData.cid}
-                            onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
-                            placeholder="Ex: G40.0" 
-                            className="bg-slate-50 border border-transparent rounded-[10px] px-3 py-1.5 text-xs font-semibold w-24 text-right outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all"
+                            type="file" 
+                            className="absolute inset-0 opacity-0 cursor-pointer" 
+                            accept="image/*" 
+                            onChange={handleProfilePicSelect}
                           />
                         </div>
-                      )}
+                      </div>
                     </div>
-                 </div>
+                    <h3 className="text-md font-black text-slate-900 tracking-tight text-center uppercase line-clamp-1">{resumeData.fullName || 'Seu Nome'}</h3>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Candidato</p>
+                    
+                    <div className="w-full pt-4 border-t border-slate-100 space-y-3.5">
+                      <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
+                        <span className="text-slate-400">Currículo</span>
+                        <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-[10px] font-black border border-emerald-100/30">Pronto</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
+                        <span className="text-slate-400">Idade</span>
+                        <span className="text-slate-700 font-bold">{calculateAge(resumeData.birthDate) || '--'} anos</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Coluna Direita: Formulários e Configurações (lg:col-span-9) */}
+                <div className="lg:col-span-9 space-y-8">
+                  {/* Card: Dados do Perfil */}
+                  <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80 text-left">
+                    <div className="flex items-center gap-3 mb-6">
+                       <div className="w-10 h-10 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600">
+                         <User size={20} />
+                       </div>
+                       <div>
+                         <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Dados do Perfil</h3>
+                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Mantenha suas informações básicas em dia</p>
+                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                       <div className="col-span-full">
+                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">Nome Completo</label>
+                         <input 
+                           type="text" 
+                           value={resumeData.fullName}
+                           onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
+                           placeholder="Seu nome" 
+                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                         />
+                       </div>
+                       <div className="col-span-full">
+                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">E-mail</label>
+                         <input 
+                           type="email" 
+                           value={resumeData.email}
+                           onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
+                           placeholder="seu@email.com" 
+                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                         />
+                       </div>
+                       <div>
+                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">WhatsApp / Telefone</label>
+                         <div className="relative">
+                           <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" />
+                           <input 
+                             type="tel" 
+                             value={resumeData.phone}
+                             onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
+                             placeholder="(00) 00000-0000" 
+                             className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                           />
+                         </div>
+                       </div>
+                       <div>
+                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">Data de Nascimento</label>
+                         <input 
+                           type="date"
+                           value={resumeData.birthDate}
+                           onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
+                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm"
+                         />
+                       </div>
+                    </div>
+                    
+                    <div className="mt-8 flex justify-end">
+                      <button 
+                        onClick={handleSaveToSupabase}
+                        disabled={isSaving}
+                        className="py-3 px-8 bg-[#8959f5] hover:bg-[#784de3] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-primary-500/10 hover:-translate-y-0.5 transition-all text-[9px] disabled:opacity-50 border-0 cursor-pointer"
+                      >
+                        {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subgrid Interno: Localização e Diversidade */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Card: Localização */}
+                    <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80 text-left">
+                       <div className="flex items-center gap-3 mb-6">
+                         <div className="w-8 h-8 bg-indigo-50 rounded-[10px] flex items-center justify-center text-indigo-600">
+                           <MapPin size={16} />
+                         </div>
+                         <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Localização</h4>
+                       </div>
+                       <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block pl-1">Estado</label>
+                              <select 
+                                value={resumeData.state}
+                                onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm"
+                              >
+                                <option value="">UF</option>
+                                {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block pl-1">Cidade</label>
+                              <select 
+                                value={resumeData.city}
+                                onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
+                                disabled={isLoadingCities || !cities.length}
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm disabled:opacity-50"
+                              >
+                                <option value="">Cidade</option>
+                                {cities.map(city => <option key={city} value={city}>{city}</option>)}
+                              </select>
+                            </div>
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* Card: Diversidade */}
+                    <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80 text-left">
+                       <div className="flex items-center gap-3 mb-6">
+                         <div className="w-8 h-8 bg-amber-50 rounded-[10px] flex items-center justify-center text-amber-600">
+                           <Accessibility size={16} />
+                         </div>
+                         <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Diversidade</h4>
+                       </div>
+                       <div className="space-y-5">
+                         <label className="flex items-center justify-between cursor-pointer select-none">
+                           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Sou PCD</span>
+                           <div className={`w-8 h-4 rounded-full relative transition-colors ${resumeData.isPcd ? 'bg-[#8959f5]' : 'bg-slate-200'}`}>
+                             <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${resumeData.isPcd ? 'right-0.5' : 'left-0.5'}`} />
+                             <input type="checkbox" className="hidden" checked={resumeData.isPcd} onChange={(e) => setResumeData({...resumeData, isPcd: e.target.checked})} />
+                           </div>
+                         </label>
+                         {resumeData.isPcd && (
+                           <div className="flex items-center justify-between">
+                             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">CID</span>
+                             <input 
+                               type="text" 
+                               value={resumeData.cid}
+                               onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
+                               placeholder="Ex: G40.0" 
+                               className="bg-slate-50 border border-transparent rounded-[10px] px-3 py-1.5 text-xs font-semibold w-24 text-right outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all"
+                             />
+                           </div>
+                         )}
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* Card: Alterar Senha */}
+                  <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80 text-left">
+                    <div className="flex items-center gap-3 mb-6">
+                       <div className="w-10 h-10 bg-rose-50 rounded-[10px] flex items-center justify-center text-rose-600">
+                         <Lock size={20} />
+                       </div>
+                       <div>
+                         <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Alterar Senha</h3>
+                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Mantenha sua conta segura atualizando sua senha</p>
+                       </div>
+                    </div>
+
+                    <form onSubmit={handleUpdatePassword} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                       <div>
+                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">Nova Senha</label>
+                         <input 
+                           type="password" 
+                           value={newPassword}
+                           onChange={(e) => setNewPassword(e.target.value)}
+                           placeholder="Mínimo 6 caracteres" 
+                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                         />
+                       </div>
+                       <div>
+                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">Confirmar Nova Senha</label>
+                         <input 
+                           type="password" 
+                           value={confirmPassword}
+                           onChange={(e) => setConfirmPassword(e.target.value)}
+                           placeholder="Confirme a senha" 
+                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                         />
+                       </div>
+                       
+                       <div className="col-span-full mt-4 flex justify-end">
+                         <button 
+                           type="submit"
+                           disabled={isUpdatingPassword}
+                           className="py-3 px-8 bg-[#8959f5] hover:bg-[#784de3] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-primary-500/10 hover:-translate-y-0.5 transition-all text-[9px] disabled:opacity-50 border-0 cursor-pointer"
+                         >
+                           {isUpdatingPassword ? 'Atualizando...' : 'Atualizar Senha'}
+                         </button>
+                       </div>
+                    </form>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ) : activeTab === 'Vagas' ? (
