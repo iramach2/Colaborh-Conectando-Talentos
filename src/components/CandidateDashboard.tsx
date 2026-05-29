@@ -5437,7 +5437,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         }}
         className="font-sans"
       >
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif' }}>
           {/* Header Zone */}
           <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
             {/* Circular Photo */}
@@ -5595,12 +5595,12 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   <button 
                     onClick={handleDownloadResume}
                     disabled={isExporting}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-xl font-bold text-xs hover:bg-primary-700 transition-colors disabled:opacity-50 whitespace-nowrap"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-full font-bold text-xs hover:bg-primary-700 transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
                     {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                     {isExporting ? 'Processando...' : 'Baixar agora'}
                   </button>
-                  <button onClick={() => setShowResumePreview(false)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-xl transition-all">
+                  <button onClick={() => setShowResumePreview(false)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full transition-all">
                     <X size={20} />
                   </button>
                 </div>
@@ -5609,7 +5609,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               <div className="flex-1 overflow-y-auto p-8 bg-slate-100 flex justify-center">
                 {/* The identical structure used for PDF capture */}
                 <div className="bg-white shadow-2xl w-[210mm] min-h-[297mm] origin-top transform scale-[0.8] sm:scale-[0.9] mb-12">
-                  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif' }}>
                     {/* Header Zone */}
                     <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
                       {/* Circular Photo */}
