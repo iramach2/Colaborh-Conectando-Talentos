@@ -3294,7 +3294,8 @@ Equipe de Recrutamento & Seleção - Colaborh
 
           {/* Bottom row (Tabs glued to the header) */}
           {activeTab === 'Minhas Vagas' && selectedJob === null && (
-            <div className="flex -mx-6 bg-transparent px-6 relative">
+            <div className="flex -mx-6 bg-transparent px-6 relative justify-between items-center w-full">
+              <div className="flex relative">
               {(() => {
                 const tabs = [
                   { id: 'active', label: 'ATIVAS', count: activeJobsCount, icon: Briefcase },
@@ -3329,6 +3330,13 @@ Equipe de Recrutamento & Seleção - Colaborh
 
                 );
               })()}
+              </div>
+              <button 
+                onClick={() => setActiveTab('Cadastrar Vagas')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-md shadow-primary-100 hover:shadow-lg transition-all active:scale-95 border-0 cursor-pointer shrink-0 mr-6 mb-2 sm:mb-0"
+              >
+                <Plus size={14} /> Nova Vaga
+              </button>
             </div>
           )}
 
