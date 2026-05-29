@@ -3770,7 +3770,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             >
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Profile Summary Card */}
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-sleek border border-white flex flex-col items-center">
+                <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80 flex flex-col items-center">
                   <div className="relative group shrink-0 mb-6">
                     <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative ring-2 ring-primary-50">
                       {resumeData.profilePic ? (
@@ -3806,7 +3806,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
 
                 {/* Form Card */}
-                <div className="lg:col-span-2 bg-white p-10 rounded-[2.5rem] shadow-sleek border border-white">
+                <div className="lg:col-span-2 bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80">
                   <div className="flex items-center gap-3 mb-8">
                      <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
                        <User size={20} />
@@ -3825,7 +3825,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                          value={resumeData.fullName}
                          onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
                          placeholder="Seu nome" 
-                         className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary-100 transition-all font-bold text-slate-700 text-sm shadow-sm" 
+                         className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
                        />
                      </div>
                      <div className="col-span-full">
@@ -3835,7 +3835,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                          value={resumeData.email}
                          onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
                          placeholder="seu@email.com" 
-                         className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary-100 transition-all font-bold text-slate-700 text-sm shadow-sm" 
+                         className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
                        />
                      </div>
                      <div>
@@ -3847,7 +3847,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                            value={resumeData.phone}
                            onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
                            placeholder="(00) 00000-0000" 
-                           className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary-100 transition-all font-bold text-slate-700 text-sm shadow-sm" 
+                           className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
                          />
                        </div>
                      </div>
@@ -3857,7 +3857,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                          type="date"
                          value={resumeData.birthDate}
                          onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
-                         className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary-100 transition-all font-bold text-slate-700 text-sm shadow-sm"
+                         className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm"
                        />
                      </div>
                   </div>
@@ -3866,7 +3866,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     <button 
                       onClick={handleSaveToSupabase}
                       disabled={isSaving}
-                      className="flex-1 py-4 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all text-[9px] disabled:opacity-50"
+                      className="flex-1 py-3.5 px-6 bg-[#8959f5] hover:bg-[#784de3] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-primary-500/10 hover:-translate-y-0.5 transition-all text-[9px] disabled:opacity-50 border-0 cursor-pointer"
                     >
                       {isSaving ? 'Salvando...' : 'Salvar Alterações'}
                     </button>
@@ -3876,9 +3876,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
               {/* Location and Other Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
-                 <div className="bg-white p-8 rounded-[2.5rem] shadow-sleek border border-white">
+                 <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                      <div className="w-8 h-8 bg-indigo-50 rounded-[10px] flex items-center justify-center text-indigo-600">
                         <MapPin size={16} />
                       </div>
                       <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Localização</h4>
@@ -3890,7 +3890,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                            <select 
                              value={resumeData.state}
                              onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
-                             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold outline-none focus:bg-white"
+                             className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm"
                            >
                              <option value="">UF</option>
                              {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
@@ -3902,7 +3902,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                              value={resumeData.city}
                              onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
                              disabled={isLoadingCities || !cities.length}
-                             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold outline-none focus:bg-white disabled:opacity-50"
+                             className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm disabled:opacity-50"
                            >
                              <option value="">Cidade</option>
                              {cities.map(city => <option key={city} value={city}>{city}</option>)}
@@ -3912,9 +3912,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     </div>
                  </div>
 
-                 <div className="bg-white p-8 rounded-[2.5rem] shadow-sleek border border-white">
+                 <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                      <div className="w-8 h-8 bg-amber-50 rounded-[10px] flex items-center justify-center text-amber-600">
                         <Accessibility size={16} />
                       </div>
                       <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Diversidade</h4>
@@ -3935,7 +3935,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             value={resumeData.cid}
                             onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
                             placeholder="Ex: G40.0" 
-                            className="bg-slate-50 border border-slate-100 rounded-lg px-3 py-1 text-[10px] font-bold w-24 text-right"
+                            className="bg-slate-50 border border-transparent rounded-[10px] px-3 py-1.5 text-xs font-semibold w-24 text-right outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all"
                           />
                         </div>
                       )}
