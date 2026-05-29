@@ -6168,7 +6168,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       setCustomDialog(prev => ({ ...prev, isOpen: false }));
                       if (customDialog.onCancel) customDialog.onCancel();
                     }}
-                    className="px-4.5 py-1.8 hover:bg-slate-100 text-slate-500 hover:text-slate-800 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-slate-200/50 hover:border-slate-300"
+                    className="px-5 py-2.5 hover:bg-slate-100 text-slate-500 hover:text-slate-800 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-slate-200/50 hover:border-slate-300"
                   >
                     Cancelar
                   </button>
@@ -6177,7 +6177,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     onClick={() => {
                       if (customDialog.onConfirm) customDialog.onConfirm();
                     }}
-                    className="px-4.5 py-1.8 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
+                    className="px-5 py-2.5 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
                   >
                     Confirmar
                   </button>
@@ -6186,7 +6186,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 <button
                   type="button"
                   onClick={() => setCustomDialog(prev => ({ ...prev, isOpen: false }))}
-                  className="px-6 py-1.8 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
+                  className="px-7 py-2.5 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
                 >
                   Entendido
                 </button>
