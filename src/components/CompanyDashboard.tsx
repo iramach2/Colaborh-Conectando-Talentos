@@ -3076,7 +3076,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       }`}>
         <div className={`mb-10 flex ${isSidebarExpanded ? 'lg:flex-row justify-between lg:justify-start lg:gap-4' : 'lg:flex-col justify-between lg:justify-center lg:gap-4'} items-center w-full gap-4`}>
           {/* Logo completa no mobile e no desktop expandido */}
-          <img src="/logo.png" alt="Colaborh" className={`h-8 w-auto ${isSidebarExpanded ? '' : 'lg:hidden'}`} />
+          <img src="/logo.png" alt="Colaborh" className={`h-10 w-auto ${isSidebarExpanded ? '' : 'lg:hidden'}`} />
           
           {/* Símbolo minimalista no desktop recolhido */}
           <div className={`hidden ${isSidebarExpanded ? 'lg:hidden' : 'lg:flex'} justify-center items-center w-full`}>
