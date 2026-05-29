@@ -3043,9 +3043,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         input.value = '';
                       }
                     }}
-                    className="px-5 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors cursor-pointer"
+                    className="w-11 h-11 flex items-center justify-center bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors cursor-pointer shrink-0"
                   >
-                    <Plus size={20} />
+                    <Plus size={18} />
                   </button>
                 </div>
               </section>
