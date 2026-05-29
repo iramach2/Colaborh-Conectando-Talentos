@@ -1389,6 +1389,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const handleProfilePicSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Limite de 2MB (2097152 bytes)
+      const maxSize = 2 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert('O tamanho máximo da imagem permitido é 2MB. Por favor, selecione um arquivo menor.');
+        e.target.value = '';
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => {
         setImageToCrop(reader.result as string);
@@ -6887,7 +6894,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         {imageToCrop && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-slate-900/90 backdrop-blur-md" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-white w-full max-w-3xl h-[80vh] rounded-[3rem] flex flex-col overflow-hidden">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-white w-full max-w-3xl h-[80vh] rounded-[10px] flex flex-col overflow-hidden">
               <div className="p-8 flex justify-between items-center border-b border-slate-100">
                 <h3 className="text-2xl font-extrabold text-slate-900">Ajuste sua foto</h3>
                 <button onClick={() => setImageToCrop(null)} className="p-2 hover:bg-slate-100 rounded-full"><X size={24}/></button>
@@ -6918,8 +6925,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   />
                 </div>
                 <div className="flex justify-end gap-4">
-                  <button onClick={() => setImageToCrop(null)} className="px-8 py-4 font-bold text-slate-500 uppercase tracking-widest text-xs">Cancelar</button>
-                  <button onClick={handleApplyCrop} className="px-12 py-4 bg-primary-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-primary-500/20">Confirmar e Salvar</button>
+                  <button onClick={() => setImageToCrop(null)} className="px-8 py-3.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-full font-bold uppercase tracking-widest text-[10px] transition-colors cursor-pointer border-0 bg-transparent">Cancelar</button>
+                  <button onClick={handleApplyCrop} className="px-12 py-3.5 bg-primary-600 hover:bg-primary-500 text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg shadow-primary-500/20 transition-all cursor-pointer border-0">Confirmar e Salvar</button>
                 </div>
               </div>
             </motion.div>
