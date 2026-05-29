@@ -81,3 +81,43 @@ html {
   scrollbar-width: thin;
   scrollbar-color: #e2e8f0 transparent;
 }
+
+/* Custom Loader - C Ultra Grosso */
+.loader-container {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center-dot {
+  width: 55px;
+  height: 55px;
+  background-color: #b1a2f6; /* Roxo original */
+  border-radius: 50%;
+  position: absolute;
+  z-index: 2;
+}
+
+.rotating-c {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 65px solid #ffffff;
+  border-bottom-color: #b1a2f6;
+  border-right-color: transparent;
+  animation: custom-spin-c 5s linear infinite;
+  z-index: 1;
+}
+
+@keyframes custom-spin-c {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

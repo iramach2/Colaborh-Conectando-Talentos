@@ -2474,7 +2474,7 @@ Equipe de Recrutamento & Seleção - Colaborh
     }
 
     loadTalents();
-  }, [mockTalents]);
+  }, []);
 
   const calculateAge = (birthDate: string) => {
     if (!birthDate) return null;
