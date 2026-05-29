@@ -3390,9 +3390,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   }
 
                   return (
-                    <div key={i} className="bg-white p-6 rounded-[2rem] shadow-sleek border border-white flex flex-wrap items-center justify-between gap-6">
+                    <div key={i} className="bg-white p-6 rounded-[10px] shadow-sleek border border-white flex flex-wrap items-center justify-between gap-6">
                       <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-[1.5rem] flex items-center justify-center shadow-sm">
+                        <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-[8px] flex items-center justify-center shadow-sm">
                           <CheckCircle2 size={28} />
                         </div>
                         <div className="text-left">
@@ -3413,7 +3413,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         {job && (
                           <button 
                             onClick={() => setSelectedJobForDetails(job)}
-                            className="px-6 py-3 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                            className="px-6 py-3 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-[10px] text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-primary-500/10 cursor-pointer"
                           >
                             Ver Detalhes
                           </button>
@@ -5988,43 +5988,51 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         )}
       </AnimatePresence>
 
-      {/* Vacancy Details Modal */}
+      {/* Vacancy Details Drawer */}
       <AnimatePresence>
         {selectedJobForDetails && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <>
+            {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedJobForDetails(null)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99]" 
             />
+            {/* Drawer Panel */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-[700px] max-h-[85vh] bg-white rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-y-auto border border-white"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-full max-w-[600px] bg-white shadow-2xl z-[100] flex flex-col rounded-l-[10px] border-l border-slate-100 overflow-hidden"
             >
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm inline-block mb-3">
-                      {selectedJobForDetails.modality}
-                    </span>
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
-                      {selectedJobForDetails.title}
-                    </h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                      Empresa Parceira • {selectedJobForDetails.city && selectedJobForDetails.state ? `${selectedJobForDetails.city}, ${selectedJobForDetails.state}` : selectedJobForDetails.modality || 'Remoto'}
-                    </p>
-                  </div>
-                  <button onClick={() => setSelectedJobForDetails(null)} className="p-2 text-slate-400 hover:text-slate-900 transition-all">
-                    <X size={20} />
-                  </button>
+              {/* Header */}
+              <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-start">
+                <div>
+                  <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm inline-block mb-3">
+                    {selectedJobForDetails.modality}
+                  </span>
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase leading-snug">
+                    {selectedJobForDetails.title}
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                    Empresa Parceira • {selectedJobForDetails.city && selectedJobForDetails.state ? `${selectedJobForDetails.city}, ${selectedJobForDetails.state}` : selectedJobForDetails.modality || 'Remoto'}
+                  </p>
                 </div>
+                <button 
+                  onClick={() => setSelectedJobForDetails(null)} 
+                  className="p-2 text-slate-400 hover:text-slate-900 transition-all rounded-full hover:bg-slate-100 cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-6">
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-white shadow-sm flex items-center gap-3">
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-8 space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600">
                       <DollarSign size={20} />
                     </div>
@@ -6034,7 +6042,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-white shadow-sm flex items-center gap-3">
+                  <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
                       <Clock size={20} />
                     </div>
@@ -6044,7 +6052,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-white shadow-sm flex items-center gap-3">
+                  <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
                       <Building size={20} />
                     </div>
@@ -6055,70 +6063,69 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   </div>
                 </div>
 
-                <div className="space-y-6 max-h-[40vh] overflow-y-auto pr-2">
+                <div>
+                  <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Descrição da Vaga</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50/50 p-4 rounded-[10px] border border-slate-100 font-medium">
+                    {cleanDescription(selectedJobForDetails.description)}
+                  </p>
+                </div>
+
+                {getRequirementsList(selectedJobForDetails).length > 0 && (
                   <div>
-                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Descrição da Vaga</h4>
-                    <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50/50 p-4 rounded-2xl border border-slate-100 font-medium">
-                      {cleanDescription(selectedJobForDetails.description)}
-                    </p>
+                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Requisitos</h4>
+                    <ul className="grid grid-cols-1 gap-2 bg-slate-50/50 p-4 rounded-[10px] border border-slate-100">
+                      {getRequirementsList(selectedJobForDetails).map((req: string, i: number) => (
+                        <li key={i} className="text-xs text-slate-600 flex items-start gap-2 font-medium">
+                          <span className="text-primary-500 font-bold shrink-0">•</span>
+                          <span>{req}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
+                )}
 
-                  {getRequirementsList(selectedJobForDetails).length > 0 && (
-                    <div>
-                      <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Requisitos</h4>
-                      <ul className="grid grid-cols-1 gap-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-                        {getRequirementsList(selectedJobForDetails).map((req: string, i: number) => (
-                          <li key={i} className="text-xs text-slate-600 flex items-start gap-2 font-medium">
-                            <span className="text-primary-500 font-bold shrink-0">•</span>
-                            <span>{req}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                {getBenefitsList(selectedJobForDetails).length > 0 && (
+                  <div>
+                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Benefícios Oferecidos</h4>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50/50 p-4 rounded-[10px] border border-slate-100">
+                      {getBenefitsList(selectedJobForDetails).map((ben: string, i: number) => (
+                        <li key={i} className="text-xs text-slate-600 flex items-center gap-2 font-medium">
+                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span>
+                          <span>{ben}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
 
-                  {getBenefitsList(selectedJobForDetails).length > 0 && (
-                    <div>
-                      <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Benefícios Oferecidos</h4>
-                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-                        {getBenefitsList(selectedJobForDetails).map((ben: string, i: number) => (
-                          <li key={i} className="text-xs text-slate-600 flex items-center gap-2 font-medium">
-                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span>
-                            <span>{ben}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-slate-100">
-                  <button 
-                    type="button" 
-                    onClick={() => setSelectedJobForDetails(null)} 
-                    className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600"
-                  >
-                    Fechar
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      handleApply(selectedJobForDetails);
-                      setSelectedJobForDetails(null);
-                    }}
-                    disabled={appliedJobIds.includes(selectedJobForDetails.id) || isApplying === selectedJobForDetails.id}
-                    className={`px-10 py-3.5 rounded-full font-black uppercase tracking-widest text-[10px] shadow-lg transition-all ${
-                      appliedJobIds.includes(selectedJobForDetails.id)
-                        ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100'
-                        : 'bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-0.5 active:scale-95'
-                    }`}
-                  >
-                    {appliedJobIds.includes(selectedJobForDetails.id) ? 'Candidatado' : 'Confirmar Candidatura'}
-                  </button>
-                </div>
+              {/* Footer */}
+              <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setSelectedJobForDetails(null)} 
+                  className="px-6 py-3 font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest text-[9px] cursor-pointer"
+                >
+                  Fechar
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    handleApply(selectedJobForDetails);
+                    setSelectedJobForDetails(null);
+                  }}
+                  disabled={appliedJobIds.includes(selectedJobForDetails.id) || isApplying === selectedJobForDetails.id}
+                  className={`px-10 py-3.5 rounded-[10px] font-black uppercase tracking-widest text-[10px] shadow-lg transition-all cursor-pointer ${
+                    appliedJobIds.includes(selectedJobForDetails.id)
+                      ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100'
+                      : 'bg-[#8959f5] hover:bg-[#7747e0] text-white shadow-primary-500/10'
+                  }`}
+                >
+                  {appliedJobIds.includes(selectedJobForDetails.id) ? 'Candidatado' : 'Confirmar Candidatura'}
+                </button>
               </div>
             </motion.div>
-          </div>
+          </>
         )}
       </AnimatePresence>
 
