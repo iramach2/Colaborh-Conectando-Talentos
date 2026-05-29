@@ -5563,10 +5563,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         </div>
       </div>
 
-      {/* Resume Preview Modal */}
+      {/* Resume Preview Drawer */}
       <AnimatePresence>
         {showResumePreview && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex justify-end overflow-hidden">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -5575,10 +5575,11 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col h-[90vh]"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.35, ease: 'easeOut' }}
+              className="relative w-full max-w-4xl h-full bg-white shadow-2xl overflow-hidden flex flex-col rounded-l-[10px] rounded-r-none z-10"
             >
               <div className="p-6 flex justify-between items-center border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-3">
