@@ -3268,78 +3268,140 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Buscando melhores oportunidades...</p>
                 </div>
               ) : vacancies.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {vacancies.map((v) => {
                     const isApplied = appliedJobIds.includes(v.id);
+                    
+                    // Limpar a descrição removendo etapas e cabeçalhos de metadados
+                    const cleanDesc = (v.description || '')
+                      .split('===ETAPAS_JSON===')[0]
+                      .replace(/📍 Localização:[^\n]*\n?/gi, '')
+                      .replace(/📝 Contratação:[^\n]*\n?/gi, '')
+                      .replace(/⏰ Escala:[^\n]*\n?/gi, '')
+                      .replace(/🔞 Idade Mínima:[^\n]*\n?/gi, '')
+                      .trim();
+                    
+                    // Obter a inicial da empresa parceira ou título
+                    const companyInitial = (v.company_name || v.title || 'C')[0].toUpperCase();
+
                     return (
-                      <div key={v.id} className="bg-white p-7 rounded-[2.5rem] shadow-sleek border border-white hover:border-primary-100 transition-all group flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-start mb-6">
-                            <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600 shadow-sm border border-black/5">
-                              <Briefcase size={28} />
+                      <div 
+                        key={v.id} 
+                        className="bg-white p-6 rounded-[2.2rem] shadow-sleek border border-slate-100 hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[410px]"
+                      >
+                        {/* Sutil linha de gradiente superior no estilo do site */}
+                        <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
+                        
+                        <div className="flex flex-col h-full justify-between">
+                          <div>
+                            {/* Topo do Card: Avatar da Empresa e Badges */}
+                            <div className="flex justify-between items-start mb-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-2xl flex items-center justify-center text-primary-600 font-extrabold text-base border border-primary-100/20 shadow-inner">
+                                {companyInitial}
+                              </div>
+                              <div className="flex flex-col items-end gap-1.5">
+                                <span className="px-2.5 py-0.5 bg-primary-50 text-primary-600 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
+                                  {v.modality || 'Remoto'}
+                                </span>
+                                {v.contract_type && (
+                                  <span className="px-2.5 py-0.5 bg-highlight-50 text-highlight-700 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
+                                    {v.contract_type}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <span className="px-3 py-1 bg-slate-50 text-slate-400 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm">
-                              {v.modality}
-                            </span>
-                          </div>
-                          
-                          <h3 className="text-lg font-black text-slate-900 tracking-tight mb-1 group-hover:text-primary-600 transition-colors uppercase truncate">{v.title}</h3>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
-                            Empresa Parceira • {
-                              (() => {
-                                if (v.city && v.state) return `${v.city}, ${v.state}`;
-                                if (v.city) return v.city;
-                                if (v.state) return v.state;
-                                if (v.description) {
-                                  const cleanDesc = v.description.split('===ETAPAS_JSON===')[0];
-                                  const locMatch = cleanDesc.match(/Localização:\s*([^\n]+)/i);
-                                  if (locMatch && locMatch[1]) {
-                                    return locMatch[1].trim();
-                                  }
+                            
+                            {/* Título da Vaga */}
+                            <h3 className="text-sm font-black text-slate-800 tracking-tight group-hover:text-primary-600 transition-colors uppercase line-clamp-1 mb-1" title={v.title}>
+                              {v.title}
+                            </h3>
+                            
+                            {/* Nome da Empresa e Localização */}
+                            <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                              <span className="text-slate-500">{v.company_name || 'Empresa Parceira'}</span>
+                              <span>•</span>
+                              <span className="flex items-center gap-0.5">
+                                <MapPin size={10} className="text-slate-450" />
+                                {
+                                  (() => {
+                                    if (v.city && v.state) return `${v.city}, ${v.state}`;
+                                    if (v.city) return v.city;
+                                    if (v.state) return v.state;
+                                    if (v.description) {
+                                      const locMatch = (v.description || '').match(/Localização:\s*([^\n]+)/i);
+                                      if (locMatch && locMatch[1]) {
+                                        return locMatch[1].trim();
+                                      }
+                                    }
+                                    return v.modality || 'Remoto';
+                                  })()
                                 }
-                                return v.modality || 'Remoto';
-                              })()
-                            }
-                          </p>
-                          
-                          <div className="grid grid-cols-2 gap-3 mb-8">
-                            <div className="bg-slate-50 p-3 rounded-2xl border border-white shadow-sm italic">
-                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter mb-0.5">Remuneração</p>
-                              <p className="text-[10px] font-bold text-slate-700">{v.salary || 'A combinar'}</p>
+                              </span>
                             </div>
-                            <div className="bg-slate-50 p-3 rounded-2xl border border-white shadow-sm italic">
-                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter mb-0.5">Idade Mín.</p>
-                              <p className="text-[10px] font-bold text-red-500">{v.min_age || 18} anos</p>
+                            
+                            {/* Descrição Curta */}
+                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed line-clamp-3 mb-4 min-h-[50px]">
+                              {cleanDesc || 'Nenhuma descrição fornecida para esta oportunidade de trabalho.'}
+                            </p>
+                          </div>
+
+                          <div>
+                            {/* Tags de Detalhes Técnicos */}
+                            <div className="grid grid-cols-2 gap-2 mb-5">
+                              <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+                                <DollarSign size={13} className="text-emerald-500 flex-shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Salário</p>
+                                  <p className="text-[9px] font-bold text-slate-700 truncate">{v.salary || 'A combinar'}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+                                <Clock size={13} className="text-primary-500 flex-shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Jornada</p>
+                                  <p className="text-[9px] font-bold text-slate-700 truncate">{v.work_schedule || 'A combinar'}</p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Idade Mínima se aplicável */}
+                            {v.min_age && v.min_age > 0 && (
+                              <div className="flex items-center gap-1.5 text-[9px] text-slate-400 font-bold mb-4">
+                                <User size={11} className="text-slate-450" />
+                                <span>Idade mínima: <strong className="text-red-500">{v.min_age} anos</strong></span>
+                              </div>
+                            )}
+
+                            {/* Ações do Card */}
+                            <div className="flex gap-2 mt-auto">
+                              <button 
+                                type="button"
+                                onClick={() => setSelectedJobForDetails(v)}
+                                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-full font-black text-[9px] uppercase tracking-wider transition-all"
+                              >
+                                Detalhes
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => handleApply(v)}
+                                disabled={isApplied || isApplying === v.id}
+                                className={`flex-[1.5] py-2.5 rounded-full font-black text-[9px] uppercase tracking-[0.08em] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md ${
+                                  isApplied 
+                                    ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100/50' 
+                                    : 'bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-0.5 active:scale-95 shadow-slate-200/40'
+                                }`}
+                              >
+                                {isApplying === v.id ? <Loader2 size={12} className="animate-spin" /> : null}
+                                {isApplied ? (
+                                  <><CheckCircle2 size={12} /> Candidatado</>
+                                ) : (
+                                  'Candidatar-se'
+                                )}
+                              </button>
                             </div>
                           </div>
                         </div>
-
-                        <div className="flex gap-2.5 mt-auto">
-                           <button 
-                             type="button"
-                             onClick={() => setSelectedJobForDetails(v)}
-                             className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full font-black text-[9px] uppercase tracking-wider transition-all"
-                           >
-                             Ver Detalhes
-                           </button>
-                           <button 
-                             type="button"
-                             onClick={() => handleApply(v)}
-                             disabled={isApplied || isApplying === v.id}
-                             className={`flex-[2] py-3.5 rounded-full font-black text-[9px] uppercase tracking-[0.1em] transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer ${
-                               isApplied 
-                                 ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100' 
-                                 : 'bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-0.5 active:scale-95 shadow-slate-200/50'
-                             }`}
-                           >
-                             {isApplying === v.id ? <Loader2 size={14} className="animate-spin" /> : null}
-                             {isApplied ? (
-                               <><CheckCircle2 size={14} /> Candidatado</>
-                             ) : (
-                               'Candidatar-se'
-                             )}
-                           </button>
-                         </div>
                       </div>
                     );
                   })}
