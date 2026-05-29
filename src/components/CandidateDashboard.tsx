@@ -1626,6 +1626,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [isApplying, setIsApplying] = useState<string | null>(null);
   const [selectedJobForDetails, setSelectedJobForDetails] = useState<any | null>(null);
   const [drawerTestResult, setDrawerTestResult] = useState<'DISC' | 'MBTI' | 'TEMPERAMENTOS' | 'CUSTOM' | 'QUESTIONS' | null>(null);
+  const [activeTestSubTab, setActiveTestSubTab] = useState<'pending' | 'completed'>('pending');
   const [discTestState, setDiscTestState] = useState<'initial' | 'taking' | 'completed' | 'none'>('none');
 
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number>(0);
@@ -2387,6 +2388,287 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     }
   };
 
+  const getDiscStatusForApp = (app: any) => {
+    const phoneVal = app.candidate_phone || '';
+    let discVal = '';
+    if (phoneVal.includes('===DISC===')) {
+      discVal = phoneVal.split('===DISC===')[1].split('===NOTES===')[0].split('===QUESTIONS===')[0].trim();
+    }
+    if (discVal) {
+      if (discVal === 'PENDING') {
+        return { status: 'PENDING', D: 0, I: 0, S: 0, C: 0 };
+      }
+      if (discVal.startsWith('COMPLETED===')) {
+        const scores = discVal.replace('COMPLETED===', '').split(',').map(Number);
+        return { 
+          status: 'COMPLETED', 
+          D: scores[0] || 0, 
+          I: scores[1] || 0, 
+          S: scores[2] || 0, 
+          C: scores[3] || 0 
+        };
+      }
+    }
+    return { status: 'NONE', D: 0, I: 0, S: 0, C: 0 };
+  };
+
+  const getQuestionsStatusForApp = (app: any) => {
+    const phoneVal = app.candidate_phone || '';
+    let questionsVal = '';
+    if (phoneVal.includes('===QUESTIONS===')) {
+      questionsVal = phoneVal.split('===QUESTIONS===')[1].split('===DISC===')[0].split('===NOTES===')[0].trim();
+    }
+    if (questionsVal) {
+      if (questionsVal === 'PENDING') {
+        return { status: 'PENDING', answers: null };
+      }
+      if (questionsVal.startsWith('COMPLETED===')) {
+        try {
+          const jsonStr = questionsVal.replace('COMPLETED===', '').trim();
+          const answers = JSON.parse(jsonStr);
+          return { status: 'COMPLETED', answers };
+        } catch (err) {
+          console.error('Erro ao fazer parse do JSON de respostas:', err);
+          return { status: 'NONE', answers: null };
+        }
+      }
+    }
+    return { status: 'NONE', answers: null };
+  };
+
+  const getMbtiStatusForApp = (app: any) => {
+    const parsed = parseCandidatePhoneData(app.candidate_phone || '');
+    const mbtiVal = parsed.mbti;
+    if (mbtiVal) {
+      if (mbtiVal === 'PENDING') {
+        return { status: 'PENDING', type: '', scores: null, answers: null };
+      }
+      if (mbtiVal.startsWith('COMPLETED===')) {
+        try {
+          const jsonStr = mbtiVal.replace('COMPLETED===', '').trim();
+          const data = JSON.parse(jsonStr);
+          return { 
+            status: 'COMPLETED', 
+            type: data.type, 
+            scores: data.scores, 
+            answers: data.answers 
+          };
+        } catch (err) {
+          console.error('Erro ao fazer parse do JSON de MBTI:', err);
+          return { status: 'NONE', type: '', scores: null, answers: null };
+        }
+      }
+    }
+    return { status: 'NONE', type: '', scores: null, answers: null };
+  };
+
+  const getTemperamentosStatusForApp = (app: any) => {
+    const parsed = parseCandidatePhoneData(app.candidate_phone || '');
+    const tempVal = parsed.temperamentos;
+    if (tempVal) {
+      if (tempVal === 'PENDING') {
+        return { status: 'PENDING', type: '', scores: null, answers: null };
+      }
+      if (tempVal.startsWith('COMPLETED===')) {
+        try {
+          const jsonStr = tempVal.replace('COMPLETED===', '').trim();
+          const data = JSON.parse(jsonStr);
+          return { 
+            status: 'COMPLETED', 
+            type: data.type, 
+            scores: data.scores, 
+            answers: data.answers 
+          };
+        } catch (err) {
+          console.error('Erro ao fazer parse do JSON de Temperamentos:', err);
+          return { status: 'NONE', type: '', scores: null, answers: null };
+        }
+      }
+    }
+    return { status: 'NONE', type: '', scores: null, answers: null };
+  };
+
+  const getCustomTestStatusForApp = (app: any) => {
+    const parsed = parseCandidatePhoneData(app.candidate_phone || '');
+    const customVal = parsed.customTest;
+    if (customVal) {
+      if (customVal === 'PENDING') {
+        const job = vacancies.find(v => v.id === app.job_id);
+        const parsedCustomFromDesc = (() => {
+          if (job?.description && job.description.includes('===CUSTOM_TEST_JSON===')) {
+            try {
+              const part = job.description.split('===CUSTOM_TEST_JSON===')[1].split('===FIM_CUSTOM_TEST===')[0];
+              return JSON.parse(part);
+            } catch (e) {
+              console.error('Error parsing custom test from description:', e);
+            }
+          }
+          return null;
+        })();
+        return { 
+          status: 'PENDING', 
+          title: parsedCustomFromDesc?.title || 'Questionário Customizado',
+          questions: parsedCustomFromDesc?.questions || [],
+          answers: null 
+        };
+      }
+      if (customVal.startsWith('COMPLETED:::')) {
+        try {
+          const jsonStr = customVal.replace('COMPLETED:::', '').trim();
+          const data = JSON.parse(jsonStr);
+          return { 
+            status: 'COMPLETED', 
+            title: data.title,
+            questions: data.questions,
+            answers: data.responses 
+          };
+        } catch (err) {
+          console.error('Erro ao fazer parse do JSON de questionário customizado:', err);
+        }
+      } else if (customVal.startsWith('COMPLETED===')) {
+        try {
+          const jsonStr = customVal.replace('COMPLETED===', '').trim();
+          const data = JSON.parse(jsonStr);
+          return { 
+            status: 'COMPLETED', 
+            title: 'Questionário Customizado',
+            questions: [],
+            answers: data.responses 
+          };
+        } catch (err) {
+          console.error('Erro ao fazer parse do JSON legado de questionário customizado:', err);
+        }
+      }
+    }
+    return { status: 'NONE', title: '', questions: [], answers: null };
+  };
+
+  const pendingTests: Array<{
+    id: string;
+    type: 'DISC' | 'QUESTIONS' | 'MBTI' | 'TEMPERAMENTOS' | 'CUSTOM';
+    app: any;
+    jobTitle: string;
+    companyName: string;
+  }> = [];
+
+  const completedTests: Array<{
+    id: string;
+    type: 'DISC' | 'QUESTIONS' | 'MBTI' | 'TEMPERAMENTOS' | 'CUSTOM';
+    app: any;
+    jobTitle: string;
+    companyName: string;
+    data: any;
+  }> = [];
+
+  // Mapear testes no escopo superior para poder usar em qualquer lugar
+  (() => {
+    myApplications.forEach(app => {
+      const job = vacancies.find(v => v.id === app.job_id);
+      const jobTitle = job?.title || 'Oportunidade';
+      const companyName = job?.company_name || 'Empresa Parceira';
+
+      const discStatus = getDiscStatusForApp(app);
+      if (discStatus.status === 'PENDING') {
+        pendingTests.push({
+          id: `${app.id}-DISC`,
+          type: 'DISC',
+          app,
+          jobTitle,
+          companyName
+        });
+      } else if (discStatus.status === 'COMPLETED') {
+        completedTests.push({
+          id: `${app.id}-DISC`,
+          type: 'DISC',
+          app,
+          jobTitle,
+          companyName,
+          data: discStatus
+        });
+      }
+
+      const questionsStatus = getQuestionsStatusForApp(app);
+      if (questionsStatus.status === 'PENDING') {
+        pendingTests.push({
+          id: `${app.id}-QUESTIONS`,
+          type: 'QUESTIONS',
+          app,
+          jobTitle,
+          companyName
+        });
+      } else if (questionsStatus.status === 'COMPLETED') {
+        completedTests.push({
+          id: `${app.id}-QUESTIONS`,
+          type: 'QUESTIONS',
+          app,
+          jobTitle,
+          companyName,
+          data: questionsStatus.answers
+        });
+      }
+
+      const mbtiStatus = getMbtiStatusForApp(app);
+      if (mbtiStatus.status === 'PENDING') {
+        pendingTests.push({
+          id: `${app.id}-MBTI`,
+          type: 'MBTI',
+          app,
+          jobTitle,
+          companyName
+        });
+      } else if (mbtiStatus.status === 'COMPLETED') {
+        completedTests.push({
+          id: `${app.id}-MBTI`,
+          type: 'MBTI',
+          app,
+          jobTitle,
+          companyName,
+          data: mbtiStatus
+        });
+      }
+
+      const temperamentosStatus = getTemperamentosStatusForApp(app);
+      if (temperamentosStatus.status === 'PENDING') {
+        pendingTests.push({
+          id: `${app.id}-TEMPERAMENTOS`,
+          type: 'TEMPERAMENTOS',
+          app,
+          jobTitle,
+          companyName
+        });
+      } else if (temperamentosStatus.status === 'COMPLETED') {
+        completedTests.push({
+          id: `${app.id}-TEMPERAMENTOS`,
+          type: 'TEMPERAMENTOS',
+          app,
+          jobTitle,
+          companyName,
+          data: temperamentosStatus
+        });
+      }
+
+      const customTestStatus = getCustomTestStatusForApp(app);
+      if (customTestStatus.status === 'PENDING') {
+        pendingTests.push({
+          id: `${app.id}-CUSTOM`,
+          type: 'CUSTOM',
+          app,
+          jobTitle,
+          companyName
+        });
+      } else if (customTestStatus.status === 'COMPLETED') {
+        completedTests.push({
+          id: `${app.id}-CUSTOM`,
+          type: 'CUSTOM',
+          app,
+          jobTitle,
+          companyName,
+          data: customTestStatus.answers
+        });
+      }
+    });
+  })();
+
   const renderDrawerTestContent = () => {
     if (drawerTestResult === 'DISC' && discResult) {
       const { D, I, S, C } = discResult;
@@ -2830,7 +3112,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       <div className={`flex-1 min-h-screen flex flex-col ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10`}>
         {/* Novo Cabeçalho Premium - Estilo Barra Horizontal do Mockup */}
         <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 transition-all duration-300 ${
-          activeTab === 'Meu Currículo' 
+          (activeTab === 'Meu Currículo' || activeTab === 'Testes') 
             ? (isHeaderScrolled ? 'pt-4 pb-3 flex flex-col gap-0 shadow-sm' : 'pt-5 pb-5 flex flex-col gap-5') 
             : 'py-5 flex flex-col sm:flex-row items-center justify-between gap-4'
         }`}>
@@ -2980,6 +3262,62 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                   <span className="uppercase tracking-wider text-[11px]">{isExporting ? 'Gerando...' : 'Baixar PDF'}</span>
                 </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Segunda Linha: Abas de Testes Pendentes/Concluídos */}
+          {activeTab === 'Testes' && (
+            <motion.div 
+              initial={{ height: 'auto', opacity: 1 }}
+              animate={{ 
+                height: isHeaderScrolled ? 0 : 'auto', 
+                opacity: isHeaderScrolled ? 0 : 1,
+                pointerEvents: isHeaderScrolled ? 'none' : 'auto'
+              }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="flex justify-start w-full overflow-hidden"
+            >
+              <div className="flex items-center gap-8 pl-1">
+                {/* Aba Pendentes */}
+                <button
+                  onClick={() => setActiveTestSubTab('pending')}
+                  className={`flex items-center gap-2 pb-3.5 relative font-black text-[10px] uppercase tracking-widest cursor-pointer border-0 bg-transparent transition-all outline-none ${
+                    activeTestSubTab === 'pending'
+                      ? 'text-primary-600 font-extrabold'
+                      : 'text-slate-400 hover:text-slate-600 font-bold'
+                  }`}
+                >
+                  <Clock size={13} className={activeTestSubTab === 'pending' ? 'text-primary-600' : 'text-slate-400'} />
+                  <span>Pendentes ({pendingTests.length})</span>
+                  {activeTestSubTab === 'pending' && (
+                    <motion.div 
+                      layoutId="activeTestSubTabBorder"
+                      className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary-600 rounded-full"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </button>
+
+                {/* Aba Concluídos */}
+                <button
+                  onClick={() => setActiveTestSubTab('completed')}
+                  className={`flex items-center gap-2 pb-3.5 relative font-black text-[10px] uppercase tracking-widest cursor-pointer border-0 bg-transparent transition-all outline-none ${
+                    activeTestSubTab === 'completed'
+                      ? 'text-primary-600 font-extrabold'
+                      : 'text-slate-400 hover:text-slate-600 font-bold'
+                  }`}
+                >
+                  <CheckCircle2 size={13} className={activeTestSubTab === 'completed' ? 'text-primary-600' : 'text-slate-400'} />
+                  <span>Concluídos ({completedTests.length})</span>
+                  {activeTestSubTab === 'completed' && (
+                    <motion.div 
+                      layoutId="activeTestSubTabBorder"
+                      className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary-600 rounded-full"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </button>
               </div>
             </motion.div>
           )}
@@ -3855,230 +4193,6 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               className="space-y-6"
             >
               {(() => {
-                const getDiscStatusForApp = (app: any) => {
-                  const phoneVal = app.candidate_phone || '';
-                  let discVal = '';
-                  if (phoneVal.includes('===DISC===')) {
-                    discVal = phoneVal.split('===DISC===')[1].split('===NOTES===')[0].split('===QUESTIONS===')[0].trim();
-                  }
-                  if (discVal) {
-                    if (discVal === 'PENDING') {
-                      return { status: 'PENDING', D: 0, I: 0, S: 0, C: 0 };
-                    }
-                    if (discVal.startsWith('COMPLETED===')) {
-                      const scores = discVal.replace('COMPLETED===', '').split(',').map(Number);
-                      return { 
-                        status: 'COMPLETED', 
-                        D: scores[0] || 0, 
-                        I: scores[1] || 0, 
-                        S: scores[2] || 0, 
-                        C: scores[3] || 0 
-                      };
-                    }
-                  }
-                  return { status: 'NONE', D: 0, I: 0, S: 0, C: 0 };
-                };
-
-                const getQuestionsStatusForApp = (app: any) => {
-                  const phoneVal = app.candidate_phone || '';
-                  let questionsVal = '';
-                  if (phoneVal.includes('===QUESTIONS===')) {
-                    questionsVal = phoneVal.split('===QUESTIONS===')[1].split('===DISC===')[0].split('===NOTES===')[0].trim();
-                  }
-                  if (questionsVal) {
-                    if (questionsVal === 'PENDING') {
-                      return { status: 'PENDING', answers: null };
-                    }
-                    if (questionsVal.startsWith('COMPLETED===')) {
-                      try {
-                        const jsonStr = questionsVal.replace('COMPLETED===', '').trim();
-                        const answers = JSON.parse(jsonStr);
-                        return { status: 'COMPLETED', answers };
-                      } catch (err) {
-                        console.error('Erro ao fazer parse do JSON de respostas:', err);
-                        return { status: 'NONE', answers: null };
-                      }
-                    }
-                  }
-                  return { status: 'NONE', answers: null };
-                };
-
-                const getMbtiStatusForApp = (app: any) => {
-                  const parsed = parseCandidatePhoneData(app.candidate_phone || '');
-                  const mbtiVal = parsed.mbti;
-                  if (mbtiVal) {
-                    if (mbtiVal === 'PENDING') {
-                      return { status: 'PENDING', type: '', scores: null, answers: null };
-                    }
-                    if (mbtiVal.startsWith('COMPLETED===')) {
-                      try {
-                        const jsonStr = mbtiVal.replace('COMPLETED===', '').trim();
-                        const data = JSON.parse(jsonStr);
-                        return { 
-                          status: 'COMPLETED', 
-                          type: data.type, 
-                          scores: data.scores, 
-                          answers: data.answers 
-                        };
-                      } catch (err) {
-                        console.error('Erro ao fazer parse do JSON de MBTI:', err);
-                        return { status: 'NONE', type: '', scores: null, answers: null };
-                      }
-                    }
-                  }
-                  return { status: 'NONE', type: '', scores: null, answers: null };
-                };
-
-                const getTemperamentosStatusForApp = (app: any) => {
-                  const parsed = parseCandidatePhoneData(app.candidate_phone || '');
-                  const tempVal = parsed.temperamentos;
-                  if (tempVal) {
-                    if (tempVal === 'PENDING') {
-                      return { status: 'PENDING', type: '', scores: null, answers: null };
-                    }
-                    if (tempVal.startsWith('COMPLETED===')) {
-                      try {
-                        const jsonStr = tempVal.replace('COMPLETED===', '').trim();
-                        const data = JSON.parse(jsonStr);
-                        return { 
-                          status: 'COMPLETED', 
-                          type: data.type, 
-                          scores: data.scores, 
-                          answers: data.answers 
-                        };
-                      } catch (err) {
-                        console.error('Erro ao fazer parse do JSON de Temperamentos:', err);
-                        return { status: 'NONE', type: '', scores: null, answers: null };
-                      }
-                    }
-                  }
-                  return { status: 'NONE', type: '', scores: null, answers: null };
-                };
-
-                // Lógica de agrupamento unificado de testes
-                const pendingTests: Array<{
-                  id: string;
-                  type: 'DISC' | 'QUESTIONS' | 'MBTI' | 'TEMPERAMENTOS' | 'CUSTOM';
-                  app: any;
-                  jobTitle: string;
-                  companyName: string;
-                }> = [];
-
-                const completedTests: Array<{
-                  id: string;
-                  type: 'DISC' | 'QUESTIONS' | 'MBTI' | 'TEMPERAMENTOS' | 'CUSTOM';
-                  app: any;
-                  jobTitle: string;
-                  companyName: string;
-                  data: any;
-                }> = [];
-
-                myApplications.forEach(app => {
-                  const job = vacancies.find(v => v.id === app.job_id);
-                  const jobTitle = job?.title || 'Oportunidade';
-                  const companyName = job?.company_name || 'Empresa Parceira';
-
-                  const discStatus = getDiscStatusForApp(app);
-                  if (discStatus.status === 'PENDING') {
-                    pendingTests.push({
-                      id: `${app.id}-DISC`,
-                      type: 'DISC',
-                      app,
-                      jobTitle,
-                      companyName
-                    });
-                  } else if (discStatus.status === 'COMPLETED') {
-                    completedTests.push({
-                      id: `${app.id}-DISC`,
-                      type: 'DISC',
-                      app,
-                      jobTitle,
-                      companyName,
-                      data: discStatus
-                    });
-                  }
-
-                  const questionsStatus = getQuestionsStatusForApp(app);
-                  if (questionsStatus.status === 'PENDING') {
-                    pendingTests.push({
-                      id: `${app.id}-QUESTIONS`,
-                      type: 'QUESTIONS',
-                      app,
-                      jobTitle,
-                      companyName
-                    });
-                  } else if (questionsStatus.status === 'COMPLETED') {
-                    completedTests.push({
-                      id: `${app.id}-QUESTIONS`,
-                      type: 'QUESTIONS',
-                      app,
-                      jobTitle,
-                      companyName,
-                      data: questionsStatus.answers
-                    });
-                  }
-
-                  const mbtiStatus = getMbtiStatusForApp(app);
-                  if (mbtiStatus.status === 'PENDING') {
-                    pendingTests.push({
-                      id: `${app.id}-MBTI`,
-                      type: 'MBTI',
-                      app,
-                      jobTitle,
-                      companyName
-                    });
-                  } else if (mbtiStatus.status === 'COMPLETED') {
-                    completedTests.push({
-                      id: `${app.id}-MBTI`,
-                      type: 'MBTI',
-                      app,
-                      jobTitle,
-                      companyName,
-                      data: mbtiStatus
-                    });
-                  }
-
-                  const temperamentosStatus = getTemperamentosStatusForApp(app);
-                  if (temperamentosStatus.status === 'PENDING') {
-                    pendingTests.push({
-                      id: `${app.id}-TEMPERAMENTOS`,
-                      type: 'TEMPERAMENTOS',
-                      app,
-                      jobTitle,
-                      companyName
-                    });
-                  } else if (temperamentosStatus.status === 'COMPLETED') {
-                    completedTests.push({
-                      id: `${app.id}-TEMPERAMENTOS`,
-                      type: 'TEMPERAMENTOS',
-                      app,
-                      jobTitle,
-                      companyName,
-                      data: temperamentosStatus
-                    });
-                  }
-
-                  const customTestStatus = getCustomTestStatusForApp(app);
-                  if (customTestStatus.status === 'PENDING') {
-                    pendingTests.push({
-                      id: `${app.id}-CUSTOM`,
-                      type: 'CUSTOM',
-                      app,
-                      jobTitle,
-                      companyName
-                    });
-                  } else if (customTestStatus.status === 'COMPLETED') {
-                    completedTests.push({
-                      id: `${app.id}-CUSTOM`,
-                      type: 'CUSTOM',
-                      app,
-                      jobTitle,
-                      companyName,
-                      data: customTestStatus.answers
-                    });
-                  }
-                });
-
                 if (discTestState === 'taking') {
                   const block = perguntasDISC[currentBlockIndex];
                   const currentAns = discAnswers[currentBlockIndex] || { D: null, I: null, S: null, C: null };
@@ -5654,190 +5768,184 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 }
 
                 return (
-                  <div className="space-y-12">
-                    <div>
-                      <div className="flex items-center gap-2.5 mb-5 select-none">
-                        <div className="w-1.5 h-6 bg-gradient-to-b from-primary-500 to-highlight-500 rounded-full animate-pulse" />
-                        <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase">Testes Pendentes</h3>
-                      </div>
-                      {pendingTests.length === 0 ? (
-                        <div className="bg-white p-12 rounded-[10px] text-center border border-slate-100 shadow-sm relative overflow-hidden">
-                          <div className="absolute top-0 left-0 w-full h-[3px] bg-emerald-500/55" />
-                          <CheckCircle2 className="mx-auto text-emerald-500 mb-4" size={32} />
-                          <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Você não tem avaliações pendentes.</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                          {pendingTests.map(item => {
-                            const isDisc = item.type === 'DISC';
-                            const isMbti = item.type === 'MBTI';
-                            const isTemperamentos = item.type === 'TEMPERAMENTOS';
-                            const isCustom = item.type === 'CUSTOM';
-                            return (
-                              <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
-                                <div className="mb-6">
-                                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
-                                    style={{ 
-                                      backgroundColor: isDisc ? 'rgba(99, 102, 241, 0.1)' : isMbti ? 'rgba(83, 58, 246, 0.1)' : isTemperamentos ? 'rgba(14, 165, 233, 0.1)' : isCustom ? 'rgba(16, 185, 129, 0.1)' : 'rgba(83, 58, 246, 0.1)', 
-                                      color: isDisc ? '#6366f1' : isMbti ? '#533af6' : isTemperamentos ? '#0ea5e9' : isCustom ? '#10b981' : '#533af6' 
-                                    }}
-                                  >
-                                    {isDisc ? <Brain size={20} /> : isMbti ? <Sparkles size={20} /> : isTemperamentos ? <Compass size={20} /> : isCustom ? <FileText size={20} /> : <FileText size={20} />}
-                                  </div>
-                                  <h4 className="font-black text-slate-900 uppercase tracking-tight text-md mb-1">
-                                    {isDisc ? 'Teste de Perfil DISC 5.0' : isMbti ? 'Teste de Personalidade MBTI' : isTemperamentos ? 'Teste de Temperamentos e Perfil' : isCustom ? 'Questionário Customizado' : 'Mapeamento de Perfil'}
-                                  </h4>
-                                  <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">
-                                    Vaga: {item.jobTitle}
-                                  </p>
-                                  <p className="text-slate-500 text-xs font-semibold leading-relaxed">
-                                    {isDisc 
-                                      ? `Solicitado por ${item.companyName}. Responda para mapear seu perfil comportamental e prosseguir no processo seletivo.`
-                                      : isMbti
-                                        ? `Solicitado por ${item.companyName}. Responda ao teste de 64 perguntas para mapear suas dimensões de personalidade.`
-                                        : isTemperamentos
-                                          ? `Solicitado por ${item.companyName}. Responda ao teste de 25 perguntas para mapear seu perfil comportamental e de temperamento.`
-                                          : isCustom
-                                            ? `Solicitado por ${item.companyName}. Responda ao questionário específico criado para esta vaga para prosseguir no processo seletivo.`
-                                            : `Solicitado por ${item.companyName}. Responda ao mapeamento de perfil de 20 perguntas para prosseguir no processo seletivo.`
-                                    }
-                                  </p>
-                                </div>
-                                
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (isDisc) {
-                                      setActiveTestApplicationId(item.app.id);
-                                      setDiscTestState('initial');
-                                    } else if (isMbti) {
-                                      setActiveMbtiApplicationId(item.app.id);
-                                      setMbtiAnswers({});
-                                      setCurrentMbtiStageIndex(0);
-                                      setMbtiState('initial');
-                                    } else if (isTemperamentos) {
-                                      setActiveTemperamentosApplicationId(item.app.id);
-                                      setTemperamentosAnswers({});
-                                      setCurrentTemperamentosStageIndex(0);
-                                      setTemperamentosState('initial');
-                                    } else if (isCustom) {
-                                      handleStartCustomTest(item.app);
-                                    } else {
-                                      setActiveQuestionsApplicationId(item.app.id);
-                                      setQuestionsAnswers({});
-                                      setCurrentQuestionsCategoryIndex(0);
-                                      setQuestionsState('initial');
-                                    }
-                                  }}
-                                  className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] font-black text-[9px] uppercase tracking-widest transition-all shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                                >
-                                  Começar Avaliação {isDisc ? <Brain size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <div className="flex items-center gap-2.5 mb-5 select-none">
-                        <div className="w-1.5 h-6 bg-gradient-to-b from-primary-500 to-highlight-500 rounded-full" />
-                        <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase">Testes Concluídos</h3>
-                      </div>
-                      {completedTests.length === 0 ? (
-                        <div className="bg-white p-12 rounded-[10px] text-center border border-slate-100 shadow-sm relative overflow-hidden">
-                          <div className="absolute top-0 left-0 w-full h-[3px] bg-slate-200" />
-                          <Award className="mx-auto text-slate-300 mb-4" size={32} />
-                          <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nenhum teste concluído ainda.</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                          {completedTests.map(item => {
-                            const isDisc = item.type === 'DISC';
-                            const isMbti = item.type === 'MBTI';
-                            const isTemperamentos = item.type === 'TEMPERAMENTOS';
-                            const isCustom = item.type === 'CUSTOM';
-                            return (
-                              <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
-                                <div className="mb-6">
-                                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
-                                    style={{ 
-                                      backgroundColor: isDisc ? 'rgba(99, 102, 241, 0.08)' : isMbti ? 'rgba(83, 58, 246, 0.08)' : isTemperamentos ? 'rgba(14, 165, 233, 0.08)' : isCustom ? 'rgba(16, 185, 129, 0.08)' : 'rgba(83, 58, 246, 0.08)', 
-                                      color: isDisc ? '#6366f1' : isMbti ? '#533af6' : isTemperamentos ? '#0ea5e9' : isCustom ? '#10b981' : '#533af6' 
-                                    }}
-                                  >
-                                    {isDisc ? <Award size={20} /> : isMbti ? <Sparkles size={20} /> : isTemperamentos ? <Compass size={20} /> : isCustom ? <CheckCircle2 size={20} /> : <CheckCircle2 size={20} />}
-                                  </div>
-                                  <h4 className="font-black text-slate-900 uppercase tracking-tight text-md mb-1">
-                                    {isDisc ? 'DISC 5.0 Concluído' : isMbti ? 'MBTI Concluído' : isTemperamentos ? 'Temperamentos Concluído' : isCustom ? 'Questionário Customizado Concluído' : 'Mapeamento de Perfil Concluído'}
-                                  </h4>
-                                  <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">
-                                    Vaga: {item.jobTitle}
-                                  </p>
-                                  <p className="text-slate-500 text-xs font-semibold leading-relaxed">
-                                    {isDisc 
-                                      ? `Avaliação de perfil comportamental concluída com sucesso para a vaga da ${item.companyName}.`
-                                      : isMbti
-                                        ? `Teste de dimensões de personalidade concluído com sucesso para a vaga da ${item.companyName}.`
-                                        : isTemperamentos
-                                          ? `Teste de temperamentos e perfil comportamental concluído com sucesso para a vaga da ${item.companyName}.`
-                                          : isCustom
-                                            ? `Questionário customizado respondido com sucesso para a vaga da ${item.companyName}.`
-                                            : `Mapeamento de perfil descritivo com 20 perguntas concluído com sucesso para a vaga da ${item.companyName}.`
-                                    }
-                                  </p>
-                                </div>
-                                
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (isDisc) {
-                                      setDiscResult({ D: item.data.D, I: item.data.I, S: item.data.S, C: item.data.C });
-                                      setActiveTestApplicationId(item.app.id);
-                                      setDrawerTestResult('DISC');
-                                    } else if (isMbti) {
-                                      setMbtiResult({ type: item.data.type, scores: item.data.scores });
-                                      setActiveMbtiApplicationId(item.app.id);
-                                      setSelectedMbtiResult(item.data);
-                                      setDrawerTestResult('MBTI');
-                                    } else if (isTemperamentos) {
-                                      setTemperamentosResult({ type: item.data.type, scores: item.data.scores });
-                                      setActiveTemperamentosApplicationId(item.app.id);
-                                      setSelectedTemperamentosResult(item.data);
-                                      setDrawerTestResult('TEMPERAMENTOS');
-                                    } else if (isCustom) {
-                                      setSelectedCustomTestResult(item.data);
-                                      setActiveCustomTestApplicationId(item.app.id);
-                                      
-                                      const customStatus = getCustomTestStatusForApp(item.app);
-                                      let qList = customStatus.questions || [];
-                                      if (!qList || qList.length === 0) {
-                                        const jobDescription = item.app.jobs?.description || item.app.job?.description || '';
-                                        qList = getCustomQuestionsFromJobDescription(jobDescription);
+                  <div className="space-y-6">
+                    {activeTestSubTab === 'pending' ? (
+                      <div>
+                        {pendingTests.length === 0 ? (
+                          <div className="bg-white p-12 rounded-[10px] text-center border border-slate-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-[3px] bg-emerald-500/55" />
+                            <CheckCircle2 className="mx-auto text-emerald-500 mb-4" size={32} />
+                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Você não tem avaliações pendentes.</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                            {pendingTests.map(item => {
+                              const isDisc = item.type === 'DISC';
+                              const isMbti = item.type === 'MBTI';
+                              const isTemperamentos = item.type === 'TEMPERAMENTOS';
+                              const isCustom = item.type === 'CUSTOM';
+                              return (
+                                <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
+                                  <div className="mb-6">
+                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
+                                      style={{ 
+                                        backgroundColor: isDisc ? 'rgba(99, 102, 241, 0.1)' : isMbti ? 'rgba(83, 58, 246, 0.1)' : isTemperamentos ? 'rgba(14, 165, 233, 0.1)' : isCustom ? 'rgba(16, 185, 129, 0.1)' : 'rgba(83, 58, 246, 0.1)', 
+                                        color: isDisc ? '#6366f1' : isMbti ? '#533af6' : isTemperamentos ? '#0ea5e9' : isCustom ? '#10b981' : '#533af6' 
+                                      }}
+                                    >
+                                      {isDisc ? <Brain size={20} /> : isMbti ? <Sparkles size={20} /> : isTemperamentos ? <Compass size={20} /> : isCustom ? <FileText size={20} /> : <FileText size={20} />}
+                                    </div>
+                                    <h4 className="font-black text-slate-900 uppercase tracking-tight text-md mb-1">
+                                      {isDisc ? 'Teste de Perfil DISC 5.0' : isMbti ? 'Teste de Personalidade MBTI' : isTemperamentos ? 'Teste de Temperamentos e Perfil' : isCustom ? 'Questionário Customizado' : 'Mapeamento de Perfil'}
+                                    </h4>
+                                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">
+                                      Vaga: {item.jobTitle}
+                                    </p>
+                                    <p className="text-slate-500 text-xs font-semibold leading-relaxed">
+                                      {isDisc 
+                                        ? `Solicitado por ${item.companyName}. Responda para mapear seu perfil comportamental e prosseguir no processo seletivo.`
+                                        : isMbti
+                                          ? `Solicitado por ${item.companyName}. Responda ao teste de 64 perguntas para mapear suas dimensões de personalidade.`
+                                          : isTemperamentos
+                                            ? `Solicitado por ${item.companyName}. Responda ao teste de 25 perguntas para mapear seu perfil comportamental e de temperamento.`
+                                            : isCustom
+                                              ? `Solicitado por ${item.companyName}. Responda ao questionário específico criado para esta vaga para prosseguir no processo seletivo.`
+                                              : `Solicitado por ${item.companyName}. Responda ao mapeamento de perfil de 20 perguntas para prosseguir no processo seletivo.`
                                       }
-                                      
-                                      setCustomTestQuestions(qList);
-                                      setDrawerTestResult('CUSTOM');
-                                    } else {
-                                      setSelectedQuestionsResult(item.data);
-                                      setActiveQuestionsApplicationId(item.app.id);
-                                      setCurrentQuestionsCategoryIndex(0);
-                                      setDrawerTestResult('QUESTIONS');
-                                    }
-                                  }}
-                                  className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] font-black text-[9px] uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                                >
-                                  Visualizar Relatório {isDisc ? <Award size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
+                                    </p>
+                                  </div>
+                                  
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (isDisc) {
+                                        setActiveTestApplicationId(item.app.id);
+                                        setDiscTestState('initial');
+                                      } else if (isMbti) {
+                                        setActiveMbtiApplicationId(item.app.id);
+                                        setMbtiAnswers({});
+                                        setCurrentMbtiStageIndex(0);
+                                        setMbtiState('initial');
+                                      } else if (isTemperamentos) {
+                                        setActiveTemperamentosApplicationId(item.app.id);
+                                        setTemperamentosAnswers({});
+                                        setCurrentTemperamentosStageIndex(0);
+                                        setTemperamentosState('initial');
+                                      } else if (isCustom) {
+                                        handleStartCustomTest(item.app);
+                                      } else {
+                                        setActiveQuestionsApplicationId(item.app.id);
+                                        setQuestionsAnswers({});
+                                        setCurrentQuestionsCategoryIndex(0);
+                                        setQuestionsState('initial');
+                                      }
+                                    }}
+                                    className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] font-black text-[9px] uppercase tracking-widest transition-all shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                                  >
+                                    Começar Avaliação {isDisc ? <Brain size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        {completedTests.length === 0 ? (
+                          <div className="bg-white p-12 rounded-[10px] text-center border border-slate-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-[3px] bg-slate-200" />
+                            <Award className="mx-auto text-slate-300 mb-4" size={32} />
+                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nenhum teste concluído ainda.</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                            {completedTests.map(item => {
+                              const isDisc = item.type === 'DISC';
+                              const isMbti = item.type === 'MBTI';
+                              const isTemperamentos = item.type === 'TEMPERAMENTOS';
+                              const isCustom = item.type === 'CUSTOM';
+                              return (
+                                <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
+                                  <div className="mb-6">
+                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
+                                      style={{ 
+                                        backgroundColor: isDisc ? 'rgba(99, 102, 241, 0.08)' : isMbti ? 'rgba(83, 58, 246, 0.08)' : isTemperamentos ? 'rgba(14, 165, 233, 0.08)' : isCustom ? 'rgba(16, 185, 129, 0.08)' : 'rgba(83, 58, 246, 0.08)', 
+                                        color: isDisc ? '#6366f1' : isMbti ? '#533af6' : isTemperamentos ? '#0ea5e9' : isCustom ? '#10b981' : '#533af6' 
+                                      }}
+                                    >
+                                      {isDisc ? <Award size={20} /> : isMbti ? <Sparkles size={20} /> : isTemperamentos ? <Compass size={20} /> : isCustom ? <CheckCircle2 size={20} /> : <CheckCircle2 size={20} />}
+                                    </div>
+                                    <h4 className="font-black text-slate-900 uppercase tracking-tight text-md mb-1">
+                                      {isDisc ? 'DISC 5.0 Concluído' : isMbti ? 'MBTI Concluído' : isTemperamentos ? 'Temperamentos Concluído' : isCustom ? 'Questionário Customizado Concluído' : 'Mapeamento de Perfil Concluído'}
+                                    </h4>
+                                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">
+                                      Vaga: {item.jobTitle}
+                                    </p>
+                                    <p className="text-slate-500 text-xs font-semibold leading-relaxed">
+                                      {isDisc 
+                                        ? `Avaliação de perfil comportamental concluída com sucesso para a vaga da ${item.companyName}.`
+                                        : isMbti
+                                          ? `Teste de dimensões de personalidade concluído com sucesso para a vaga da ${item.companyName}.`
+                                          : isTemperamentos
+                                            ? `Teste de temperamentos e perfil comportamental concluído com sucesso para a vaga da ${item.companyName}.`
+                                            : isCustom
+                                              ? `Questionário customizado respondido com sucesso para a vaga da ${item.companyName}.`
+                                              : `Mapeamento de perfil descritivo com 20 perguntas concluído com sucesso para a vaga da ${item.companyName}.`
+                                      }
+                                    </p>
+                                  </div>
+                                  
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (isDisc) {
+                                        setDiscResult({ D: item.data.D, I: item.data.I, S: item.data.S, C: item.data.C });
+                                        setActiveTestApplicationId(item.app.id);
+                                        setDrawerTestResult('DISC');
+                                      } else if (isMbti) {
+                                        setMbtiResult({ type: item.data.type, scores: item.data.scores });
+                                        setActiveMbtiApplicationId(item.app.id);
+                                        setSelectedMbtiResult(item.data);
+                                        setDrawerTestResult('MBTI');
+                                      } else if (isTemperamentos) {
+                                        setTemperamentosResult({ type: item.data.type, scores: item.data.scores });
+                                        setActiveTemperamentosApplicationId(item.app.id);
+                                        setSelectedTemperamentosResult(item.data);
+                                        setDrawerTestResult('TEMPERAMENTOS');
+                                      } else if (isCustom) {
+                                        setSelectedCustomTestResult(item.data);
+                                        setActiveCustomTestApplicationId(item.app.id);
+                                        
+                                        const customStatus = getCustomTestStatusForApp(item.app);
+                                        let qList = customStatus.questions || [];
+                                        if (!qList || qList.length === 0) {
+                                          const jobDescription = item.app.jobs?.description || item.app.job?.description || '';
+                                          qList = getCustomQuestionsFromJobDescription(jobDescription);
+                                        }
+                                        
+                                        setCustomTestQuestions(qList);
+                                        setDrawerTestResult('CUSTOM');
+                                      } else {
+                                        setSelectedQuestionsResult(item.data);
+                                        setActiveQuestionsApplicationId(item.app.id);
+                                        setCurrentQuestionsCategoryIndex(0);
+                                        setDrawerTestResult('QUESTIONS');
+                                      }
+                                    }}
+                                    className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] font-black text-[9px] uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                                  >
+                                    Visualizar Relatório {isDisc ? <Award size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })()}
