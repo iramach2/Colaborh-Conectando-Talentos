@@ -2875,7 +2875,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       return (
         <div className="space-y-6 text-left pb-10">
           <div className={`p-6 rounded-[10px] border ${profile.classColor} space-y-4 relative overflow-hidden`}>
-            <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
+            <div className="absolute top-0 left-0 w-[5px] h-full bg-gradient-to-b from-primary-500 to-highlight-500" />
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Seu Tipo de Personalidade</span>
@@ -3111,10 +3111,12 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Main Container */}
       <div className={`flex-1 min-h-screen flex flex-col ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10`}>
         {/* Novo Cabeçalho Premium - Estilo Barra Horizontal do Mockup */}
-        <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 transition-all duration-300 ${
-          (activeTab === 'Meu Currículo' || activeTab === 'Testes') 
+                <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 transition-all duration-300 ${
+          activeTab === 'Meu Currículo'
             ? (isHeaderScrolled ? 'pt-4 pb-3 flex flex-col gap-0 shadow-sm' : 'pt-5 pb-5 flex flex-col gap-5') 
-            : 'py-5 flex flex-col sm:flex-row items-center justify-between gap-4'
+            : activeTab === 'Testes'
+              ? (isHeaderScrolled ? 'pt-4 pb-3 flex flex-col gap-0 shadow-sm' : 'pt-5 pb-0 flex flex-col gap-5')
+              : 'py-5 flex flex-col sm:flex-row items-center justify-between gap-4'
         }`}>
           {/* Linha Principal do Cabeçalho */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
@@ -3282,13 +3284,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 {/* Aba Pendentes */}
                 <button
                   onClick={() => setActiveTestSubTab('pending')}
-                  className={`flex items-center gap-2 pb-3.5 relative font-black text-[10px] uppercase tracking-widest cursor-pointer border-0 bg-transparent transition-all outline-none ${
+                  className={`flex items-center gap-2 pb-3.5 relative font-black text-[12px] uppercase tracking-widest cursor-pointer border-0 bg-transparent transition-all outline-none ${
                     activeTestSubTab === 'pending'
                       ? 'text-primary-600 font-extrabold'
                       : 'text-slate-400 hover:text-slate-600 font-bold'
                   }`}
                 >
-                  <Clock size={13} className={activeTestSubTab === 'pending' ? 'text-primary-600' : 'text-slate-400'} />
+                  <Clock size={14} className={activeTestSubTab === 'pending' ? 'text-primary-600' : 'text-slate-400'} />
                   <span>Pendentes ({pendingTests.length})</span>
                   {activeTestSubTab === 'pending' && (
                     <motion.div 
@@ -3302,13 +3304,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 {/* Aba Concluídos */}
                 <button
                   onClick={() => setActiveTestSubTab('completed')}
-                  className={`flex items-center gap-2 pb-3.5 relative font-black text-[10px] uppercase tracking-widest cursor-pointer border-0 bg-transparent transition-all outline-none ${
+                  className={`flex items-center gap-2 pb-3.5 relative font-black text-[12px] uppercase tracking-widest cursor-pointer border-0 bg-transparent transition-all outline-none ${
                     activeTestSubTab === 'completed'
                       ? 'text-primary-600 font-extrabold'
                       : 'text-slate-400 hover:text-slate-600 font-bold'
                   }`}
                 >
-                  <CheckCircle2 size={13} className={activeTestSubTab === 'completed' ? 'text-primary-600' : 'text-slate-400'} />
+                  <CheckCircle2 size={14} className={activeTestSubTab === 'completed' ? 'text-primary-600' : 'text-slate-400'} />
                   <span>Concluídos ({completedTests.length})</span>
                   {activeTestSubTab === 'completed' && (
                     <motion.div 
@@ -3972,7 +3974,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         className="bg-white p-6 rounded-[10px] shadow-sleek border border-slate-100 hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[395px]"
                       >
                         {/* Sutil linha de gradiente superior no estilo do site */}
-                        <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
+                        <div className="absolute top-0 left-0 w-[5px] h-full bg-gradient-to-b from-primary-500 to-highlight-500" />
                         
                         <div className="flex flex-col h-full justify-between">
                           <div>
@@ -4036,7 +4038,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               </div>
                               
                               <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-                                <Clock size={13} className="text-primary-500 flex-shrink-0" />
+                                <Clock size={14} className="text-primary-500 flex-shrink-0" />
                                 <div className="min-w-0">
                                   <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Jornada</p>
                                   <p className="text-[9px] font-bold text-slate-700 truncate">{v.work_schedule || 'A combinar'}</p>
@@ -5773,7 +5775,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <div>
                         {pendingTests.length === 0 ? (
                           <div className="bg-white p-12 rounded-[10px] text-center border border-slate-100 shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-[3px] bg-emerald-500/55" />
+                            <div className="absolute top-0 left-0 w-[3px] h-full bg-emerald-500/55" />
                             <CheckCircle2 className="mx-auto text-emerald-500 mb-4" size={32} />
                             <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Você não tem avaliações pendentes.</p>
                           </div>
@@ -5786,7 +5788,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               const isCustom = item.type === 'CUSTOM';
                               return (
                                 <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
-                                  <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
+                                  <div className="absolute top-0 left-0 w-[5px] h-full bg-gradient-to-b from-primary-500 to-highlight-500" />
                                   <div className="mb-6">
                                     <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
                                       style={{ 
@@ -5855,7 +5857,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <div>
                         {completedTests.length === 0 ? (
                           <div className="bg-white p-12 rounded-[10px] text-center border border-slate-100 shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-[3px] bg-slate-200" />
+                            <div className="absolute top-0 left-0 w-[3px] h-full bg-slate-200" />
                             <Award className="mx-auto text-slate-300 mb-4" size={32} />
                             <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nenhum teste concluído ainda.</p>
                           </div>
@@ -5868,7 +5870,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               const isCustom = item.type === 'CUSTOM';
                               return (
                                 <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
-                                  <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
+                                  <div className="absolute top-0 left-0 w-[5px] h-full bg-gradient-to-b from-primary-500 to-highlight-500" />
                                   <div className="mb-6">
                                     <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
                                       style={{ 
