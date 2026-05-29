@@ -1533,7 +1533,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               -webkit-print-color-adjust: exact !important;
               color-adjust: exact !important;
               print-color-adjust: exact !important;
-              font-family: Arial, sans-serif !important;
+              font-family: "Inter", system-ui, -apple-system, sans-serif !important;
             }
             /* Universal Fallback for anything that might use oklch/oklab */
             svg { fill: currentColor !important; }
@@ -5511,9 +5511,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             <div style={{ flex: 1, padding: '40px 40px 40px 35px', display: 'flex', flexDirection: 'column', textAlign: 'left', boxSizing: 'border-box' }}>
               {/* PERFIL SECTION */}
               <div style={{ marginBottom: '32px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Perfil</h2>
+                <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Perfil</h2>
                 <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
-                <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify', whiteSpace: 'pre-line' }}>
+                <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'left', whiteSpace: 'pre-line' }}>
                   {resumeData.summary || 'Resumo profissional não preenchido.'}
                 </p>
               </div>
@@ -5521,17 +5521,17 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* EXPERIÊNCIAS SECTION */}
               {resumeData.experiences && resumeData.experiences.length > 0 && (
                 <div style={{ marginBottom: '32px' }}>
-                  <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Experiências</h2>
+                  <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Experiências</h2>
                   <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
                   <div>
                     {resumeData.experiences.map((exp) => (
                       <div key={exp.id} style={{ marginBottom: '24px' }}>
-                        <h4 style={{ fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', margin: '0 0 4px 0' }}>{exp.role}</h4>
+                        <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', textTransform: 'uppercase', margin: '0 0 4px 0' }}>{exp.role}</h4>
                         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
-                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{exp.company}</span>
-                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{getExperienceDuration(exp.startDate, exp.endDate, exp.current)}</span>
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>{exp.company}</span>
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>{getExperienceDuration(exp.startDate, exp.endDate, exp.current)}</span>
                         </div>
-                        <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, whiteSpace: 'pre-line', textAlign: 'justify' }}>
+                        <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, whiteSpace: 'pre-line', textAlign: 'left' }}>
                           {exp.description}
                         </p>
                       </div>
@@ -5543,13 +5543,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* EDUCAÇÃO SECTION */}
               {resumeData.educations && resumeData.educations.length > 0 && (
                 <div style={{ marginBottom: '32px' }}>
-                  <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Educação</h2>
+                  <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Educação</h2>
                   <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
                   <div>
                     {resumeData.educations.map((edu) => (
                       <div key={edu.id} style={{ marginBottom: '20px' }}>
-                        <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#000000', margin: '0 0 4px 0' }}>{edu.course}</h4>
-                        <p style={{ fontSize: '11px', fontWeight: 700, color: '#000000', letterSpacing: '0.5px', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
+                        <h4 style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', margin: '0 0 4px 0' }}>{edu.course}</h4>
+                        <p style={{ fontSize: '11px', fontWeight: 600, color: '#334155', letterSpacing: '0.5px', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
                           {edu.gradYear} - {edu.status}
                         </p>
                         <p style={{ fontSize: '12px', color: '#334155', margin: 0 }}>{edu.institution}</p>
@@ -5683,9 +5683,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <div style={{ flex: 1, padding: '40px 40px 40px 35px', display: 'flex', flexDirection: 'column', textAlign: 'left', boxSizing: 'border-box' }}>
                         {/* PERFIL SECTION */}
                         <div style={{ marginBottom: '32px' }}>
-                          <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Perfil</h2>
+                          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Perfil</h2>
                           <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
-                          <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify', whiteSpace: 'pre-line' }}>
+                          <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'left', whiteSpace: 'pre-line' }}>
                             {resumeData.summary || 'Resumo profissional não preenchido.'}
                           </p>
                         </div>
@@ -5693,17 +5693,17 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         {/* EXPERIÊNCIAS SECTION */}
                         {resumeData.experiences && resumeData.experiences.length > 0 && (
                           <div style={{ marginBottom: '32px' }}>
-                            <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Experiências</h2>
+                            <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Experiências</h2>
                             <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
                             <div>
                               {resumeData.experiences.map((exp) => (
                                 <div key={exp.id} style={{ marginBottom: '24px' }}>
-                                  <h4 style={{ fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', margin: '0 0 4px 0' }}>{exp.role}</h4>
+                                  <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', textTransform: 'uppercase', margin: '0 0 4px 0' }}>{exp.role}</h4>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{exp.company}</span>
-                                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{getExperienceDuration(exp.startDate, exp.endDate, exp.current)}</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>{exp.company}</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>{getExperienceDuration(exp.startDate, exp.endDate, exp.current)}</span>
                                   </div>
-                                  <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, whiteSpace: 'pre-line', textAlign: 'justify' }}>
+                                  <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, whiteSpace: 'pre-line', textAlign: 'left' }}>
                                     {exp.description}
                                   </p>
                                 </div>
@@ -5715,13 +5715,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         {/* EDUCAÇÃO SECTION */}
                         {resumeData.educations && resumeData.educations.length > 0 && (
                           <div style={{ marginBottom: '32px' }}>
-                            <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Educação</h2>
+                            <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Educação</h2>
                             <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
                             <div>
                               {resumeData.educations.map((edu) => (
                                 <div key={edu.id} style={{ marginBottom: '20px' }}>
-                                  <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#000000', margin: '0 0 4px 0' }}>{edu.course}</h4>
-                                  <p style={{ fontSize: '11px', fontWeight: 700, color: '#000000', letterSpacing: '0.5px', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
+                                  <h4 style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', margin: '0 0 4px 0' }}>{edu.course}</h4>
+                                  <p style={{ fontSize: '11px', fontWeight: 600, color: '#334155', letterSpacing: '0.5px', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
                                     {edu.gradYear} - {edu.status}
                                   </p>
                                   <p style={{ fontSize: '12px', color: '#334155', margin: 0 }}>{edu.institution}</p>
