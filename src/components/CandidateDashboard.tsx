@@ -1625,9 +1625,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [myApplications, setMyApplications] = useState<any[]>([]);
   const [isApplying, setIsApplying] = useState<string | null>(null);
   const [selectedJobForDetails, setSelectedJobForDetails] = useState<any | null>(null);
-
-  // DISC Test States
+  const [drawerTestResult, setDrawerTestResult] = useState<'DISC' | 'MBTI' | 'TEMPERAMENTOS' | 'CUSTOM' | 'QUESTIONS' | null>(null);
   const [discTestState, setDiscTestState] = useState<'initial' | 'taking' | 'completed' | 'none'>('none');
+
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number>(0);
   const [discAnswers, setDiscAnswers] = useState<Array<{ D: number | null; I: number | null; S: number | null; C: number | null }>>(
     Array.from({ length: 25 }, () => ({ D: null, I: null, S: null, C: null }))
@@ -1727,7 +1727,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     setDiscResult(result);
 
     if (!import.meta.env.VITE_SUPABASE_URL || !activeTestApplicationId) {
-      setDiscTestState('completed');
+      setDiscTestState('none');
+      setDrawerTestResult('DISC');
       return;
     }
 
@@ -1759,7 +1760,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       if (error) throw error;
 
       setMyApplications(prev => prev.map(a => a.id === activeTestApplicationId ? { ...a, candidate_phone: serializedDISC } : a));
-      setDiscTestState('completed');
+      setDiscTestState('none');
+      setDrawerTestResult('DISC');
     } catch (err) {
       console.error('Erro ao salvar resultado do teste DISC:', err);
       setDiscErrorMessage('Erro ao enviar suas respostas para o banco de dados. Por favor, tente novamente.');
@@ -1778,7 +1780,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     }
 
     if (!import.meta.env.VITE_SUPABASE_URL || !activeQuestionsApplicationId) {
-      setQuestionsState('completed');
+      setQuestionsState('none');
+      setDrawerTestResult('QUESTIONS');
       return;
     }
 
@@ -1814,8 +1817,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       if (error) throw error;
 
       setMyApplications(prev => prev.map(a => a.id === activeQuestionsApplicationId ? { ...a, candidate_phone: updatedPhoneVal } : a));
-      setQuestionsState('completed');
+      setQuestionsState('none');
       setSelectedQuestionsResult(questionsAnswers);
+      setDrawerTestResult('QUESTIONS');
     } catch (err) {
       console.error('Erro ao salvar questionário:', err);
       setQuestionsErrorMessage('Erro ao enviar suas respostas para o banco de dados. Por favor, tente novamente.');
@@ -1889,8 +1893,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       setMbtiResult({ type: typeResult, scores: { E, I, S, N, T, F, J, P } });
 
       if (!import.meta.env.VITE_SUPABASE_URL || !activeMbtiApplicationId) {
-        setMbtiState('completed');
+        setMbtiState('none');
         setSelectedMbtiResult(mbtiResultData);
+        setDrawerTestResult('MBTI');
         return;
       }
 
@@ -1921,8 +1926,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       if (error) throw error;
 
       setMyApplications(prev => prev.map(a => a.id === activeMbtiApplicationId ? { ...a, candidate_phone: updatedPhoneVal } : a));
-      setMbtiState('completed');
+      setMbtiState('none');
       setSelectedMbtiResult(mbtiResultData);
+      setDrawerTestResult('MBTI');
     } catch (err) {
       console.error('Erro ao salvar questionário MBTI:', err);
       setMbtiErrorMessage('Erro ao enviar suas respostas para o banco de dados. Por favor, tente novamente.');
@@ -1990,8 +1996,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       setTemperamentosResult({ type: finalType, scores: { I, C, O, A } });
 
       if (!import.meta.env.VITE_SUPABASE_URL || !activeTemperamentosApplicationId) {
-        setTemperamentosState('completed');
+        setTemperamentosState('none');
         setSelectedTemperamentosResult(temperamentosResultData);
+        setDrawerTestResult('TEMPERAMENTOS');
         return;
       }
 
@@ -2022,8 +2029,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       if (error) throw error;
 
       setMyApplications(prev => prev.map(a => a.id === activeTemperamentosApplicationId ? { ...a, candidate_phone: updatedPhoneVal } : a));
-      setTemperamentosState('completed');
+      setTemperamentosState('none');
       setSelectedTemperamentosResult(temperamentosResultData);
+      setDrawerTestResult('TEMPERAMENTOS');
     } catch (err) {
       console.error('Erro ao salvar teste de temperamentos:', err);
       setTemperamentosErrorMessage('Erro ao enviar suas respostas para o banco de dados. Por favor, tente novamente.');
@@ -2064,8 +2072,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     setCustomTestErrorMessage(null);
 
     if (!import.meta.env.VITE_SUPABASE_URL || !activeCustomTestApplicationId) {
-      setCustomTestState('completed');
+      setCustomTestState('none');
       setSelectedCustomTestResult(customTestAnswers);
+      setDrawerTestResult('CUSTOM');
       return;
     }
 
@@ -2116,8 +2125,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       if (error) throw error;
 
       setMyApplications(prev => prev.map(a => a.id === activeCustomTestApplicationId ? { ...a, candidate_phone: updatedPhoneVal } : a));
-      setCustomTestState('completed');
+      setCustomTestState('none');
       setSelectedCustomTestResult(customTestAnswers);
+      setDrawerTestResult('CUSTOM');
     } catch (err) {
       console.error('Erro ao salvar questionário customizado:', err);
       setCustomTestErrorMessage('Erro ao enviar suas respostas. Por favor, tente novamente.');
@@ -2375,6 +2385,343 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       setActiveTab(tab);
       setIsMobileSidebarOpen(false);
     }
+  };
+
+  const renderDrawerTestContent = () => {
+    if (drawerTestResult === 'DISC' && discResult) {
+      const { D, I, S, C } = discResult;
+      const scoresList = [
+        { key: 'D' as const, label: 'Dominância (D)', val: D, color: 'bg-rose-500', textColor: 'text-rose-600', classColor: 'text-rose-600 bg-rose-50/50 border-rose-100', profile: perfisDISC.D },
+        { key: 'I' as const, label: 'Influência (I)', val: I, color: 'bg-indigo-500', textColor: 'text-indigo-600', classColor: 'text-indigo-600 bg-indigo-50/50 border-indigo-100', profile: perfisDISC.I },
+        { key: 'S' as const, label: 'Estabilidade (S)', val: S, color: 'bg-emerald-500', textColor: 'text-emerald-600', classColor: 'text-emerald-600 bg-emerald-50/50 border-emerald-100', profile: perfisDISC.S },
+        { key: 'C' as const, label: 'Conformidade (C)', val: C, color: 'bg-amber-500', textColor: 'text-amber-600', classColor: 'text-amber-600 bg-amber-50/50 border-amber-100', profile: perfisDISC.C }
+      ];
+
+      const sortedScores = [...scoresList].sort((a, b) => b.val - a.val);
+      const predominant = sortedScores[0];
+      const secondary = sortedScores[1];
+
+      let combinationText = "";
+      const k1 = predominant.key;
+      const k2 = secondary.key;
+      if ((k1 === 'D' && k2 === 'I') || (k1 === 'I' && k2 === 'D')) {
+        combinationText = "Líder comunicador, persuasivo e competitivo.";
+      } else if ((k1 === 'D' && k2 === 'C') || (k1 === 'C' && k2 === 'D')) {
+        combinationText = "Estratégico, exigente e focado em alta performance.";
+      } else if ((k1 === 'I' && k2 === 'S') || (k1 === 'S' && k2 === 'I')) {
+        combinationText = "Comunicador empático e colaborativo.";
+      } else if ((k1 === 'S' && k2 === 'C') || (k1 === 'C' && k2 === 'S')) {
+        combinationText = "Organizado, confiável e analítico.";
+      } else if ((k1 === 'D' && k2 === 'S') || (k1 === 'S' && k2 === 'D')) {
+        combinationText = "Liderança equilibrada e firme.";
+      } else if ((k1 === 'I' && k2 === 'C') || (k1 === 'C' && k2 === 'I')) {
+        combinationText = "Criativo com pensamento analítico.";
+      }
+
+      const getClassificationBand = (v: number) => {
+        if (v <= 39) return { label: "Baixa tendência", color: "text-slate-400 bg-slate-50 border-slate-200" };
+        if (v <= 69) return { label: "Tendência moderada", color: "text-amber-600 bg-amber-50 border-amber-200" };
+        return { label: "Predominante", color: "text-emerald-600 bg-emerald-50 border-emerald-200" };
+      };
+
+      return (
+        <div className="space-y-6 text-left pb-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={`p-5 rounded-[10px] border ${predominant.classColor} relative overflow-hidden`}>
+              <div className="absolute top-0 left-0 w-full h-[4px] bg-primary-500" />
+              <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Perfil Predominante</span>
+              <h3 className="text-md font-black tracking-tight mt-1">{predominant.profile.nome}</h3>
+              <p className="text-xs font-semibold leading-relaxed mt-2 opacity-90">{predominant.profile.desc}</p>
+            </div>
+            <div className={`p-5 rounded-[10px] border ${secondary.classColor} relative overflow-hidden`}>
+              <div className="absolute top-0 left-0 w-full h-[4px] bg-highlight-500" />
+              <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Perfil Secundário</span>
+              <h3 className="text-md font-black tracking-tight mt-1">{secondary.profile.nome}</h3>
+              <p className="text-xs font-semibold leading-relaxed mt-2 opacity-90">{secondary.profile.desc}</p>
+            </div>
+          </div>
+
+          {combinationText && (
+            <div className="p-5 bg-indigo-50/40 border border-indigo-100/60 rounded-[10px] text-left">
+              <span className="text-[9px] font-black uppercase tracking-widest text-indigo-500">Combinação de Perfil</span>
+              <h4 className="text-xs font-black text-indigo-950 mt-1">{predominant.profile.label} + {secondary.profile.label}</h4>
+              <p className="text-xs font-semibold text-indigo-800 mt-1 leading-relaxed">{combinationText}</p>
+            </div>
+          )}
+
+          <div className="bg-white border border-slate-100 p-6 rounded-[10px] shadow-sm space-y-6">
+            <h3 className="text-xs font-black text-slate-800 tracking-tight uppercase">Equilíbrio dos Fatores (DISC)</h3>
+            <div className="space-y-4">
+              {scoresList.map(f => {
+                const band = getClassificationBand(f.val);
+                return (
+                  <div key={f.key} className="space-y-1.5">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-700">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black uppercase tracking-wider">{f.label}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black border uppercase tracking-wider ${band.color}`}>
+                          {band.label}
+                        </span>
+                      </div>
+                      <span className="font-black text-xs text-slate-900">{f.val}%</span>
+                    </div>
+                    <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200/30">
+                      <div 
+                        className={`h-full ${f.color} rounded-full transition-all duration-500`}
+                        style={{ width: `${f.val}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="border border-slate-100 rounded-[10px] p-6 space-y-5 bg-white shadow-sm">
+            <h3 className="text-xs font-black text-slate-800 tracking-tight uppercase">Detalhamento Comportamental</h3>
+            <div className="space-y-4 text-xs font-semibold text-slate-600 leading-relaxed">
+              <div>
+                <span className="font-black text-slate-800 block text-[10px] uppercase tracking-wider mb-1">Características Principais</span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {predominant.profile.caracteristicas.map((c, i) => (
+                    <span key={i} className="px-2.5 py-1 bg-slate-50 border border-slate-200/50 rounded-md text-[9px] font-bold text-slate-50">{c}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div className="bg-emerald-50/20 border border-emerald-100/50 p-4 rounded-[8px]">
+                  <span className="font-black text-emerald-800 block text-[10px] uppercase tracking-wider mb-1">Pontos Fortes</span>
+                  <ul className="list-disc pl-4 space-y-1 mt-2 text-emerald-755">
+                    {predominant.profile.pontosFortes.map((p, i) => <li key={i}>{p}</li>)}
+                  </ul>
+                </div>
+                <div className="bg-rose-50/20 border border-rose-100/50 p-4 rounded-[8px]">
+                  <span className="font-black text-rose-800 block text-[10px] uppercase tracking-wider mb-1">Pontos de Atenção</span>
+                  <ul className="list-disc pl-4 space-y-1 mt-2 text-rose-755">
+                    {predominant.profile.pontosAtencao.map((p, i) => <li key={i}>{p}</li>)}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (drawerTestResult === 'QUESTIONS' && selectedQuestionsResult) {
+      const categoriesKeys = ['EXPERIENCE', 'CONTRIBUTION', 'TEAMWORK', 'BEHAVIORAL'] as const;
+      const currentCategoryKey = categoriesKeys[currentQuestionsCategoryIndex];
+      const currentCategory = QUESTIONS_CATEGORIES[currentCategoryKey];
+      const startIndex = currentQuestionsCategoryIndex * 5;
+
+      return (
+        <div className="space-y-6 text-left pb-10">
+          <div className="flex border border-slate-100 bg-white p-1 rounded-[10px] gap-1 overflow-x-auto scrollbar-none shadow-sm">
+            {categoriesKeys.map((catKey, idx) => {
+              const cat = QUESTIONS_CATEGORIES[catKey];
+              const isActive = currentQuestionsCategoryIndex === idx;
+              return (
+                <button
+                  key={catKey}
+                  type="button"
+                  onClick={() => setCurrentQuestionsCategoryIndex(idx)}
+                  className={`px-3 py-2 rounded-[8px] text-[9px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex-1 cursor-pointer ${
+                    isActive
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {cat.title}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="space-y-4">
+            {currentCategory.questions.map((questionText, idx) => {
+              const globalIdx = startIndex + idx;
+              const answerText = selectedQuestionsResult[globalIdx] || selectedQuestionsResult[globalIdx.toString()] || 'Nenhuma resposta gravada.';
+
+              return (
+                <div key={globalIdx} className="p-5 rounded-[10px] border border-slate-100 bg-white space-y-3 shadow-xs">
+                  <div className="flex items-start gap-2.5">
+                    <span className="w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center text-white shrink-0 mt-0.5 bg-primary-600">
+                      {globalIdx + 1}
+                    </span>
+                    <h4 className="font-extrabold text-slate-800 text-xs leading-snug">
+                      {questionText}
+                    </h4>
+                  </div>
+                  <div className="p-4 bg-slate-50 border border-slate-100 rounded-[10px] text-xs font-semibold text-slate-600 leading-relaxed whitespace-pre-line">
+                    {answerText}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    if (drawerTestResult === 'MBTI' && (mbtiResult || selectedMbtiResult)) {
+      const mbtiScores = mbtiResult?.scores || selectedMbtiResult?.scores || { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+      const mbtiType = mbtiResult?.type || selectedMbtiResult?.type || "ISTJ";
+      const profile = MBTI_PROFILES[mbtiType] || MBTI_PROFILES.ISTJ;
+
+      const calcMbtiPercent = (valA: number, valB: number) => {
+        const total = valA + valB;
+        if (total === 0) return 50;
+        return Math.round((valA / total) * 100);
+      };
+
+      const pctE = calcMbtiPercent(mbtiScores.E, mbtiScores.I);
+      const pctI = 100 - pctE;
+      const pctS = calcMbtiPercent(mbtiScores.S, mbtiScores.N);
+      const pctN = 100 - pctS;
+      const pctT = calcMbtiPercent(mbtiScores.T, mbtiScores.F);
+      const pctF = 100 - pctT;
+      const pctJ = calcMbtiPercent(mbtiScores.J, mbtiScores.P);
+      const pctP = 100 - pctJ;
+
+      const dimensionsList = [
+        { leftLabel: "Extroversão (E)", rightLabel: "Introversão (I)", leftVal: pctE, rightVal: pctI, dominant: mbtiType[0] },
+        { leftLabel: "Sensação (S)", rightLabel: "Intuição (N)", leftVal: pctS, rightVal: pctN, dominant: mbtiType[1] },
+        { leftLabel: "Pensamento (T)", rightLabel: "Sentimento (F)", leftVal: pctT, rightVal: pctF, dominant: mbtiType[2] },
+        { leftLabel: "Julgamento (J)", rightLabel: "Percepção (P)", leftVal: pctJ, rightVal: pctP, dominant: mbtiType[3] }
+      ];
+
+      return (
+        <div className="space-y-6 text-left pb-10">
+          <div className={`p-6 rounded-[10px] border ${profile.classColor} space-y-4 relative overflow-hidden`}>
+            <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Seu Tipo de Personalidade</span>
+                <h3 className="text-2xl font-black tracking-tight mt-1">{profile.nome}</h3>
+                <p className="text-xs font-extrabold opacity-95">{profile.titulo} • Categoria: {profile.categoria}</p>
+              </div>
+            </div>
+            <div className="w-full h-px bg-slate-200/30" />
+            <p className="text-xs font-semibold leading-relaxed opacity-90">{profile.desc}</p>
+          </div>
+
+          <div className="bg-white border border-slate-100 p-6 rounded-[10px] space-y-6 shadow-sm">
+            <h3 className="text-xs font-black text-slate-800 tracking-tight uppercase">Suas Dimensões de Personalidade</h3>
+            <div className="space-y-5">
+              {dimensionsList.map((dim, idx) => {
+                const isLeftDom = dim.dominant === dim.leftLabel.substring(dim.leftLabel.indexOf('(') + 1, dim.leftLabel.indexOf(')'));
+                return (
+                  <div key={idx} className="space-y-1.5">
+                    <div className="flex justify-between items-center text-[9px] font-bold text-slate-700">
+                      <span className={isLeftDom ? 'text-primary-600 font-black' : 'text-slate-400'}>
+                        {dim.leftLabel} • {dim.leftVal}%
+                      </span>
+                      <span className={!isLeftDom ? 'text-primary-600 font-black' : 'text-slate-400'}>
+                        {dim.rightLabel} • {dim.rightVal}%
+                      </span>
+                    </div>
+                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex border border-slate-200/20">
+                      <div className="h-full bg-slate-200 rounded-l-full" style={{ width: `${dim.leftVal}%` }} />
+                      <div className="h-full bg-primary-600 rounded-r-full" style={{ width: `${dim.rightVal}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (drawerTestResult === 'TEMPERAMENTOS' && (temperamentosResult || selectedTemperamentosResult)) {
+      const tResult = temperamentosResult || selectedTemperamentosResult;
+      const profileType = tResult.type;
+      const scores = tResult.scores || { I: 0, C: 0, O: 0, A: 0 };
+      const profile = TEMPERAMENTOS_PROFILES[profileType] || TEMPERAMENTOS_PROFILES.I;
+
+      const totalAnswers = scores.I + scores.C + scores.O + scores.A;
+      const calcPercent = (val: number) => {
+        if (totalAnswers === 0) return 0;
+        return Math.round((val / totalAnswers) * 100);
+      };
+
+      const listProfiles = [
+        { label: "Idealista / Criativo (I)", val: scores.I, pct: calcPercent(scores.I), color: '#3b82f6' },
+        { label: "Comunicador / Relacional (C)", val: scores.C, pct: calcPercent(scores.C), color: '#ec4899' },
+        { label: "Organizador / Analítico (O)", val: scores.O, pct: calcPercent(scores.O), color: '#10b981' },
+        { label: "Executor / Dominante (A)", val: scores.A, pct: calcPercent(scores.A), color: '#ef4444' }
+      ];
+
+      return (
+        <div className="space-y-6 text-left pb-10">
+          <div className="p-6 rounded-[10px] border border-primary-100 bg-white space-y-4 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-indigo-500" />
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="text-[9px] font-black uppercase tracking-widest text-primary-600">Seu Estilo Predominante</span>
+                <h3 className="text-2xl font-black tracking-tight mt-1 text-slate-900">{profile.name}</h3>
+                <p className="text-xs font-extrabold text-indigo-600 mt-0.5">{profile.title}</p>
+              </div>
+            </div>
+            <div className="w-full h-px bg-slate-200/50" />
+            <p className="text-xs font-semibold leading-relaxed text-slate-600">{profile.description}</p>
+          </div>
+
+          <div className="bg-white border border-slate-100 p-6 rounded-[10px] space-y-6 shadow-sm">
+            <h3 className="text-xs font-black text-slate-800 tracking-tight uppercase">Distribuição dos Estilos</h3>
+            <div className="space-y-4">
+              {listProfiles.map((item, idx) => (
+                <div key={idx} className="space-y-1.5">
+                  <div className="flex justify-between items-center text-[9px] font-bold text-slate-700">
+                    <span>{item.label}</span>
+                    <span className="font-black text-slate-900">{item.val} pts ({item.pct}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden flex border border-slate-200/20">
+                    <div 
+                      className="h-full rounded-full transition-all duration-500" 
+                      style={{ width: `${item.pct}%`, backgroundColor: item.color }} 
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (drawerTestResult === 'CUSTOM' && selectedCustomTestResult) {
+      return (
+        <div className="space-y-6 text-left pb-10">
+          <div className="space-y-4">
+            {customTestQuestions.map((q, idx) => {
+              const answerText = selectedCustomTestResult[q.id] || 'Nenhuma resposta gravada.';
+              return (
+                <div key={q.id || idx} className="p-5 rounded-[10px] border border-slate-100 bg-white space-y-3 shadow-xs">
+                  <div className="flex items-start gap-2.5">
+                    <span className="w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center text-white bg-slate-900 shrink-0 mt-0.5">
+                      {idx + 1}
+                    </span>
+                    <h4 className="font-extrabold text-slate-800 text-xs leading-snug">
+                      {q.question}
+                    </h4>
+                  </div>
+                  <div className="p-4 bg-slate-50 border border-slate-100 rounded-[10px] text-xs font-semibold text-slate-600 leading-relaxed whitespace-pre-line">
+                    {answerText}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="text-center py-10">
+        <p className="text-slate-400 text-xs font-semibold">Nenhum resultado carregado ou teste inválido.</p>
+      </div>
+    );
   };
 
   return (
@@ -5309,9 +5656,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 return (
                   <div className="space-y-12">
                     <div>
-                      <h3 className="text-lg font-black text-slate-900 tracking-tight text-left mb-4">Testes Pendentes</h3>
+                      <div className="flex items-center gap-2.5 mb-5 select-none">
+                        <div className="w-1.5 h-6 bg-gradient-to-b from-primary-500 to-highlight-500 rounded-full animate-pulse" />
+                        <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase">Testes Pendentes</h3>
+                      </div>
                       {pendingTests.length === 0 ? (
-                        <div className="bg-white p-12 rounded-[2.5rem] text-center border border-slate-100 shadow-sm">
+                        <div className="bg-white p-12 rounded-[10px] text-center border border-slate-100 shadow-sm relative overflow-hidden">
+                          <div className="absolute top-0 left-0 w-full h-[3px] bg-emerald-500/55" />
                           <CheckCircle2 className="mx-auto text-emerald-500 mb-4" size={32} />
                           <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Você não tem avaliações pendentes.</p>
                         </div>
@@ -5323,7 +5674,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             const isTemperamentos = item.type === 'TEMPERAMENTOS';
                             const isCustom = item.type === 'CUSTOM';
                             return (
-                              <div key={item.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-[#533af6]/30 transition-all">
+                              <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
                                 <div className="mb-6">
                                   <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
                                     style={{ 
@@ -5378,8 +5730,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                       setQuestionsState('initial');
                                     }
                                   }}
-                                  className="w-full py-3.5 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest transition-all shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
-                                  style={{ backgroundColor: isDisc ? '#6366f1' : isMbti ? '#533af6' : isTemperamentos ? '#0ea5e9' : isCustom ? '#10b981' : '#533af6' }}
+                                  className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] font-black text-[9px] uppercase tracking-widest transition-all shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                   Começar Avaliação {isDisc ? <Brain size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
                                 </button>
@@ -5391,9 +5742,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-black text-slate-900 tracking-tight text-left mb-4">Testes Concluídos</h3>
+                      <div className="flex items-center gap-2.5 mb-5 select-none">
+                        <div className="w-1.5 h-6 bg-gradient-to-b from-primary-500 to-highlight-500 rounded-full" />
+                        <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase">Testes Concluídos</h3>
+                      </div>
                       {completedTests.length === 0 ? (
-                        <div className="bg-white p-12 rounded-[2.5rem] text-center border border-slate-100 shadow-sm">
+                        <div className="bg-white p-12 rounded-[10px] text-center border border-slate-100 shadow-sm relative overflow-hidden">
+                          <div className="absolute top-0 left-0 w-full h-[3px] bg-slate-200" />
                           <Award className="mx-auto text-slate-300 mb-4" size={32} />
                           <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nenhum teste concluído ainda.</p>
                         </div>
@@ -5405,7 +5760,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             const isTemperamentos = item.type === 'TEMPERAMENTOS';
                             const isCustom = item.type === 'CUSTOM';
                             return (
-                              <div key={item.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-[#533af6]/20 transition-all">
+                              <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
                                 <div className="mb-6">
                                   <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
                                     style={{ 
@@ -5441,17 +5797,17 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                     if (isDisc) {
                                       setDiscResult({ D: item.data.D, I: item.data.I, S: item.data.S, C: item.data.C });
                                       setActiveTestApplicationId(item.app.id);
-                                      setDiscTestState('completed');
+                                      setDrawerTestResult('DISC');
                                     } else if (isMbti) {
                                       setMbtiResult({ type: item.data.type, scores: item.data.scores });
                                       setActiveMbtiApplicationId(item.app.id);
                                       setSelectedMbtiResult(item.data);
-                                      setMbtiState('completed');
+                                      setDrawerTestResult('MBTI');
                                     } else if (isTemperamentos) {
                                       setTemperamentosResult({ type: item.data.type, scores: item.data.scores });
                                       setActiveTemperamentosApplicationId(item.app.id);
                                       setSelectedTemperamentosResult(item.data);
-                                      setTemperamentosState('completed');
+                                      setDrawerTestResult('TEMPERAMENTOS');
                                     } else if (isCustom) {
                                       setSelectedCustomTestResult(item.data);
                                       setActiveCustomTestApplicationId(item.app.id);
@@ -5464,15 +5820,15 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                       }
                                       
                                       setCustomTestQuestions(qList);
-                                      setCustomTestState('completed');
+                                      setDrawerTestResult('CUSTOM');
                                     } else {
                                       setSelectedQuestionsResult(item.data);
                                       setActiveQuestionsApplicationId(item.app.id);
                                       setCurrentQuestionsCategoryIndex(0);
-                                      setQuestionsState('completed');
+                                      setDrawerTestResult('QUESTIONS');
                                     }
                                   }}
-                                  className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2"
+                                  className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] font-black text-[9px] uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                   Visualizar Relatório {isDisc ? <Award size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
                                 </button>
@@ -6287,6 +6643,60 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           </motion.div>
         </div>
       )}
+
+      {/* Test Results Detail Drawer */}
+      <AnimatePresence>
+        {drawerTestResult && (
+          <div className="fixed inset-0 z-[110] flex justify-end overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDrawerTestResult(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.35, ease: 'easeOut' }}
+              className="relative w-full max-w-2xl h-full bg-slate-50 shadow-2xl overflow-hidden flex flex-col rounded-l-[10px] rounded-r-none z-10 text-left border-l border-slate-100"
+            >
+              {/* Header do Drawer */}
+              <div className="p-6 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
+                    {drawerTestResult === 'DISC' ? <Award size={20} /> :
+                     drawerTestResult === 'MBTI' ? <Sparkles size={20} /> :
+                     drawerTestResult === 'TEMPERAMENTOS' ? <Compass size={20} /> :
+                     <FileText size={20} />}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                      {drawerTestResult === 'DISC' ? 'Relatório comportamental DISC 5.0' :
+                       drawerTestResult === 'MBTI' ? 'Relatório de Personalidade MBTI' :
+                       drawerTestResult === 'TEMPERAMENTOS' ? 'Relatório de Temperamentos' :
+                       drawerTestResult === 'CUSTOM' ? 'Respostas do Questionário Customizado' :
+                       'Mapeamento de Perfil (20 Perguntas)'}
+                    </h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                      {drawerTestResult === 'CUSTOM' || drawerTestResult === 'QUESTIONS' ? 'Perguntas e Respostas da Vaga' : 'Mapeamento Comportamental Detalhado'}
+                    </p>
+                  </div>
+                </div>
+                <button onClick={() => setDrawerTestResult(null)} className="p-2 bg-slate-50 text-slate-400 hover:text-slate-950 rounded-full transition-all cursor-pointer border-0">
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Conteúdo do Drawer */}
+              <div className="flex-1 overflow-y-auto p-8 scrollbar-thin">
+                {renderDrawerTestContent()}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
