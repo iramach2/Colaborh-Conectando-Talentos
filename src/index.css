@@ -56,3 +56,28 @@ html {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Custom scrollbar globally for Webkit/Chromium browsers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* Fallback for Firefox support of thin scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
