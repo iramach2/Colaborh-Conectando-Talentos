@@ -1676,7 +1676,28 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
   const cleanDescription = (desc: string) => {
     if (!desc) return '';
-    return desc.split('===ETAPAS_JSON===')[0].trim();
+    let cleaned = desc.split('===ETAPAS_JSON===')[0].trim();
+    
+    // Remover a seção de benefícios do texto da descrição para evitar duplicação com a seção estruturada
+    const benefitsMarkers = [
+      'benefícios:',
+      'beneficios:',
+      'beneficios oferecidos:',
+      'benefícios oferecidos:',
+      'benefícios e vantagens:',
+      'beneficios e vantagens:'
+    ];
+    
+    const lowerCleaned = cleaned.toLowerCase();
+    for (const marker of benefitsMarkers) {
+      const idx = lowerCleaned.indexOf(marker);
+      if (idx !== -1) {
+        cleaned = cleaned.substring(0, idx).trim();
+        break;
+      }
+    }
+    
+    return cleaned;
   };
 
   const handleFinishDISCTest = async () => {
@@ -3297,7 +3318,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                            <button 
                              type="button"
                              onClick={() => setSelectedJobForDetails(v)}
-                             className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-black text-[9px] uppercase tracking-wider transition-all"
+                             className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full font-black text-[9px] uppercase tracking-wider transition-all"
                            >
                              Ver Detalhes
                            </button>
@@ -3305,7 +3326,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                              type="button"
                              onClick={() => handleApply(v)}
                              disabled={isApplied || isApplying === v.id}
-                             className={`flex-[2] py-3.5 rounded-2xl font-black text-[9px] uppercase tracking-[0.1em] transition-all shadow-xl flex items-center justify-center gap-2 ${
+                             className={`flex-[2] py-3.5 rounded-full font-black text-[9px] uppercase tracking-[0.1em] transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer ${
                                isApplied 
                                  ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100' 
                                  : 'bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-0.5 active:scale-95 shadow-slate-200/50'
@@ -3413,7 +3434,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         {job && (
                           <button 
                             onClick={() => setSelectedJobForDetails(job)}
-                            className="px-6 py-3 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-[10px] text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-primary-500/10 cursor-pointer"
+                            className="px-6 py-3 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-primary-500/10 cursor-pointer"
                           >
                             Ver Detalhes
                           </button>
@@ -6115,7 +6136,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     setSelectedJobForDetails(null);
                   }}
                   disabled={appliedJobIds.includes(selectedJobForDetails.id) || isApplying === selectedJobForDetails.id}
-                  className={`px-10 py-3.5 rounded-[10px] font-black uppercase tracking-widest text-[10px] shadow-lg transition-all cursor-pointer ${
+                  className={`px-10 py-3.5 rounded-full font-black uppercase tracking-widest text-[10px] shadow-lg transition-all cursor-pointer ${
                     appliedJobIds.includes(selectedJobForDetails.id)
                       ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100'
                       : 'bg-[#8959f5] hover:bg-[#7747e0] text-white shadow-primary-500/10'
