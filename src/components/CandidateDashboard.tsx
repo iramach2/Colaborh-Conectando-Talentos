@@ -5862,7 +5862,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nenhum teste concluído ainda.</p>
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
                             {completedTests.map(item => {
                               const isDisc = item.type === 'DISC';
                               const isMbti = item.type === 'MBTI';
@@ -5937,7 +5937,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                         setDrawerTestResult('QUESTIONS');
                                       }
                                     }}
-                                    className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] font-black text-[9px] uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                                    className="w-full py-3.5 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full font-black text-[9px] uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border-0"
                                   >
                                     Visualizar Relatório {isDisc ? <Award size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
                                   </button>
