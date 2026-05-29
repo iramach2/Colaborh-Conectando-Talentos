@@ -3281,25 +3281,19 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       .replace(/🔞 Idade Mínima:[^\n]*\n?/gi, '')
                       .trim();
                     
-                    // Obter a inicial da empresa parceira ou título
-                    const companyInitial = (v.company_name || v.title || 'C')[0].toUpperCase();
-
                     return (
                       <div 
                         key={v.id} 
-                        className="bg-white p-6 rounded-[2.2rem] shadow-sleek border border-slate-100 hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[410px]"
+                        className="bg-white p-6 rounded-[10px] shadow-sleek border border-slate-100 hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[395px]"
                       >
                         {/* Sutil linha de gradiente superior no estilo do site */}
                         <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-highlight-500" />
                         
                         <div className="flex flex-col h-full justify-between">
                           <div>
-                            {/* Topo do Card: Avatar da Empresa e Badges */}
-                            <div className="flex justify-between items-start mb-4">
-                              <div className="w-12 h-12 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-2xl flex items-center justify-center text-primary-600 font-extrabold text-base border border-primary-100/20 shadow-inner">
-                                {companyInitial}
-                              </div>
-                              <div className="flex flex-col items-end gap-1.5">
+                            {/* Topo do Card: Badges da Vaga */}
+                            <div className="flex justify-between items-center mb-4 mt-1">
+                              <div className="flex gap-1.5">
                                 <span className="px-2.5 py-0.5 bg-primary-50 text-primary-600 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
                                   {v.modality || 'Remoto'}
                                 </span>
