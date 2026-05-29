@@ -3332,7 +3332,7 @@ Equipe de Recrutamento & Seleção - Colaborh
               })()}
               </div>
               <button 
-                onClick={() => setActiveTab('Cadastrar Vagas')}
+                onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
                 className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-md shadow-primary-100 hover:shadow-lg transition-all active:scale-95 border-0 cursor-pointer shrink-0 mr-6 mb-2 sm:mb-0"
               >
                 <Plus size={14} /> Nova Vaga
@@ -3443,7 +3443,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                 <div className="bg-white p-4 rounded-[1.5rem] shadow-sm border border-slate-100 flex flex-wrap gap-4 items-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 border-r border-slate-100 hidden md:block">Ações Rápidas</span>
                   <button 
-                    onClick={() => setActiveTab('Cadastrar Vagas')}
+                    onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
                     className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-primary-100 hover:shadow-lg transition-all active:scale-95"
                   >
                     <Plus size={14} /> Nova Vaga
@@ -4276,7 +4276,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                     <h3 className="text-lg font-black text-slate-900 mb-1">Nenhuma vaga publicada</h3>
                     <p className="text-slate-400 text-xs max-w-sm mx-auto mb-6 font-semibold">Você ainda não criou nenhuma oportunidade. Comece a contratar agora mesmo!</p>
                     <button 
-                      onClick={() => setActiveTab('Cadastrar Vagas')}
+                      onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
                       className="px-6 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-[5px] font-black text-[10px] uppercase tracking-widest shadow-md transition-all cursor-pointer"
                     >
                       Publicar Primeira Vaga
@@ -5598,7 +5598,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       {/* Global Overlays (placed here at the root level so they never get overlapped by the sidebar or affected by main's layout) */}
       <AnimatePresence>
             {isRegisteringVacancy && (
-              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <div className="fixed inset-0 z-[200] flex justify-end overflow-hidden">
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -5611,10 +5611,11 @@ Equipe de Recrutamento & Seleção - Colaborh
                 />
                 <motion.div 
                   key="cadastrar-vaga"
-                  initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                  className="relative w-full max-w-2xl bg-white/95 backdrop-blur-md rounded-[5px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-slate-200/60 z-10"
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
+                  className="relative w-full max-w-[600px] h-full bg-white/95 backdrop-blur-md rounded-l-[10px] rounded-r-none shadow-2xl overflow-hidden flex flex-col border-l border-slate-200/60 z-10"
                 >
                   {/* Step Header - Compact & Premium */}
                   <div className="px-8 pt-8 pb-4 relative">
