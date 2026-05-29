@@ -19,6 +19,7 @@ import {
   Save,
   Clock,
   Accessibility,
+  Lock,
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
