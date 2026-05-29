@@ -1133,7 +1133,11 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     experiences: [],
     educations: [],
   });
-  
+
+  const [originalResumeData, setOriginalResumeData] = useState<ResumeData | null>(null);
+  const [isResumeDirty, setIsResumeDirty] = useState(false);
+  const [pendingTabChange, setPendingTabChange] = useState<string | null>(null);
+
   useEffect(() => {
     async function loadUserData() {
       const { data: { session } } = await supabase.auth.getSession();
@@ -1141,15 +1145,26 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         const metadata = session.user.user_metadata;
         const userEmail = session.user.email;
 
-        // Start with metadata
-        setResumeData(prev => ({
-          ...prev,
-          fullName: (metadata?.full_name || prev.fullName || '').toUpperCase(),
-          email: userEmail || prev.email,
-          phone: metadata?.whatsapp || prev.phone,
-        }));
+        // Criar o objeto de perfil inicial combinando metadados do login
+        let initialProfile: ResumeData = {
+          fullName: (metadata?.full_name || '').toUpperCase(),
+          email: userEmail || '',
+          phone: metadata?.whatsapp || '',
+          state: '',
+          gender: '',
+          summary: '',
+          isPcd: false,
+          cid: '',
+          isFirstJob: false,
+          birthDate: '',
+          city: '',
+          salary: '',
+          skills: [],
+          experiences: [],
+          educations: [],
+        };
 
-        // Fetch full profile from talents table
+        // Buscar do banco de dados (tabela talents)
         if (userEmail) {
           try {
             const { data, error } = await supabase
@@ -1159,33 +1174,56 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               .maybeSingle();
 
             if (data && !error) {
-              setResumeData(prev => ({
-                ...prev,
-                fullName: (data.name || prev.fullName).toUpperCase(),
-                phone: data.phone || prev.phone,
-                state: data.state || prev.state,
-                city: data.city || prev.city,
-                gender: data.gender || prev.gender,
-                summary: data.summary || prev.summary,
-                skills: Array.isArray(data.skills) ? data.skills : prev.skills,
-                educations: Array.isArray(data.educations) ? data.educations : prev.educations,
-                experiences: Array.isArray(data.experiences) ? data.experiences : prev.experiences,
-                profilePic: data.profile_pic || prev.profilePic,
-                birthDate: data.birth_date || prev.birthDate,
-                salary: data.salary || prev.salary || '',
-                isPcd: data.is_pcd || prev.isPcd,
-                cid: data.CID || prev.cid || '',
-                isFirstJob: data.first_job ?? prev.isFirstJob
-              }));
+              initialProfile = {
+                fullName: (data.name || initialProfile.fullName || '').toUpperCase(),
+                email: data.email || initialProfile.email || '',
+                phone: data.phone || initialProfile.phone || '',
+                state: data.state || initialProfile.state || '',
+                city: data.city || initialProfile.city || '',
+                gender: data.gender || initialProfile.gender || '',
+                summary: data.summary || initialProfile.summary || '',
+                skills: Array.isArray(data.skills) ? data.skills : initialProfile.skills,
+                educations: Array.isArray(data.educations) ? data.educations : initialProfile.educations,
+                experiences: Array.isArray(data.experiences) ? data.experiences : initialProfile.experiences,
+                profilePic: data.profile_pic || initialProfile.profilePic,
+                birthDate: data.birth_date || initialProfile.birthDate || '',
+                salary: data.salary || initialProfile.salary || '',
+                isPcd: data.is_pcd || initialProfile.isPcd || false,
+                cid: data.CID || initialProfile.cid || '',
+                isFirstJob: data.first_job ?? initialProfile.isFirstJob ?? false
+              };
             }
           } catch (err) {
             console.error('Error fetching talent profile:', err);
           }
         }
+
+        setResumeData(initialProfile);
+        setOriginalResumeData(JSON.parse(JSON.stringify(initialProfile)));
       }
     }
     loadUserData();
   }, []);
+
+  // Monitorar se o currículo atual difere do original (dirty state)
+  useEffect(() => {
+    if (originalResumeData && resumeData) {
+      const isChanged = JSON.stringify(originalResumeData) !== JSON.stringify(resumeData);
+      setIsResumeDirty(isChanged);
+    }
+  }, [resumeData, originalResumeData]);
+
+  // Alerta nativo ao tentar fechar/recarregar a aba do navegador com alterações não salvas
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isResumeDirty) {
+        e.preventDefault();
+        e.returnValue = 'Você possui alterações não salvas. Tem certeza que deseja sair?';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isResumeDirty]);
 
   const [isParsing, setIsParsing] = useState(false);
   const [showExpModal, setShowExpModal] = useState(false);
@@ -1449,7 +1487,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         return;
       }
       
-      alert('Seu currículo foi salvo com sucesso!');
+      setOriginalResumeData(JSON.parse(JSON.stringify(resumeData)));
+      setIsResumeDirty(false);
+      showCustomSuccess('Seu currículo foi salvo com sucesso!\nSuas alterações foram enviadas para o banco de dados.', 'Salvo com sucesso');
     } catch (err: any) {
       console.error('Catch Error:', err);
       setErrorMessage('Erro inesperado: ' + (err.message || 'Erro de conexão.'));
@@ -2287,18 +2327,33 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       }
 
       setAppliedJobIds([...appliedJobIds, vacancy.id]);
-      alert(`Candidatura enviada para ${vacancy.title}!`);
+      showCustomSuccess(`Candidatura enviada com sucesso para ${vacancy.title}!`, 'Candidatura enviada');
     } catch (err) {
       console.error('Erro ao enviar candidatura:', err);
-      alert('Erro ao se candidatar. Verifique a tabela "applications" ou adicione as colunas conforme as instruções.');
+      showCustomAlert('Erro ao se candidatar. Verifique a tabela "applications" ou adicione as colunas conforme as instruções.', 'Erro de candidatura');
     } finally {
       setIsApplying(null);
     }
   };
 
   const handleSelectTab = (tab: string) => {
-    setActiveTab(tab);
-    setIsMobileSidebarOpen(false);
+    if (activeTab === 'Meu Currículo' && isResumeDirty && tab !== 'Meu Currículo') {
+      showCustomConfirm(
+        'Você fez alterações no seu currículo que serão perdidas se você mudar de página agora.\n\nDeseja descartar as alterações e sair?',
+        () => {
+          if (originalResumeData) {
+            setResumeData(JSON.parse(JSON.stringify(originalResumeData)));
+          }
+          setActiveTab(tab);
+          setIsMobileSidebarOpen(false);
+        },
+        undefined,
+        'Alterações não salvas'
+      );
+    } else {
+      setActiveTab(tab);
+      setIsMobileSidebarOpen(false);
+    }
   };
 
   return (
