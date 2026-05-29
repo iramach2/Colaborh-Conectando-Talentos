@@ -2529,11 +2529,14 @@ Equipe de Recrutamento & Seleção - Colaborh
   const [registerStep, setRegisterStep] = useState(1);
   const [vacancyForm, setVacancyForm] = useState({
     title: '',
+    role: '', // Novo campo para o cargo
     modality: 'Presencial',
     state: '',
     city: '',
-    remunerationType: 'Mensal',
+    remunerationType: 'Fixo', // Faixa Salarial, Fixo ou A Combinar
     salary: '',
+    salaryMin: '',
+    salaryMax: '',
     hasBonus: false,
     bonusType: 'Comissão',
     bonusValue: '',
@@ -2542,14 +2545,23 @@ Equipe de Recrutamento & Seleção - Colaborh
       vt: { selected: false, value: '' },
       va: { selected: false, value: '' },
       healthInsurance: false,
-      dentalPlan: false
+      healthInsuranceCopay: false, // Saúde com coparticipação
+      healthInsuranceFamily: false, // Saúde estende para familiar
+      dentalPlan: false,
+      dentalPlanFamily: false // Dental estende para familiar
     },
     extraBenefits: [] as string[],
     workSchedule: '5x2',
     isFirstJob: false,
+    isPcd: false, // Vaga para PcD
+    pcdDetails: '',
     minAge: 18,
+    positions: '1', // Quantidade de vagas
+    requestReason: 'Aumento de quadro', // Aumento de quadro ou Substituição de pessoal
+    isUrgent: false, // Contratação de urgência
     description: '',
-    requirements: [] as string[],
+    responsibilities: '', // Descrição de atribuições
+    requirements: [] as string[], // Mantido para compatibilidade
     stages: ['Análise de Currículo', 'Entrevista', 'Teste Técnico']
   });
 
@@ -2566,20 +2578,38 @@ Equipe de Recrutamento & Seleção - Colaborh
   const validateStep = (step: number) => {
     if (step === 1) {
       if (!vacancyForm.title.trim()) return "O título da vaga é obrigatório.";
-      if (vacancyForm.modality === 'Presencial') {
-        if (!vacancyForm.state) return "O estado é obrigatório para vagas presenciais.";
-        if (!vacancyForm.city) return "A cidade é obrigatória para vagas presenciais.";
+      if (!vacancyForm.role.trim()) return "O cargo é obrigatório.";
+      if (vacancyForm.modality === 'Presencial' || vacancyForm.modality === 'Híbrido') {
+        if (!vacancyForm.state) return "O estado é obrigatório.";
+        if (!vacancyForm.city) return "A cidade é obrigatória.";
       }
-      if (!vacancyForm.salary.trim()) return "O salário proposto é obrigatório.";
+      if (vacancyForm.remunerationType === 'Fixo') {
+        if (!vacancyForm.salary.trim()) return "O salário proposto é obrigatório.";
+      } else if (vacancyForm.remunerationType === 'Faixa Salarial') {
+        if (!vacancyForm.salaryMin.trim() || !vacancyForm.salaryMax.trim()) {
+          return "Os valores mínimo e máximo da faixa salarial são obrigatórios.";
+        }
+      }
+      if (vacancyForm.hasBonus && !vacancyForm.bonusValue.trim()) {
+        return "Informe o valor da comissão ou premiação.";
+      }
       if (!vacancyForm.contractType) return "O tipo de contratação é obrigatório.";
       if (!vacancyForm.workSchedule) return "A escala de trabalho é obrigatória.";
     }
 
     if (step === 2) {
-      if (!vacancyForm.description.trim()) return "A descrição da vaga é obrigatória.";
+      if (!vacancyForm.positions || parseInt(vacancyForm.positions) <= 0) {
+        return "A quantidade de posições disponíveis deve ser maior que zero.";
+      }
+      if (!vacancyForm.requestReason) return "O motivo da requisição é obrigatório.";
     }
 
     if (step === 3) {
+      if (!vacancyForm.description.trim()) return "A descrição da vaga é obrigatória.";
+      if (!vacancyForm.responsibilities.trim()) return "A descrição de atribuições é obrigatória.";
+    }
+
+    if (step === 4) {
       if (vacancyForm.stages.length === 0) return "A vaga deve ter ao menos uma etapa no processo seletivo.";
     }
 
@@ -2781,6 +2811,10 @@ Equipe de Recrutamento & Seleção - Colaborh
 
     try {
       let finalDescription = vacancyForm.description;
+      if (vacancyForm.responsibilities.trim()) {
+        finalDescription += `\n\nResponsabilidades e Atribuições:\n${vacancyForm.responsibilities}`;
+      }
+
       const benefitTextList: string[] = [];
       if (vacancyForm.benefits.vt.selected) {
         benefitTextList.push(`Vale Transporte: ${vacancyForm.benefits.vt.value || 'Sim'}`);
@@ -2789,10 +2823,21 @@ Equipe de Recrutamento & Seleção - Colaborh
         benefitTextList.push(`Vale Alimentação/Refeição: ${vacancyForm.benefits.va.value || 'Sim'}`);
       }
       if (vacancyForm.benefits.healthInsurance) {
-        benefitTextList.push('Plano de Saúde');
+        let healthDetails = 'Plano de Saúde';
+        const subOpts = [];
+        if (vacancyForm.benefits.healthInsuranceCopay) subOpts.push('com coparticipação');
+        if (vacancyForm.benefits.healthInsuranceFamily) subOpts.push('estendido para familiar');
+        if (subOpts.length > 0) {
+          healthDetails += ` (${subOpts.join(', ')})`;
+        }
+        benefitTextList.push(healthDetails);
       }
       if (vacancyForm.benefits.dentalPlan) {
-        benefitTextList.push('Plano Odontológico');
+        let dentalDetails = 'Plano Odontológico';
+        if (vacancyForm.benefits.dentalPlanFamily) {
+          dentalDetails += ' (estendido para familiar)';
+        }
+        benefitTextList.push(dentalDetails);
       }
       if (vacancyForm.extraBenefits && vacancyForm.extraBenefits.length > 0) {
         vacancyForm.extraBenefits.forEach(b => benefitTextList.push(b));
@@ -2804,8 +2849,26 @@ Equipe de Recrutamento & Seleção - Colaborh
       // Pre-add helpful metadata inside description in case any of these columns don't exist in Supabase table
       let detailedDescriptionStr = finalDescription;
       let metaDetails: string[] = [];
+      if (vacancyForm.role) {
+        metaDetails.push(`💼 Cargo: ${vacancyForm.role}`);
+      }
+      if (vacancyForm.modality) {
+        metaDetails.push(`🏢 Modalidade: ${vacancyForm.modality}`);
+      }
       if (vacancyForm.city || vacancyForm.state) {
         metaDetails.push(`📍 Localização: ${vacancyForm.city || ''}${vacancyForm.city && vacancyForm.state ? ' - ' : ''}${vacancyForm.state || ''}`);
+      }
+      if (vacancyForm.remunerationType) {
+        let remStr = `💰 Remuneração: ${vacancyForm.remunerationType}`;
+        if (vacancyForm.remunerationType === 'Fixo' && vacancyForm.salary) {
+          remStr += ` (${vacancyForm.salary})`;
+        } else if (vacancyForm.remunerationType === 'Faixa Salarial' && (vacancyForm.salaryMin || vacancyForm.salaryMax)) {
+          remStr += ` (${vacancyForm.salaryMin || 'R$ 0,00'} a ${vacancyForm.salaryMax || 'R$ 0,00'})`;
+        }
+        metaDetails.push(remStr);
+      }
+      if (vacancyForm.hasBonus) {
+        metaDetails.push(`🎁 Extra: ${vacancyForm.bonusType} (${vacancyForm.bonusValue || 'A combinar'})`);
       }
       if (vacancyForm.contractType) {
         metaDetails.push(`📝 Contratação: ${vacancyForm.contractType}`);
@@ -2815,6 +2878,21 @@ Equipe de Recrutamento & Seleção - Colaborh
       }
       if (vacancyForm.minAge) {
         metaDetails.push(`🔞 Idade Mínima: ${vacancyForm.minAge} anos`);
+      }
+      if (vacancyForm.isFirstJob) {
+        metaDetails.push(`👶 Oportunidade para 1º Emprego: Sim`);
+      }
+      if (vacancyForm.isPcd) {
+        metaDetails.push(`♿ Vaga para PcD: Sim${vacancyForm.pcdDetails ? ` (${vacancyForm.pcdDetails})` : ''}`);
+      }
+      if (vacancyForm.positions) {
+        metaDetails.push(`👥 Posições Disponíveis: ${vacancyForm.positions}`);
+      }
+      if (vacancyForm.requestReason) {
+        metaDetails.push(`📋 Motivo da Requisição: ${vacancyForm.requestReason}`);
+      }
+      if (vacancyForm.isUrgent) {
+        metaDetails.push(`🚨 Contratação de Urgência: Sim`);
       }
       if (metaDetails.length > 0) {
         detailedDescriptionStr = metaDetails.join('\n') + '\n\n' + detailedDescriptionStr;
@@ -2826,17 +2904,31 @@ Equipe de Recrutamento & Seleção - Colaborh
       // Start with all columns, we will drop invalid ones if Supabase returns PGRST204 (Schema Cache mismatch)
       let payload: any = {
         title: vacancyForm.title,
+        role: vacancyForm.role,
         company_name: selectedCompany.nomeFantasia,
         modality: vacancyForm.modality,
         state: vacancyForm.state,
         city: vacancyForm.city,
-        salary: vacancyForm.salary,
+        salary: vacancyForm.remunerationType === 'Fixo' ? vacancyForm.salary : (vacancyForm.remunerationType === 'Faixa Salarial' ? `${vacancyForm.salaryMin} - ${vacancyForm.salaryMax}` : 'A Combinar'),
+        salary_min: vacancyForm.salaryMin,
+        salary_max: vacancyForm.salaryMax,
+        remuneration_type: vacancyForm.remunerationType,
+        has_bonus: vacancyForm.hasBonus,
+        bonus_type: vacancyForm.bonusType,
+        bonus_value: vacancyForm.bonusValue,
         contract_type: vacancyForm.contractType,
         description: detailedDescriptionStr,
         requirements: vacancyForm.requirements,
         stages: currentStages,
         work_schedule: vacancyForm.workSchedule,
         min_age: vacancyForm.minAge,
+        is_first_job: vacancyForm.isFirstJob,
+        is_pcd: vacancyForm.isPcd,
+        pcd_details: vacancyForm.pcdDetails,
+        positions: parseInt(vacancyForm.positions) || 1,
+        request_reason: vacancyForm.requestReason,
+        is_urgent: vacancyForm.isUrgent,
+        responsibilities: vacancyForm.responsibilities,
         benefits: vacancyForm.benefits,
         status: 'active'
       };
@@ -3662,13 +3754,13 @@ Equipe de Recrutamento & Seleção - Colaborh
                     </div>
                     <div>
                       <h2 className="text-lg font-black text-slate-900 tracking-tight">Publicar Vaga</h2>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Passo {registerStep} de 3</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Passo {registerStep} de 4</p>
                     </div>
                   </div>
 
                   {/* Step Progress - More subtle */}
                   <div className="flex items-center gap-1.5">
-                    {[1, 2, 3].map((step) => (
+                    {[1, 2, 3, 4].map((step) => (
                       <div key={step} className="flex items-center">
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${
                           registerStep === step 
@@ -3679,7 +3771,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                         }`}>
                           {registerStep > step ? <Check size={12} /> : step}
                         </div>
-                        {step < 3 && (
+                        {step < 4 && (
                           <div className={`w-6 h-0.5 mx-0.5 rounded-full ${registerStep > step ? 'bg-emerald-500' : 'bg-slate-200'}`} />
                         )}
                       </div>
@@ -4172,7 +4264,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                     >
                       Descartar
                     </button>
-                    {registerStep < 3 ? (
+                    {registerStep < 4 ? (
                       <button 
                         onClick={handleNextStep}
                         className="px-8 py-3.5 bg-slate-900 text-white rounded-full font-black text-[10px] uppercase tracking-[0.15em] shadow-lg hover:-translate-y-0.5 transition-all"
@@ -5627,12 +5719,12 @@ Equipe de Recrutamento & Seleção - Colaborh
                       
                       <div className="flex items-center justify-between mt-4">
                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                          Passo {registerStep} de 3
+                          Passo {registerStep} de 4
                         </p>
 
                         {/* Step Progress Dots */}
                         <div className="flex items-center gap-1">
-                          {[1, 2, 3].map((step) => (
+                          {[1, 2, 3, 4].map((step) => (
                             <div key={step} className="flex items-center">
                               <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black transition-all ${
                                 registerStep === step 
@@ -5643,7 +5735,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                               }`}>
                                 {registerStep > step ? <Check size={10} /> : step}
                               </div>
-                              {step < 3 && (
+                              {step < 4 && (
                                 <div className={`w-4 h-0.5 mx-0.5 rounded-full ${registerStep > step ? 'bg-[#533af6]/85' : 'bg-slate-200'}`} />
                               )}
                             </div>
@@ -5676,8 +5768,8 @@ Equipe de Recrutamento & Seleção - Colaborh
                           className="space-y-4"
                         >
                           {/* Título da Vaga */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-center">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
                               Título da Vaga <span className="text-rose-500">*</span>
                             </label>
                             <input 
@@ -5687,11 +5779,40 @@ Equipe de Recrutamento & Seleção - Colaborh
                               placeholder="Ex: Desenvolvedor React Sênior" 
                               className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-medium text-xs" 
                             />
+                            <p className="text-[10px] text-slate-400 italic mt-0.5 pl-1 leading-normal">
+                              * Dica: evite siglas, abreviações e juntar palavras com "_", "-" e "/". Dê preferência a nomes que estejam de acordo com o cargo esperado.
+                            </p>
+                          </div>
+
+                          {/* Cargo */}
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                              Cargo <span className="text-rose-500">*</span>
+                            </label>
+                            <input 
+                              type="text"
+                              list="drawer-roles-list"
+                              value={vacancyForm.role}
+                              onChange={(e) => setVacancyForm({ ...vacancyForm, role: e.target.value })}
+                              placeholder="Selecione ou digite o cargo"
+                              className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-medium text-xs"
+                            />
+                            <datalist id="drawer-roles-list">
+                              {Array.from(new Set([
+                                ...jobs.map(j => j.role),
+                                'Desenvolvedor Front-end', 'Desenvolvedor Back-end', 'Desenvolvedor Full-stack',
+                                'Analista de Sistemas', 'Gerente de Projetos', 'Designer UX/UI', 'Analista de Marketing',
+                                'Vendedor', 'Assistente Administrativo', 'Analista Financeiro', 'Auxiliar de Cozinha',
+                                'Recepcionista', 'Motorista', 'Estoquista'
+                              ])).filter(Boolean).map(role => (
+                                <option key={role} value={role} />
+                              ))}
+                            </datalist>
                           </div>
 
                           {/* Modalidade */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-center">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
                               Modalidade
                             </label>
                             <div className="relative">
@@ -5702,16 +5823,17 @@ Equipe de Recrutamento & Seleção - Colaborh
                                 className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-medium text-xs appearance-none"
                               >
                                 <option value="Presencial">Presencial</option>
-                                <option value="Home Office">Home Office</option>
+                                <option value="Híbrido">Híbrido</option>
+                                <option value="Remoto">Remoto</option>
                               </select>
                             </div>
                           </div>
 
                           {/* Localização (UF / Cidade) */}
-                          {vacancyForm.modality === 'Presencial' && (
-                            <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-center">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2">
-                                Localização
+                          {(vacancyForm.modality === 'Presencial' || vacancyForm.modality === 'Híbrido') && (
+                            <div className="flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                                Localização (Estado / Cidade) <span className="text-rose-500">*</span>
                               </label>
                               <div className="grid grid-cols-2 gap-3">
                                 <div className="relative">
@@ -5741,10 +5863,10 @@ Equipe de Recrutamento & Seleção - Colaborh
                             </div>
                           )}
 
-                          {/* Remuneração */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-center">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2">
-                              Remuneração
+                          {/* Tipo de Remuneração */}
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                              Tipo de Remuneração
                             </label>
                             <div className="relative">
                               <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -5753,20 +5875,20 @@ Equipe de Recrutamento & Seleção - Colaborh
                                 onChange={(e) => setVacancyForm({ ...vacancyForm, remunerationType: e.target.value as any })}
                                 className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
                               >
-                                <option>Mensal</option>
-                                <option>Comissionado</option>
-                                <option>Diária</option>
+                                <option value="Faixa Salarial">Faixa Salarial</option>
+                                <option value="Fixo">Fixo</option>
+                                <option value="A Combinar">A Combinar</option>
                               </select>
                             </div>
                           </div>
 
-                          {/* Salário Proposto */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-start">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2 mt-3.5">
-                              Salário Proposto
-                            </label>
-                            <div className="space-y-3 w-full">
-                              <div className="relative">
+                          {/* Salários */}
+                          {vacancyForm.remunerationType !== 'A Combinar' && (
+                            <div className="flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                                {vacancyForm.remunerationType === 'Fixo' ? 'Salário Proposto' : 'Faixa Salarial (Mínimo / Máximo)'} <span className="text-rose-500">*</span>
+                              </label>
+                              {vacancyForm.remunerationType === 'Fixo' ? (
                                 <input 
                                   type="text" 
                                   value={vacancyForm.salary}
@@ -5774,219 +5896,106 @@ Equipe de Recrutamento & Seleção - Colaborh
                                   placeholder="R$ 0,00" 
                                   className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-bold text-xs" 
                                 />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/80 px-2 py-1 rounded-[5px] border border-slate-200/80">
-                                  <span className="text-[8px] font-black text-slate-400 uppercase">Extra?</span>
-                                  <input 
-                                    type="checkbox" 
-                                    checked={vacancyForm.hasBonus}
-                                    onChange={(e) => setVacancyForm({...vacancyForm, hasBonus: e.target.checked})}
-                                    className="w-3.5 h-3.5 rounded text-[#533af6] cursor-pointer accent-[#533af6]"
-                                  />
-                                </div>
-                              </div>
-
-                              {vacancyForm.hasBonus && (
-                                <div className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-2">
-                                  <div className="relative">
-                                    <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                    <select 
-                                      value={vacancyForm.bonusType}
-                                      onChange={(e) => setVacancyForm({...vacancyForm, bonusType: e.target.value})}
-                                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-[5px] text-[9px] font-bold uppercase outline-none focus:border-[#533af6] appearance-none pl-3 pr-8"
-                                    >
-                                      <option value="Comissão">Comissão</option>
-                                      <option value="Premiação">Premiação</option>
-                                    </select>
-                                  </div>
+                              ) : (
+                                <div className="grid grid-cols-2 gap-3">
                                   <input 
                                     type="text" 
-                                    placeholder="Valor Médio"
-                                    value={vacancyForm.bonusValue}
-                                    onChange={(e) => setVacancyForm({...vacancyForm, bonusValue: formatCurrency(e.target.value)})}
-                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-[5px] text-xs font-semibold outline-none focus:border-[#533af6]"
+                                    value={vacancyForm.salaryMin}
+                                    onChange={(e) => setVacancyForm({ ...vacancyForm, salaryMin: formatCurrency(e.target.value) })}
+                                    placeholder="Mínimo: R$ 0,00" 
+                                    className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-bold text-xs" 
+                                  />
+                                  <input 
+                                    type="text" 
+                                    value={vacancyForm.salaryMax}
+                                    onChange={(e) => setVacancyForm({ ...vacancyForm, salaryMax: formatCurrency(e.target.value) })}
+                                    placeholder="Máximo: R$ 0,00" 
+                                    className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-bold text-xs" 
                                   />
                                 </div>
                               )}
                             </div>
-                          </div>
+                          )}
 
-                          {/* Contratação */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-center">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2">
-                              Contratação
-                            </label>
-                            <div className="relative">
-                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                              <select 
-                                value={vacancyForm.contractType}
-                                onChange={(e) => setVacancyForm({ ...vacancyForm, contractType: e.target.value as any })}
-                                className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
-                              >
-                                <option>CLT</option>
-                                <option>PJ</option>
-                                <option>Estágio</option>
-                                <option>Autônomo</option>
-                                <option>Meio Período</option>
-                                <option>Temporário</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* Escala */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-center">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2">
-                              Escala
-                            </label>
-                            <div className="relative">
-                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                              <select 
-                                value={vacancyForm.workSchedule}
-                                onChange={(e) => setVacancyForm({ ...vacancyForm, workSchedule: e.target.value as any })}
-                                className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
-                              >
-                                <option>5x2</option>
-                                <option>6x1</option>
-                                <option>12x36</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* Oportunidade 1º Emprego */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-center">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2">
-                              1º Emprego
-                            </label>
-                            <label className="flex items-center gap-4 cursor-pointer group select-none">
-                              <div className={`w-11 h-5.5 rounded-full relative transition-all duration-300 ${vacancyForm.isFirstJob ? 'bg-[#533af6]' : 'bg-slate-200'}`}>
-                                <div className={`absolute top-0.75 left-0.75 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${vacancyForm.isFirstJob ? 'translate-x-5.5' : ''}`} />
+                          {/* Comissão ou Premiação */}
+                          <div className="flex flex-col gap-1.5 border-t border-slate-100 pt-3">
+                            <div className="flex items-center justify-between">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                                Possui Comissão ou Premiação?
+                              </label>
+                              <label className="relative inline-flex items-center cursor-pointer">
                                 <input 
                                   type="checkbox" 
-                                  className="hidden" 
-                                  checked={vacancyForm.isFirstJob} 
-                                  onChange={(e) => setVacancyForm({...vacancyForm, isFirstJob: e.target.checked})} 
+                                  checked={vacancyForm.hasBonus} 
+                                  onChange={(e) => setVacancyForm({...vacancyForm, hasBonus: e.target.checked})}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#533af6]"></div>
+                              </label>
+                            </div>
+
+                            {vacancyForm.hasBonus && (
+                              <div className="grid grid-cols-2 gap-3 mt-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="relative">
+                                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                  <select 
+                                    value={vacancyForm.bonusType}
+                                    onChange={(e) => setVacancyForm({...vacancyForm, bonusType: e.target.value})}
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-[5px] text-xs font-semibold outline-none focus:border-[#533af6] appearance-none"
+                                  >
+                                    <option value="Comissão">Comissão</option>
+                                    <option value="Premiação">Premiação</option>
+                                  </select>
+                                </div>
+                                <input 
+                                  type="text" 
+                                  placeholder="Valor (R$)"
+                                  value={vacancyForm.bonusValue}
+                                  onChange={(e) => setVacancyForm({...vacancyForm, bonusValue: formatCurrency(e.target.value)})}
+                                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-[5px] text-xs font-semibold outline-none focus:border-[#533af6] text-slate-900 font-bold"
                                 />
                               </div>
-                              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Ideal para quem busca começar</span>
-                            </label>
+                            )}
                           </div>
 
-                          {/* Idade Mínima */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-center">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2">
-                              Idade Mínima
-                            </label>
-                            <div className="flex items-center gap-4">
-                              <input 
-                                type="range" 
-                                min="16" 
-                                max="50" 
-                                value={vacancyForm.minAge}
-                                onChange={(e) => setVacancyForm({...vacancyForm, minAge: parseInt(e.target.value)})}
-                                className="flex-1 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#533af6]"
-                              />
-                              <span className="px-2.5 py-1 bg-[#533af6] text-white rounded-[5px] text-[10px] font-black shrink-0">{vacancyForm.minAge} anos</span>
-                            </div>
-                          </div>
-
-                          {/* Benefícios Oferecidos */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-start">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2 mt-3">
-                              Benefícios
-                            </label>
-                            <div className="space-y-4 w-full">
-                              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                                {[
-                                  { id: 'vt', label: 'VT', hasValue: true },
-                                  { id: 'va', label: 'VA/VR', hasValue: true },
-                                  { id: 'healthInsurance', label: 'SAÚDE', hasValue: false },
-                                  { id: 'dentalPlan', label: 'DENTAL', hasValue: false },
-                                ].map((ben) => (
-                                  <div key={ben.id} className="space-y-2">
-                                    <button 
-                                      type="button"
-                                      onClick={() => {
-                                        if (ben.hasValue) {
-                                          setVacancyForm({
-                                            ...vacancyForm, 
-                                            benefits: { ...vacancyForm.benefits, [ben.id]: { ...((vacancyForm.benefits as any)[ben.id]), selected: !((vacancyForm.benefits as any)[ben.id]).selected } }
-                                          });
-                                        } else {
-                                          setVacancyForm({
-                                            ...vacancyForm, 
-                                            benefits: { ...vacancyForm.benefits, [ben.id]: !(vacancyForm.benefits as any)[ben.id] }
-                                          });
-                                        }
-                                      }}
-                                      className={`w-full py-2 px-3 rounded-[5px] border font-bold text-[9px] uppercase tracking-tighter transition-all ${
-                                        (ben.hasValue ? (vacancyForm.benefits as any)[ben.id].selected : (vacancyForm.benefits as any)[ben.id])
-                                          ? 'bg-purple-50 border-purple-200 text-[#533af6]' 
-                                          : 'bg-slate-50 border-transparent text-slate-500 hover:bg-slate-100'
-                                      }`}
-                                    >
-                                      {ben.label}
-                                    </button>
-                                    {ben.hasValue && (vacancyForm.benefits as any)[ben.id].selected && (
-                                      <input 
-                                        type="text" 
-                                        placeholder="Valor"
-                                        value={(vacancyForm.benefits as any)[ben.id].value}
-                                        onChange={(e) => setVacancyForm({
-                                          ...vacancyForm, 
-                                          benefits: { ...vacancyForm.benefits, [ben.id]: { ...((vacancyForm.benefits as any)[ben.id]), value: formatCurrency(e.target.value) } }
-                                        })}
-                                        className="w-full px-3 py-1.5 bg-white border border-slate-100 rounded-[5px] text-[9px] font-bold outline-none focus:border-[#533af6]"
-                                      />
-                                    )}
-                                  </div>
-                                ))}
+                          {/* Contratação e Escala */}
+                          <div className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                                Contratação
+                              </label>
+                              <div className="relative">
+                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                <select 
+                                  value={vacancyForm.contractType}
+                                  onChange={(e) => setVacancyForm({ ...vacancyForm, contractType: e.target.value as any })}
+                                  className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
+                                >
+                                  <option value="CLT">CLT</option>
+                                  <option value="PJ">PJ</option>
+                                  <option value="Estágio">Estágio</option>
+                                  <option value="Autônomo">Autônomo</option>
+                                  <option value="Meio Período">Meio Período</option>
+                                  <option value="Temporário">Temporário</option>
+                                </select>
                               </div>
+                            </div>
 
-                              {/* Extra benefits list */}
-                              <div className="flex flex-wrap gap-2">
-                                {vacancyForm.extraBenefits.map((extra, idx) => (
-                                  <div key={idx} className="relative group">
-                                    <button 
-                                      type="button"
-                                      className="py-1.5 px-3 rounded-[5px] border border-purple-200 bg-purple-50 font-bold text-[9px] uppercase tracking-tighter text-[#533af6]"
-                                    >
-                                      {extra}
-                                    </button>
-                                    <button 
-                                      type="button"
-                                      onClick={() => setVacancyForm({...vacancyForm, extraBenefits: vacancyForm.extraBenefits.filter((_, i) => i !== idx)})}
-                                      className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                                    >
-                                      <CloseIcon size={10} />
-                                    </button>
-                                  </div>
-                                ))}
-
-                                <div className="w-full flex gap-1 mt-2">
-                                  <input 
-                                    type="text" 
-                                    placeholder="Outro benefício..."
-                                    value={newBenefit}
-                                    onChange={(e) => setNewBenefit(e.target.value.toUpperCase())}
-                                    className="flex-1 px-3 py-2 bg-slate-50 border border-dashed border-slate-200 rounded-[5px] text-[9px] font-bold outline-none focus:border-[#533af6] placeholder:normal-case"
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter' && newBenefit.trim()) {
-                                        setVacancyForm({...vacancyForm, extraBenefits: [...vacancyForm.extraBenefits, newBenefit.trim()]});
-                                        setNewBenefit('');
-                                      }
-                                    }}
-                                  />
-                                  {newBenefit && (
-                                    <button 
-                                      onClick={() => {
-                                        setVacancyForm({...vacancyForm, extraBenefits: [...vacancyForm.extraBenefits, newBenefit.trim()]});
-                                        setNewBenefit('');
-                                      }}
-                                      className="px-3 bg-[#533af6] text-white rounded-[5px] flex items-center justify-center"
-                                    >
-                                      <Plus size={12} />
-                                    </button>
-                                  )}
-                                </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                                Escala
+                              </label>
+                              <div className="relative">
+                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                <select 
+                                  value={vacancyForm.workSchedule}
+                                  onChange={(e) => setVacancyForm({ ...vacancyForm, workSchedule: e.target.value as any })}
+                                  className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
+                                >
+                                  <option value="5x2">5x2</option>
+                                  <option value="6x1">6x1</option>
+                                  <option value="12x36">12x36</option>
+                                </select>
                               </div>
                             </div>
                           </div>
@@ -5996,87 +6005,319 @@ Equipe de Recrutamento & Seleção - Colaborh
                       {registerStep === 2 && (
                         <motion.div 
                           key="step2"
-                          initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
+                          initial={{ opacity: 0, x: 10 }} 
+                          animate={{ opacity: 1, x: 0 }} 
+                          exit={{ opacity: 0, x: -10 }}
                           className="space-y-4"
                         >
-                          {/* Descrição */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-start">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2 mt-3">
-                              Descrição
+                          {/* Primeiro Emprego */}
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div className="flex flex-col">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+                                Primeiro Emprego
+                              </label>
+                              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Ideal para quem está iniciando</span>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={vacancyForm.isFirstJob} 
+                                onChange={(e) => setVacancyForm({...vacancyForm, isFirstJob: e.target.checked})}
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#533af6]"></div>
                             </label>
-                            <textarea 
-                              rows={5} 
-                              value={vacancyForm.description}
-                              onChange={(e) => setVacancyForm({...vacancyForm, description: e.target.value})}
-                              placeholder="Fale sobre o cargo e a empresa..." 
-                              className="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all font-medium text-slate-700 text-xs italic leading-relaxed" 
-                            />
                           </div>
 
-                          {/* Requisitos */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-start">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2 mt-2">
-                              Requisitos
+                          {/* Vaga para PcD */}
+                          <div className="flex flex-col border-b border-slate-100 pb-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex flex-col">
+                                <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+                                  Vaga também para PcD
+                                </label>
+                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Pessoas com Deficiência</span>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                  type="checkbox" 
+                                  checked={vacancyForm.isPcd} 
+                                  onChange={(e) => setVacancyForm({...vacancyForm, isPcd: e.target.checked})}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#533af6]"></div>
+                              </label>
+                            </div>
+                            
+                            {vacancyForm.isPcd && (
+                              <input 
+                                type="text"
+                                value={vacancyForm.pcdDetails}
+                                onChange={(e) => setVacancyForm({...vacancyForm, pcdDetails: e.target.value})}
+                                placeholder="CID, Acessibilidade ou observações (opcional)"
+                                className="w-full mt-2 px-4 py-2 bg-white border border-slate-200 rounded-[5px] text-xs font-semibold outline-none focus:border-[#533af6]"
+                              />
+                            )}
+                          </div>
+
+                          {/* Idade Mínima */}
+                          <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-3">
+                            <div className="flex justify-between items-center">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+                                Idade Mínima
+                              </label>
+                              <span className="px-2 py-0.5 bg-[#533af6] text-white rounded-[5px] text-[10px] font-black">{vacancyForm.minAge} anos</span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <input 
+                                type="range" 
+                                min="16" 
+                                max="60" 
+                                value={vacancyForm.minAge}
+                                onChange={(e) => setVacancyForm({...vacancyForm, minAge: parseInt(e.target.value)})}
+                                className="flex-1 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#533af6]"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Benefícios */}
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+                              Benefícios
                             </label>
-                            <div className="space-y-4 w-full">
-                              <div className="flex flex-wrap gap-2">
-                                {commonRequirements.map(req => {
-                                  const selected = vacancyForm.requirements.includes(req);
-                                  return (
-                                    <button
-                                      key={req}
-                                      onClick={() => {
-                                        if (selected) {
-                                          setVacancyForm({...vacancyForm, requirements: vacancyForm.requirements.filter(r => r !== req)});
-                                        } else {
-                                          setVacancyForm({...vacancyForm, requirements: [...vacancyForm.requirements, req]});
-                                        }
-                                      }}
-                                      className={`px-3 py-1.5 rounded-[5px] text-[9px] font-bold uppercase transition-all ${
-                                        selected 
-                                          ? 'bg-[#533af6] text-white shadow-sm' 
-                                          : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-100'
-                                      }`}
-                                    >
-                                      {req}
-                                    </button>
-                                  );
-                                })}
+                            <div className="grid grid-cols-2 gap-3">
+                              {/* VT */}
+                              <div className="flex flex-col gap-1 bg-slate-50/50 p-2.5 border border-slate-100 rounded-[5px]">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-black text-slate-500 uppercase">Vale Transporte (VT)</span>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={vacancyForm.benefits.vt.selected}
+                                    onChange={(e) => setVacancyForm({
+                                      ...vacancyForm,
+                                      benefits: { ...vacancyForm.benefits, vt: { ...vacancyForm.benefits.vt, selected: e.target.checked } }
+                                    })}
+                                    className="w-3.5 h-3.5 accent-[#533af6]"
+                                  />
+                                </div>
+                                {vacancyForm.benefits.vt.selected && (
+                                  <input 
+                                    type="text" 
+                                    placeholder="Valor (R$)"
+                                    value={vacancyForm.benefits.vt.value}
+                                    onChange={(e) => setVacancyForm({
+                                      ...vacancyForm,
+                                      benefits: { ...vacancyForm.benefits, vt: { ...vacancyForm.benefits.vt, value: formatCurrency(e.target.value) } }
+                                    })}
+                                    className="w-full px-2 py-1 mt-1 bg-white border border-slate-200 rounded-[3px] text-[10px] font-bold outline-none"
+                                  />
+                                )}
                               </div>
 
-                              <div className="flex gap-2">
+                              {/* VA/VR */}
+                              <div className="flex flex-col gap-1 bg-slate-50/50 p-2.5 border border-slate-100 rounded-[5px]">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-black text-slate-500 uppercase">VA / VR</span>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={vacancyForm.benefits.va.selected}
+                                    onChange={(e) => setVacancyForm({
+                                      ...vacancyForm,
+                                      benefits: { ...vacancyForm.benefits, va: { ...vacancyForm.benefits.va, selected: e.target.checked } }
+                                    })}
+                                    className="w-3.5 h-3.5 accent-[#533af6]"
+                                  />
+                                </div>
+                                {vacancyForm.benefits.va.selected && (
+                                  <input 
+                                    type="text" 
+                                    placeholder="Valor (R$)"
+                                    value={vacancyForm.benefits.va.value}
+                                    onChange={(e) => setVacancyForm({
+                                      ...vacancyForm,
+                                      benefits: { ...vacancyForm.benefits, va: { ...vacancyForm.benefits.va, value: formatCurrency(e.target.value) } }
+                                    })}
+                                    className="w-full px-2 py-1 mt-1 bg-white border border-slate-200 rounded-[3px] text-[10px] font-bold outline-none"
+                                  />
+                                )}
+                              </div>
+
+                              {/* Plano de Saúde */}
+                              <div className="flex flex-col gap-1.5 bg-slate-50/50 p-2.5 border border-slate-100 rounded-[5px] col-span-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-black text-slate-500 uppercase">Plano de Saúde</span>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={vacancyForm.benefits.healthInsurance}
+                                    onChange={(e) => setVacancyForm({
+                                      ...vacancyForm,
+                                      benefits: { ...vacancyForm.benefits, healthInsurance: e.target.checked }
+                                    })}
+                                    className="w-3.5 h-3.5 accent-[#533af6]"
+                                  />
+                                </div>
+                                {vacancyForm.benefits.healthInsurance && (
+                                  <div className="grid grid-cols-2 gap-2 mt-1 p-2 bg-white border border-slate-100 rounded-[4px] animate-in fade-in duration-200">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input 
+                                        type="checkbox"
+                                        checked={vacancyForm.benefits.healthInsuranceCopay}
+                                        onChange={(e) => setVacancyForm({
+                                          ...vacancyForm,
+                                          benefits: { ...vacancyForm.benefits, healthInsuranceCopay: e.target.checked }
+                                        })}
+                                        className="w-3.5 h-3.5 accent-[#533af6]"
+                                      />
+                                      <span className="text-[9px] font-bold text-slate-500 uppercase">Com Coparticipação</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input 
+                                        type="checkbox"
+                                        checked={vacancyForm.benefits.healthInsuranceFamily}
+                                        onChange={(e) => setVacancyForm({
+                                          ...vacancyForm,
+                                          benefits: { ...vacancyForm.benefits, healthInsuranceFamily: e.target.checked }
+                                        })}
+                                        className="w-3.5 h-3.5 accent-[#533af6]"
+                                      />
+                                      <span className="text-[9px] font-bold text-slate-500 uppercase">Estende Familiar</span>
+                                    </label>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Plano Odontológico */}
+                              <div className="flex flex-col gap-1.5 bg-slate-50/50 p-2.5 border border-slate-100 rounded-[5px] col-span-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-black text-slate-500 uppercase">Plano Odontológico</span>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={vacancyForm.benefits.dentalPlan}
+                                    onChange={(e) => setVacancyForm({
+                                      ...vacancyForm,
+                                      benefits: { ...vacancyForm.benefits, dentalPlan: e.target.checked }
+                                    })}
+                                    className="w-3.5 h-3.5 accent-[#533af6]"
+                                  />
+                                </div>
+                                {vacancyForm.benefits.dentalPlan && (
+                                  <div className="grid grid-cols-2 gap-2 mt-1 p-2 bg-white border border-slate-100 rounded-[4px] animate-in fade-in duration-200">
+                                    <label className="flex items-center gap-2 cursor-pointer col-span-2">
+                                      <input 
+                                        type="checkbox"
+                                        checked={vacancyForm.benefits.dentalPlanFamily}
+                                        onChange={(e) => setVacancyForm({
+                                          ...vacancyForm,
+                                          benefits: { ...vacancyForm.benefits, dentalPlanFamily: e.target.checked }
+                                        })}
+                                        className="w-3.5 h-3.5 accent-[#533af6]"
+                                      />
+                                      <span className="text-[9px] font-bold text-slate-500 uppercase">Estende Familiar</span>
+                                    </label>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Extra benefits list */}
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {vacancyForm.extraBenefits.map((extra, idx) => (
+                                <div key={idx} className="relative group">
+                                  <button 
+                                    type="button"
+                                    className="py-1 px-2.5 rounded-[5px] border border-purple-200 bg-purple-50 font-bold text-[9px] uppercase tracking-tighter text-[#533af6]"
+                                  >
+                                    {extra}
+                                  </button>
+                                  <button 
+                                    type="button"
+                                    onClick={() => setVacancyForm({...vacancyForm, extraBenefits: vacancyForm.extraBenefits.filter((_, i) => i !== idx)})}
+                                    className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                  >
+                                    <CloseIcon size={10} />
+                                  </button>
+                                </div>
+                              ))}
+
+                              <div className="w-full flex gap-1.5 mt-1.5">
                                 <input 
                                   type="text" 
-                                  value={newRequirement}
-                                  onChange={(e) => setNewRequirement(e.target.value)}
-                                  placeholder="Outro requisito..." 
-                                  className="flex-1 px-4 py-2 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all"
+                                  placeholder="Outro benefício..."
+                                  value={newBenefit}
+                                  onChange={(e) => setNewBenefit(e.target.value.toUpperCase())}
+                                  className="flex-1 px-3 py-2 bg-slate-50 border border-dashed border-slate-200 rounded-[5px] text-[9px] font-bold outline-none focus:border-[#533af6] placeholder:normal-case"
                                   onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && newRequirement.trim()) {
-                                      setVacancyForm({...vacancyForm, requirements: [...vacancyForm.requirements, newRequirement.trim()]});
-                                      setNewRequirement('');
+                                    if (e.key === 'Enter' && newBenefit.trim()) {
+                                      e.preventDefault();
+                                      setVacancyForm({...vacancyForm, extraBenefits: [...vacancyForm.extraBenefits, newBenefit.trim()]});
+                                      setNewBenefit('');
                                     }
                                   }}
                                 />
+                                {newBenefit && (
+                                  <button 
+                                    type="button"
+                                    onClick={() => {
+                                      setVacancyForm({...vacancyForm, extraBenefits: [...vacancyForm.extraBenefits, newBenefit.trim()]});
+                                      setNewBenefit('');
+                                    }}
+                                    className="px-3 bg-[#533af6] text-white rounded-[5px] flex items-center justify-center"
+                                  >
+                                    <Plus size={12} />
+                                  </button>
+                                )}
                               </div>
+                            </div>
+                          </div>
 
-                              {vacancyForm.requirements.length > 0 && (
-                                <div className="bg-slate-50/50 p-4 rounded-[5px] border border-dashed border-slate-200">
-                                  <div className="flex flex-wrap gap-2">
-                                    {vacancyForm.requirements.map((r, i) => (
-                                      <div key={i} className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-[5px] border border-slate-100 text-[9px] font-bold text-slate-600">
-                                        <span>{r}</span>
-                                        <button 
-                                          onClick={() => setVacancyForm({...vacancyForm, requirements: vacancyForm.requirements.filter((_, idx) => idx !== i)})}
-                                          className="text-red-400 hover:text-red-600"
-                                        >
-                                          <Trash2 size={12} />
-                                        </button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
+                          {/* Posições Disponíveis, Motivo e Urgência */}
+                          <div className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                                Posições Disponíveis
+                              </label>
+                              <input 
+                                type="number" 
+                                min="1"
+                                value={vacancyForm.positions}
+                                onChange={(e) => setVacancyForm({ ...vacancyForm, positions: e.target.value })}
+                                className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] transition-all text-slate-900 font-bold text-xs" 
+                              />
+                            </div>
+
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                                Motivo da Requisição
+                              </label>
+                              <div className="relative">
+                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                <select 
+                                  value={vacancyForm.requestReason}
+                                  onChange={(e) => setVacancyForm({ ...vacancyForm, requestReason: e.target.value as any })}
+                                  className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] transition-all appearance-none"
+                                >
+                                  <option value="Aumento de quadro">Aumento de quadro</option>
+                                  <option value="Substituição de pessoal">Substituição de pessoal</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="col-span-2 flex items-center justify-between border-t border-slate-50 pt-2.5 mt-1">
+                              <div className="flex flex-col">
+                                <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+                                  Contratação de Urgência?
+                                </label>
+                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Sinalizar urgência para recrutadores</span>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                  type="checkbox" 
+                                  checked={vacancyForm.isUrgent} 
+                                  onChange={(e) => setVacancyForm({...vacancyForm, isUrgent: e.target.checked})}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
+                              </label>
                             </div>
                           </div>
                         </motion.div>
@@ -6085,60 +6326,88 @@ Equipe de Recrutamento & Seleção - Colaborh
                       {registerStep === 3 && (
                         <motion.div 
                           key="step3"
-                          initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+                          initial={{ opacity: 0, x: 10 }} 
+                          animate={{ opacity: 1, x: 0 }} 
+                          exit={{ opacity: 0, x: -10 }}
+                          className="space-y-4"
+                        >
+                          {/* Descrição da Vaga */}
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                              Descrição da Vaga <span className="text-rose-500">*</span>
+                            </label>
+                            <textarea 
+                              rows={6} 
+                              value={vacancyForm.description}
+                              onChange={(e) => setVacancyForm({...vacancyForm, description: e.target.value})}
+                              placeholder="Escreva sobre a vaga, cultura da empresa e a equipe..." 
+                              className="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] transition-all font-medium text-slate-700 text-xs italic leading-relaxed" 
+                            />
+                            <p className="text-[10px] text-slate-400 italic pl-1 leading-normal">
+                              Descreva sobre a vaga e aproveite para falar sobre a empresa, sua cultura e equipe. *
+                            </p>
+                          </div>
+
+                          {/* Descrição de Atribuições */}
+                          <div className="flex flex-col gap-1.5 border-t border-slate-100 pt-3">
+                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                              Descrição de Atribuições <span className="text-rose-500">*</span>
+                            </label>
+                            <textarea 
+                              rows={6} 
+                              value={vacancyForm.responsibilities}
+                              onChange={(e) => setVacancyForm({...vacancyForm, responsibilities: e.target.value})}
+                              placeholder="Descreva as responsabilidades, atribuições e experiências desejáveis..." 
+                              className="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] transition-all font-medium text-slate-700 text-xs italic leading-relaxed" 
+                            />
+                            <p className="text-[10px] text-slate-400 italic pl-1 leading-normal">
+                              Descreva as responsabilidades e atribuições. Cite também as experiências que se espera ou deseja que a pessoa possua.
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {registerStep === 4 && (
+                        <motion.div 
+                          key="step4"
+                          initial={{ opacity: 0, x: 10 }} 
+                          animate={{ opacity: 1, x: 0 }}
                           className="space-y-4"
                         >
                           {/* Funil de Etapas */}
-                          <div className="grid grid-cols-[1.5fr_3fr] md:grid-cols-[1.2fr_2.5fr] gap-4 items-start">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest text-right pr-2 mt-3">
-                              Etapas do Funil
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
+                              Etapas do Funil de Seleção
                             </label>
-                            <div className="space-y-4 w-full">
-                              <div className="space-y-2">
-                                {vacancyForm.stages.map((stage, index) => (
-                                  <div key={index} className="group flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-[5px] border border-slate-100 hover:border-purple-200 transition-all">
-                                    <div className="w-6 h-6 bg-white rounded-[5px] shadow-sm flex items-center justify-center font-black text-[#533af6] text-xs">
-                                      {index + 1}
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-700">{stage}</span>
-                                    <button 
-                                      type="button"
-                                      onClick={() => setVacancyForm({...vacancyForm, stages: vacancyForm.stages.filter((_, i) => i !== index)})}
-                                      className="ml-auto p-1 text-slate-400 hover:text-red-500 transition-all"
-                                      title="Remover etapa"
-                                    >
-                                      <Trash2 size={14} />
-                                    </button>
+                            <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                              {vacancyForm.stages.map((stage, index) => (
+                                <div key={index} className="group flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-[5px] border border-slate-100 hover:border-[#533af6]/30 transition-all">
+                                  <div className="w-6 h-6 bg-white rounded-[5px] shadow-sm flex items-center justify-center font-black text-[#533af6] text-xs">
+                                    {index + 1}
                                   </div>
-                                ))}
-                              </div>
+                                  <span className="text-xs font-bold text-slate-700">{stage}</span>
+                                  <button 
+                                    type="button"
+                                    onClick={() => setVacancyForm({...vacancyForm, stages: vacancyForm.stages.filter((_, i) => i !== index)})}
+                                    className="ml-auto p-1 text-slate-400 hover:text-red-500 transition-all"
+                                    title="Remover etapa"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
 
-                              <div className="flex gap-2">
-                                <input 
-                                  type="text" 
-                                  value={newStage}
-                                  onChange={(e) => setNewStage(e.target.value)}
-                                  placeholder="Ex: Dinâmica em Grupo" 
-                                  className="flex-1 px-4 py-2 bg-white border border-dashed border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:border-[#533af6] focus:border-solid transition-all"
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      e.preventDefault();
-                                      if (newStage.trim()) {
-                                        const trimmedStage = newStage.trim();
-                                        const forbidden = ['testes', 'contratado', 'reprovado'];
-                                        if (forbidden.includes(trimmedStage.toLowerCase())) {
-                                          alert(`O nome "${trimmedStage}" é reservado para o sistema e não pode ser usado.`);
-                                          return;
-                                        }
-                                        setVacancyForm({...vacancyForm, stages: [...vacancyForm.stages, trimmedStage]});
-                                        setNewStage('');
-                                      }
-                                    }
-                                  }}
-                                />
-                                <button 
-                                  type="button"
-                                  onClick={() => {
+                            <div className="flex gap-2 mt-2">
+                              <input 
+                                type="text" 
+                                value={newStage}
+                                onChange={(e) => setNewStage(e.target.value)}
+                                placeholder="Ex: Dinâmica em Grupo" 
+                                className="flex-1 px-4 py-2 bg-white border border-dashed border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:border-[#533af6] focus:border-solid transition-all"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
                                     if (newStage.trim()) {
                                       const trimmedStage = newStage.trim();
                                       const forbidden = ['testes', 'contratado', 'reprovado'];
@@ -6149,12 +6418,27 @@ Equipe de Recrutamento & Seleção - Colaborh
                                       setVacancyForm({...vacancyForm, stages: [...vacancyForm.stages, trimmedStage]});
                                       setNewStage('');
                                     }
-                                  }}
-                                  className="px-3 bg-[#533af6] text-white rounded-[5px] flex items-center justify-center"
-                                >
-                                  <Plus size={12} />
-                                </button>
-                              </div>
+                                  }
+                                }}
+                              />
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  if (newStage.trim()) {
+                                    const trimmedStage = newStage.trim();
+                                    const forbidden = ['testes', 'contratado', 'reprovado'];
+                                    if (forbidden.includes(trimmedStage.toLowerCase())) {
+                                      alert(`O nome "${trimmedStage}" é reservado para o sistema e não pode ser usado.`);
+                                      return;
+                                    }
+                                    setVacancyForm({...vacancyForm, stages: [...vacancyForm.stages, trimmedStage]});
+                                    setNewStage('');
+                                  }
+                                }}
+                                className="px-3 bg-[#533af6] text-white rounded-[5px] flex items-center justify-center"
+                              >
+                                <Plus size={12} />
+                              </button>
                             </div>
                           </div>
                         </motion.div>
@@ -6178,16 +6462,10 @@ Equipe de Recrutamento & Seleção - Colaborh
                       <div />
                     )}
 
-                    {registerStep < 3 ? (
+                    {registerStep < 4 ? (
                       <button 
                         type="button"
-                        onClick={() => {
-                          if (registerStep === 1 && !vacancyForm.title.trim()) {
-                            alert("Por favor, informe o título da vaga.");
-                            return;
-                          }
-                          setRegisterStep(prev => prev + 1);
-                        }}
+                        onClick={handleNextStep}
                         className="px-8 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full font-bold text-[10px] uppercase tracking-wider transition-all shadow-md shadow-[#533af6]/10"
                       >
                         Próximo Passo
@@ -6477,11 +6755,14 @@ Equipe de Recrutamento & Seleção - Colaborh
                     setRegisterStep(1);
                     setVacancyForm({
                       title: '',
+                      role: '',
                       modality: 'Presencial',
                       state: '',
                       city: '',
-                      remunerationType: 'Mensal',
+                      remunerationType: 'Fixo',
                       salary: '',
+                      salaryMin: '',
+                      salaryMax: '',
                       hasBonus: false,
                       bonusType: 'Comissão',
                       bonusValue: '',
@@ -6490,13 +6771,22 @@ Equipe de Recrutamento & Seleção - Colaborh
                         vt: { selected: false, value: '' },
                         va: { selected: false, value: '' },
                         healthInsurance: false,
-                        dentalPlan: false
+                        healthInsuranceCopay: false,
+                        healthInsuranceFamily: false,
+                        dentalPlan: false,
+                        dentalPlanFamily: false
                       },
                       extraBenefits: [] as string[],
                       workSchedule: '5x2',
                       isFirstJob: false,
+                      isPcd: false,
+                      pcdDetails: '',
                       minAge: 18,
+                      positions: '1',
+                      requestReason: 'Aumento de quadro',
+                      isUrgent: false,
                       description: '',
+                      responsibilities: '',
                       requirements: [] as string[],
                       stages: ['Análise de Currículo', 'Entrevista', 'Teste Técnico']
                     });
@@ -6560,11 +6850,14 @@ Equipe de Recrutamento & Seleção - Colaborh
                       setRegisterStep(1);
                       setVacancyForm({
                         title: '',
+                        role: '',
                         modality: 'Presencial',
                         state: '',
                         city: '',
-                        remunerationType: 'Mensal',
+                        remunerationType: 'Fixo',
                         salary: '',
+                        salaryMin: '',
+                        salaryMax: '',
                         hasBonus: false,
                         bonusType: 'Comissão',
                         bonusValue: '',
@@ -6573,13 +6866,22 @@ Equipe de Recrutamento & Seleção - Colaborh
                           vt: { selected: false, value: '' },
                           va: { selected: false, value: '' },
                           healthInsurance: false,
-                          dentalPlan: false
+                          healthInsuranceCopay: false,
+                          healthInsuranceFamily: false,
+                          dentalPlan: false,
+                          dentalPlanFamily: false
                         },
                         extraBenefits: [] as string[],
                         workSchedule: '5x2',
                         isFirstJob: false,
+                        isPcd: false,
+                        pcdDetails: '',
                         minAge: 18,
+                        positions: '1',
+                        requestReason: 'Aumento de quadro',
+                        isUrgent: false,
                         description: '',
+                        responsibilities: '',
                         requirements: [] as string[],
                         stages: ['Análise de Currículo', 'Entrevista', 'Teste Técnico']
                       });
