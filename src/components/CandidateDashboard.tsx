@@ -49,6 +49,15 @@ import Cropper from 'react-easy-crop';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { supabase } from '../lib/supabase';
+import { 
+  createNotification, 
+  getNotifications, 
+  markAllNotificationsAsRead, 
+  markNotificationAsRead, 
+  deleteNotification,
+  ColaborhNotification 
+} from '../utils/notificationUtils';
+import { NotificationsDrawer } from './NotificationsDrawer';
 
 // Initialize Gemini
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
@@ -1183,6 +1192,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [isResumeDirty, setIsResumeDirty] = useState(false);
   const [pendingTabChange, setPendingTabChange] = useState<string | null>(null);
 
+  // Notifications states
+  const [notifications, setNotifications] = useState<ColaborhNotification[]>([]);
+  const [isNotificationsDrawerOpen, setIsNotificationsDrawerOpen] = useState(false);
+
   useEffect(() => {
     async function loadUserData() {
       const { data: { session } } = await supabase.auth.getSession();
@@ -1269,6 +1282,27 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       setIsResumeDirty(isChanged);
     }
   }, [resumeData, originalResumeData]);
+
+  const loadCandidateNotifications = async () => {
+    if (!resumeData.email) return;
+    try {
+      const list = await getNotifications(resumeData.email, 'candidate');
+      setNotifications(list);
+    } catch (e) {
+      console.error('Erro ao carregar notificações do candidato:', e);
+    }
+  };
+
+  useEffect(() => {
+    loadCandidateNotifications();
+
+    // Polling every 8 seconds for notifications
+    const interval = setInterval(() => {
+      loadCandidateNotifications();
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, [resumeData.email]);
 
   // Alerta nativo ao tentar fechar/recarregar a aba do navegador com alterações não salvas
   useEffect(() => {
@@ -2501,6 +2535,17 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         throw lastError || new Error('Falha ao enviar candidatura após várias tentativas.');
       }
 
+      // Trigger notification for company
+      if (vacancy.company_name) {
+        createNotification(
+          vacancy.company_name,
+          'company',
+          'Nova Candidatura',
+          `O candidato "${resumeData.fullName}" se candidatou na vaga "${vacancy.title}".`,
+          vacancy.id
+        ).catch(err => console.warn('Erro ao gerar notificação de nova candidatura:', err));
+      }
+
       setAppliedJobIds([...appliedJobIds, vacancy.id]);
       showCustomSuccess(`Candidatura enviada com sucesso para ${vacancy.title}!`, 'Candidatura enviada');
     } catch (err) {
@@ -3150,7 +3195,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#F0F2F5] relative font-sans">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f4f6] relative font-sans">
       {/* Decorative Blobs */}
       <div className="fixed top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary-100 rounded-full blur-[120px] opacity-20 pointer-events-none" />
       <div className="fixed bottom-[-10%] left-[20%] w-[30%] h-[30%] bg-indigo-100 rounded-full blur-[100px] opacity-20 pointer-events-none" />
@@ -3314,11 +3359,16 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
               {/* Botão de Notificações (Sino circular branco) */}
               <button
-                onClick={() => showCustomAlert("Você não possui novas notificações no momento.", "Notificações")}
-                className="w-10 h-10 bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-500 hover:text-slate-700 rounded-full flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-sm"
+                onClick={() => setIsNotificationsDrawerOpen(true)}
+                className="relative w-10 h-10 bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-500 hover:text-slate-700 rounded-full flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-sm cursor-pointer"
                 title="Notificações"
               >
                 <Bell size={18} />
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white animate-pulse">
+                    {notifications.filter(n => !n.read).length}
+                  </span>
+                )}
               </button>
 
               {/* Divisor Vertical */}
@@ -4387,7 +4437,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     ? job.stages 
                     : (typeof job?.stages === 'string' 
                         ? JSON.parse(job.stages) 
-                        : ['Análise de Currículo', 'Entrevista', 'Teste Técnico']));
+                        : ['Análise de Currículo']));
 
                   const firstStageName = stagesList[0] || 'Triagem';
                   const normalizedStatus = (currentStatus === 'Triagem') ? firstStageName : currentStatus;
@@ -6407,7 +6457,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.35, ease: 'easeOut' }}
-              className="relative w-full max-w-4xl h-full bg-white shadow-2xl overflow-hidden flex flex-col rounded-l-[10px] rounded-r-none z-10"
+              className="relative w-full max-w-4xl h-full bg-white shadow-2xl overflow-hidden flex flex-col rounded-none z-10"
             >
               <div className="p-6 flex justify-between items-center border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-3">
@@ -6626,7 +6676,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-l-[10px] rounded-r-none z-10"
+              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
@@ -6698,7 +6748,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-l-[10px] rounded-r-none z-10"
+              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
@@ -6775,7 +6825,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-l-[10px] rounded-r-none z-10"
+              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
@@ -6950,7 +7000,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-l-[10px] rounded-r-none z-10"
+              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
@@ -7066,7 +7116,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-l-[10px] rounded-r-none z-10"
+              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
@@ -7150,7 +7200,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-full max-w-[600px] bg-white shadow-2xl z-[100] flex flex-col rounded-l-[10px] border-l border-slate-100 overflow-hidden"
+              className="fixed top-0 right-0 h-full w-full max-w-[600px] bg-white shadow-2xl z-[100] flex flex-col rounded-none border-l border-slate-100 overflow-hidden"
             >
               {/* Header */}
               <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-start">
@@ -7345,7 +7395,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 <button
                   type="button"
                   onClick={() => setCustomDialog(prev => ({ ...prev, isOpen: false }))}
-                  className="px-7 py-2.5 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
+                  className="px-8 py-3 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
                 >
                   Entendido
                 </button>
@@ -7371,7 +7421,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.35, ease: 'easeOut' }}
-              className="relative w-full max-w-2xl h-full bg-slate-50 shadow-2xl overflow-hidden flex flex-col rounded-l-[10px] rounded-r-none z-10 text-left border-l border-slate-100"
+              className="relative w-full max-w-2xl h-full bg-slate-50 shadow-2xl overflow-hidden flex flex-col rounded-none z-10 text-left border-l border-slate-100"
             >
               {/* Header do Drawer */}
               <div className="p-6 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
@@ -7408,6 +7458,26 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           </div>
         )}
       </AnimatePresence>
+
+      <NotificationsDrawer
+        isOpen={isNotificationsDrawerOpen}
+        onClose={() => setIsNotificationsDrawerOpen(false)}
+        notifications={notifications}
+        onMarkAllAsRead={async () => {
+          if (resumeData.email) {
+            await markAllNotificationsAsRead(resumeData.email, 'candidate');
+            loadCandidateNotifications();
+          }
+        }}
+        onMarkAsRead={async (id) => {
+          await markNotificationAsRead(id);
+          loadCandidateNotifications();
+        }}
+        onDelete={async (id) => {
+          await deleteNotification(id);
+          loadCandidateNotifications();
+        }}
+      />
     </div>
   );
 }

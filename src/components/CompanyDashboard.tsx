@@ -58,6 +58,15 @@ import { perfisDISC, MBTI_PROFILES, MBTI_QUESTIONS, MbtiProfile, MbtiQuestion, T
 import { supabase } from '../lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 import { jsPDF } from 'jspdf';
+import { 
+  createNotification, 
+  getNotifications, 
+  markAllNotificationsAsRead, 
+  markNotificationAsRead, 
+  deleteNotification,
+  ColaborhNotification 
+} from '../utils/notificationUtils';
+import { NotificationsDrawer } from './NotificationsDrawer';
 import html2canvas from 'html2canvas';
 import { 
   AreaChart, 
@@ -73,229 +82,29 @@ import {
   Pie, 
   Cell 
 } from 'recharts';
-
-const APPLICATION_DATA = [
-  { name: 'Seg', applications: 45, views: 120 },
-  { name: 'Ter', applications: 52, views: 150 },
-  { name: 'Qua', applications: 38, views: 110 },
-  { name: 'Qui', applications: 65, views: 180 },
-  { name: 'Sex', applications: 48, views: 140 },
-  { name: 'Sab', applications: 20, views: 70 },
-  { name: 'Dom', applications: 15, views: 50 },
-];
-
-const VACANCY_DISTRIBUTION = [
-  { name: 'Triagem', value: 40, color: '#6366f1' },
-  { name: 'Entrevista', value: 30, color: '#10b981' },
-  { name: 'Teste', value: 20, color: '#f59e0b' },
-  { name: 'Contratado', value: 10, color: '#8b5cf6' },
-];
-
-const TOP_SKILLS = [
-  { name: 'React', count: 85 },
-  { name: 'Vendas', count: 72 },
-  { name: 'Liderança', count: 45 },
-  { name: 'Inglês', count: 38 },
-  { name: 'Design', count: 32 },
-];
-
-const BRAZIL_STATES = [
-  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 
-  'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-];
-
-const DF_REGIONS = [
-  'Brasília (Plano Piloto)', 'Águas Claras', 'Ceilândia', 'Taguatinga', 'Samambaia', 'Guará', 'Gama',
-  'Vicente Pires', 'Sobradinho', 'Sobradinho II', 'Planaltina', 'Santa Maria', 'São Sebastião',
-  'Recanto das Emas', 'Riacho Fundo', 'Riacho Fundo II', 'Núcleo Bandeirante', 'Cruzeiro',
-  'Lago Norte', 'Lago Sul', 'Jardim Botânico', 'Itapoã', 'Paranoá', 'Park Way', 'SCIA/Estrutural',
-  'SIA', 'Varjão', 'Brazlândia', 'Fercal', 'Arniqueira', 'Sol Nascente/Pôr do Sol',
-  // Cidades do Entorno (RIDE)
-  'Valparaíso de Goiás', 'Luziânia', 'Novo Gama', 'Cidade Ocidental', 'Águas Lindas de Goiás',
-  'Santo Antônio do Descoberto', 'Formosa', 'Planaltina de Goiás', 'Cristalina', 'Padre Bernardo'
-].sort();
-
-export const parseCandidatePhoneData = (phoneStr: string) => {
-  if (!phoneStr) return { phone: '', disc: '', notes: '', questions: '', mbti: '', temperamentos: '', customTest: '', discDate: null, questionsDate: null, mbtiDate: null, temperamentosDate: null, customTestDate: null };
-  
-  const extractValueAndDate = (str: string) => {
-    if (!str) return { value: '', date: null };
-    if (str.includes('===DATE===')) {
-      const parts = str.split('===DATE===');
-      return { value: parts[0].trim(), date: parts[1].trim() };
-    }
-    return { value: str.trim(), date: null };
-  };
-
-  let phone = phoneStr.split('===DISC===')[0].split('===NOTES===')[0].split('===QUESTIONS===')[0].split('===MBTI===')[0].split('===TEMPERAMENTOS===')[0].split('===CUSTOM_TEST===')[0].trim();
-  
-  let notes = '';
-  if (phoneStr.includes('===NOTES===')) {
-    const afterNotes = phoneStr.split('===NOTES===')[1];
-    notes = afterNotes.split('===DISC===')[0].split('===QUESTIONS===')[0].split('===MBTI===')[0].split('===TEMPERAMENTOS===')[0].split('===CUSTOM_TEST===')[0].trim();
-  }
-  
-  let disc = '';
-  if (phoneStr.includes('===DISC===')) {
-    const afterDisc = phoneStr.split('===DISC===')[1];
-    disc = afterDisc.split('===NOTES===')[0].split('===QUESTIONS===')[0].split('===MBTI===')[0].split('===TEMPERAMENTOS===')[0].split('===CUSTOM_TEST===')[0].trim();
-  }
-
-  let questions = '';
-  if (phoneStr.includes('===QUESTIONS===')) {
-    const afterQuestions = phoneStr.split('===QUESTIONS===')[1];
-    questions = afterQuestions.split('===DISC===')[0].split('===NOTES===')[0].split('===MBTI===')[0].split('===TEMPERAMENTOS===')[0].split('===CUSTOM_TEST===')[0].trim();
-  }
-
-  let mbti = '';
-  if (phoneStr.includes('===MBTI===')) {
-    const afterMbti = phoneStr.split('===MBTI===')[1];
-    mbti = afterMbti.split('===DISC===')[0].split('===NOTES===')[0].split('===QUESTIONS===')[0].split('===TEMPERAMENTOS===')[0].split('===CUSTOM_TEST===')[0].trim();
-  }
-
-  let temperamentos = '';
-  if (phoneStr.includes('===TEMPERAMENTOS===')) {
-    const afterTemp = phoneStr.split('===TEMPERAMENTOS===')[1];
-    temperamentos = afterTemp.split('===DISC===')[0].split('===NOTES===')[0].split('===QUESTIONS===')[0].split('===MBTI===')[0].split('===CUSTOM_TEST===')[0].trim();
-  }
-
-  let customTest = '';
-  if (phoneStr.includes('===CUSTOM_TEST===')) {
-    const afterCustom = phoneStr.split('===CUSTOM_TEST===')[1];
-    customTest = afterCustom.split('===DISC===')[0].split('===NOTES===')[0].split('===QUESTIONS===')[0].split('===MBTI===')[0].split('===TEMPERAMENTOS===')[0].trim();
-  }
-  
-  const discData = extractValueAndDate(disc);
-  const questionsData = extractValueAndDate(questions);
-  const mbtiData = extractValueAndDate(mbti);
-  const temperamentosData = extractValueAndDate(temperamentos);
-  const customTestData = extractValueAndDate(customTest);
-  
-  return { 
-    phone, 
-    disc: discData.value, 
-    discDate: discData.date,
-    notes, 
-    questions: questionsData.value, 
-    questionsDate: questionsData.date,
-    mbti: mbtiData.value, 
-    mbtiDate: mbtiData.date,
-    temperamentos: temperamentosData.value, 
-    temperamentosDate: temperamentosData.date,
-    customTest: customTestData.value,
-    customTestDate: customTestData.date
-  };
-};
-
-const formatDate = (dateStr: any) => {
-  if (!dateStr) return 'Não inf.';
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return String(dateStr);
-    if (typeof dateStr === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-      return dateStr;
-    }
-    return d.toLocaleDateString('pt-BR');
-  } catch (e) {
-    return String(dateStr);
-  }
-};
-
-export const serializeCandidatePhoneData = (
-  phone: string, 
-  disc: string = '', 
-  notes: string = '', 
-  questions: string = '', 
-  mbti: string = '', 
-  temperamentos: string = '',
-  customTest: string = ''
-) => {
-  let result = phone.trim();
-  if (disc && disc.trim()) {
-    result += ` ===DISC===${disc.trim()}`;
-  }
-  if (notes && notes.trim()) {
-    result += ` ===NOTES===${notes.trim()}`;
-  }
-  if (questions && questions.trim()) {
-    result += ` ===QUESTIONS===${questions.trim()}`;
-  }
-  if (mbti && mbti.trim()) {
-    result += ` ===MBTI===${mbti.trim()}`;
-  }
-  if (temperamentos && temperamentos.trim()) {
-    result += ` ===TEMPERAMENTOS===${temperamentos.trim()}`;
-  }
-  if (customTest && customTest.trim()) {
-    result += ` ===CUSTOM_TEST===${customTest.trim()}`;
-  }
-  return result;
-};
-
-export const getCustomQuestionsFromJobDescription = (description: string): any[] => {
-  if (!description) return [];
-  const regex = /===CUSTOM_QUESTIONS_JSON===([\s\S]*?)===FIM_CUSTOM_QUESTIONS===/;
-  const match = description.match(regex);
-  if (match && match[1]) {
-    try {
-      return JSON.parse(match[1].trim());
-    } catch (e) {
-      console.error("Erro ao fazer parse do JSON de perguntas customizadas:", e);
-    }
-  }
-  return [];
-};
-
-export const QUESTIONS_CATEGORIES = {
-  EXPERIENCE: {
-    title: "Experiência Profissional",
-    questions: [
-      "Conte sobre sua trajetória profissional e as principais atividades que desempenhou, na vaga para qual está se candidatando;",
-      "Qual foi a experiência profissional mais significativa da sua carreira até o momento? Por quê?",
-      "Quais habilidades você desenvolveu ao longo das suas experiências anteriores?",
-      "Fale sobre um desafio profissional que enfrentou e como conseguiu solucioná-lo.",
-      "Cite uma conquista profissional da qual você se orgulha e explique sua participação."
-    ]
-  },
-  CONTRIBUTION: {
-    title: "Contribuição e Resultados",
-    questions: [
-      "De que forma você acredita que pode contribuir para nossa empresa e equipe? (Qual seu diferencial para a vaga em que está se candidatando)",
-      "Em experiências anteriores, o que você fez que trouxe resultados positivos para a empresa?",
-      "Você já identificou alguma melhoria em processos ou atividades no ambiente de trabalho? Explique.",
-      "Como você costuma lidar com metas, prazos e cobranças?",
-      "O que considera essencial para gerar bons resultados no trabalho."
-    ]
-  },
-  TEAMWORK: {
-    title: "Trabalho em Equipe",
-    questions: [
-      "Como você define um bom trabalho em equipe?",
-      "Conte uma situação em que precisou colaborar com colegas para alcançar um objetivo.",
-      "Como você reage quando existem opiniões diferentes dentro da equipe?",
-      "Qual costuma ser seu papel dentro de uma equipe: líder, apoiador, organizador, executor ou outro? Explique.",
-      "O que você considera mais importante para manter um ambiente de trabalho saudável."
-    ]
-  },
-  BEHAVIORAL: {
-    title: "Comportamental",
-    questions: [
-      "Como você lida com mudanças inesperadas ou situações fora do planejamento?",
-      "Como costuma reagir diante de pressão ou momentos de grande demanda?",
-      "Cite três características pessoais que considera seus pontos fortes.",
-      "Qual comportamento ou habilidade você busca melhorar em si mesmo atualmente?",
-      "O que mais motiva você em um ambiente de trabalho?"
-    ]
-  }
-};
-
-export const ALL_QUESTIONS_LIST = [
-  ...QUESTIONS_CATEGORIES.EXPERIENCE.questions,
-  ...QUESTIONS_CATEGORIES.CONTRIBUTION.questions,
-  ...QUESTIONS_CATEGORIES.TEAMWORK.questions,
-  ...QUESTIONS_CATEGORIES.BEHAVIORAL.questions
-];
-
+import { 
+  APPLICATION_DATA, 
+  VACANCY_DISTRIBUTION, 
+  TOP_SKILLS, 
+  BRAZIL_STATES, 
+  DF_REGIONS, 
+  parseCandidatePhoneData, 
+  formatDate, 
+  calculateAiMatchScore, 
+  getCurrentJobStages, 
+  getCurrentJobStageTests, 
+  serializeCandidatePhoneData, 
+  getCustomQuestionsFromJobDescription, 
+  QUESTIONS_CATEGORIES, 
+  ALL_QUESTIONS_LIST,
+  calculateAge 
+} from '../utils/companyDashboardUtils';
+import { ManageStagesModal } from './CompanyDashboard/modals/ManageStagesModal';
+import { CustomQuestionsModal } from './CompanyDashboard/modals/CustomQuestionsModal';
+import { TalentBankTab } from './CompanyDashboard/tabs/TalentBankTab';
+import { MyVacanciesTab } from './CompanyDashboard/tabs/MyVacanciesTab';
+import { CreateVacancyTab } from './CompanyDashboard/tabs/CreateVacancyTab';
+import { SettingsTab } from './CompanyDashboard/tabs/SettingsTab';
 
 interface CompanyDashboardProps {
   onLogout: () => void;
@@ -541,164 +350,6 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     }));
   };
   
-  // Função para calcular o score de match (0 a 100) do candidato para a vaga
-  const calculateAiMatchScore = (job: any, fullApp: any) => {
-    if (!job || !fullApp) return 0;
-    
-    const talent = fullApp.talentMatched;
-    if (!talent) return 50; // Se não tiver perfil detalhado, dá um match médio padrão
-    
-    let score = 0;
-    let totalPossible = 0;
-    
-    // 1. MATCH DE HABILIDADES (SKILLS) - Peso 40%
-    const jobSkills = job.requirements || [];
-    const candidateSkills = talent.skills || [];
-    
-    if (jobSkills.length > 0) {
-      let matchedSkills = 0;
-      jobSkills.forEach((reqSkill: string) => {
-        // Checagem case-insensitive e parcial
-        const matched = candidateSkills.some((candSkill: string) => 
-          candSkill.toLowerCase().trim().includes(reqSkill.toLowerCase().trim()) ||
-          reqSkill.toLowerCase().trim().includes(candSkill.toLowerCase().trim())
-        );
-        if (matched) matchedSkills++;
-      });
-      
-      const skillsRatio = matchedSkills / jobSkills.length;
-      score += skillsRatio * 40;
-    } else {
-      // Se a vaga não exige habilidades específicas, assume match de 30 pontos padrão na categoria
-      score += 30;
-    }
-    totalPossible += 40;
-    
-    // 2. MATCH DE CARGO / TÍTULO (ROLE) - Peso 20%
-    const jobTitle = (job.title || '').toLowerCase();
-    const candidateRole = (talent.role || '').toLowerCase();
-    const candidateSummary = (talent.summary || '').toLowerCase();
-    
-    let titleMatchPoints = 0;
-    if (candidateRole) {
-      // Se os títulos de cargo são muito parecidos
-      if (jobTitle.includes(candidateRole) || candidateRole.includes(jobTitle)) {
-        titleMatchPoints = 20;
-      } else {
-        // Palavras chave comuns nos cargos (ex: desenvolvedor, vendedor, gerente, analista)
-        const jobWords = jobTitle.split(/\s+/).filter((w: string) => w.length > 3);
-        let matchCount = 0;
-        jobWords.forEach((word: string) => {
-          if (candidateRole.includes(word) || candidateSummary.includes(word)) {
-            matchCount++;
-          }
-        });
-        
-        if (matchCount > 0) {
-          titleMatchPoints = Math.min(20, 10 + matchCount * 3);
-        } else {
-          titleMatchPoints = 5; // match mínimo de afinidade se não achar palavras-chave
-        }
-      }
-    }
-    score += titleMatchPoints;
-    totalPossible += 20;
-    
-    // 3. MATCH DE LOCALIZAÇÃO E MODALIDADE - Peso 15%
-    let locMatch = 15;
-    const jobModality = (job.modality || '').toLowerCase();
-    const candidateModality = (talent.modality || '').toLowerCase();
-    
-    // Se a vaga for presencial e os locais forem diferentes
-    if (jobModality.includes('presencial')) {
-      const jobCity = (job.city || '').toLowerCase().trim();
-      const jobState = (job.state || '').toLowerCase().trim();
-      const candCity = (talent.city || '').toLowerCase().trim();
-      const candState = (talent.state || '').toLowerCase().trim();
-      
-      if (jobCity && candCity && jobCity !== candCity) {
-        locMatch -= 8; // penalidade por cidade diferente
-      }
-      if (jobState && candState && jobState !== candState) {
-        locMatch -= 5; // penalidade por estado diferente
-      }
-      
-      // Preferência do candidato por modalidade
-      if (candidateModality && !candidateModality.includes('presencial') && !candidateModality.includes('híbrido')) {
-        locMatch -= 5; // prefere apenas remoto
-      }
-    } else if (jobModality.includes('home office') || jobModality.includes('remoto')) {
-      // Se for remoto, a localização física não importa tanto, mas a modalidade preferida sim
-      if (candidateModality && !candidateModality.includes('remoto') && !candidateModality.includes('híbrido')) {
-        locMatch -= 5; // prefere apenas presencial
-      }
-    }
-    score += Math.max(0, locMatch);
-    totalPossible += 15;
-    
-    // 4. ADERÊNCIA SALARIAL - Peso 15%
-    let salaryScore = 15;
-    const extractNumber = (valStr: string) => {
-      if (!valStr) return 0;
-      const clean = valStr.replace(/\D/g, '');
-      return clean ? parseInt(clean) : 0;
-    };
-    
-    const jobSalaryVal = extractNumber(job.salary);
-    const candidateSalaryVal = extractNumber(talent.salary);
-    
-    if (jobSalaryVal > 0 && candidateSalaryVal > 0) {
-      if (candidateSalaryVal <= jobSalaryVal) {
-        // Pretensão menor ou igual ao proposto
-        salaryScore = 15;
-      } else {
-        // Pretensão maior. Calcula o excedente
-        const diffPercent = (candidateSalaryVal - jobSalaryVal) / jobSalaryVal;
-        if (diffPercent <= 0.1) {
-          salaryScore = 12; // até 10% acima do orçamento é aceitável
-        } else if (diffPercent <= 0.25) {
-          salaryScore = 8;  // até 25% acima
-        } else {
-          salaryScore = 3;  // muito acima do orçamento
-        }
-      }
-    }
-    score += salaryScore;
-    totalPossible += 15;
-    
-    // 5. ADERÊNCIA DE SÊNIORIDADE / EXPERIÊNCIA - Peso 10%
-    let senScore = 8;
-    const candidateExp = (talent.experience || '').toLowerCase();
-    const jobTitleLower = jobTitle.toLowerCase();
-    
-    let jobReqSeniority = 'pleno'; // default
-    if (jobTitleLower.includes('sênior') || jobTitleLower.includes('senior') || jobTitleLower.includes('sr') || jobTitleLower.includes('especialista')) {
-      jobReqSeniority = 'sênior';
-    } else if (jobTitleLower.includes('júnior') || jobTitleLower.includes('junior') || jobTitleLower.includes('jr') || jobTitleLower.includes('assistente')) {
-      jobReqSeniority = 'júnior';
-    } else if (jobTitleLower.includes('estágio') || jobTitleLower.includes('estagiário') || jobTitleLower.includes('estagiario')) {
-      jobReqSeniority = 'estágio';
-    }
-    
-    if (candidateExp) {
-      if (candidateExp.includes(jobReqSeniority)) {
-        senScore = 10;
-      } else {
-        // Desvios toleráveis
-        if (jobReqSeniority === 'sênior' && candidateExp.includes('pleno')) senScore = 6;
-        else if (jobReqSeniority === 'pleno' && candidateExp.includes('sênior')) senScore = 10; // sobreequalificado
-        else if (jobReqSeniority === 'pleno' && candidateExp.includes('júnior')) senScore = 5;
-        else if (jobReqSeniority === 'júnior' && candidateExp.includes('pleno')) senScore = 8; // sobreequalificado
-        else senScore = 4; // incompatível
-      }
-    }
-    score += senScore;
-    totalPossible += 10;
-    
-    // Arredonda e retorna o score final entre 0 e 100
-    return Math.min(100, Math.max(0, Math.round((score / totalPossible) * 100)));
-  };
-
   const [jobApplicants, setJobApplicants] = useState<any[]>([]);
   const [isFetchingApplicants, setIsFetchingApplicants] = useState(false);
   const [companyName, setCompanyName] = useState('Empresa Parceira');
@@ -776,6 +427,13 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId) || companies[0] || { nomeFantasia: 'Colaborh', razaoSocial: 'Colaborh Soluções LTDA' };
   const [selectedResumeApplicant, setSelectedResumeApplicant] = useState<any>(null);
+  const [resumeDrawerTab, setResumeDrawerTab] = useState<'curriculo' | 'testes'>('curriculo');
+
+  useEffect(() => {
+    if (selectedResumeApplicant) {
+      setResumeDrawerTab('curriculo');
+    }
+  }, [selectedResumeApplicant]);
   const [isExportingResume, setIsExportingResume] = useState(false);
   const [isExportingTestPDF, setIsExportingTestPDF] = useState(false);
   const resumePrintRef = useRef<HTMLDivElement>(null);
@@ -850,6 +508,14 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     } finally {
       setIsSavingNotes(false);
     }
+  };
+
+  const handleOpenNotes = (applicant: any) => {
+    const info = getFullApplicantInfo(applicant);
+    const parsedData = parseCandidatePhoneData(info.candidate_phone);
+    setSelectedApplicantForNotes(info);
+    setTempNotesText(parsedData.notes || '');
+    setIsNotesModalOpen(true);
   };
 
   const handleDownloadResume = async () => {
@@ -1314,28 +980,65 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
         .eq('id', appId);
 
       if (error) throw error;
-      setJobApplicants(prev => prev.map(app => app.id === appId ? { ...app, status: newStatus } : app));
+
+      // Trigger notification for candidate
+      const appRecord = jobApplicants.find(a => String(a.id) === String(appId));
+      const emailDestinatario = appRecord?.candidate_email || appRecord?.email;
+      if (emailDestinatario && selectedJob) {
+        createNotification(
+          emailDestinatario,
+          'candidate',
+          'Avanço de Etapa',
+          `Seu processo seletivo para a vaga "${selectedJob.title}" avançou para a etapa "${newStatus}".`,
+          selectedJob.id
+        ).catch(err => console.warn('Erro ao gerar notificação de avanço de etapa:', err));
+      }
+
+      // Update state
+      setJobApplicants(prev => {
+        const updatedList = prev.map(app => String(app.id) === String(appId) ? { ...app, status: newStatus } : app);
+        
+        // Trigger automatic tests if configured for the new stage
+        setTimeout(() => {
+          const app = updatedList.find(a => String(a.id) === String(appId));
+          if (app && selectedJob) {
+            const info = getFullApplicantInfo(app);
+            const parsedData = parseCandidatePhoneData(app.candidate_phone);
+            const currentStageTests = getCurrentJobStageTests(selectedJob);
+            const testsForStage = currentStageTests[newStatus] || [];
+
+            testsForStage.forEach(test => {
+              const [testKey, trigger = 'auto'] = test.split(':');
+              if (trigger === 'auto') {
+                let testStatus = '';
+                if (testKey === 'disc') testStatus = parsedData.disc;
+                else if (testKey === 'mbti') testStatus = parsedData.mbti;
+                else if (testKey === 'temperamentos') testStatus = parsedData.temperamentos;
+                else if (testKey === 'perguntas') testStatus = parsedData.questions;
+                else if (testKey === 'customizado') testStatus = parsedData.customTest;
+
+                const isCompleted = testStatus.startsWith('COMPLETED') || testStatus === 'COMPLETED' || (testStatus && testStatus !== 'PENDING');
+                const isPending = testStatus === 'PENDING';
+
+                if (!isCompleted && !isPending) {
+                  // Dispatch automatic test request
+                  if (testKey === 'disc') handleRequestDiscTest(info);
+                  else if (testKey === 'mbti') handleRequestMbtiTest(info);
+                  else if (testKey === 'temperamentos') handleRequestTemperamentosTest(info);
+                  else if (testKey === 'perguntas') handleRequestQuestions(info);
+                  else if (testKey === 'customizado') handleRequestCustomTest(info);
+                }
+              }
+            });
+          }
+        }, 500);
+
+        return updatedList;
+      });
     } catch (err) {
       console.error('Erro ao atualizar status do candidato:', err);
       alert('Erro ao atualizar status do candidato.');
     }
-  };
-
-  const getCurrentJobStages = (job: any): string[] => {
-    if (!job) return [];
-    if (job.description && job.description.includes('===ETAPAS_JSON===')) {
-      try {
-        const part = job.description.split('===ETAPAS_JSON===')[1].split('===FIM_ETAPAS===')[0];
-        return JSON.parse(part);
-      } catch (e) {
-        console.error('Error parsing stages from description:', e);
-      }
-    }
-    return Array.isArray(job.stages) 
-      ? job.stages 
-      : (typeof job.stages === 'string' 
-          ? JSON.parse(job.stages) 
-          : ['Análise de Currículo', 'Entrevista', 'Teste Técnico']);
   };
 
   const handleUpdateJobStages = async (jobId: string, newStages: string[]) => {
@@ -1379,16 +1082,49 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     }
   };
 
+  const handleUpdateJobStageTests = async (jobId: string, newStageTests: Record<string, string[]>) => {
+    try {
+      const jobToUpdate = jobs.find(j => j.id === jobId) || selectedJob;
+      if (!jobToUpdate) {
+        console.error("Vaga não encontrada para atualização de testes das etapas.");
+        return;
+      }
+
+      const regex = /===STAGE_TESTS_JSON===[\s\S]*?===FIM_STAGE_TESTS===/g;
+      let cleanDesc = (jobToUpdate.description || '').replace(regex, '').trim();
+      const updatedDescription = `${cleanDesc}\n\n===STAGE_TESTS_JSON===${JSON.stringify(newStageTests)}===FIM_STAGE_TESTS===`;
+
+      const { error } = await supabase
+        .from('jobs')
+        .update({
+          description: updatedDescription
+        })
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      const updatedJob = {
+        ...jobToUpdate,
+        description: updatedDescription
+      };
+      
+      setSelectedJob(updatedJob);
+      setJobs(prevJobs => {
+        if (!prevJobs || prevJobs.length === 0) return [updatedJob];
+        return prevJobs.map(j => j.id === jobId ? updatedJob : j);
+      });
+      
+      return updatedJob;
+    } catch (err) {
+      console.error('Erro ao atualizar testes das etapas:', err);
+      alert('Erro ao atualizar configurações de testes do processo.');
+    }
+  };
+
   const handleAddNewStage = async (stageName: string) => {
     if (!selectedJob) return;
     const trimmed = stageName.trim();
     if (!trimmed) return;
-    
-    const forbidden = ['testes', 'contratado', 'reprovado'];
-    if (forbidden.includes(trimmed.toLowerCase())) {
-      alert(`O nome "${trimmed}" é reservado para o sistema e não pode ser usado.`);
-      return;
-    }
     
     const currentStages = getCurrentJobStages(selectedJob);
     if (currentStages.map(s => s.toLowerCase()).includes(trimmed.toLowerCase())) {
@@ -1437,7 +1173,7 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     }
     
     // Check if there are any candidates in this stage
-    const allColumns = [...currentStages, 'Testes', 'Contratado', 'Reprovado'];
+    const allColumns = currentStages;
     const defaultStage = currentStages[0] || 'Triagem';
     
     const candidatesInStage = jobApplicants.filter(applicant => {
@@ -1474,7 +1210,7 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
   };
 
   const handleDragOver = (e: React.DragEvent, targetStage: string) => {
-    if (draggedStage && draggedStage !== targetStage && targetStage !== 'Testes' && targetStage !== 'Contratado' && targetStage !== 'Reprovado') {
+    if (draggedStage && draggedStage !== targetStage) {
       e.preventDefault();
     }
   };
@@ -1483,8 +1219,6 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     e.preventDefault();
     const sourceStage = e.dataTransfer.getData('text/plain') || draggedStage;
     if (!sourceStage || sourceStage === targetStage) return;
-    if (targetStage === 'Testes' || targetStage === 'Contratado' || targetStage === 'Reprovado') return;
-    if (sourceStage === 'Testes' || sourceStage === 'Contratado' || sourceStage === 'Reprovado') return;
 
     if (!selectedJob) return;
     const currentStages = getCurrentJobStages(selectedJob);
@@ -1510,13 +1244,17 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
       const currentStatus = app.status;
       const stagesList = getCurrentJobStages(selectedJob);
       const defaultStage = stagesList[0] || 'Triagem';
-      const allColumns = [...stagesList, 'Testes', 'Contratado', 'Reprovado'];
+      const allColumns = stagesList;
       const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !allColumns.includes(currentStatus)) 
         ? defaultStage 
         : currentStatus;
 
-      if (normalizedStatus !== 'Testes') {
-        alert('A solicitação do teste DISC só é permitida na etapa "Testes". Mova o candidato no Kanban primeiro.');
+      const currentStageTests = getCurrentJobStageTests(selectedJob);
+      const testsForStage = currentStageTests[normalizedStatus] || [];
+      const hasTestInStage = testsForStage.some(t => t.split(':')[0] === 'disc');
+
+      if (normalizedStatus !== 'Testes' && !hasTestInStage) {
+        alert('A solicitação do teste DISC não está configurada para a etapa atual do candidato.');
         return;
       }
 
@@ -1647,13 +1385,17 @@ Equipe de Recrutamento & Seleção - Colaborh
       const currentStatus = app.status;
       const stagesList = getCurrentJobStages(selectedJob);
       const defaultStage = stagesList[0] || 'Triagem';
-      const allColumns = [...stagesList, 'Testes', 'Contratado', 'Reprovado'];
+      const allColumns = stagesList;
       const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !allColumns.includes(currentStatus)) 
         ? defaultStage 
         : currentStatus;
 
-      if (normalizedStatus !== 'Testes') {
-        alert('A solicitação do Mapeamento de Perfil só é permitida na etapa "Testes". Mova o candidato no Kanban primeiro.');
+      const currentStageTests = getCurrentJobStageTests(selectedJob);
+      const testsForStage = currentStageTests[normalizedStatus] || [];
+      const hasTestInStage = testsForStage.some(t => t.split(':')[0] === 'perguntas');
+
+      if (normalizedStatus !== 'Testes' && !hasTestInStage) {
+        alert('A solicitação do Mapeamento de Perfil não está configurada para a etapa atual do candidato.');
         return;
       }
 
@@ -1786,13 +1528,17 @@ Equipe de Recrutamento & Seleção - Colaborh
       const currentStatus = app.status;
       const stagesList = getCurrentJobStages(selectedJob);
       const defaultStage = stagesList[0] || 'Triagem';
-      const allColumns = [...stagesList, 'Testes', 'Contratado', 'Reprovado'];
+      const allColumns = stagesList;
       const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !allColumns.includes(currentStatus)) 
         ? defaultStage 
         : currentStatus;
 
-      if (normalizedStatus !== 'Testes') {
-        alert('A solicitação do teste MBTI só é permitida na etapa "Testes". Mova o candidato no Kanban primeiro.');
+      const currentStageTests = getCurrentJobStageTests(selectedJob);
+      const testsForStage = currentStageTests[normalizedStatus] || [];
+      const hasTestInStage = testsForStage.some(t => t.split(':')[0] === 'mbti');
+
+      if (normalizedStatus !== 'Testes' && !hasTestInStage) {
+        alert('A solicitação do teste MBTI não está configurada para a etapa atual do candidato.');
         return;
       }
 
@@ -1925,13 +1671,17 @@ Equipe de Recrutamento & Seleção - Colaborh
       const currentStatus = app.status;
       const stagesList = getCurrentJobStages(selectedJob);
       const defaultStage = stagesList[0] || 'Triagem';
-      const allColumns = [...stagesList, 'Testes', 'Contratado', 'Reprovado'];
+      const allColumns = stagesList;
       const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !allColumns.includes(currentStatus)) 
         ? defaultStage 
         : currentStatus;
 
-      if (normalizedStatus !== 'Testes') {
-        alert('A solicitação do Questionário Customizado só é permitida na etapa "Testes". Mova o candidato no Kanban primeiro.');
+      const currentStageTests = getCurrentJobStageTests(selectedJob);
+      const testsForStage = currentStageTests[normalizedStatus] || [];
+      const hasTestInStage = testsForStage.some(t => t.split(':')[0] === 'customizado');
+
+      if (normalizedStatus !== 'Testes' && !hasTestInStage) {
+        alert('A solicitação do Questionário Customizado não está configurada para a etapa atual do candidato.');
         return;
       }
 
@@ -2079,13 +1829,17 @@ Equipe de Recrutamento & Seleção - Colaborh
       const currentStatus = app.status;
       const stagesList = getCurrentJobStages(selectedJob);
       const defaultStage = stagesList[0] || 'Triagem';
-      const allColumns = [...stagesList, 'Testes', 'Contratado', 'Reprovado'];
+      const allColumns = stagesList;
       const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !allColumns.includes(currentStatus)) 
         ? defaultStage 
         : currentStatus;
 
-      if (normalizedStatus !== 'Testes') {
-        alert('A solicitação do teste de Temperamentos só é permitida na etapa "Testes". Mova o candidato no Kanban primeiro.');
+      const currentStageTests = getCurrentJobStageTests(selectedJob);
+      const testsForStage = currentStageTests[normalizedStatus] || [];
+      const hasTestInStage = testsForStage.some(t => t.split(':')[0] === 'temperamentos');
+
+      if (normalizedStatus !== 'Testes' && !hasTestInStage) {
+        alert('A solicitação do teste de Temperamentos não está configurada para a etapa atual do candidato.');
         return;
       }
 
@@ -2214,17 +1968,22 @@ Equipe de Recrutamento & Seleção - Colaborh
   const handleShareJob = (job: any) => {
     const shareUrl = `${window.location.origin}?vaga=${job.id}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
-      alert(`Link de candidatura copiado! Vaga: "${job.title}". Divulgue para potenciais candidatos.`);
+      showCustomSuccess(`Link de candidatura copiado! Vaga: "${job.title}". Divulgue para potenciais candidatos.`, 'Link Copiado');
     }).catch(err => {
       console.error('Erro ao copiar link:', err);
       // Fallback
-      const textInput = document.createElement('input');
-      textInput.value = shareUrl;
-      document.body.appendChild(textInput);
-      textInput.select();
-      document.execCommand('copy');
-      document.body.removeChild(textInput);
-      alert(`Link copiado com sucesso!`);
+      try {
+        const textInput = document.createElement('input');
+        textInput.value = shareUrl;
+        document.body.appendChild(textInput);
+        textInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(textInput);
+        showCustomSuccess(`Link copiado com sucesso!`, 'Link Copiado');
+      } catch (fallbackErr) {
+        console.error('Erro no fallback de cópia:', fallbackErr);
+        showCustomAlert('Não foi possível copiar o link de candidatura.', 'Erro');
+      }
     });
   };
 
@@ -2358,7 +2117,12 @@ Equipe de Recrutamento & Seleção - Colaborh
   // New states for company registration
   const [isRegisteringCompany, setIsRegisteringCompany] = useState(false);
   const [isRegisteringVacancy, setIsRegisteringVacancy] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [isConfiguringStages, setIsConfiguringStages] = useState(false);
+
+  // Notifications states
+  const [notifications, setNotifications] = useState<ColaborhNotification[]>([]);
+  const [isNotificationsDrawerOpen, setIsNotificationsDrawerOpen] = useState(false);
 
   // Custom Alert / Confirm Dialog states
   const [customDialog, setCustomDialog] = useState<{
@@ -2476,18 +2240,6 @@ Equipe de Recrutamento & Seleção - Colaborh
     loadTalents();
   }, []);
 
-  const calculateAge = (birthDate: string) => {
-    if (!birthDate) return null;
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
   const filteredTalents = talents.filter(t => {
     if (!t) return false;
     if (t.role && (t.role.toLowerCase() === 'empresa' || t.role.toLowerCase() === 'company')) {
@@ -2562,14 +2314,10 @@ Equipe de Recrutamento & Seleção - Colaborh
     description: '',
     responsibilities: '', // Descrição de atribuições
     requirements: [] as string[], // Mantido para compatibilidade
-    stages: ['Análise de Currículo', 'Entrevista', 'Teste Técnico']
+    stages: ['Análise de Currículo']
   });
 
-  const [newStage, setNewStage] = useState('');
-  const [newRequirement, setNewRequirement] = useState('');
-  const [newBenefit, setNewBenefit] = useState('');
-  const [cities, setCities] = useState<string[]>([]);
-  const [isLoadingCities, setIsLoadingCities] = useState(false);
+
   const [talentCities, setTalentCities] = useState<string[]>([]);
   const [isTalentLoadingCities, setIsTalentLoadingCities] = useState(false);
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
@@ -2776,25 +2524,35 @@ Equipe de Recrutamento & Seleção - Colaborh
     loadJobs();
   }, [activeTab, selectedCompanyId]);
 
+  const loadCompanyNotifications = async () => {
+    if (!selectedCompany?.nomeFantasia) return;
+    try {
+      const list = await getNotifications(selectedCompany.nomeFantasia, 'company');
+      setNotifications(list);
+    } catch (e) {
+      console.error('Erro ao carregar notificações da empresa:', e);
+    }
+  };
+
+  useEffect(() => {
+    loadCompanyNotifications();
+    
+    // Polling every 8 seconds for notifications
+    const interval = setInterval(() => {
+      loadCompanyNotifications();
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, [selectedCompany?.nomeFantasia]);
+
   // Close job details/applicants/Kanban when switching company
   useEffect(() => {
     setSelectedJob(null);
   }, [selectedCompanyId]);
 
   const handlePublish = async () => {
-    // Auto-add any typed stage in the input field before validating and publishing
+    if (isPublishing) return;
     let currentStages = vacancyForm.stages;
-    if (newStage.trim()) {
-      const trimmedStage = newStage.trim();
-      const forbidden = ['testes', 'contratado', 'reprovado'];
-      if (forbidden.includes(trimmedStage.toLowerCase())) {
-        alert(`O nome "${trimmedStage}" é reservado para o sistema e não pode ser usado.`);
-        return;
-      }
-      currentStages = [...currentStages, trimmedStage];
-      setVacancyForm(prev => ({ ...prev, stages: currentStages }));
-      setNewStage('');
-    }
 
     if (currentStages.length === 0) {
       const error = "A vaga deve ter ao menos uma etapa no processo seletivo.";
@@ -2810,6 +2568,7 @@ Equipe de Recrutamento & Seleção - Colaborh
     }
 
     try {
+      setIsPublishing(true);
       let finalDescription = vacancyForm.description;
       if (vacancyForm.responsibilities.trim()) {
         finalDescription += `\n\nResponsabilidades e Atribuições:\n${vacancyForm.responsibilities}`;
@@ -2988,6 +2747,8 @@ Equipe de Recrutamento & Seleção - Colaborh
     } catch (err: any) {
       console.error('Erro ao salvar vaga:', err);
       alert('Erro ao publicar vaga: ' + (err.message || JSON.stringify(err)));
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -3074,28 +2835,7 @@ Equipe de Recrutamento & Seleção - Colaborh
     }
   };
 
-  useEffect(() => {
-    if (vacancyForm.state && vacancyForm.modality === 'Presencial') {
-      if (vacancyForm.state === 'DF') {
-        setCities(DF_REGIONS);
-        setIsLoadingCities(false);
-        return;
-      }
-      setIsLoadingCities(true);
-      fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${vacancyForm.state}/municipios`)
-        .then(res => res.json())
-        .then(data => {
-          setCities(data.map((city: any) => city.nome).sort());
-          setIsLoadingCities(false);
-        })
-        .catch(err => {
-          console.error('Error fetching cities:', err);
-          setIsLoadingCities(false);
-        });
-    } else {
-      setCities([]);
-    }
-  }, [vacancyForm.state, vacancyForm.modality]);
+
 
   useEffect(() => {
     if (talentFilters.state) {
@@ -3120,28 +2860,7 @@ Equipe de Recrutamento & Seleção - Colaborh
     }
   }, [talentFilters.state]);
 
-  const commonRequirements = [
-    'Experiência prévia',
-    'Inglês Intermediário',
-    'Disponibilidade de horário',
-    'Proatividade',
-    'Trabalho em equipe'
-  ];
 
-  const formatCurrency = (value: string) => {
-    const cleanValue = value.replace(/\D/g, "");
-    const numericValue = parseInt(cleanValue) / 100;
-    if (isNaN(numericValue)) return "";
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(numericValue);
-  };
-
-  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatCurrency(e.target.value);
-    setVacancyForm({ ...vacancyForm, salary: formatted });
-  };
 
   const handleSelectTab = (tab: string) => {
     setActiveTab(tab);
@@ -3149,7 +2868,7 @@ Equipe de Recrutamento & Seleção - Colaborh
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#F0F2F5] relative font-sans">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f4f6] relative font-sans">
       {/* Decorative Blobs */}
       <div className="fixed top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary-100 rounded-full blur-[120px] opacity-20 pointer-events-none" />
       <div className="fixed bottom-[-10%] left-[20%] w-[30%] h-[30%] bg-indigo-100 rounded-full blur-[100px] opacity-20 pointer-events-none" />
@@ -3245,8 +2964,8 @@ Equipe de Recrutamento & Seleção - Colaborh
       </aside>
 
       {/* Main Container */}
-      <div className={`flex-1 min-h-screen flex flex-col ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10`}>
-        <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 pt-4 flex flex-col gap-4 transition-all duration-200 ${
+      <div className={`flex-1 min-h-screen flex flex-col ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10 min-w-0 max-w-full`}>
+        <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-[0_5px_15px_rgba(0,0,0,0.08)] px-6 pt-4 flex flex-col gap-4 transition-all duration-200 ${
           activeTab === 'Minhas Vagas' || activeTab === 'Banco de Talentos' ? 'pb-0' : 'pb-4'
         }`}>
           {/* Top row */}
@@ -3304,11 +3023,16 @@ Equipe de Recrutamento & Seleção - Colaborh
 
               {/* Botão de Notificações */}
               <button
-                onClick={() => showCustomAlert("Você não possui novas notificações no momento.", "Notificações")}
-                className="w-9 h-9 bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-500 hover:text-slate-700 rounded-full flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-sm"
+                onClick={() => setIsNotificationsDrawerOpen(true)}
+                className="relative w-9 h-9 bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-500 hover:text-slate-700 rounded-full flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-sm cursor-pointer"
                 title="Notificações"
               >
                 <Bell size={15} />
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white animate-pulse">
+                    {notifications.filter(n => !n.read).length}
+                  </span>
+                )}
               </button>
 
               {/* Divisor Vertical */}
@@ -3424,11 +3148,66 @@ Equipe de Recrutamento & Seleção - Colaborh
               })()}
               </div>
               <button 
+                type="button"
                 onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
-                className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-md shadow-primary-100 hover:shadow-lg transition-all active:scale-95 border-0 cursor-pointer shrink-0 mr-6 mb-2 sm:mb-0"
+                className="flex items-center gap-2 px-5 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95 border-0 cursor-pointer shrink-0 mr-6 mb-2.5 sm:mb-1.5"
               >
-                <Plus size={14} /> Nova Vaga
+                <Plus size={13} className="stroke-[2.5]" /> Nova Vaga
               </button>
+            </div>
+          )}
+
+          {/* Bottom row (Triagem Header glued to the header) */}
+          {activeTab === 'Minhas Vagas' && selectedJob !== null && (
+            <div className="w-full pb-2 pt-1 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 text-left">
+              <div className="space-y-1">
+                {/* Informações da vaga em caixa alta */}
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1 select-none">
+                  {(() => {
+                    const locationText = [selectedJob.city, selectedJob.state].filter(Boolean).join(', ');
+                    const modalityText = selectedJob.modality;
+                    const contractText = selectedJob.contractType;
+                    return [locationText, modalityText, contractText].filter(Boolean).join(' • ');
+                  })()}
+                </div>
+                
+                {/* Título e Badge com linha roxa inferior */}
+                <div className="relative pb-2.5 inline-flex items-end gap-3 min-w-[200px]">
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight uppercase leading-none select-none pl-1">
+                    {selectedJob.title}
+                  </h3>
+                  <span className="text-[8px] font-black bg-[#533af6]/10 text-[#533af6] px-2.5 py-1 rounded-full uppercase tracking-wider select-none leading-none mb-0.5">
+                    {jobApplicants.length} {jobApplicants.length === 1 ? 'candidato' : 'candidatos'}
+                  </span>
+                  {/* Linha roxa decorativa embaixo do título */}
+                  <div className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#533af6]" />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 w-full md:w-auto justify-end mb-1">
+                <button 
+                  type="button"
+                  onClick={() => handleShareJob(selectedJob)}
+                  className="flex items-center gap-2 px-5 py-3 bg-[#533af6] text-white rounded-full font-black uppercase tracking-widest text-[9px] shadow-md hover:bg-[#4326e5] hover:-translate-y-0.5 active:scale-95 transition-all outline-none cursor-pointer border-0"
+                >
+                  <Share2 size={13} className="stroke-[2.5]" /> Compartilhar Vaga
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setIsConfiguringStages(true)}
+                  className="flex items-center gap-2 px-5 py-3 bg-[#533af6]/10 text-[#533af6] rounded-full font-black uppercase tracking-widest text-[9px] hover:bg-[#533af6]/15 hover:-translate-y-0.5 active:scale-95 transition-all outline-none cursor-pointer border-0"
+                >
+                  <Settings size={13} className="stroke-[2.5]" /> Configurar Etapas
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setSelectedJob(null)} 
+                  className="w-10 h-10 bg-[#533af6] text-white rounded-full flex items-center justify-center shadow-md hover:bg-[#4326e5] hover:-translate-y-0.5 active:scale-95 transition-all outline-none cursor-pointer border-0 shrink-0"
+                  title="Voltar para Vagas"
+                >
+                  <ChevronLeft size={18} className="stroke-[3]" />
+                </button>
+              </div>
             </div>
           )}
 
@@ -3492,7 +3271,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
         </header>
 
-        <main className="flex-1 p-6 lg:p-10 relative transition-all duration-300 z-10">
+        <main className="flex-1 p-6 lg:p-10 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
           <div className="w-full">
           <AnimatePresence mode="wait">
             {activeTab === 'Dashboard' && (
@@ -3738,1056 +3517,54 @@ Equipe de Recrutamento & Seleção - Colaborh
               </motion.div>
             )}
 
-            {activeTab === 'Cadastrar Vagas' && (
-              <motion.div 
-                key="cadastrar-vaga"
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="max-w-[850px] mx-auto bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(124,58,237,0.12)] min-h-[550px] flex flex-col overflow-hidden border border-white"
-              >
-                {/* Step Header - Compact */}
-                <div className="bg-slate-50/50 px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-indigo-600 text-white rounded-xl flex items-center justify-center shadow-md">
-                      <PlusCircle size={20} />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-black text-slate-900 tracking-tight">Publicar Vaga</h2>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Passo {registerStep} de 4</p>
-                    </div>
-                  </div>
 
-                  {/* Step Progress - More subtle */}
-                  <div className="flex items-center gap-1.5">
-                    {[1, 2, 3, 4].map((step) => (
-                      <div key={step} className="flex items-center">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${
-                          registerStep === step 
-                            ? 'bg-primary-600 text-white shadow-md' 
-                            : registerStep > step 
-                              ? 'bg-emerald-500 text-white' 
-                              : 'bg-slate-200 text-slate-400'
-                        }`}>
-                          {registerStep > step ? <Check size={12} /> : step}
-                        </div>
-                        {step < 4 && (
-                          <div className={`w-6 h-0.5 mx-0.5 rounded-full ${registerStep > step ? 'bg-emerald-500' : 'bg-slate-200'}`} />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="flex-1 p-8 overflow-y-auto">
-                    <AnimatePresence mode="wait">
-                      {registerStep === 1 && (
-                        <motion.div 
-                          key="step1"
-                          initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
-                          className="space-y-6"
-                        >
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div className="col-span-full">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Título da Vaga</label>
-                              <input 
-                                type="text" 
-                                value={vacancyForm.title}
-                                onChange={(e) => setVacancyForm({ ...vacancyForm, title: e.target.value })}
-                                placeholder="Ex: Desenvolvedor React Sênior" 
-                                className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-medium text-sm" 
-                              />
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Modalidade</label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={vacancyForm.modality}
-                                  onChange={(e) => setVacancyForm({ ...vacancyForm, modality: e.target.value as any })}
-                                  className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-medium text-sm appearance-none"
-                                >
-                                  <option value="Presencial">Presencial</option>
-                                  <option value="Home Office">Home Office</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            {vacancyForm.modality === 'Presencial' && (
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Estado</label>
-                                  <div className="relative">
-                                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                    <select 
-                                      className="w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-xl font-medium text-sm outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all appearance-none"
-                                      value={vacancyForm.state}
-                                      onChange={(e) => setVacancyForm({...vacancyForm, state: e.target.value, city: ''})}
-                                    >
-                                      <option value="">UF</option>
-                                      {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
-                                    </select>
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Cidade</label>
-                                  <div className="relative">
-                                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                    <select 
-                                      className="w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-xl font-medium text-sm outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all appearance-none disabled:opacity-50"
-                                      value={vacancyForm.city}
-                                      onChange={(e) => setVacancyForm({...vacancyForm, city: e.target.value})}
-                                      disabled={isLoadingCities || !cities.length}
-                                    >
-                                      <option value="">{isLoadingCities ? 'Buscando...' : 'Cidade'}</option>
-                                      {cities.map(city => <option key={city} value={city}>{city}</option>)}
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Remuneração</label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={vacancyForm.remunerationType}
-                                  onChange={(e) => setVacancyForm({ ...vacancyForm, remunerationType: e.target.value as any })}
-                                  className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-xl font-medium text-sm outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all appearance-none"
-                                >
-                                  <option>Mensal</option>
-                                  <option>Comissionado</option>
-                                  <option>Diária</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Salário Proposto</label>
-                              <div className="space-y-3">
-                                <div className="relative">
-                                  <input 
-                                    type="text" 
-                                    value={vacancyForm.salary}
-                                    onChange={handleSalaryChange}
-                                    placeholder="R$ 0,00" 
-                                    className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-bold text-sm" 
-                                  />
-                                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/80 px-2 py-1 rounded-lg">
-                                    <span className="text-[8px] font-black text-slate-400 uppercase">Extra?</span>
-                                    <input 
-                                      type="checkbox" 
-                                      checked={vacancyForm.hasBonus}
-                                      onChange={(e) => setVacancyForm({...vacancyForm, hasBonus: e.target.checked})}
-                                      className="w-4 h-4 rounded text-primary-600 cursor-pointer"
-                                    />
-                                  </div>
-                                </div>
-
-                                {vacancyForm.hasBonus && (
-                                  <div className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-2">
-                                    <div className="relative">
-                                      <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                      <select 
-                                        value={vacancyForm.bonusType}
-                                        onChange={(e) => setVacancyForm({...vacancyForm, bonusType: e.target.value})}
-                                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase outline-none focus:border-primary-300 appearance-none pl-3 pr-8"
-                                      >
-                                        <option value="Comissão">Comissão</option>
-                                        <option value="Premiação">Premiação</option>
-                                      </select>
-                                    </div>
-                                    <input 
-                                      type="text" 
-                                      placeholder="Valor Médio"
-                                      value={vacancyForm.bonusValue}
-                                      onChange={(e) => setVacancyForm({...vacancyForm, bonusValue: e.target.value})}
-                                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none focus:border-primary-300"
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Contratação</label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={vacancyForm.contractType}
-                                  onChange={(e) => setVacancyForm({ ...vacancyForm, contractType: e.target.value as any })}
-                                  className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-xl font-medium text-sm outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all appearance-none"
-                                >
-                                  <option>CLT</option>
-                                  <option>PJ</option>
-                                  <option>Estágio</option>
-                                  <option>Autônomo</option>
-                                  <option>Meio Período</option>
-                                  <option>Temporário</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Escala</label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={vacancyForm.workSchedule}
-                                  onChange={(e) => setVacancyForm({ ...vacancyForm, workSchedule: e.target.value as any })}
-                                  className="w-full px-5 py-3.5 bg-slate-50 border border-transparent rounded-xl font-medium text-sm outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all appearance-none"
-                                >
-                                  <option>5x2</option>
-                                  <option>6x1</option>
-                                  <option>12x36</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div className="col-span-full bg-slate-50/50 p-5 rounded-3xl border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                              <div>
-                                <label className="flex items-center gap-4 cursor-pointer group">
-                                  <div className={`w-11 h-5.5 rounded-full relative transition-all duration-300 ${vacancyForm.isFirstJob ? 'bg-primary-600' : 'bg-slate-200'}`}>
-                                    <div className={`absolute top-0.75 left-0.75 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${vacancyForm.isFirstJob ? 'translate-x-5.5' : ''}`} />
-                                    <input 
-                                      type="checkbox" 
-                                      className="hidden" 
-                                      checked={vacancyForm.isFirstJob} 
-                                      onChange={(e) => setVacancyForm({...vacancyForm, isFirstJob: e.target.checked})} 
-                                    />
-                                  </div>
-                                  <div className="flex flex-col">
-                                    <span className="text-[11px] font-black text-slate-900 uppercase tracking-tight leading-tight">Oportunidade 1º Emprego</span>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">Ideal para quem busca começar</span>
-                                  </div>
-                                </label>
-                              </div>
-
-                              <div className="space-y-2">
-                                <div className="flex justify-between items-center px-1">
-                                  <label className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Idade Mínima</label>
-                                  <span className="px-2 py-0.5 bg-primary-600 text-white rounded-md text-[10px] font-black">{vacancyForm.minAge} anos</span>
-                                </div>
-                                <div className="relative">
-                                  <input 
-                                    type="range" 
-                                    min="16" 
-                                    max="50" 
-                                    value={vacancyForm.minAge}
-                                    onChange={(e) => setVacancyForm({...vacancyForm, minAge: parseInt(e.target.value)})}
-                                    className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
-                                  />
-                                  <div className="flex justify-between px-1">
-                                    <span className="text-[7px] font-bold text-slate-300 uppercase tracking-widest">16 ANOS</span>
-                                    <span className="text-[7px] font-bold text-slate-300 uppercase tracking-widest">50 ANOS</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="col-span-full">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3 block pl-4">Benefícios Oferecidos</label>
-                              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                                {[
-                                  { id: 'vt', label: 'VT', hasValue: true },
-                                  { id: 'va', label: 'VA/VR', hasValue: true },
-                                  { id: 'healthInsurance', label: 'SAÚDE', hasValue: false },
-                                  { id: 'dentalPlan', label: 'DENTAL', hasValue: false },
-                                ].map((ben) => (
-                                  <div key={ben.id} className="space-y-2">
-                                    <button 
-                                      onClick={() => {
-                                        if (ben.hasValue) {
-                                          setVacancyForm({
-                                            ...vacancyForm, 
-                                            benefits: { ...vacancyForm.benefits, [ben.id]: { ...((vacancyForm.benefits as any)[ben.id]), selected: !((vacancyForm.benefits as any)[ben.id]).selected } }
-                                          });
-                                        } else {
-                                          setVacancyForm({
-                                            ...vacancyForm, 
-                                            benefits: { ...vacancyForm.benefits, [ben.id]: !(vacancyForm.benefits as any)[ben.id] }
-                                          });
-                                        }
-                                      }}
-                                      className={`w-full py-2.5 px-3 rounded-xl border font-bold text-[10px] uppercase tracking-tighter transition-all ${
-                                        (ben.hasValue ? (vacancyForm.benefits as any)[ben.id].selected : (vacancyForm.benefits as any)[ben.id])
-                                          ? 'bg-primary-50 border-primary-200 text-primary-700' 
-                                          : 'bg-slate-50 border-transparent text-slate-500 hover:bg-slate-100'
-                                      }`}
-                                    >
-                                      {ben.label}
-                                    </button>
-                                    {ben.hasValue && (vacancyForm.benefits as any)[ben.id].selected && (
-                                      <input 
-                                        type="text" 
-                                        placeholder="Valor"
-                                        value={(vacancyForm.benefits as any)[ben.id].value}
-                                        onChange={(e) => setVacancyForm({
-                                          ...vacancyForm, 
-                                          benefits: { ...vacancyForm.benefits, [ben.id]: { ...((vacancyForm.benefits as any)[ben.id]), value: e.target.value } }
-                                        })}
-                                        className="w-full px-3 py-1.5 bg-white border border-slate-100 rounded-lg text-[10px] font-bold outline-none focus:border-primary-300"
-                                      />
-                                    )}
-                                  </div>
-                                ))}
-
-                                {vacancyForm.extraBenefits.map((extra, idx) => (
-                                  <div key={idx} className="relative group">
-                                    <button 
-                                      className="w-full py-2.5 px-3 rounded-xl border border-primary-200 bg-primary-50 font-bold text-[10px] uppercase tracking-tighter text-primary-700"
-                                    >
-                                      {extra}
-                                    </button>
-                                    <button 
-                                      onClick={() => setVacancyForm({...vacancyForm, extraBenefits: vacancyForm.extraBenefits.filter((_, i) => i !== idx)})}
-                                      className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                                    >
-                                      <CloseIcon size={10} />
-                                    </button>
-                                  </div>
-                                ))}
-
-                                <div className="space-y-2">
-                                  <div className="flex gap-1">
-                                    <input 
-                                      type="text" 
-                                      placeholder="Extra..."
-                                      value={newBenefit}
-                                      onChange={(e) => setNewBenefit(e.target.value.toUpperCase())}
-                                      className="w-full px-3 py-2 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-[10px] font-bold outline-none focus:border-primary-300 placeholder:normal-case"
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && newBenefit.trim()) {
-                                          setVacancyForm({...vacancyForm, extraBenefits: [...vacancyForm.extraBenefits, newBenefit.trim()]});
-                                          setNewBenefit('');
-                                        }
-                                      }}
-                                    />
-                                    {newBenefit && (
-                                      <button 
-                                        onClick={() => {
-                                          setVacancyForm({...vacancyForm, extraBenefits: [...vacancyForm.extraBenefits, newBenefit.trim()]});
-                                          setNewBenefit('');
-                                        }}
-                                        className="p-2 bg-primary-600 text-white rounded-lg"
-                                      >
-                                        <Plus size={10} />
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {registerStep === 2 && (
-                        <motion.div 
-                          key="step2"
-                          initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
-                          className="space-y-6"
-                        >
-                          <div>
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-4">Descrição da Vaga</label>
-                            <textarea 
-                              rows={6} 
-                              value={vacancyForm.description}
-                              onChange={(e) => setVacancyForm({...vacancyForm, description: e.target.value})}
-                              placeholder="Fale sobre o cargo e a empresa..." 
-                              className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[1.5rem] outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all font-medium text-slate-700 text-sm italic leading-relaxed" 
-                            />
-                          </div>
-
-                          <div className="space-y-4">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block pl-4">Requisitos</label>
-                            
-                            <div className="flex flex-wrap gap-2">
-                              {commonRequirements.map(req => {
-                                const selected = vacancyForm.requirements.includes(req);
-                                return (
-                                  <button
-                                    key={req}
-                                    onClick={() => {
-                                      if (selected) {
-                                        setVacancyForm({...vacancyForm, requirements: vacancyForm.requirements.filter(r => r !== req)});
-                                      } else {
-                                        setVacancyForm({...vacancyForm, requirements: [...vacancyForm.requirements, req]});
-                                      }
-                                    }}
-                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${
-                                      selected 
-                                        ? 'bg-primary-600 text-white shadow-sm' 
-                                        : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-100'
-                                    }`}
-                                  >
-                                    {req}
-                                  </button>
-                                );
-                              })}
-                            </div>
-
-                            <div className="flex gap-2">
-                              <input 
-                                type="text" 
-                                value={newRequirement}
-                                onChange={(e) => setNewRequirement(e.target.value)}
-                                placeholder="Outro requisito..." 
-                                className="flex-1 px-5 py-3 bg-slate-50 border border-transparent rounded-xl font-medium text-sm outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all"
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' && newRequirement.trim()) {
-                                    setVacancyForm({...vacancyForm, requirements: [...vacancyForm.requirements, newRequirement.trim()]});
-                                    setNewRequirement('');
-                                  }
-                                }}
-                              />
-                            </div>
-
-                            {vacancyForm.requirements.length > 0 && (
-                              <div className="bg-slate-50/50 p-4 rounded-xl border border-dashed border-slate-200">
-                                <div className="flex flex-wrap gap-2">
-                                  {vacancyForm.requirements.map((r, i) => (
-                                    <div key={i} className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-100 text-[10px] font-bold text-slate-600">
-                                      <span>{r}</span>
-                                      <button 
-                                        onClick={() => setVacancyForm({...vacancyForm, requirements: vacancyForm.requirements.filter((_, idx) => idx !== i)})}
-                                        className="text-red-400 hover:text-red-600"
-                                      >
-                                        <Trash2 size={12} />
-                                      </button>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {registerStep === 3 && (
-                        <motion.div 
-                          key="step3"
-                          initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
-                          className="space-y-6"
-                        >
-                          <div className="text-center mb-4">
-                            <h3 className="font-black text-slate-800 tracking-tight">Etapas do Processo</h3>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Personalize o seu funil</p>
-                          </div>
-
-                          <div className="space-y-2">
-                            {vacancyForm.stages.map((stage, index) => (
-                              <div key={index} className="group flex items-center gap-4 bg-slate-50 px-5 py-3.5 rounded-xl border border-transparent hover:border-primary-100 transition-all">
-                                <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center font-black text-primary-600 text-xs">
-                                  {index + 1}
-                                </div>
-                                <span className="text-sm font-bold text-slate-700">{stage}</span>
-                                <button 
-                                  onClick={() => setVacancyForm({...vacancyForm, stages: vacancyForm.stages.filter((_, i) => i !== index)})}
-                                  className="ml-auto p-1.5 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            ))}
-
-                            <div className="flex gap-2 mt-4">
-                              <input 
-                                type="text" 
-                                value={newStage}
-                                onChange={(e) => setNewStage(e.target.value)}
-                                placeholder="Ex: Dinâmica em Grupo" 
-                                className="flex-1 px-5 py-3 bg-white border border-dashed border-slate-200 rounded-xl font-medium text-sm outline-none focus:border-primary-400 focus:border-solid transition-all"
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' && newStage.trim()) {
-                                    setVacancyForm({...vacancyForm, stages: [...vacancyForm.stages, newStage.trim()]});
-                                    setNewStage('');
-                                  }
-                                }}
-                              />
-                              <button 
-                                onClick={() => {
-                                  if (newStage.trim()) {
-                                    setVacancyForm({...vacancyForm, stages: [...vacancyForm.stages, newStage.trim()]});
-                                    setNewStage('');
-                                  }
-                                }}
-                                className="px-5 bg-primary-600 text-white rounded-xl font-black text-[10px] uppercase shadow-md shadow-primary-100"
-                              >
-                                Add
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="bg-indigo-50/50 p-5 rounded-[1.5rem] flex gap-3 border border-indigo-100/50">
-                            <BarChart3 size={18} className="text-indigo-500 shrink-0 mt-0.5" />
-                            <p className="text-[10px] font-medium text-indigo-900 leading-relaxed italic">
-                              Os candidatos serão organizados neste funil de visualização estilo Kanban facilitando a sua gestão.
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                </div>
-
-                {/* Footer - Elegant and Compact */}
-                <div className="p-6 border-t border-slate-100 flex items-center justify-between bg-slate-50/30 relative">
-                  <AnimatePresence>
-                    {errorMessage && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute -top-12 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl z-50 flex items-center gap-2"
-                      >
-                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                        {errorMessage}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {registerStep > 1 ? (
-                    <button 
-                      onClick={() => setRegisterStep(s => s - 1)}
-                      className="flex items-center gap-2 px-6 py-3 text-slate-400 hover:text-slate-600 font-black text-[10px] uppercase tracking-widest transition-all"
-                    >
-                      <ChevronLeft size={14} /> Voltar
-                    </button>
-                  ) : <div />}
-
-                  <div className="flex items-center gap-3">
-                    <button 
-                      onClick={() => setActiveTab('Minhas Vagas')}
-                      className="px-5 py-3 text-slate-400 hover:text-slate-500 font-bold text-xs"
-                    >
-                      Descartar
-                    </button>
-                    {registerStep < 4 ? (
-                      <button 
-                        onClick={handleNextStep}
-                        className="px-8 py-3.5 bg-slate-900 text-white rounded-full font-black text-[10px] uppercase tracking-[0.15em] shadow-lg hover:-translate-y-0.5 transition-all"
-                      >
-                        Próximo
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={handlePublish}
-                        className="px-10 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full font-black text-[10px] uppercase tracking-[0.15em] shadow-lg shadow-emerald-200 hover:-translate-y-0.5 transition-all"
-                      >
-                        Publicar Agora
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'Minhas Vagas' && selectedJob === null && (
-              <motion.div 
-                key="minhas-vagas-grid"
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                exit={{ opacity: 0, y: -20 }}
-                className="space-y-4"
-              >
-                {isFetchingJobs ? (
-                  <div className="text-center py-20">
-                    <Activity className="animate-spin mx-auto text-primary-600 mb-4" />
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Carregando suas vagas...</p>
-                  </div>
-                ) : jobs.length > 0 ? (
-                  jobs.map((job, i) => (
-                    <div 
-                      key={job.id || i} 
-                      className="bg-white p-5 rounded-[5px] shadow-sm border border-slate-100 flex flex-wrap items-center justify-between gap-4 hover:shadow-md transition-all duration-300"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-slate-50 rounded-[5px] flex items-center justify-center text-slate-400 border border-slate-100/50">
-                          <Briefcase size={20} />
-                        </div>
-                        <div>
-                          <h4 
-                            onClick={() => handleViewApplicants(job)}
-                            className="font-bold text-slate-900 hover:text-[#533af6] cursor-pointer transition-colors uppercase tracking-tight text-sm select-none"
-                          >
-                            {job.title}
-                          </h4>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'} • {job.modality}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-10">
-                        <div className="text-center">
-                          <p className="text-xl font-black text-slate-900">{job.candidates_count || 0}</p>
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Inscritos</p>
-                        </div>
-                        {(() => {
-                          const status = job.status || 'active';
-                          let colorClasses = 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50';
-                          if (status === 'paused') colorClasses = 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/50';
-                          else if (status === 'closed') colorClasses = 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200/50';
-                          return (
-                            <select
-                              value={status}
-                              onChange={(e) => handleUpdateJobStatus(job.id, e.target.value)}
-                              className={`${colorClasses} px-2.5 py-1.5 rounded-[5px] text-[9.5px] font-black uppercase tracking-widest border outline-none cursor-pointer transition-all`}
-                            >
-                              <option value="active" className="bg-white text-slate-700 font-bold">Ativa</option>
-                              <option value="paused" className="bg-white text-slate-700 font-bold">Pausada</option>
-                              <option value="closed" className="bg-white text-slate-700 font-bold">Encerrada</option>
-                            </select>
-                          );
-                        })()}
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => handleViewApplicants(job)}
-                            className="p-2 bg-slate-50 text-slate-500 hover:text-[#533af6] hover:bg-slate-100 rounded-[5px] border border-slate-100/60 transition-all cursor-pointer"
-                            title="Ver candidatos e triagem"
-                          >
-                            <Eye size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleShareJob(job)}
-                            className="p-2 bg-slate-50 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-[5px] border border-slate-100/60 transition-all cursor-pointer"
-                            title="Compartilhar vaga"
-                          >
-                            <Share2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="bg-white p-20 rounded-[5px] text-center border border-dashed border-slate-200">
-                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 border border-slate-100/50">
-                      <Briefcase size={32} />
-                    </div>
-                    <h3 className="text-lg font-black text-slate-900 mb-1">Nenhuma vaga publicada</h3>
-                    <p className="text-slate-400 text-xs max-w-sm mx-auto mb-6 font-semibold">Você ainda não criou nenhuma oportunidade. Comece a contratar agora mesmo!</p>
-                    <button 
-                      onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
-                      className="px-6 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-[5px] font-black text-[10px] uppercase tracking-widest shadow-md transition-all cursor-pointer"
-                    >
-                      Publicar Primeira Vaga
-                    </button>
-                  </div>
-                )}
-              </motion.div>
+            {activeTab === 'Minhas Vagas' && (
+              <MyVacanciesTab
+                jobs={jobs}
+                isFetchingJobs={isFetchingJobs}
+                jobSubTab={jobSubTab}
+                selectedJob={selectedJob}
+                setSelectedJob={setSelectedJob}
+                jobApplicants={jobApplicants}
+                isFetchingApplicants={isFetchingApplicants}
+                handleViewApplicants={handleViewApplicants}
+                handleUpdateJobStatus={handleUpdateJobStatus}
+                handleShareJob={handleShareJob}
+                setIsRegisteringVacancy={setIsRegisteringVacancy}
+                setRegisterStep={setRegisterStep}
+                setIsConfiguringStages={setIsConfiguringStages}
+                handleUpdateApplicantStatus={handleUpdateApplicantStatus}
+                setSelectedResumeApplicant={setSelectedResumeApplicant}
+                getFullApplicantInfo={getFullApplicantInfo}
+                handleRequestDiscTest={handleRequestDiscTest}
+                handleRequestMbtiTest={handleRequestMbtiTest}
+                handleRequestTemperamentosTest={handleRequestTemperamentosTest}
+                handleRequestQuestions={handleRequestQuestions}
+                handleRequestCustomTest={handleRequestCustomTest}
+                handleOpenNotes={handleOpenNotes}
+                handleDeleteJob={handleDeleteJob}
+              />
             )}
 
             {activeTab === 'Banco de Talentos' && (
-              <motion.div 
-                key="banco-talentos"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-8"
-              >
-                {/* AI Integrated Search Input */}
-                <div className="bg-white p-2 rounded-[2.5rem] shadow-xl border border-slate-100 flex flex-col md:flex-row items-stretch gap-2">
-                  <div className="flex-1 relative flex items-center bg-slate-50 rounded-[2rem] px-6 py-2">
-                    {isAiSearching ? (
-                      <Cpu size={20} className="text-primary-600 animate-spin mr-3 shrink-0" />
-                    ) : (
-                      <BrainCircuit size={20} className="text-primary-600 mr-3 shrink-0" />
-                    )}
-                    <textarea 
-                      value={aiPrompt}
-                      onChange={(e) => setAiPrompt(e.target.value)}
-                      placeholder="Busca Inteligente por IA: Descreva o perfil ideal do candidato que você procura..."
-                      className="w-full bg-transparent border-none outline-none text-sm font-bold text-slate-700 placeholder:text-slate-400 py-3 resize-none h-12 flex items-center leading-tight"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleAiSearch();
-                        }
-                      }}
-                    />
-                    {aiPrompt && !isAiSearching && (
-                      <button 
-                        onClick={() => setAiPrompt('')}
-                        className="p-2 text-slate-300 hover:text-slate-500 transition-colors"
-                      >
-                        <CloseIcon size={16} />
-                      </button>
-                    )}
-                  </div>
-                  <button 
-                    onClick={handleAiSearch}
-                    disabled={isAiSearching || !aiPrompt.trim()}
-                    className="md:w-56 bg-gradient-to-r from-slate-900 to-indigo-900 hover:from-slate-800 hover:to-indigo-800 disabled:opacity-50 text-white rounded-[1.8rem] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shrink-0 py-4 md:py-0 shadow-lg shadow-indigo-100"
-                  >
-                    {isAiSearching ? 'Analisando Base...' : (
-                      <>Puxar Melhores Talentos <Zap size={14} /></>
-                    )}
-                  </button>
-                </div>
-
-                {/* Filters - Now horizontal and below the search */}
-                <div className="bg-white p-8 rounded-[3rem] shadow-sleek border border-slate-100/50">
-                  <div 
-                    className="flex items-center justify-between cursor-pointer group"
-                    onClick={() => setIsFiltersVisible(!isFiltersVisible)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 group-hover:bg-primary-100 transition-colors">
-                        <Filter size={18} />
-                      </div>
-                      <div>
-                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] leading-tight">Filtros de Especialidade</h3>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Refine sua busca manual</p>
-                      </div>
-                    </div>
-                    <div className={`p-2 rounded-xl bg-slate-50 text-slate-400 group-hover:text-slate-600 transition-all duration-300 ${isFiltersVisible ? 'rotate-180' : ''}`}>
-                      <ChevronDown size={20} />
-                    </div>
-                  </div>
- 
-                  <AnimatePresence>
-                    {isFiltersVisible && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                        animate={{ height: 'auto', opacity: 1, marginTop: 32 }}
-                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="space-y-6">
-                          {/* Linha 1: Cargo e Escolaridade */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block pl-1">Cargo Desejado</label>
-                              <input 
-                                type="text" 
-                                value={talentFilters.role}
-                                onChange={(e) => setTalentFilters({...talentFilters, role: e.target.value})}
-                                placeholder="Ex: Gerente de Vendas" 
-                                className="w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-2xl text-xs font-bold focus:bg-white focus:border-primary-200 outline-none transition-all"
-                              />
-                            </div>
- 
-                            <div>
-                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block pl-1">Escolaridade</label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                                <select 
-                                  value={talentFilters.education}
-                                  onChange={(e) => setTalentFilters({...talentFilters, education: e.target.value})}
-                                  className="w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-2xl text-[10px] font-bold focus:bg-white focus:border-primary-200 outline-none transition-all appearance-none"
-                                >
-                                  <option value="">Qualquer Nível</option>
-                                  <option value="Ensino Médio Cursando">Ensino Médio Cursando</option>
-                                  <option value="Ensino Médio Completo">Ensino Médio Completo</option>
-                                  <option value="Superior Cursando">Superior Cursando</option>
-                                  <option value="Ensino Superior Completo">Ensino Superior Completo</option>
-                                  <option value="Pós-graduação">Pós-graduação</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
- 
-                          {/* Linha 2: Sênioridade, Localização, Idade e Pretensão */}
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            <div>
-                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block pl-1">Sênioridade</label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                                <select 
-                                  value={talentFilters.experience}
-                                  onChange={(e) => setTalentFilters({...talentFilters, experience: e.target.value})}
-                                  className="w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-2xl text-[10px] font-bold focus:bg-white focus:border-primary-200 outline-none transition-all appearance-none"
-                                >
-                                  <option value="">Qualquer</option>
-                                  <option value="Estágio">Estágio</option>
-                                  <option value="Júnior">Júnior</option>
-                                  <option value="Pleno">Pleno</option>
-                                  <option value="Sênior">Sênior</option>
-                                  <option value="Especialista">Especialista</option>
-                                </select>
-                              </div>
-                            </div>
- 
-                            <div>
-                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block pl-1">Localização</label>
-                              <div className="grid grid-cols-5 gap-2">
-                                <select 
-                                  value={talentFilters.state}
-                                  onChange={(e) => setTalentFilters({...talentFilters, state: e.target.value, city: ''})}
-                                  className="col-span-2 px-2 py-3.5 bg-slate-50 border border-transparent rounded-2xl text-[10px] font-bold focus:bg-white focus:border-primary-200 outline-none transition-all appearance-none text-center"
-                                >
-                                  <option value="">UF</option>
-                                  {BRAZIL_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                                </select>
-                                <select 
-                                  value={talentFilters.city}
-                                  onChange={(e) => setTalentFilters({...talentFilters, city: e.target.value})}
-                                  disabled={!talentFilters.state || isTalentLoadingCities}
-                                  className="col-span-3 px-3 py-3.5 bg-slate-50 border border-transparent rounded-2xl text-[10px] font-bold focus:bg-white focus:border-primary-200 outline-none transition-all appearance-none disabled:opacity-50"
-                                >
-                                  <option value="">{isTalentLoadingCities ? '...' : 'Cidade'}</option>
-                                  {talentCities.map(city => <option key={city} value={city}>{city}</option>)}
-                                </select>
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block pl-1">Pretensão Salarial</label>
-                              <input 
-                                type="text" 
-                                value={talentFilters.salary}
-                                onChange={(e) => setTalentFilters({...talentFilters, salary: e.target.value})}
-                                placeholder="Ex: 5000" 
-                                className="w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-2xl text-xs font-bold focus:bg-white focus:border-primary-200 outline-none transition-all shadow-sm"
-                              />
-                            </div>
- 
-                            <div>
-                              <div className="flex justify-between items-center mb-2.5">
-                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Idade Mínima</label>
-                                <span className="text-[10px] font-black text-primary-600">{talentFilters.minAge} anos</span>
-                              </div>
-                              <input 
-                                type="range" 
-                                min="16" 
-                                max="60" 
-                                value={talentFilters.minAge}
-                                onChange={(e) => setTalentFilters({...talentFilters, minAge: parseInt(e.target.value)})}
-                                className="w-full h-1 bg-slate-100 rounded-full appearance-none accent-primary-600 cursor-pointer"
-                              />
-                            </div>
-                          </div>
-                        </div>
- 
-                        <div className="mt-8 pt-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
-                          <div className="flex flex-wrap gap-4">
-                            {['Presencial', 'Híbrido', 'Remoto'].map(mod => (
-                              <button
-                                key={mod}
-                                onClick={() => setTalentFilters({...talentFilters, modality: talentFilters.modality === mod ? '' : mod})}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                                  talentFilters.modality === mod 
-                                    ? 'bg-slate-900 border-slate-900 text-white shadow-lg' 
-                                    : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'
-                                }`}
-                              >
-                                {mod === 'Remoto' ? <Cpu size={14} /> : mod === 'Híbrido' ? <Zap size={14} /> : <MapPin size={14} />}
-                                {mod}
-                              </button>
-                            ))}
- 
-                            <button
-                              onClick={() => setTalentFilters({...talentFilters, first_job: !talentFilters.first_job})}
-                              className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                                talentFilters.first_job 
-                                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-100' 
-                                  : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'
-                              }`}
-                            >
-                              Primeiro Emprego
-                            </button>
-                          </div>
- 
-                          <button 
-                            onClick={() => setTalentFilters({ role: '', minAge: 16, maxAge: 60, city: '', state: '', first_job: false, education: '', experience: '', modality: '', salary: '' })}
-                            className="text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-red-500 transition-colors flex items-center gap-2"
-                          >
-                            Limpar Filtros <CloseIcon size={14} />
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Candidate Results Summary Bar */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6">
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shrink-0" />
-                    <p className="text-xs font-black text-slate-700 uppercase tracking-[0.1em]">
-                      {filteredTalents.length} {filteredTalents.length === 1 ? 'Candidato qualificado encontrado' : 'Candidatos qualificados encontrados'}
-                    </p>
-                  </div>
-
-                  {/* Barra de Pesquisa e Filtros à direita */}
-                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                    <div className="flex bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm w-full max-w-sm shrink-0">
-                      <Search size={16} className="text-slate-300 mr-2 shrink-0" />
-                      <input 
-                        type="text" 
-                        placeholder="Pesquisar resultados..." 
-                        value={talentSearch}
-                        onChange={(e) => setTalentSearch(e.target.value)}
-                        className="w-full bg-transparent border-none outline-none text-[10px] font-black text-slate-900 placeholder:text-slate-300 uppercase"
-                      />
-                    </div>
-                    
-                    {/* Botão de Filtros lateral no canto superior direito do conteúdo do Banco de Talentos */}
-                    <button
-                      type="button"
-                      onClick={() => setIsFilterSidebarOpen(true)}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-700 rounded-2xl transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer text-xs font-bold font-sans"
-                    >
-                      <Filter size={13} className="text-slate-500" />
-                      <span>Filtros</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredTalents.length > 0 ? (
-                    filteredTalents.map(talent => (
-                      <motion.div 
-                        key={talent.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-[5px] border border-slate-100 hover:border-slate-200/80 shadow-sleek p-5 hover:shadow-md transition-all relative group text-left flex flex-col justify-between h-full"
-                      >
-                        <div className="absolute top-0 right-0 p-6 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity pointer-events-none">
-                          <BrainCircuit size={80} />
-                        </div>
-
-                        <div>
-                          {/* Cabeçalho do Candidato */}
-                          <div className="flex items-start gap-3 mb-4">
-                            <div className="w-12 h-12 bg-slate-50 border border-slate-200/60 rounded-[5px] flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                              {talent.profile_pic ? (
-                                <img src={talent.profile_pic} alt={talent.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <User size={24} className="text-slate-400" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight truncate leading-tight">{talent.name}</h4>
-                                {talent.first_job && <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />}
-                              </div>
-                              <p className="text-[9.5px] font-black text-[#533af6] uppercase tracking-wider mt-0.5">{talent.role}</p>
-                              <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400 mt-1">
-                                <MapPin size={10} className="text-slate-350 shrink-0" />
-                                <span className="truncate">{talent.city}, {talent.state}</span>
-                                <span>•</span>
-                                <span>{talent.age || calculateAge(talent.birth_date)} anos</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Detalhes Rápidos de Contratação */}
-                          <div className="grid grid-cols-2 gap-2 mb-4">
-                            <div className="bg-slate-50/50 p-2 rounded-[5px] border border-slate-100/50">
-                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 opacity-60">Sexo</p>
-                              <p className="text-[9.5px] font-black text-slate-700 uppercase tracking-tight truncate">{talent.gender || 'Não Inf.'}</p>
-                            </div>
-                            <div className="bg-slate-50/50 p-2 rounded-[5px] border border-slate-100/50">
-                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 opacity-60">Pretensão</p>
-                              <p className="text-[9.5px] font-black text-slate-700 uppercase tracking-tight truncate">{talent.salary || 'Não Inf.'}</p>
-                            </div>
-                          </div>
-
-                          {/* Resumo Profissional estilo chat bubble */}
-                          {talent.summary ? (
-                            <div className="bg-slate-50/50 p-3 rounded-[5px] border border-slate-100 text-left relative mb-4">
-                              <h5 className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider mb-1">Resumo Profissional</h5>
-                              <p className="text-[9.5px] font-semibold text-slate-500 leading-relaxed italic text-justify line-clamp-2">
-                                "{talent.summary}"
-                              </p>
-                            </div>
-                          ) : null}
-
-                          {/* Competências */}
-                          {Array.isArray(talent.skills) && talent.skills.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mb-4">
-                              {talent.skills.slice(0, 4).map((skill, sIdx) => (
-                                <span 
-                                  key={sIdx} 
-                                  className="px-1.5 py-0.5 rounded-[3px] text-[7.5px] font-black uppercase tracking-wider bg-slate-50 text-slate-500 border border-slate-100/50 select-none"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                              {talent.skills.length > 4 && (
-                                <span className="px-1.5 py-0.5 rounded-[3px] text-[7.5px] font-black text-slate-355 bg-slate-50 border border-slate-100/50 select-none">
-                                  +{talent.skills.length - 4}
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Rodapé do Card com Contatos Individuais e Ações */}
-                        <div>
-                          <div className="pt-3 border-t border-slate-50 space-y-1.5 mb-4">
-                            <div className="flex items-center gap-2 text-[9px] font-bold text-slate-450 truncate">
-                              <Mail size={11} className="text-slate-350 shrink-0" />
-                              <span>{talent.email}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-[9px] font-bold text-slate-450">
-                              <Phone size={11} className="text-slate-350 shrink-0" />
-                              <span>{talent.phone}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex gap-2">
-                            <button 
-                              type="button"
-                              onClick={() => {
-                                setSelectedResumeApplicant({
-                                  id: talent.id,
-                                  candidate_name: talent.name,
-                                  candidate_email: talent.email,
-                                  candidate_phone: talent.phone,
-                                  city: talent.city,
-                                  state: talent.state,
-                                  profile_pic: talent.profile_pic,
-                                  talentMatched: {
-                                    birth_date: talent.birth_date,
-                                    age: talent.age,
-                                    skills: talent.skills,
-                                    summary: talent.summary,
-                                    experiences: talent.experiences || [],
-                                    educations: talent.educations || []
-                                  }
-                                });
-                              }}
-                              className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-[5px] text-[8.5px] font-black uppercase tracking-widest transition-all cursor-pointer"
-                            >
-                              Currículo
-                            </button>
-                            {(() => {
-                              const cleanPhone = talent.phone ? talent.phone.replace(/\D/g, '') : '';
-                              const whatsappUrl = `https://api.whatsapp.com/send?phone=55${cleanPhone}&text=Olá%20${encodeURIComponent(talent.name)},%20gostamos%20do%20seu%20perfil%20na%20Colaborh!`;
-                              return (
-                                <a 
-                                  href={whatsappUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="w-10 h-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[5px] flex items-center justify-center transition-all border border-emerald-600 shadow-sm cursor-pointer shrink-0"
-                                >
-                                  <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
-                                    <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.371a9.994 9.994 0 0 0 4.779 1.205h.004c5.505 0 9.988-4.479 9.99-9.985a9.983 9.983 0 0 0-9.994-9.849zm4.987 14.111c-.273.767-1.345 1.4-1.887 1.49-.49.08-1.129.13-3.268-.744-2.734-1.12-4.5-3.88-4.637-4.06-.137-.18-1.109-1.47-1.109-2.81 0-1.34.702-1.99.953-2.25.25-.26.55-.33.733-.33h.523c.16 0 .373-.06.58.45.22.53.73 1.77.8 1.91.07.14.11.31.02.49-.09.18-.14.28-.27.44-.13.16-.28.36-.39.49-.13.13-.26.27-.11.53.15.26.66 1.09 1.42 1.76.98.87 1.8 1.14 2.06 1.27.26.13.41.11.56-.05.15-.17.65-.76.83-.98.18-.22.37-.18.62-.09s1.6.76 1.87.9.46.26.52.37c.07.11.07.65-.2 1.41z"/>
-                                  </svg>
-                                </a>
-                              );
-                            })()}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))
-                  ) : (
-                    <div className="col-span-full py-32 bg-white rounded-[3rem] shadow-sleek border border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-10">
-                       <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 overflow-hidden relative">
-                          <div className="absolute inset-0 bg-primary-100/20 animate-pulse" />
-                          <Search size={48} />
-                       </div>
-                       <h4 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">Nenhuma correspondência exata</h4>
-                       <p className="text-slate-400 text-sm font-medium max-w-sm mx-auto leading-relaxed">
-                          Tente usar a <span className="text-primary-600 font-bold uppercase text-xs">Busca por IA</span> acima descrevendo as competências que você precisa nos currículos.
-                       </p>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
+              <TalentBankTab
+                isAiSearching={isAiSearching}
+                aiPrompt={aiPrompt}
+                setAiPrompt={setAiPrompt}
+                handleAiSearch={handleAiSearch}
+                isFiltersVisible={isFiltersVisible}
+                setIsFiltersVisible={setIsFiltersVisible}
+                talentFilters={talentFilters}
+                setTalentFilters={setTalentFilters}
+                isTalentLoadingCities={isTalentLoadingCities}
+                talentCities={talentCities}
+                talentSearch={talentSearch}
+                setTalentSearch={setTalentSearch}
+                setIsFilterSidebarOpen={setIsFilterSidebarOpen}
+                filteredTalents={filteredTalents}
+                setSelectedResumeApplicant={setSelectedResumeApplicant}
+              />
             )}
 
             {activeTab === 'Empresas' && (
@@ -5560,125 +4337,7 @@ Equipe de Recrutamento & Seleção - Colaborh
             )}
 
             {activeTab === 'Configurações' && (
-              <motion.div 
-                key="configuracoes"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="max-w-4xl mx-auto space-y-6"
-              >
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Perfil Summary Card */}
-                  <div className="bg-white p-8 rounded-[2.5rem] shadow-sleek border border-white flex flex-col items-center">
-                    <div className="w-24 h-24 bg-primary-50 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-primary-300 relative group mb-4">
-                       <User size={40} />
-                       <div className="absolute inset-0 bg-primary-600/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer">
-                         <PlusCircle size={20} className="text-white" />
-                       </div>
-                    </div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">João Silva</h3>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Recrutador Principal</p>
-                    
-                    <div className="w-full pt-6 border-t border-slate-50 space-y-4">
-                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-                        <span className="text-slate-400">Status</span>
-                        <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Ativo</span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-                        <span className="text-slate-400">Membro desde</span>
-                        <span className="text-slate-700">Maio 2024</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Form Card */}
-                  <div className="lg:col-span-2 bg-white p-10 rounded-[2.5rem] shadow-sleek border border-white">
-                    <div className="flex items-center gap-3 mb-8">
-                       <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
-                         <Settings size={20} />
-                       </div>
-                       <div>
-                         <h3 className="text-lg font-black text-slate-900 tracking-tight">Informações Pessoais</h3>
-                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Atualize seus dados de contato</p>
-                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <div className="col-span-full">
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-2">Nome Completo</label>
-                         <div className="relative">
-                           <User size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-400" />
-                           <input type="text" placeholder="João Silva" className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary-100 transition-all font-bold text-slate-700 text-sm shadow-sm" />
-                         </div>
-                       </div>
-                       <div>
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-2">E-mail Corporativo</label>
-                         <div className="relative">
-                           <Mail size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-400" />
-                           <input type="email" placeholder="joao@empresa.com" className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary-100 transition-all font-bold text-slate-700 text-sm shadow-sm" />
-                         </div>
-                       </div>
-                       <div>
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-2">WhatsApp / Telefone</label>
-                         <div className="relative">
-                           <Phone size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-400" />
-                           <input type="tel" placeholder="(61) 99999-9999" className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary-100 transition-all font-bold text-slate-700 text-sm shadow-sm" />
-                         </div>
-                       </div>
-                    </div>
-                    
-                    <div className="mt-10 flex gap-4">
-                      <button className="flex-1 py-4 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all text-[9px]">
-                        Salvar Alterações
-                      </button>
-                      <button className="px-6 py-4 bg-white border border-slate-100 text-red-500 font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-red-50 transition-all text-[9px] flex items-center justify-center gap-2">
-                        <Trash2 size={16} /> Excluir Conta
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Additional Settings Sections */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
-                   <div className="bg-white p-8 rounded-[2.5rem] shadow-sleek border border-white">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
-                          <Zap size={16} />
-                        </div>
-                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Notificações</h4>
-                      </div>
-                      <div className="space-y-4">
-                        {[
-                          { label: 'Novas Candidaturas', active: true },
-                          { label: 'Alertas de IA', active: true },
-                          { label: 'Resumo Semanal', active: false },
-                        ].map((pref, i) => (
-                          <div key={i} className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{pref.label}</span>
-                            <div className={`w-8 h-4 rounded-full relative transition-colors cursor-pointer ${pref.active ? 'bg-primary-600' : 'bg-slate-200'}`}>
-                              <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${pref.active ? 'right-0.5' : 'left-0.5'}`} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                   </div>
-
-                   <div className="bg-white p-8 rounded-[2.5rem] shadow-sleek border border-white">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                          <Building size={16} />
-                        </div>
-                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Segurança</h4>
-                      </div>
-                      <button className="w-full py-3 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all mb-3">
-                        Alterar Senha
-                      </button>
-                      <button className="w-full py-3 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all">
-                        Ativar Autenticação 2FA
-                      </button>
-                   </div>
-                </div>
-              </motion.div>
+              <SettingsTab />
             )}
 
           </AnimatePresence>
@@ -5690,975 +4349,55 @@ Equipe de Recrutamento & Seleção - Colaborh
       {/* Global Overlays (placed here at the root level so they never get overlapped by the sidebar or affected by main's layout) */}
       <AnimatePresence>
             {isRegisteringVacancy && (
-              <div className="fixed inset-0 z-[200] flex justify-end overflow-hidden">
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => {
-                    setIsRegisteringVacancy(false);
-                    setRegisterStep(1);
-                  }}
-                  className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                />
-                <motion.div 
-                  key="cadastrar-vaga"
-                  initial={{ x: '100%' }}
-                  animate={{ x: 0 }}
-                  exit={{ x: '100%' }}
-                  transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-                  className="relative w-full max-w-[600px] h-full bg-white/95 backdrop-blur-md rounded-l-[10px] rounded-r-none shadow-2xl overflow-hidden flex flex-col border-l border-slate-200/60 z-10"
-                >
-                  {/* Step Header - Compact & Premium */}
-                  <div className="px-8 pt-8 pb-4 relative">
-                    <div className="max-w-lg mx-auto w-full">
-                      <div className="relative pb-3 border-b border-slate-100 w-full">
-                        <h2 className="text-base font-extrabold text-slate-800 tracking-tight">CADASTRAR NOVA VAGA</h2>
-                        <div className="absolute bottom-0 left-0 w-24 h-1 bg-[#533af6]" />
-                      </div>
-                      
-                      <div className="flex items-center justify-between mt-4">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                          Passo {registerStep} de 4
-                        </p>
-
-                        {/* Step Progress Dots */}
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4].map((step) => (
-                            <div key={step} className="flex items-center">
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black transition-all ${
-                                registerStep === step 
-                                  ? 'bg-[#533af6] text-white shadow-sm' 
-                                  : registerStep > step 
-                                    ? 'bg-[#533af6]/85 text-white' 
-                                    : 'bg-slate-200 text-slate-400'
-                              }`}>
-                                {registerStep > step ? <Check size={10} /> : step}
-                              </div>
-                              {step < 4 && (
-                                <div className={`w-4 h-0.5 mx-0.5 rounded-full ${registerStep > step ? 'bg-[#533af6]/85' : 'bg-slate-200'}`} />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={() => {
-                        setIsRegisteringVacancy(false);
-                        setRegisterStep(1);
-                      }}
-                      className="absolute top-8 right-8 w-9 h-9 border border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-600 rounded-full flex items-center justify-center transition-all outline-none"
-                    >
-                      <CloseIcon size={14} />
-                    </button>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col justify-between">
-                    <div className="p-8 flex-1">
-                      <div className="max-w-lg mx-auto w-full">
-                      <AnimatePresence mode="wait">
-                      {registerStep === 1 && (
-                        <motion.div 
-                          key="step1"
-                          initial={{ opacity: 0, x: 10 }} 
-                          animate={{ opacity: 1, x: 0 }} 
-                          exit={{ opacity: 0, x: -10 }}
-                          className="space-y-4"
-                        >
-                          {/* Título da Vaga */}
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                              Título da Vaga <span className="text-rose-500">*</span>
-                            </label>
-                            <input 
-                              type="text" 
-                              value={vacancyForm.title}
-                              onChange={(e) => setVacancyForm({ ...vacancyForm, title: e.target.value })}
-                              placeholder="Ex: Desenvolvedor React Sênior" 
-                              className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-medium text-xs" 
-                            />
-                            <p className="text-[10px] text-slate-400 italic mt-0.5 pl-1 leading-normal">
-                              * Dica: evite siglas, abreviações e juntar palavras com "_", "-" e "/". Dê preferência a nomes que estejam de acordo com o cargo esperado.
-                            </p>
-                          </div>
-
-                          {/* Cargo */}
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                              Cargo <span className="text-rose-500">*</span>
-                            </label>
-                            <input 
-                              type="text"
-                              list="drawer-roles-list"
-                              value={vacancyForm.role}
-                              onChange={(e) => setVacancyForm({ ...vacancyForm, role: e.target.value })}
-                              placeholder="Selecione ou digite o cargo"
-                              className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-medium text-xs"
-                            />
-                            <datalist id="drawer-roles-list">
-                              {Array.from(new Set([
-                                ...jobs.map(j => j.role),
-                                'Desenvolvedor Front-end', 'Desenvolvedor Back-end', 'Desenvolvedor Full-stack',
-                                'Analista de Sistemas', 'Gerente de Projetos', 'Designer UX/UI', 'Analista de Marketing',
-                                'Vendedor', 'Assistente Administrativo', 'Analista Financeiro', 'Auxiliar de Cozinha',
-                                'Recepcionista', 'Motorista', 'Estoquista'
-                              ])).filter(Boolean).map(role => (
-                                <option key={role} value={role} />
-                              ))}
-                            </datalist>
-                          </div>
-
-                          {/* Modalidade */}
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                              Modalidade
-                            </label>
-                            <div className="relative">
-                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                              <select 
-                                value={vacancyForm.modality}
-                                onChange={(e) => setVacancyForm({ ...vacancyForm, modality: e.target.value as any })}
-                                className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-medium text-xs appearance-none"
-                              >
-                                <option value="Presencial">Presencial</option>
-                                <option value="Híbrido">Híbrido</option>
-                                <option value="Remoto">Remoto</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* Localização (UF / Cidade) */}
-                          {(vacancyForm.modality === 'Presencial' || vacancyForm.modality === 'Híbrido') && (
-                            <div className="flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                                Localização (Estado / Cidade) <span className="text-rose-500">*</span>
-                              </label>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div className="relative">
-                                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                  <select 
-                                    className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
-                                    value={vacancyForm.state}
-                                    onChange={(e) => setVacancyForm({...vacancyForm, state: e.target.value, city: ''})}
-                                  >
-                                    <option value="">UF</option>
-                                    {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
-                                  </select>
-                                </div>
-                                <div className="relative">
-                                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                  <select 
-                                    className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none disabled:opacity-50"
-                                    value={vacancyForm.city}
-                                    onChange={(e) => setVacancyForm({...vacancyForm, city: e.target.value})}
-                                    disabled={isLoadingCities || !cities.length}
-                                  >
-                                    <option value="">{isLoadingCities ? 'Buscando...' : 'Cidade'}</option>
-                                    {cities.map(city => <option key={city} value={city}>{city}</option>)}
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Tipo de Remuneração */}
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                              Tipo de Remuneração
-                            </label>
-                            <div className="relative">
-                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                              <select 
-                                value={vacancyForm.remunerationType}
-                                onChange={(e) => setVacancyForm({ ...vacancyForm, remunerationType: e.target.value as any })}
-                                className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
-                              >
-                                <option value="Faixa Salarial">Faixa Salarial</option>
-                                <option value="Fixo">Fixo</option>
-                                <option value="A Combinar">A Combinar</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* Salários */}
-                          {vacancyForm.remunerationType !== 'A Combinar' && (
-                            <div className="flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                                {vacancyForm.remunerationType === 'Fixo' ? 'Salário Proposto' : 'Faixa Salarial (Mínimo / Máximo)'} <span className="text-rose-500">*</span>
-                              </label>
-                              {vacancyForm.remunerationType === 'Fixo' ? (
-                                <input 
-                                  type="text" 
-                                  value={vacancyForm.salary}
-                                  onChange={handleSalaryChange}
-                                  placeholder="R$ 0,00" 
-                                  className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-bold text-xs" 
-                                />
-                              ) : (
-                                <div className="grid grid-cols-2 gap-3">
-                                  <input 
-                                    type="text" 
-                                    value={vacancyForm.salaryMin}
-                                    onChange={(e) => setVacancyForm({ ...vacancyForm, salaryMin: formatCurrency(e.target.value) })}
-                                    placeholder="Mínimo: R$ 0,00" 
-                                    className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-bold text-xs" 
-                                  />
-                                  <input 
-                                    type="text" 
-                                    value={vacancyForm.salaryMax}
-                                    onChange={(e) => setVacancyForm({ ...vacancyForm, salaryMax: formatCurrency(e.target.value) })}
-                                    placeholder="Máximo: R$ 0,00" 
-                                    className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-bold text-xs" 
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Comissão ou Premiação */}
-                          <div className="flex flex-col gap-1.5 border-t border-slate-100 pt-3">
-                            <div className="flex items-center justify-between">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                                Possui Comissão ou Premiação?
-                              </label>
-                              <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                  type="checkbox" 
-                                  checked={vacancyForm.hasBonus} 
-                                  onChange={(e) => setVacancyForm({...vacancyForm, hasBonus: e.target.checked})}
-                                  className="sr-only peer"
-                                />
-                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#533af6]"></div>
-                              </label>
-                            </div>
-
-                            {vacancyForm.hasBonus && (
-                              <div className="grid grid-cols-2 gap-3 mt-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <div className="relative">
-                                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                  <select 
-                                    value={vacancyForm.bonusType}
-                                    onChange={(e) => setVacancyForm({...vacancyForm, bonusType: e.target.value})}
-                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-[5px] text-xs font-semibold outline-none focus:border-[#533af6] appearance-none"
-                                  >
-                                    <option value="Comissão">Comissão</option>
-                                    <option value="Premiação">Premiação</option>
-                                  </select>
-                                </div>
-                                <input 
-                                  type="text" 
-                                  placeholder="Valor (R$)"
-                                  value={vacancyForm.bonusValue}
-                                  onChange={(e) => setVacancyForm({...vacancyForm, bonusValue: formatCurrency(e.target.value)})}
-                                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-[5px] text-xs font-semibold outline-none focus:border-[#533af6] text-slate-900 font-bold"
-                                />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Contratação e Escala */}
-                          <div className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                                Contratação
-                              </label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={vacancyForm.contractType}
-                                  onChange={(e) => setVacancyForm({ ...vacancyForm, contractType: e.target.value as any })}
-                                  className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
-                                >
-                                  <option value="CLT">CLT</option>
-                                  <option value="PJ">PJ</option>
-                                  <option value="Estágio">Estágio</option>
-                                  <option value="Autônomo">Autônomo</option>
-                                  <option value="Meio Período">Meio Período</option>
-                                  <option value="Temporário">Temporário</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                                Escala
-                              </label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={vacancyForm.workSchedule}
-                                  onChange={(e) => setVacancyForm({ ...vacancyForm, workSchedule: e.target.value as any })}
-                                  className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all appearance-none"
-                                >
-                                  <option value="5x2">5x2</option>
-                                  <option value="6x1">6x1</option>
-                                  <option value="12x36">12x36</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {registerStep === 2 && (
-                        <motion.div 
-                          key="step2"
-                          initial={{ opacity: 0, x: 10 }} 
-                          animate={{ opacity: 1, x: 0 }} 
-                          exit={{ opacity: 0, x: -10 }}
-                          className="space-y-4"
-                        >
-                          {/* Primeiro Emprego */}
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <div className="flex flex-col">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
-                                Primeiro Emprego
-                              </label>
-                              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Ideal para quem está iniciando</span>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input 
-                                type="checkbox" 
-                                checked={vacancyForm.isFirstJob} 
-                                onChange={(e) => setVacancyForm({...vacancyForm, isFirstJob: e.target.checked})}
-                                className="sr-only peer"
-                              />
-                              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#533af6]"></div>
-                            </label>
-                          </div>
-
-                          {/* Vaga para PcD */}
-                          <div className="flex flex-col border-b border-slate-100 pb-3">
-                            <div className="flex items-center justify-between">
-                              <div className="flex flex-col">
-                                <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
-                                  Vaga também para PcD
-                                </label>
-                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Pessoas com Deficiência</span>
-                              </div>
-                              <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                  type="checkbox" 
-                                  checked={vacancyForm.isPcd} 
-                                  onChange={(e) => setVacancyForm({...vacancyForm, isPcd: e.target.checked})}
-                                  className="sr-only peer"
-                                />
-                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#533af6]"></div>
-                              </label>
-                            </div>
-                            
-                            {vacancyForm.isPcd && (
-                              <input 
-                                type="text"
-                                value={vacancyForm.pcdDetails}
-                                onChange={(e) => setVacancyForm({...vacancyForm, pcdDetails: e.target.value})}
-                                placeholder="CID, Acessibilidade ou observações (opcional)"
-                                className="w-full mt-2 px-4 py-2 bg-white border border-slate-200 rounded-[5px] text-xs font-semibold outline-none focus:border-[#533af6]"
-                              />
-                            )}
-                          </div>
-
-                          {/* Idade Mínima */}
-                          <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-3">
-                            <div className="flex justify-between items-center">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
-                                Idade Mínima
-                              </label>
-                              <span className="px-2 py-0.5 bg-[#533af6] text-white rounded-[5px] text-[10px] font-black">{vacancyForm.minAge} anos</span>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <input 
-                                type="range" 
-                                min="16" 
-                                max="60" 
-                                value={vacancyForm.minAge}
-                                onChange={(e) => setVacancyForm({...vacancyForm, minAge: parseInt(e.target.value)})}
-                                className="flex-1 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#533af6]"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Benefícios */}
-                          <div className="flex flex-col gap-2">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
-                              Benefícios
-                            </label>
-                            <div className="grid grid-cols-2 gap-3">
-                              {/* VT */}
-                              <div className="flex flex-col gap-1 bg-slate-50/50 p-2.5 border border-slate-100 rounded-[5px]">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] font-black text-slate-500 uppercase">Vale Transporte (VT)</span>
-                                  <input 
-                                    type="checkbox" 
-                                    checked={vacancyForm.benefits.vt.selected}
-                                    onChange={(e) => setVacancyForm({
-                                      ...vacancyForm,
-                                      benefits: { ...vacancyForm.benefits, vt: { ...vacancyForm.benefits.vt, selected: e.target.checked } }
-                                    })}
-                                    className="w-3.5 h-3.5 accent-[#533af6]"
-                                  />
-                                </div>
-                                {vacancyForm.benefits.vt.selected && (
-                                  <input 
-                                    type="text" 
-                                    placeholder="Valor (R$)"
-                                    value={vacancyForm.benefits.vt.value}
-                                    onChange={(e) => setVacancyForm({
-                                      ...vacancyForm,
-                                      benefits: { ...vacancyForm.benefits, vt: { ...vacancyForm.benefits.vt, value: formatCurrency(e.target.value) } }
-                                    })}
-                                    className="w-full px-2 py-1 mt-1 bg-white border border-slate-200 rounded-[3px] text-[10px] font-bold outline-none"
-                                  />
-                                )}
-                              </div>
-
-                              {/* VA/VR */}
-                              <div className="flex flex-col gap-1 bg-slate-50/50 p-2.5 border border-slate-100 rounded-[5px]">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] font-black text-slate-500 uppercase">VA / VR</span>
-                                  <input 
-                                    type="checkbox" 
-                                    checked={vacancyForm.benefits.va.selected}
-                                    onChange={(e) => setVacancyForm({
-                                      ...vacancyForm,
-                                      benefits: { ...vacancyForm.benefits, va: { ...vacancyForm.benefits.va, selected: e.target.checked } }
-                                    })}
-                                    className="w-3.5 h-3.5 accent-[#533af6]"
-                                  />
-                                </div>
-                                {vacancyForm.benefits.va.selected && (
-                                  <input 
-                                    type="text" 
-                                    placeholder="Valor (R$)"
-                                    value={vacancyForm.benefits.va.value}
-                                    onChange={(e) => setVacancyForm({
-                                      ...vacancyForm,
-                                      benefits: { ...vacancyForm.benefits, va: { ...vacancyForm.benefits.va, value: formatCurrency(e.target.value) } }
-                                    })}
-                                    className="w-full px-2 py-1 mt-1 bg-white border border-slate-200 rounded-[3px] text-[10px] font-bold outline-none"
-                                  />
-                                )}
-                              </div>
-
-                              {/* Plano de Saúde */}
-                              <div className="flex flex-col gap-1.5 bg-slate-50/50 p-2.5 border border-slate-100 rounded-[5px] col-span-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] font-black text-slate-500 uppercase">Plano de Saúde</span>
-                                  <input 
-                                    type="checkbox" 
-                                    checked={vacancyForm.benefits.healthInsurance}
-                                    onChange={(e) => setVacancyForm({
-                                      ...vacancyForm,
-                                      benefits: { ...vacancyForm.benefits, healthInsurance: e.target.checked }
-                                    })}
-                                    className="w-3.5 h-3.5 accent-[#533af6]"
-                                  />
-                                </div>
-                                {vacancyForm.benefits.healthInsurance && (
-                                  <div className="grid grid-cols-2 gap-2 mt-1 p-2 bg-white border border-slate-100 rounded-[4px] animate-in fade-in duration-200">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input 
-                                        type="checkbox"
-                                        checked={vacancyForm.benefits.healthInsuranceCopay}
-                                        onChange={(e) => setVacancyForm({
-                                          ...vacancyForm,
-                                          benefits: { ...vacancyForm.benefits, healthInsuranceCopay: e.target.checked }
-                                        })}
-                                        className="w-3.5 h-3.5 accent-[#533af6]"
-                                      />
-                                      <span className="text-[9px] font-bold text-slate-500 uppercase">Com Coparticipação</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input 
-                                        type="checkbox"
-                                        checked={vacancyForm.benefits.healthInsuranceFamily}
-                                        onChange={(e) => setVacancyForm({
-                                          ...vacancyForm,
-                                          benefits: { ...vacancyForm.benefits, healthInsuranceFamily: e.target.checked }
-                                        })}
-                                        className="w-3.5 h-3.5 accent-[#533af6]"
-                                      />
-                                      <span className="text-[9px] font-bold text-slate-500 uppercase">Estende Familiar</span>
-                                    </label>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Plano Odontológico */}
-                              <div className="flex flex-col gap-1.5 bg-slate-50/50 p-2.5 border border-slate-100 rounded-[5px] col-span-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] font-black text-slate-500 uppercase">Plano Odontológico</span>
-                                  <input 
-                                    type="checkbox" 
-                                    checked={vacancyForm.benefits.dentalPlan}
-                                    onChange={(e) => setVacancyForm({
-                                      ...vacancyForm,
-                                      benefits: { ...vacancyForm.benefits, dentalPlan: e.target.checked }
-                                    })}
-                                    className="w-3.5 h-3.5 accent-[#533af6]"
-                                  />
-                                </div>
-                                {vacancyForm.benefits.dentalPlan && (
-                                  <div className="grid grid-cols-2 gap-2 mt-1 p-2 bg-white border border-slate-100 rounded-[4px] animate-in fade-in duration-200">
-                                    <label className="flex items-center gap-2 cursor-pointer col-span-2">
-                                      <input 
-                                        type="checkbox"
-                                        checked={vacancyForm.benefits.dentalPlanFamily}
-                                        onChange={(e) => setVacancyForm({
-                                          ...vacancyForm,
-                                          benefits: { ...vacancyForm.benefits, dentalPlanFamily: e.target.checked }
-                                        })}
-                                        className="w-3.5 h-3.5 accent-[#533af6]"
-                                      />
-                                      <span className="text-[9px] font-bold text-slate-500 uppercase">Estende Familiar</span>
-                                    </label>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Extra benefits list */}
-                            <div className="flex flex-wrap gap-1.5 mt-2">
-                              {vacancyForm.extraBenefits.map((extra, idx) => (
-                                <div key={idx} className="relative group">
-                                  <button 
-                                    type="button"
-                                    className="py-1 px-2.5 rounded-[5px] border border-purple-200 bg-purple-50 font-bold text-[9px] uppercase tracking-tighter text-[#533af6]"
-                                  >
-                                    {extra}
-                                  </button>
-                                  <button 
-                                    type="button"
-                                    onClick={() => setVacancyForm({...vacancyForm, extraBenefits: vacancyForm.extraBenefits.filter((_, i) => i !== idx)})}
-                                    className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                                  >
-                                    <CloseIcon size={10} />
-                                  </button>
-                                </div>
-                              ))}
-
-                              <div className="w-full flex gap-1.5 mt-1.5">
-                                <input 
-                                  type="text" 
-                                  placeholder="Outro benefício..."
-                                  value={newBenefit}
-                                  onChange={(e) => setNewBenefit(e.target.value.toUpperCase())}
-                                  className="flex-1 px-3 py-2 bg-slate-50 border border-dashed border-slate-200 rounded-[5px] text-[9px] font-bold outline-none focus:border-[#533af6] placeholder:normal-case"
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && newBenefit.trim()) {
-                                      e.preventDefault();
-                                      setVacancyForm({...vacancyForm, extraBenefits: [...vacancyForm.extraBenefits, newBenefit.trim()]});
-                                      setNewBenefit('');
-                                    }
-                                  }}
-                                />
-                                {newBenefit && (
-                                  <button 
-                                    type="button"
-                                    onClick={() => {
-                                      setVacancyForm({...vacancyForm, extraBenefits: [...vacancyForm.extraBenefits, newBenefit.trim()]});
-                                      setNewBenefit('');
-                                    }}
-                                    className="px-3 bg-[#533af6] text-white rounded-[5px] flex items-center justify-center"
-                                  >
-                                    <Plus size={12} />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Posições Disponíveis, Motivo e Urgência */}
-                          <div className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                                Posições Disponíveis
-                              </label>
-                              <input 
-                                type="number" 
-                                min="1"
-                                value={vacancyForm.positions}
-                                onChange={(e) => setVacancyForm({ ...vacancyForm, positions: e.target.value })}
-                                className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] transition-all text-slate-900 font-bold text-xs" 
-                              />
-                            </div>
-
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                                Motivo da Requisição
-                              </label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={vacancyForm.requestReason}
-                                  onChange={(e) => setVacancyForm({ ...vacancyForm, requestReason: e.target.value as any })}
-                                  className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:bg-white focus:border-[#533af6] transition-all appearance-none"
-                                >
-                                  <option value="Aumento de quadro">Aumento de quadro</option>
-                                  <option value="Substituição de pessoal">Substituição de pessoal</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div className="col-span-2 flex items-center justify-between border-t border-slate-50 pt-2.5 mt-1">
-                              <div className="flex flex-col">
-                                <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
-                                  Contratação de Urgência?
-                                </label>
-                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Sinalizar urgência para recrutadores</span>
-                              </div>
-                              <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                  type="checkbox" 
-                                  checked={vacancyForm.isUrgent} 
-                                  onChange={(e) => setVacancyForm({...vacancyForm, isUrgent: e.target.checked})}
-                                  className="sr-only peer"
-                                />
-                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
-                              </label>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {registerStep === 3 && (
-                        <motion.div 
-                          key="step3"
-                          initial={{ opacity: 0, x: 10 }} 
-                          animate={{ opacity: 1, x: 0 }} 
-                          exit={{ opacity: 0, x: -10 }}
-                          className="space-y-4"
-                        >
-                          {/* Descrição da Vaga */}
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                              Descrição da Vaga <span className="text-rose-500">*</span>
-                            </label>
-                            <textarea 
-                              rows={6} 
-                              value={vacancyForm.description}
-                              onChange={(e) => setVacancyForm({...vacancyForm, description: e.target.value})}
-                              placeholder="Escreva sobre a vaga, cultura da empresa e a equipe..." 
-                              className="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] transition-all font-medium text-slate-700 text-xs italic leading-relaxed" 
-                            />
-                            <p className="text-[10px] text-slate-400 italic pl-1 leading-normal">
-                              Descreva sobre a vaga e aproveite para falar sobre a empresa, sua cultura e equipe. *
-                            </p>
-                          </div>
-
-                          {/* Descrição de Atribuições */}
-                          <div className="flex flex-col gap-1.5 border-t border-slate-100 pt-3">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                              Descrição de Atribuições <span className="text-rose-500">*</span>
-                            </label>
-                            <textarea 
-                              rows={6} 
-                              value={vacancyForm.responsibilities}
-                              onChange={(e) => setVacancyForm({...vacancyForm, responsibilities: e.target.value})}
-                              placeholder="Descreva as responsabilidades, atribuições e experiências desejáveis..." 
-                              className="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] transition-all font-medium text-slate-700 text-xs italic leading-relaxed" 
-                            />
-                            <p className="text-[10px] text-slate-400 italic pl-1 leading-normal">
-                              Descreva as responsabilidades e atribuições. Cite também as experiências que se espera ou deseja que a pessoa possua.
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {registerStep === 4 && (
-                        <motion.div 
-                          key="step4"
-                          initial={{ opacity: 0, x: 10 }} 
-                          animate={{ opacity: 1, x: 0 }}
-                          className="space-y-4"
-                        >
-                          {/* Funil de Etapas */}
-                          <div className="flex flex-col gap-2">
-                            <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">
-                              Etapas do Funil de Seleção
-                            </label>
-                            <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                              {vacancyForm.stages.map((stage, index) => (
-                                <div key={index} className="group flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-[5px] border border-slate-100 hover:border-[#533af6]/30 transition-all">
-                                  <div className="w-6 h-6 bg-white rounded-[5px] shadow-sm flex items-center justify-center font-black text-[#533af6] text-xs">
-                                    {index + 1}
-                                  </div>
-                                  <span className="text-xs font-bold text-slate-700">{stage}</span>
-                                  <button 
-                                    type="button"
-                                    onClick={() => setVacancyForm({...vacancyForm, stages: vacancyForm.stages.filter((_, i) => i !== index)})}
-                                    className="ml-auto p-1 text-slate-400 hover:text-red-500 transition-all"
-                                    title="Remover etapa"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="flex gap-2 mt-2">
-                              <input 
-                                type="text" 
-                                value={newStage}
-                                onChange={(e) => setNewStage(e.target.value)}
-                                placeholder="Ex: Dinâmica em Grupo" 
-                                className="flex-1 px-4 py-2 bg-white border border-dashed border-slate-200 rounded-[5px] font-medium text-xs outline-none focus:border-[#533af6] focus:border-solid transition-all"
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    if (newStage.trim()) {
-                                      const trimmedStage = newStage.trim();
-                                      const forbidden = ['testes', 'contratado', 'reprovado'];
-                                      if (forbidden.includes(trimmedStage.toLowerCase())) {
-                                        alert(`O nome "${trimmedStage}" é reservado para o sistema e não pode ser usado.`);
-                                        return;
-                                      }
-                                      setVacancyForm({...vacancyForm, stages: [...vacancyForm.stages, trimmedStage]});
-                                      setNewStage('');
-                                    }
-                                  }
-                                }}
-                              />
-                              <button 
-                                type="button"
-                                onClick={() => {
-                                  if (newStage.trim()) {
-                                    const trimmedStage = newStage.trim();
-                                    const forbidden = ['testes', 'contratado', 'reprovado'];
-                                    if (forbidden.includes(trimmedStage.toLowerCase())) {
-                                      alert(`O nome "${trimmedStage}" é reservado para o sistema e não pode ser usado.`);
-                                      return;
-                                    }
-                                    setVacancyForm({...vacancyForm, stages: [...vacancyForm.stages, trimmedStage]});
-                                    setNewStage('');
-                                  }
-                                }}
-                                className="px-3 bg-[#533af6] text-white rounded-[5px] flex items-center justify-center"
-                              >
-                                <Plus size={12} />
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                      </div>
-                    </div>
-
-                  {/* Modal Footer */}
-                  <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50">
-                    <div className="max-w-lg mx-auto w-full flex justify-between items-center gap-4">
-                    {registerStep > 1 ? (
-                      <button 
-                        type="button"
-                        onClick={() => setRegisterStep(prev => prev - 1)}
-                        className="px-6 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-full font-bold text-[10px] uppercase tracking-wider transition-all"
-                      >
-                        Voltar
-                      </button>
-                    ) : (
-                      <div />
-                    )}
-
-                    {registerStep < 4 ? (
-                      <button 
-                        type="button"
-                        onClick={handleNextStep}
-                        className="px-8 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full font-bold text-[10px] uppercase tracking-wider transition-all shadow-md shadow-[#533af6]/10"
-                      >
-                        Próximo Passo
-                      </button>
-                    ) : (
-                      <button 
-                        type="button"
-                        onClick={handlePublish}
-                        className="px-8 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full font-bold text-[10px] uppercase tracking-wider transition-all shadow-md shadow-[#533af6]/10"
-                      >
-                        Publicar Vaga
-                      </button>
-                    )}
-
-                    </div>
-                  </div>
-                  </div>
-                </motion.div>
-              </div>
+              <CreateVacancyTab
+                isOpen={isRegisteringVacancy}
+                onClose={() => {
+                  setIsRegisteringVacancy(false);
+                  setRegisterStep(1);
+                }}
+                registerStep={registerStep}
+                setRegisterStep={setRegisterStep}
+                vacancyForm={vacancyForm}
+                setVacancyForm={setVacancyForm}
+                errorMessage={errorMessage}
+                handleNextStep={handleNextStep}
+                handlePublish={handlePublish}
+                isPublishing={isPublishing}
+              />
             )}
 
-            {isConfiguringStages && selectedJob && (
-              (() => {
-                const currentStagesList = getCurrentJobStages(selectedJob);
-                const allCols = [...currentStagesList, 'Testes', 'Contratado', 'Reprovado'];
-                
-                return (
-                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      onClick={() => setIsConfiguringStages(false)}
-                      className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                    />
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                      className="relative w-full max-w-md bg-white rounded-[5px] shadow-2xl p-8 overflow-hidden flex flex-col max-h-[85vh] z-10"
-                    >
-                      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#8959f5] to-indigo-600" />
-                      
-                      <div className="flex justify-between items-center mb-6 mt-2 shrink-0">
-                        <div>
-                          <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Gerenciar Etapas</h3>
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Customize o funil de seleção desta vaga</p>
-                        </div>
-                        <button 
-                          onClick={() => setIsConfiguringStages(false)}
-                          className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                        >
-                          <CloseIcon size={14} />
-                        </button>
-                      </div>
-
-                      {/* Adicionar Nova Etapa */}
-                      <div className="bg-slate-50 p-4 rounded-[5px] border border-slate-100 mb-6 shrink-0 text-left">
-                        <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Adicionar Nova Etapa</h4>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            placeholder="Digite o nome da etapa..."
-                            id="popup-new-stage-input"
-                            className="flex-1 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-full outline-none focus:border-[#8959f5]/50 focus:ring-2 focus:ring-[#8959f5]/5 transition-all"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                const target = e.currentTarget;
-                                if (target.value.trim()) {
-                                  handleAddNewStage(target.value);
-                                  target.value = '';
-                                }
-                              }
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const input = document.getElementById('popup-new-stage-input') as HTMLInputElement;
-                              if (input && input.value.trim()) {
-                                handleAddNewStage(input.value);
-                                input.value = '';
-                              }
-                            }}
-                            className="px-4 py-2 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-md shadow-[#8959f5]/15"
-                          >
-                            Adicionar
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Lista de Etapas (Vertical e Rolável) */}
-                      <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 mb-6 min-h-0 pr-1 text-left">
-                        <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 select-none sticky top-0 bg-white py-1 z-10">Etapas do Processo ({allCols.length})</h4>
-                        {allCols.map((colName) => {
-                          const defaultStage = currentStagesList[0] || 'Triagem';
-                          const count = jobApplicants.filter(applicant => {
-                            const currentStatus = applicant.status;
-                            const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !allCols.includes(currentStatus)) 
-                              ? defaultStage 
-                              : currentStatus;
-                            return normalizedStatus === colName;
-                          }).length;
-
-                          const isSpecial = colName === 'Testes' || colName === 'Contratado' || colName === 'Reprovado';
-                          
-                          const stageIndex = currentStagesList.indexOf(colName);
-                          const canMoveUp = stageIndex > 0;
-                          const canMoveDown = stageIndex !== -1 && stageIndex < currentStagesList.length - 1;
-
-                          return (
-                            <div 
-                              key={colName}
-                              className={`flex items-center justify-between p-3 rounded-[5px] border transition-all ${
-                                isSpecial 
-                                  ? 'bg-slate-50/50 border-slate-100 text-slate-400' 
-                                  : 'bg-white border-slate-100 hover:border-slate-200/80 text-slate-700'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="text-xs font-bold truncate uppercase tracking-tight">{colName}</span>
-                                <span className="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black">
-                                  {count}
-                                </span>
-                              </div>
-
-                              {!isSpecial && (
-                                <div className="flex items-center gap-1 shrink-0">
-                                  <button
-                                    type="button"
-                                    title="Mover para Cima"
-                                    disabled={!canMoveUp}
-                                    onClick={() => handleMoveStage(colName, 'left')}
-                                    className={`p-1.5 rounded-full transition-colors flex items-center justify-center ${
-                                      canMoveUp 
-                                        ? 'hover:bg-slate-100 text-slate-500 hover:text-slate-800 cursor-pointer' 
-                                        : 'text-slate-200 cursor-not-allowed'
-                                    }`}
-                                  >
-                                    <ChevronUp size={14} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    title="Mover para Baixo"
-                                    disabled={!canMoveDown}
-                                    onClick={() => handleMoveStage(colName, 'right')}
-                                    className={`p-1.5 rounded-full transition-colors flex items-center justify-center ${
-                                      canMoveDown 
-                                        ? 'hover:bg-slate-100 text-slate-500 hover:text-slate-800 cursor-pointer' 
-                                        : 'text-slate-200 cursor-not-allowed'
-                                    }`}
-                                  >
-                                    <ChevronDown size={14} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    title={count > 0 ? "Não é possível excluir (contém candidatos)" : "Excluir etapa"}
-                                    disabled={count > 0}
-                                    onClick={() => handleDeleteStage(colName)}
-                                    className={`p-1.5 rounded-full transition-colors flex items-center justify-center ${
-                                      count > 0
-                                        ? 'text-slate-200 cursor-not-allowed'
-                                        : 'hover:bg-rose-500/10 text-rose-500 hover:text-rose-650 cursor-pointer'
-                                    }`}
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              )}
-                              {isSpecial && (
-                                <span className="text-[7.5px] font-black uppercase text-slate-400 tracking-wider bg-slate-100 rounded-md px-1.5 py-0.5 select-none">
-                                  Sistema
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <div className="border-t border-slate-100 pt-4 flex justify-end shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => setIsConfiguringStages(false)}
-                          className="px-6 py-2 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
-                        >
-                          Fechar
-                        </button>
-                      </div>
-                    </motion.div>
-                  </div>
-                );
-              })()
+            {isConfiguringStages && (
+              <ManageStagesModal
+                isOpen={isConfiguringStages}
+                onClose={() => setIsConfiguringStages(false)}
+                job={selectedJob}
+                jobApplicants={jobApplicants}
+                onAddNewStage={handleAddNewStage}
+                onMoveStage={handleMoveStage}
+                onDeleteStage={handleDeleteStage}
+                onUpdateStageTests={handleUpdateJobStageTests}
+              />
             )}
+
+            <NotificationsDrawer
+              isOpen={isNotificationsDrawerOpen}
+              onClose={() => setIsNotificationsDrawerOpen(false)}
+              notifications={notifications}
+              onMarkAllAsRead={async () => {
+                if (selectedCompany?.nomeFantasia) {
+                  await markAllNotificationsAsRead(selectedCompany.nomeFantasia, 'company');
+                  loadCompanyNotifications();
+                }
+              }}
+              onMarkAsRead={async (id) => {
+                await markNotificationAsRead(id);
+                loadCompanyNotifications();
+              }}
+              onDelete={async (id) => {
+                await deleteNotification(id);
+                loadCompanyNotifications();
+              }}
+            />
 
             {customDialog.isOpen && (
               <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
@@ -6732,7 +4471,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                       <button
                         type="button"
                         onClick={() => setCustomDialog(prev => ({ ...prev, isOpen: false }))}
-                        className="px-6 py-1.8 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
+                        className="px-8 py-3 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
                       >
                         Entendido
                       </button>
@@ -6788,7 +4527,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                       description: '',
                       responsibilities: '',
                       requirements: [] as string[],
-                      stages: ['Análise de Currículo', 'Entrevista', 'Teste Técnico']
+                      stages: ['Análise de Currículo']
                     });
                     setActiveTab('Minhas Vagas');
                   }}
@@ -6883,7 +4622,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                         description: '',
                         responsibilities: '',
                         requirements: [] as string[],
-                        stages: ['Análise de Currículo', 'Entrevista', 'Teste Técnico']
+                        stages: ['Análise de Currículo']
                       });
                       setActiveTab('Minhas Vagas');
                     }}
@@ -6900,40 +4639,40 @@ Equipe de Recrutamento & Seleção - Colaborh
           {/* Secondary Candidate Detailed Resume Viewer Modal */}
           <AnimatePresence>
             {selectedResumeApplicant && (
-              <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+              <div className="fixed inset-0 z-[110] flex justify-end">
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => setSelectedResumeApplicant(null)}
-                  className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" 
+                  className="absolute inset-0 bg-slate-950/40 backdrop-blur-xs" 
                 />
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.95, y: 30 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                  className="relative w-full max-w-4xl bg-white rounded-[5px] shadow-2xl overflow-hidden flex flex-col h-[90vh] border border-slate-100"
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                  className="relative w-full max-w-4xl bg-white rounded-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
                 >
                   {/* Cabeçalho de visualização */}
-                  <div className="p-6 flex justify-between items-center border-b border-slate-100 shrink-0">
+                  <div className="p-6 flex justify-between items-center border-b border-slate-100 shrink-0 text-left">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-650">
-                        <Eye size={20} />
-                      </div>
                       <div>
-                        <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Visualização do Currículo</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Currículo no formato oficial da plataforma</p>
+                        <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Perfil do Candidato</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Perfil completo e relatórios de testes na plataforma</p>
                       </div>
                     </div>
                     <div className="flex gap-2 shrink-0">
-                      <button 
-                        onClick={handleDownloadResume}
-                        disabled={isExportingResume}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer border-0 outline-none whitespace-nowrap"
-                      >
-                        {isExportingResume ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
-                        {isExportingResume ? 'Processando...' : 'Baixar PDF'}
-                      </button>
+                      {resumeDrawerTab === 'curriculo' && (
+                        <button 
+                          onClick={handleDownloadResume}
+                          disabled={isExportingResume}
+                          className="flex items-center gap-2 px-6 py-2.5 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer border-0 outline-none whitespace-nowrap"
+                        >
+                          {isExportingResume ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
+                          {isExportingResume ? 'Processando...' : 'Baixar PDF'}
+                        </button>
+                      )}
                       <button 
                         onClick={() => setSelectedResumeApplicant(null)} 
                         className="p-2.5 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full transition-all cursor-pointer border-0 outline-none flex items-center justify-center w-9 h-9 hover:scale-105 active:scale-95 shadow-sm"
@@ -6942,145 +4681,510 @@ Equipe de Recrutamento & Seleção - Colaborh
                       </button>
                     </div>
                   </div>
-                  
-                  {/* Conteúdo rolável com a folha de currículo A4 em escala */}
-                  <div className="flex-1 overflow-y-auto p-8 bg-slate-100 flex justify-center no-scrollbar">
-                    <div className="bg-white shadow-2xl w-[210mm] min-h-[297mm] origin-top transform scale-[0.8] sm:scale-[0.9] mb-12">
-                      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box' }}>
-                        {/* Header Zone */}
-                        <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
-                          {/* Circular Photo */}
-                          <div style={{ position: 'absolute', left: '50px', top: '75px', zIndex: 100 }}>
-                            <div style={{ width: '170px', height: '170px', borderRadius: '50%', border: '6px solid #FFFFFF', overflow: 'hidden', backgroundColor: '#e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                              {selectedResumeApplicant.profile_pic ? (
-                                <img src={selectedResumeApplicant.profile_pic} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              ) : (
-                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
-                                  <User size={60} />
+
+                  {/* Abas do Drawer */}
+                  <div className="px-6 border-b border-slate-100 flex relative bg-white shrink-0">
+                    {(() => {
+                      const drawerTabs = [
+                        { id: 'curriculo', label: 'CURRÍCULO', icon: FileText },
+                        { id: 'testes', label: 'TESTES REALIZADOS', icon: Brain }
+                      ];
+                      const tabIndex = drawerTabs.findIndex(t => t.id === resumeDrawerTab);
+                      const tabWidth = 192; 
+                      return (
+                        <div className="flex relative">
+                          {drawerTabs.map((tab) => (
+                            <button
+                              key={tab.id}
+                              type="button"
+                              onClick={() => setResumeDrawerTab(tab.id as any)}
+                              className={`flex items-center justify-center gap-2 w-48 py-4 font-bold text-xs uppercase tracking-wider transition-all border-b-2 border-transparent outline-none cursor-pointer ${
+                                resumeDrawerTab === tab.id 
+                                  ? 'text-slate-900 font-black' 
+                                  : 'text-slate-400 hover:text-slate-600'
+                              }`}
+                            >
+                              <tab.icon size={14} className={resumeDrawerTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
+                              <span>{tab.label}</span>
+                            </button>
+                          ))}
+                          <motion.div 
+                            animate={{ x: tabIndex * tabWidth }}
+                            className="absolute bottom-0 left-0 h-[2px] bg-[#533af6]"
+                            style={{ width: tabWidth }}
+                            transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+                          />
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {resumeDrawerTab === 'curriculo' ? (
+                    /* Conteúdo rolável com a folha de currículo A4 em escala */
+                    <div className="flex-1 overflow-y-auto p-8 bg-slate-100 flex justify-center no-scrollbar">
+                      <div className="bg-white shadow-2xl w-[210mm] min-h-[297mm] origin-top transform scale-[0.8] sm:scale-[0.9] mb-12">
+                        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box' }}>
+                          {/* Header Zone */}
+                          <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
+                            {/* Circular Photo */}
+                            <div style={{ position: 'absolute', left: '50px', top: '75px', zIndex: 100 }}>
+                              <div style={{ width: '170px', height: '170px', borderRadius: '50%', border: '6px solid #FFFFFF', overflow: 'hidden', backgroundColor: '#e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                                {selectedResumeApplicant.profile_pic ? (
+                                  <img src={selectedResumeApplicant.profile_pic} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
+                                    <User size={60} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Name Header */}
+                            <div style={{ marginLeft: '260px', paddingRight: '40px', flex: 1, textAlign: 'left' }}>
+                              <h1 style={{ fontSize: '32px', fontWeight: 900, textTransform: 'uppercase', color: '#FFFFFF', letterSpacing: '2px', margin: 0, paddingBottom: '10px' }}>
+                                {selectedResumeApplicant.candidate_name || 'Nome do Candidato'}
+                              </h1>
+                              <div style={{ width: '100%', height: '2px', backgroundColor: '#FFFFFF' }} />
+                            </div>
+                          </div>
+
+                          {/* Columns Zone */}
+                          <div style={{ display: 'flex', flex: 1, width: '100%', boxSizing: 'border-box' }}>
+                            {/* Sidebar Column */}
+                            <div style={{ width: '240px', backgroundColor: '#f3f0ff', paddingTop: '110px', paddingLeft: '30px', paddingRight: '30px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
+                              {/* CONTATO SECTION */}
+                              <div style={{ width: '100%', textAlign: 'center', marginBottom: '35px' }}>
+                                <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#7044ff', letterSpacing: '1.5px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Contato</h3>
+                                <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '18px' }} />
+                                
+                                <div style={{ marginBottom: '15px' }}>
+                                  <p style={{ fontSize: '10px', fontWeight: 900, color: '#7044ff', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 2px 0' }}>Telefone</p>
+                                  <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0, wordBreak: 'break-all' }}>{parseCandidatePhoneData(selectedResumeApplicant.candidate_phone).phone || '--'}</p>
+                                </div>
+                                
+                                <div style={{ marginBottom: '15px' }}>
+                                  <p style={{ fontSize: '10px', fontWeight: 900, color: '#7044ff', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 2px 0' }}>E-Mail</p>
+                                  <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0, wordBreak: 'break-all' }}>{selectedResumeApplicant.candidate_email || '--'}</p>
+                                </div>
+                                
+                                <div style={{ marginBottom: '15px' }}>
+                                  <p style={{ fontSize: '10px', fontWeight: 900, color: '#7044ff', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 2px 0' }}>Cidade</p>
+                                  <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0 }}>{selectedResumeApplicant.city ? `${selectedResumeApplicant.city} - ${selectedResumeApplicant.state || ''}` : '--'}</p>
+                                </div>
+                                
+                                <div>
+                                  <p style={{ fontSize: '10px', fontWeight: 900, color: '#7044ff', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 2px 0' }}>Idade</p>
+                                  <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0 }}>
+                                    {selectedResumeApplicant.talentMatched?.birth_date
+                                      ? `${calculateAge(selectedResumeApplicant.talentMatched.birth_date)} anos`
+                                      : selectedResumeApplicant.talentMatched?.age 
+                                      ? `${selectedResumeApplicant.talentMatched.age} anos`
+                                      : '--'
+                                    }
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* HABILIDADES SECTION */}
+                              {selectedResumeApplicant.talentMatched?.skills && selectedResumeApplicant.talentMatched.skills.length > 0 && (
+                                <div style={{ width: '100%' }}>
+                                  <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#7044ff', letterSpacing: '1.5px', textTransform: 'uppercase', margin: '0 0 6px 0', textAlign: 'center' }}>Habilidades</h3>
+                                  <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '18px' }} />
+                                  
+                                  <ul style={{ listStyleType: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start', width: '100%' }}>
+                                    {selectedResumeApplicant.talentMatched.skills.map((skill: string, index: number) => (
+                                      <li key={index} style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0, paddingLeft: '5px', textAlign: 'left' }}>
+                                        • {skill}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Main Content Column */}
+                            <div style={{ flex: 1, padding: '40px 40px 40px 35px', display: 'flex', flexDirection: 'column', textAlign: 'left', boxSizing: 'border-box' }}>
+                              {/* PERFIL SECTION */}
+                              <div style={{ marginBottom: '32px' }}>
+                                <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Perfil</h2>
+                                <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
+                                <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify', whiteSpace: 'pre-line' }}>
+                                  {selectedResumeApplicant.talentMatched?.summary || selectedResumeApplicant.summary || 'Resumo profissional não preenchido.'}
+                                </p>
+                              </div>
+
+                              {/* EXPERIÊNCIAS SECTION */}
+                              {selectedResumeApplicant.talentMatched?.experiences && selectedResumeApplicant.talentMatched.experiences.length > 0 && (
+                                <div style={{ marginBottom: '32px' }}>
+                                  <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Experiências</h2>
+                                  <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
+                                  <div>
+                                    {selectedResumeApplicant.talentMatched.experiences.map((exp: any, idx: number) => (
+                                      <div key={idx} style={{ marginBottom: '24px' }}>
+                                        <h4 style={{ fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', margin: '0 0 4px 0' }}>{exp.role}</h4>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
+                                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{exp.company}</span>
+                                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{exp.duration || 'N/A'}</span>
+                                        </div>
+                                        <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, whiteSpace: 'pre-line', textAlign: 'justify' }}>
+                                          {exp.description}
+                                        </p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* EDUCAÇÃO SECTION */}
+                              {selectedResumeApplicant.talentMatched?.educations && selectedResumeApplicant.talentMatched.educations.length > 0 && (
+                                <div style={{ marginBottom: '32px' }}>
+                                  <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Educação</h2>
+                                  <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
+                                  <div>
+                                    {selectedResumeApplicant.talentMatched.educations.map((edu: any, idx: number) => (
+                                      <div key={idx} style={{ marginBottom: '20px' }}>
+                                        <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#000000', margin: '0 0 4px 0' }}>{edu.course}</h4>
+                                        <p style={{ fontSize: '11px', fontWeight: 700, color: '#000000', letterSpacing: '0.5px', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
+                                          {edu.gradYear || ''} - {edu.status}
+                                        </p>
+                                        <p style={{ fontSize: '12px', color: '#334155', margin: 0 }}>{edu.institution}</p>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               )}
                             </div>
                           </div>
-
-                          {/* Name Header */}
-                          <div style={{ marginLeft: '260px', paddingRight: '40px', flex: 1, textAlign: 'left' }}>
-                            <h1 style={{ fontSize: '32px', fontWeight: 900, textTransform: 'uppercase', color: '#FFFFFF', letterSpacing: '2px', margin: 0, paddingBottom: '10px' }}>
-                              {selectedResumeApplicant.candidate_name || 'Nome do Candidato'}
-                            </h1>
-                            <div style={{ width: '100%', height: '2px', backgroundColor: '#FFFFFF' }} />
-                          </div>
-                        </div>
-
-                        {/* Columns Zone */}
-                        <div style={{ display: 'flex', flex: 1, width: '100%', boxSizing: 'border-box' }}>
-                          {/* Sidebar Column */}
-                          <div style={{ width: '240px', backgroundColor: '#f3f0ff', paddingTop: '110px', paddingLeft: '30px', paddingRight: '30px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
-                            {/* CONTATO SECTION */}
-                            <div style={{ width: '100%', textAlign: 'center', marginBottom: '35px' }}>
-                              <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#7044ff', letterSpacing: '1.5px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Contato</h3>
-                              <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '18px' }} />
-                              
-                              <div style={{ marginBottom: '15px' }}>
-                                <p style={{ fontSize: '10px', fontWeight: 900, color: '#7044ff', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 2px 0' }}>Telefone</p>
-                                <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0, wordBreak: 'break-all' }}>{parseCandidatePhoneData(selectedResumeApplicant.candidate_phone).phone || '--'}</p>
-                              </div>
-                              
-                              <div style={{ marginBottom: '15px' }}>
-                                <p style={{ fontSize: '10px', fontWeight: 900, color: '#7044ff', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 2px 0' }}>E-Mail</p>
-                                <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0, wordBreak: 'break-all' }}>{selectedResumeApplicant.candidate_email || '--'}</p>
-                              </div>
-                              
-                              <div style={{ marginBottom: '15px' }}>
-                                <p style={{ fontSize: '10px', fontWeight: 900, color: '#7044ff', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 2px 0' }}>Cidade</p>
-                                <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0 }}>{selectedResumeApplicant.city ? `${selectedResumeApplicant.city} - ${selectedResumeApplicant.state || ''}` : '--'}</p>
-                              </div>
-                              
-                              <div>
-                                <p style={{ fontSize: '10px', fontWeight: 900, color: '#7044ff', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 2px 0' }}>Idade</p>
-                                <p style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0 }}>
-                                  {selectedResumeApplicant.talentMatched?.birth_date
-                                    ? `${calculateAge(selectedResumeApplicant.talentMatched.birth_date)} anos`
-                                    : selectedResumeApplicant.talentMatched?.age 
-                                    ? `${selectedResumeApplicant.talentMatched.age} anos`
-                                    : '--'
-                                  }
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* HABILIDADES SECTION */}
-                            {selectedResumeApplicant.talentMatched?.skills && selectedResumeApplicant.talentMatched.skills.length > 0 && (
-                              <div style={{ width: '100%' }}>
-                                <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#7044ff', letterSpacing: '1.5px', textTransform: 'uppercase', margin: '0 0 6px 0', textAlign: 'center' }}>Habilidades</h3>
-                                <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '18px' }} />
-                                
-                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start', width: '100%' }}>
-                                  {selectedResumeApplicant.talentMatched.skills.map((skill: string, index: number) => (
-                                    <li key={index} style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0, paddingLeft: '5px', textAlign: 'left' }}>
-                                      • {skill}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Main Content Column */}
-                          <div style={{ flex: 1, padding: '40px 40px 40px 35px', display: 'flex', flexDirection: 'column', textAlign: 'left', boxSizing: 'border-box' }}>
-                            {/* PERFIL SECTION */}
-                            <div style={{ marginBottom: '32px' }}>
-                              <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Perfil</h2>
-                              <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
-                              <p style={{ fontSize: '12.5px', lineHeight: 1.6, color: '#334155', margin: 0, textAlign: 'justify', whiteSpace: 'pre-line' }}>
-                                {selectedResumeApplicant.talentMatched?.summary || selectedResumeApplicant.summary || 'Resumo profissional não preenchido.'}
-                              </p>
-                            </div>
-
-                            {/* EXPERIÊNCIAS SECTION */}
-                            {selectedResumeApplicant.talentMatched?.experiences && selectedResumeApplicant.talentMatched.experiences.length > 0 && (
-                              <div style={{ marginBottom: '32px' }}>
-                                <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Experiências</h2>
-                                <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
-                                <div>
-                                  {selectedResumeApplicant.talentMatched.experiences.map((exp: any, idx: number) => (
-                                    <div key={idx} style={{ marginBottom: '24px' }}>
-                                      <h4 style={{ fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', margin: '0 0 4px 0' }}>{exp.role}</h4>
-                                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
-                                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{exp.company}</span>
-                                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{exp.duration || 'N/A'}</span>
-                                      </div>
-                                      <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, whiteSpace: 'pre-line', textAlign: 'justify' }}>
-                                        {exp.description}
-                                      </p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* EDUCAÇÃO SECTION */}
-                            {selectedResumeApplicant.talentMatched?.educations && selectedResumeApplicant.talentMatched.educations.length > 0 && (
-                              <div style={{ marginBottom: '32px' }}>
-                                <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Educação</h2>
-                                <div style={{ width: '100%', height: '3px', backgroundColor: '#906bf9', marginBottom: '16px' }} />
-                                <div>
-                                  {selectedResumeApplicant.talentMatched.educations.map((edu: any, idx: number) => (
-                                    <div key={idx} style={{ marginBottom: '20px' }}>
-                                      <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#000000', margin: '0 0 4px 0' }}>{edu.course}</h4>
-                                      <p style={{ fontSize: '11px', fontWeight: 700, color: '#000000', letterSpacing: '0.5px', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
-                                        {edu.gradYear || ''} - {edu.status}
-                                      </p>
-                                      <p style={{ fontSize: '12px', color: '#334155', margin: 0 }}>{edu.institution}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    /* Conteúdo de Testes Realizados */
+                    <div className="flex-1 overflow-y-auto p-6 bg-slate-50/20 space-y-6 text-left no-scrollbar">
+                      {/* Resumo/Info do Candidato */}
+                      <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-2xs flex items-center gap-4">
+                        <div className="w-12 h-12 bg-slate-100 rounded-full overflow-hidden shrink-0 border border-slate-200/60 flex items-center justify-center">
+                          {selectedResumeApplicant.profile_pic ? (
+                            <img src={selectedResumeApplicant.profile_pic} alt="Profile" className="w-full h-full object-cover" />
+                          ) : (
+                            <User size={20} className="text-slate-400" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight truncate leading-none">
+                            {selectedResumeApplicant.candidate_name}
+                          </h4>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
+                            {selectedResumeApplicant.city || 'Não inf.'}{selectedResumeApplicant.state ? `, ${selectedResumeApplicant.state}` : ''}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Lista de Avaliações */}
+                      <div className="space-y-4">
+                        <h5 className="text-[10px] font-black text-slate-800 uppercase tracking-widest flex items-center gap-2 border-b border-slate-150/40 pb-2">
+                          <BrainCircuit size={14} className="text-[#533af6]" /> Status das Avaliações
+                        </h5>
+
+                        <div className="space-y-3">
+                          {/* 1. DISC */}
+                          {(() => {
+                            const parsedData = parseCandidatePhoneData(selectedResumeApplicant.candidate_phone || '');
+                            let discStatus = 'NONE';
+                            let discScores = [0, 0, 0, 0];
+                            if (parsedData.disc) {
+                              if (parsedData.disc === 'PENDING') discStatus = 'PENDING';
+                              else if (parsedData.disc.startsWith('COMPLETED===')) {
+                                discStatus = 'COMPLETED';
+                                discScores = parsedData.disc.replace('COMPLETED===', '').split(',').map(Number);
+                              }
+                            }
+
+                            return (
+                              <div className="bg-white hover:bg-slate-50/50 border border-slate-100 rounded-[15px] p-5 transition-all shadow-3xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className="flex items-center gap-3.5">
+                                  <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-rose-100/20">
+                                    <Activity size={18} />
+                                  </div>
+                                  <div>
+                                    <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">DISC</h6>
+                                    <p className="text-[9px] font-semibold text-slate-450 mt-1 max-w-md">Avaliação comportamental baseada em Dominância, Influência, Estabilidade e Conformidade.</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+                                  <span className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-wider select-none border ${
+                                    discStatus === 'COMPLETED'
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                      : discStatus === 'PENDING'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-100'
+                                      : 'bg-slate-50 text-slate-400 border-slate-200/60'
+                                  }`}>
+                                    {discStatus === 'COMPLETED' ? 'Concluído' : discStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
+                                  </span>
+
+                                  {discStatus === 'COMPLETED' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedDiscResult({
+                                          applicantName: selectedResumeApplicant.candidate_name,
+                                          completedAt: parsedData.discDate || selectedResumeApplicant.created_at,
+                                          D: discScores[0], I: discScores[1], S: discScores[2], C: discScores[3]
+                                        });
+                                      }}
+                                      className="flex items-center gap-1.5 px-3.5 py-2 bg-[#533af6] hover:bg-[#432ec4] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer shadow-sm active:scale-95 border-0 outline-none"
+                                    >
+                                      <span>Ver Relatório</span>
+                                      <ChevronRight size={10} className="shrink-0" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
+
+                          {/* 2. MBTI */}
+                          {(() => {
+                            const parsedData = parseCandidatePhoneData(selectedResumeApplicant.candidate_phone || '');
+                            let mbtiStatus = 'NONE';
+                            let mbtiResponses = null;
+                            if (parsedData.mbti) {
+                              if (parsedData.mbti === 'PENDING') mbtiStatus = 'PENDING';
+                              else if (parsedData.mbti.startsWith('COMPLETED===')) {
+                                mbtiStatus = 'COMPLETED';
+                                try {
+                                  mbtiResponses = JSON.parse(parsedData.mbti.replace('COMPLETED===', '').trim());
+                                } catch (e) {}
+                              }
+                            }
+
+                            return (
+                              <div className="bg-white hover:bg-slate-50/50 border border-slate-100 rounded-[15px] p-5 transition-all shadow-3xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className="flex items-center gap-3.5">
+                                  <div className="w-10 h-10 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-violet-100/20">
+                                    <Compass size={18} />
+                                  </div>
+                                  <div>
+                                    <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">MBTI</h6>
+                                    <p className="text-[9px] font-semibold text-slate-450 mt-1 max-w-md">Indicador de tipos psicológicos e traços de personalidade (16 tipos).</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+                                  <span className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-wider select-none border ${
+                                    mbtiStatus === 'COMPLETED'
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                      : mbtiStatus === 'PENDING'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-100'
+                                      : 'bg-slate-50 text-slate-400 border-slate-200/60'
+                                  }`}>
+                                    {mbtiStatus === 'COMPLETED' ? 'Concluído' : mbtiStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
+                                  </span>
+
+                                  {mbtiStatus === 'COMPLETED' && mbtiResponses && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedMbtiResult({
+                                          applicantName: selectedResumeApplicant.candidate_name,
+                                          completedAt: parsedData.mbtiDate || selectedResumeApplicant.created_at,
+                                          ...mbtiResponses
+                                        });
+                                        setActiveMbtiTab('PERFIL');
+                                        setIsMbtiModalOpen(true);
+                                      }}
+                                      className="flex items-center gap-1.5 px-3.5 py-2 bg-[#533af6] hover:bg-[#432ec4] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer shadow-sm active:scale-95 border-0 outline-none"
+                                    >
+                                      <span>Ver Perfil ({mbtiResponses.type || 'MBTI'})</span>
+                                      <ChevronRight size={10} className="shrink-0" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
+
+                          {/* 3. Mapeamento de Perfil (Perguntas) */}
+                          {(() => {
+                            const parsedData = parseCandidatePhoneData(selectedResumeApplicant.candidate_phone || '');
+                            let questionsStatus = 'NONE';
+                            let questionsResponses = null;
+                            if (parsedData.questions) {
+                              if (parsedData.questions === 'PENDING') questionsStatus = 'PENDING';
+                              else if (parsedData.questions.startsWith('COMPLETED===')) {
+                                questionsStatus = 'COMPLETED';
+                                try {
+                                  questionsResponses = JSON.parse(parsedData.questions.replace('COMPLETED===', '').trim());
+                                } catch (e) {}
+                              }
+                            }
+
+                            return (
+                              <div className="bg-white hover:bg-slate-50/50 border border-slate-100 rounded-[15px] p-5 transition-all shadow-3xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className="flex items-center gap-3.5">
+                                  <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-indigo-100/20">
+                                    <HelpCircle size={18} />
+                                  </div>
+                                  <div>
+                                    <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">Mapeamento (Perguntas)</h6>
+                                    <p className="text-[9px] font-semibold text-slate-450 mt-1 max-w-md">Perguntas com respostas de vídeo/texto sobre trajetórias e objetivos.</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+                                  <span className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-wider select-none border ${
+                                    questionsStatus === 'COMPLETED'
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                      : questionsStatus === 'PENDING'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-100'
+                                      : 'bg-slate-50 text-slate-400 border-slate-200/60'
+                                  }`}>
+                                    {questionsStatus === 'COMPLETED' ? 'Concluído' : questionsStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
+                                  </span>
+
+                                  {questionsStatus === 'COMPLETED' && questionsResponses && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedApplicantForQuestions({
+                                          candidate_name: selectedResumeApplicant.candidate_name,
+                                          questionsResponses,
+                                          completedAt: parsedData.questionsDate || selectedResumeApplicant.created_at
+                                        });
+                                        setActiveCategoryTab('EXPERIENCE');
+                                        setIsQuestionsModalOpen(true);
+                                      }}
+                                      className="flex items-center gap-1.5 px-3.5 py-2 bg-[#533af6] hover:bg-[#432ec4] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer shadow-sm active:scale-95 border-0 outline-none"
+                                    >
+                                      <span>Ver Respostas</span>
+                                      <ChevronRight size={10} className="shrink-0" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
+
+                          {/* 4. Temperamentos */}
+                          {(() => {
+                            const parsedData = parseCandidatePhoneData(selectedResumeApplicant.candidate_phone || '');
+                            let temperamentosStatus = 'NONE';
+                            let temperamentosResponses = null;
+                            if (parsedData.temperamentos) {
+                              if (parsedData.temperamentos === 'PENDING') temperamentosStatus = 'PENDING';
+                              else if (parsedData.temperamentos.startsWith('COMPLETED===')) {
+                                temperamentosStatus = 'COMPLETED';
+                                try {
+                                  temperamentosResponses = JSON.parse(parsedData.temperamentos.replace('COMPLETED===', '').trim());
+                                } catch (e) {}
+                              }
+                            }
+
+                            return (
+                              <div className="bg-white hover:bg-slate-50/50 border border-slate-100 rounded-[15px] p-5 transition-all shadow-3xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className="flex items-center gap-3.5">
+                                  <div className="w-10 h-10 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-sky-100/20">
+                                    <GraduationCap size={18} />
+                                  </div>
+                                  <div>
+                                    <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">Temperamentos</h6>
+                                    <p className="text-[9px] font-semibold text-slate-450 mt-1 max-w-md">Identificação dos temperamentos principais (Sanguíneo, Colérico, Melancólico, Fleumático).</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+                                  <span className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-wider select-none border ${
+                                    temperamentosStatus === 'COMPLETED'
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                      : temperamentosStatus === 'PENDING'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-100'
+                                      : 'bg-slate-50 text-slate-400 border-slate-200/60'
+                                  }`}>
+                                    {temperamentosStatus === 'COMPLETED' ? 'Concluído' : temperamentosStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
+                                  </span>
+
+                                  {temperamentosStatus === 'COMPLETED' && temperamentosResponses && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedTemperamentosResult({
+                                          applicantName: selectedResumeApplicant.candidate_name,
+                                          completedAt: parsedData.temperamentosDate || selectedResumeApplicant.created_at,
+                                          ...temperamentosResponses
+                                        });
+                                        setActiveTemperamentosTab('PERFIL');
+                                        setIsTemperamentosModalOpen(true);
+                                      }}
+                                      className="flex items-center gap-1.5 px-3.5 py-2 bg-[#533af6] hover:bg-[#432ec4] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer shadow-sm active:scale-95 border-0 outline-none"
+                                    >
+                                      <span>Ver Perfil ({temperamentosResponses.type || 'TEMP'})</span>
+                                      <ChevronRight size={10} className="shrink-0" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
+
+                          {/* 5. Questionário Customizado */}
+                          {(() => {
+                            const parsedData = parseCandidatePhoneData(selectedResumeApplicant.candidate_phone || '');
+                            let customTestStatus = 'NONE';
+                            let customTestResponses = null;
+                            if (parsedData.customTest) {
+                              if (parsedData.customTest === 'PENDING') customTestStatus = 'PENDING';
+                              else if (parsedData.customTest.startsWith('COMPLETED===')) {
+                                customTestStatus = 'COMPLETED';
+                                try {
+                                  customTestResponses = JSON.parse(parsedData.customTest.replace('COMPLETED===', '').trim());
+                                } catch (e) {}
+                              }
+                            }
+
+                            return (
+                              <div className="bg-white hover:bg-slate-50/50 border border-slate-100 rounded-[15px] p-5 transition-all shadow-3xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className="flex items-center gap-3.5">
+                                  <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-emerald-100/20">
+                                    <Briefcase size={18} />
+                                  </div>
+                                  <div>
+                                    <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">Questionário Customizado</h6>
+                                    <p className="text-[9px] font-semibold text-slate-450 mt-1 max-w-md">Perguntas específicas e testes técnicos configurados para a vaga.</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+                                  <span className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-wider select-none border ${
+                                    customTestStatus === 'COMPLETED'
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                      : customTestStatus === 'PENDING'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-100'
+                                      : 'bg-slate-50 text-slate-400 border-slate-200/60'
+                                  }`}>
+                                    {customTestStatus === 'COMPLETED' ? 'Concluído' : customTestStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
+                                  </span>
+
+                                  {customTestStatus === 'COMPLETED' && customTestResponses && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedApplicantForCustomTest({
+                                          candidate_name: selectedResumeApplicant.candidate_name,
+                                          completedAt: parsedData.customTestDate || selectedResumeApplicant.created_at,
+                                          ...customTestResponses
+                                        });
+                                        setIsCustomTestModalOpen(true);
+                                      }}
+                                      className="flex items-center gap-1.5 px-3.5 py-2 bg-[#533af6] hover:bg-[#432ec4] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer shadow-sm active:scale-95 border-0 outline-none"
+                                    >
+                                      <span>Ver Respostas</span>
+                                      <ChevronRight size={10} className="shrink-0" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               </div>
             )}
@@ -7326,7 +5430,7 @@ Equipe de Recrutamento & Seleção - Colaborh
           {/* Modal de Anotações sobre o Candidato */}
           <AnimatePresence>
             {isNotesModalOpen && selectedApplicantForNotes && (
-              <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+              <div className="fixed inset-0 z-[120] flex justify-end">
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -7337,16 +5441,17 @@ Equipe de Recrutamento & Seleção - Colaborh
                       setSelectedApplicantForNotes(null);
                     }
                   }}
-                  className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" 
+                  className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" 
                 />
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.95, y: 30 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                  className="relative w-full max-w-lg bg-white rounded-[5px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-slate-100"
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                  className="relative w-full max-w-md bg-white rounded-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
                 >
-                  {/* Modal Header */}
-                  <div className="p-7 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                  {/* Drawer Header */}
+                  <div className="p-7 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-highlight-50 rounded-2xl flex items-center justify-center text-highlight-600 shadow-sm shrink-0 border border-highlight-100">
                         <StickyNote size={22} className="text-highlight-500" />
@@ -7355,7 +5460,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                         <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight leading-tight">
                           Anotações de Recrutamento
                         </h4>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5 truncate max-w-[260px]">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5 truncate max-w-[220px]">
                           Candidato: {selectedApplicantForNotes.candidate_name || selectedApplicantForNotes.name}
                         </p>
                       </div>
@@ -7374,9 +5479,9 @@ Equipe de Recrutamento & Seleção - Colaborh
                     </button>
                   </div>
 
-                  {/* Modal Body */}
-                  <div className="flex-1 p-7 sm:p-9 space-y-4 text-left font-sans">
-                    <div className="space-y-2">
+                  {/* Drawer Body */}
+                  <div className="flex-1 p-7 sm:p-9 flex flex-col space-y-4 text-left font-sans overflow-y-auto">
+                    <div className="flex-1 flex flex-col space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
                         Observações sobre o perfil e entrevista
                       </label>
@@ -7384,7 +5489,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                         value={tempNotesText}
                         onChange={(e) => setTempNotesText(e.target.value)}
                         placeholder="Digite aqui pontos fortes, observações técnicas, expectativas de contratação ou impressões gerais da entrevista do candidato..."
-                        className="w-full h-44 px-4 py-3 text-xs font-bold text-slate-700 bg-slate-50/50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-highlight-500 focus:border-highlight-500 resize-none transition-all placeholder:text-slate-400"
+                        className="w-full flex-1 min-h-[300px] px-4 py-3 text-xs font-bold text-slate-700 bg-slate-50/50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-highlight-500 focus:border-highlight-500 resize-none transition-all placeholder:text-slate-400"
                         maxLength={1500}
                       />
                       <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-wider">
@@ -7394,8 +5499,8 @@ Equipe de Recrutamento & Seleção - Colaborh
                     </div>
                   </div>
 
-                  {/* Modal Footer */}
-                  <div className="p-7 border-t border-slate-100 bg-slate-50/50 flex justify-end items-center gap-3">
+                  {/* Drawer Footer */}
+                  <div className="p-7 border-t border-slate-100 bg-slate-50/50 flex justify-end items-center gap-3 shrink-0">
                     <button
                       type="button"
                       onClick={() => {
@@ -7577,224 +5682,17 @@ Equipe de Recrutamento & Seleção - Colaborh
           </AnimatePresence>
 
           {/* Modal do Questionário Customizado */}
-          <AnimatePresence>
-            {isCustomTestModalOpen && selectedApplicantForCustomTest && (
-              <div className="fixed inset-0 z-[160] flex items-center justify-center p-4">
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => {
-                    setIsCustomTestModalOpen(false);
-                    setSelectedApplicantForCustomTest(null);
-                  }}
-                  className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" 
-                />
-                <motion.div 
-                  ref={customTestModalRef}
-                  initial={{ opacity: 0, scale: 0.95, y: 30 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                  className="relative w-full max-w-3xl bg-white rounded-[5px] shadow-2xl overflow-hidden flex flex-col h-[80vh] border border-slate-100"
-                >
-                  {/* Modal Header */}
-                  <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm shrink-0 border border-emerald-100" style={{ borderColor: 'rgba(16, 185, 129, 0.2)' }}>
-                        <FileText size={22} className="text-emerald-600" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight leading-tight">
-                          {(() => {
-                            const parsedData = parseCandidatePhoneData(selectedApplicantForCustomTest.candidate_phone || '');
-                            if (parsedData.customTest && parsedData.customTest.includes(':::')) {
-                              try {
-                                const parts = parsedData.customTest.split(':::');
-                                const parsedObj = JSON.parse(parts.slice(1).join(':::'));
-                                return parsedObj.title || 'Questionário Customizado';
-                              } catch (e) {}
-                            }
-                            return 'Questionário Customizado';
-                          })()}
-                        </h4>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-0.5">
-                            Candidato: {selectedApplicantForCustomTest.candidate_name || selectedApplicantForCustomTest.name}
-                          </p>
-                          <span className="text-[10px] text-slate-300 font-bold">•</span>
-                          <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest flex items-center gap-1">
-                            <Clock size={10} /> Realizado em: {formatDate(selectedApplicantForCustomTest.completedAt || selectedApplicantForCustomTest.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      <button 
-                        onClick={() => {
-                          const parsedData = parseCandidatePhoneData(selectedApplicantForCustomTest.candidate_phone || '');
-                          let title = 'Questionario_Customizado';
-                          if (parsedData.customTest && parsedData.customTest.includes(':::')) {
-                            try {
-                              const parts = parsedData.customTest.split(':::');
-                              const parsedObj = JSON.parse(parts.slice(1).join(':::'));
-                              title = parsedObj.title || title;
-                            } catch (e) {}
-                          }
-                          handleExportModalToPDF(customTestModalRef, `${title}_${selectedApplicantForCustomTest.candidate_name || selectedApplicantForCustomTest.name}`);
-                        }}
-                        disabled={isExportingTestPDF}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer border-0 outline-none whitespace-nowrap"
-                      >
-                        {isExportingTestPDF ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
-                        {isExportingTestPDF ? 'Gerando...' : 'Baixar PDF'}
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setIsCustomTestModalOpen(false);
-                          setSelectedApplicantForCustomTest(null);
-                        }} 
-                        className="p-2.5 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full transition-all cursor-pointer border border-slate-100 hover:scale-105 active:scale-95 shadow-sm outline-none flex items-center justify-center w-9 h-9"
-                      >
-                        <CloseIcon size={16} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Modal Body (Scrollable) */}
-                  <div className="flex-1 overflow-y-auto no-scrollbar p-6 sm:p-8 space-y-6 text-left font-sans bg-slate-50/30">
-                    {(() => {
-                      const parsedData = parseCandidatePhoneData(selectedApplicantForCustomTest.candidate_phone || '');
-                      let customQuestionsList: any[] = [];
-                      let responses: Record<string, string> = {};
-
-                      if (parsedData.customTest) {
-                        if (parsedData.customTest.includes(':::')) {
-                          const parts = parsedData.customTest.split(':::');
-                          const jsonPart = parts.slice(1).join(':::');
-                          try {
-                            const parsedObj = JSON.parse(jsonPart);
-                            customQuestionsList = parsedObj.questions || [];
-                            responses = parsedObj.responses || {};
-                          } catch (e) {
-                            console.error('Erro ao ler JSON do teste customizado:', e);
-                          }
-                        } else if (parsedData.customTest.startsWith('COMPLETED===')) {
-                          const jobDesc = selectedJob?.description || '';
-                          customQuestionsList = getCustomQuestionsFromJobDescription(jobDesc);
-                          try {
-                            const jsonContent = parsedData.customTest.replace('COMPLETED===', '');
-                            const parsedObj = JSON.parse(jsonContent);
-                            responses = parsedObj.responses || parsedObj || {};
-                          } catch (e) {
-                            console.error('Erro ao ler respostas customizadas legadas:', e);
-                          }
-                        }
-                      }
-
-                      if (customQuestionsList.length === 0) {
-                        return (
-                          <div className="flex flex-col items-center justify-center py-16 text-center">
-                            <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-3">
-                              <FileText size={20} />
-                            </div>
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Perguntas não encontradas</p>
-                            <p className="text-[10px] text-slate-400 mt-1 max-w-[280px]">Nenhuma pergunta customizada está associada a esta vaga no momento.</p>
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <div className="space-y-4">
-                          <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
-                            Respostas do Candidato ({customQuestionsList.length} Perguntas)
-                          </h3>
-                          
-                          <div className="space-y-5">
-                            {customQuestionsList.map((q: any, index: number) => {
-                              const candidateAnswer = responses[q.id] || 'Sem resposta.';
-
-                              return (
-                                <div 
-                                  key={q.id} 
-                                  className="bg-white p-5 rounded-[5px] border border-slate-100 shadow-xs space-y-3 hover:border-slate-200 transition-all text-left"
-                                >
-                                  <div className="flex items-start gap-3">
-                                    <span 
-                                      className="flex items-center justify-center w-6 h-6 rounded-[5px] text-[10px] font-black shrink-0 text-white" 
-                                      style={{ backgroundColor: '#10b981' }}
-                                    >
-                                      {index + 1}
-                                    </span>
-                                    <div>
-                                      <h4 className="text-xs font-bold text-slate-800 leading-normal pt-0.5">
-                                        {q.question}
-                                      </h4>
-                                      <span className={`inline-block px-1.5 py-0.5 rounded-[5px] text-[7px] font-black uppercase tracking-wider mt-1 ${
-                                        q.type === 'choice' 
-                                          ? 'bg-primary-50 text-primary-600' 
-                                          : 'bg-amber-50 text-amber-600'
-                                      }`}>
-                                        {q.type === 'choice' ? 'Múltipla Escolha' : 'Texto Aberto'}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="pl-9 border-l-2 border-slate-100 mt-2 space-y-2">
-                                    {q.type === 'choice' ? (
-                                      <div className="space-y-1.5">
-                                        {(q.options || []).map((opt: string, oIdx: number) => {
-                                          const isSelected = opt === candidateAnswer;
-                                          return (
-                                            <div 
-                                              key={oIdx} 
-                                              className={`p-2.5 rounded-[5px] border text-xs font-semibold flex items-center justify-between ${
-                                                isSelected 
-                                                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800 font-extrabold' 
-                                                  : 'bg-slate-50/50 border-slate-100 text-slate-500'
-                                              }`}
-                                            >
-                                              <span className="flex items-center gap-2">
-                                                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                                                  isSelected 
-                                                    ? 'bg-emerald-500 text-white' 
-                                                    : 'bg-white border border-slate-200 text-slate-400'
-                                                }`}>
-                                                  {String.fromCharCode(65 + oIdx)}
-                                                </span>
-                                                {opt}
-                                              </span>
-                                              {isSelected && <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />}
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    ) : (
-                                      <div className="bg-slate-50/50 p-4 rounded-[5px] border border-slate-100">
-                                        <p className="text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
-                                          {candidateAnswer}
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-
-                  {/* Modal Footer */}
-                  <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-center items-center shrink-0">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider text-center">
-                      Questionário Customizado da Vaga
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            )}
-          </AnimatePresence>
+          <CustomQuestionsModal
+            isOpen={isCustomTestModalOpen}
+            onClose={() => {
+              setIsCustomTestModalOpen(false);
+              setSelectedApplicantForCustomTest(null);
+            }}
+            applicant={selectedApplicantForCustomTest}
+            selectedJob={selectedJob}
+            onExportPDF={handleExportModalToPDF}
+            isExportingPDF={isExportingTestPDF}
+          />
 
           {/* Modal de Relatório Premium do MBTI */}
           <AnimatePresence>
