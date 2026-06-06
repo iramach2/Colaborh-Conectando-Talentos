@@ -238,9 +238,9 @@ export const CreateVacancyTab: React.FC<CreateVacancyTabProps> = ({
                     value={vacancyForm.title}
                     onChange={(e) => {
                       const cleanValue = e.target.value.replace(/[^a-zA-Z0-9 áàâãäéèêëíìîïóòôõöúùûüçñÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇÑ]/g, '');
-                      setVacancyForm((prev: any) => ({ ...prev, title: cleanValue }));
+                      setVacancyForm((prev: any) => ({ ...prev, title: cleanValue.toUpperCase() }));
                     }}
-                    placeholder="Ex: Desenvolvedor React Sênior" 
+                    placeholder="Ex: DESENVOLVEDOR REACT SÊNIOR" 
                     className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-medium text-xs" 
                   />
                   <p className="text-[10px] text-slate-400 italic mt-0.5 pl-1 leading-normal">
