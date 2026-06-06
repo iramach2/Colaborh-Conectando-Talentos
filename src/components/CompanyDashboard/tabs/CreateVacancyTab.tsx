@@ -236,7 +236,10 @@ export const CreateVacancyTab: React.FC<CreateVacancyTabProps> = ({
                   <input 
                     type="text" 
                     value={vacancyForm.title}
-                    onChange={(e) => setVacancyForm((prev: any) => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) => {
+                      const cleanValue = e.target.value.replace(/[^a-zA-Z0-9 áàâãäéèêëíìîïóòôõöúùûüçñÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇÑ]/g, '');
+                      setVacancyForm((prev: any) => ({ ...prev, title: cleanValue }));
+                    }}
                     placeholder="Ex: Desenvolvedor React Sênior" 
                     className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/5 transition-all text-slate-900 font-medium text-xs" 
                   />
