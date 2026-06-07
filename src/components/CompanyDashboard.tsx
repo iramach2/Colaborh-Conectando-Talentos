@@ -51,7 +51,8 @@ import {
   GraduationCap,
   ChevronUp,
   AlertTriangle,
-  HelpCircle
+  HelpCircle,
+  CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { perfisDISC, MBTI_PROFILES, MBTI_QUESTIONS, MbtiProfile, MbtiQuestion, TEMPERAMENTOS_PROFILES, TEMPERAMENTOS_QUESTIONS } from './CandidateDashboard';
@@ -105,6 +106,7 @@ import { TalentBankTab } from './CompanyDashboard/tabs/TalentBankTab';
 import { MyVacanciesTab } from './CompanyDashboard/tabs/MyVacanciesTab';
 import { CreateVacancyTab } from './CompanyDashboard/tabs/CreateVacancyTab';
 import { SettingsTab } from './CompanyDashboard/tabs/SettingsTab';
+import { BillingTab } from './CompanyDashboard/tabs/BillingTab';
 
 interface CompanyDashboardProps {
   onLogout: () => void;
@@ -117,6 +119,8 @@ interface Company {
   solicitante: string;
   sector: string;
   logo?: string;
+  plan?: 'starter' | 'growth' | 'enterprise';
+  credits?: number;
 }
 
 interface SidebarItemProps {
@@ -359,14 +363,18 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          return parsed.map((c: any) => ({
+            ...c,
+            plan: c.plan || 'starter',
+            credits: c.credits !== undefined ? c.credits : 5
+          }));
         }
       } catch (e) {
         console.error('Erro ao carregar empresas do localStorage:', e);
       }
     }
     return [
-      { id: '1', razaoSocial: 'Colaborh Soluções LTDA', nomeFantasia: 'Colaborh', solicitante: 'João Silva', sector: 'Tecnologia' }
+      { id: '1', razaoSocial: 'Colaborh Soluções LTDA', nomeFantasia: 'Colaborh', solicitante: 'João Silva', sector: 'Tecnologia', plan: 'starter', credits: 5 }
     ];
   });
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>(() => {
@@ -1235,8 +1243,30 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     setDraggedStage(null);
   };
 
-  const handleDragEnd = () => {
-    setDraggedStage(null);
+  const validateAndDeductCredit = (): boolean => {
+    const selectedCompany = companies.find(c => c.id === selectedCompanyId);
+    if (!selectedCompany) return false;
+
+    const currentCredits = selectedCompany.credits !== undefined ? selectedCompany.credits : 5;
+
+    if (currentCredits <= 0) {
+      alert('Saldo de créditos insuficiente para solicitar este teste comportamental! Adquira mais créditos na aba Faturamento.');
+      setActiveTab('Faturamento');
+      return false;
+    }
+
+    // Deduzir 1 crédito e atualizar no estado
+    const updatedCompanies = companies.map(c => {
+      if (c.id === selectedCompanyId) {
+        return {
+          ...c,
+          credits: Math.max(0, currentCredits - 1)
+        };
+      }
+      return c;
+    });
+    setCompanies(updatedCompanies);
+    return true;
   };
 
   const handleRequestDiscTest = async (app: any) => {
@@ -1255,6 +1285,10 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
 
       if (normalizedStatus !== 'Testes' && !hasTestInStage) {
         alert('A solicitação do teste DISC não está configurada para a etapa atual do candidato.');
+        return;
+      }
+
+      if (!validateAndDeductCredit()) {
         return;
       }
 
@@ -1396,6 +1430,10 @@ Equipe de Recrutamento & Seleção - Colaborh
 
       if (normalizedStatus !== 'Testes' && !hasTestInStage) {
         alert('A solicitação do Mapeamento de Perfil não está configurada para a etapa atual do candidato.');
+        return;
+      }
+
+      if (!validateAndDeductCredit()) {
         return;
       }
 
@@ -1542,6 +1580,10 @@ Equipe de Recrutamento & Seleção - Colaborh
         return;
       }
 
+      if (!validateAndDeductCredit()) {
+        return;
+      }
+
       const appId = app.id;
       const currentPhone = app.candidate_phone || '';
       const email = app.candidate_email || app.email || 'candidato@email.com';
@@ -1682,6 +1724,10 @@ Equipe de Recrutamento & Seleção - Colaborh
 
       if (normalizedStatus !== 'Testes' && !hasTestInStage) {
         alert('A solicitação do Questionário Customizado não está configurada para a etapa atual do candidato.');
+        return;
+      }
+
+      if (!validateAndDeductCredit()) {
         return;
       }
 
@@ -1840,6 +1886,10 @@ Equipe de Recrutamento & Seleção - Colaborh
 
       if (normalizedStatus !== 'Testes' && !hasTestInStage) {
         alert('A solicitação do teste de Temperamentos não está configurada para a etapa atual do candidato.');
+        return;
+      }
+
+      if (!validateAndDeductCredit()) {
         return;
       }
 
@@ -2552,6 +2602,25 @@ Equipe de Recrutamento & Seleção - Colaborh
 
   const handlePublish = async () => {
     if (isPublishing) return;
+
+    // Validar limites de vagas com base no plano da empresa
+    const activeJobsForCompany = jobs.filter(job => 
+      job.company_name === selectedCompany?.nomeFantasia && 
+      (job.status === 'active' || job.status === 'ativa' || !job.status)
+    ).length;
+
+    const plan = selectedCompany?.plan || 'starter';
+    let limit = 2;
+    if (plan === 'growth') limit = 8;
+    else if (plan === 'enterprise') limit = Infinity;
+
+    if (activeJobsForCompany >= limit) {
+      const errorMsg = `Limite de vagas ativas atingido para o plano ${plan.toUpperCase()} (${limit} vaga${limit > 1 ? 's' : ''}). Faça o upgrade na aba Faturamento para publicar mais vagas.`;
+      alert(errorMsg);
+      setActiveTab('Faturamento');
+      return;
+    }
+
     let currentStages = vacancyForm.stages;
 
     if (currentStages.length === 0) {
@@ -2783,7 +2852,9 @@ Equipe de Recrutamento & Seleção - Colaborh
         nomeFantasia: companyForm.nomeFantasia,
         solicitante: companyForm.solicitante,
         sector: companyForm.sector || 'Geral',
-        logo: companyForm.logo
+        logo: companyForm.logo,
+        plan: 'starter',
+        credits: 5
       };
 
       setCompanies([...companies, newCompany]);
@@ -2908,6 +2979,7 @@ Equipe de Recrutamento & Seleção - Colaborh
           <SidebarItem icon={Search} label="Banco de Talentos" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
           <SidebarItem icon={Building} label="Empresas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
           <SidebarItem icon={Award} label="Avaliações" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
+          <SidebarItem icon={CreditCard} label="Faturamento" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
         </nav>
 
         <div className="mt-auto space-y-3 pt-6 border-t border-white/10 w-full flex flex-col items-center">
@@ -4338,6 +4410,15 @@ Equipe de Recrutamento & Seleção - Colaborh
 
             {activeTab === 'Configurações' && (
               <SettingsTab />
+            )}
+
+            {activeTab === 'Faturamento' && (
+              <BillingTab 
+                company={selectedCompany} 
+                companies={companies}
+                setCompanies={setCompanies}
+                jobs={jobs}
+              />
             )}
 
           </AnimatePresence>
