@@ -52,7 +52,8 @@ import {
   ChevronUp,
   AlertTriangle,
   HelpCircle,
-  CreditCard
+  CreditCard,
+  Bookmark
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { perfisDISC, MBTI_PROFILES, MBTI_QUESTIONS, MbtiProfile, MbtiQuestion, TEMPERAMENTOS_PROFILES, TEMPERAMENTOS_QUESTIONS } from './CandidateDashboard';
@@ -121,6 +122,7 @@ interface Company {
   logo?: string;
   plan?: 'starter' | 'growth' | 'enterprise';
   credits?: number;
+  savedTalents?: string[];
 }
 
 interface SidebarItemProps {
@@ -2224,6 +2226,21 @@ Equipe de Recrutamento & Seleção - Colaborh
   };
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   const [jobSubTab, setJobSubTab] = useState<'active' | 'paused' | 'closed'>('active');
+  const [talentSubTab, setTalentSubTab] = useState<'all' | 'saved'>('all');
+  
+  const handleToggleSaveTalent = (talentId: string) => {
+    setCompanies(prev => prev.map(c => {
+      if (c.id === selectedCompanyId) {
+        const saved = c.savedTalents || [];
+        const updated = saved.includes(talentId)
+          ? saved.filter(id => id !== talentId)
+          : [...saved, talentId];
+        return { ...c, savedTalents: updated };
+      }
+      return c;
+    }));
+  };
+
   const [jobSearch, setJobSearch] = useState('');
   const [companyForm, setCompanyForm] = useState({
     razaoSocial: '',
@@ -2295,6 +2312,15 @@ Equipe de Recrutamento & Seleção - Colaborh
     if (t.role && (t.role.toLowerCase() === 'empresa' || t.role.toLowerCase() === 'company')) {
       return false;
     }
+
+    if (talentSubTab === 'saved') {
+      const selectedCompany = companies.find(c => c.id === selectedCompanyId);
+      const savedIds = selectedCompany?.savedTalents || [];
+      if (!savedIds.includes(t.id)) {
+        return false;
+      }
+    }
+
     const talentAge = t.age || calculateAge(t.birth_date) || 0;
     const matchesSearch = t.name.toLowerCase().includes(talentSearch.toLowerCase()) || 
                          t.role.toLowerCase().includes(talentSearch.toLowerCase()) ||
@@ -3283,12 +3309,73 @@ Equipe de Recrutamento & Seleção - Colaborh
             </div>
           )}
 
-          {/* Bottom row (AI search bar glued to the header for Talent Bank) */}
+          {/* Bottom row (AI search bar + subtabs glued to the header for Talent Bank) */}
           {activeTab === 'Banco de Talentos' && (
-            <div className="w-full pb-3 pt-1 flex justify-end">
+            <div className="flex -mx-6 bg-transparent px-6 relative justify-between items-center w-full flex-wrap sm:flex-nowrap gap-4">
+              <div className="flex relative">
+                {(() => {
+                  const selectedCompany = companies.find(c => c.id === selectedCompanyId);
+                  const savedCount = selectedCompany?.savedTalents?.length || 0;
+                  
+                  // Calcular total de talentos sem filtrar por salvos
+                  const allCount = talents.filter(t => {
+                    if (!t) return false;
+                    if (t.role && (t.role.toLowerCase() === 'empresa' || t.role.toLowerCase() === 'company')) {
+                      return false;
+                    }
+                    const talentAge = t.age || calculateAge(t.birth_date) || 0;
+                    const matchesSearch = t.name.toLowerCase().includes(talentSearch.toLowerCase()) || 
+                                         t.role.toLowerCase().includes(talentSearch.toLowerCase()) ||
+                                         (t.skills && Array.isArray(t.skills) && t.skills.some((s: string) => s && s.toLowerCase().includes(talentSearch.toLowerCase())));
+                    
+                    const matchesFilters = (!talentFilters.role || t.role.toLowerCase().includes(talentFilters.role.toLowerCase())) &&
+                                          (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge) &&
+                                          (!talentFilters.city || t.city.toLowerCase().includes(talentFilters.city.toLowerCase())) &&
+                                          (!talentFilters.state || t.state === talentFilters.state) &&
+                                          (!talentFilters.first_job || t.first_job === true) &&
+                                          (!talentFilters.education || t.education === talentFilters.education) &&
+                                          (!talentFilters.experience || t.experience === talentFilters.experience) &&
+                                          (!talentFilters.modality || t.modality === talentFilters.modality) &&
+                                          (!talentFilters.salary || t.salary.includes(talentFilters.salary));
+                    
+                    return matchesSearch && matchesFilters;
+                  }).length;
+
+                  const tabs = [
+                    { id: 'all', label: 'Todos os Talentos', count: allCount, icon: User },
+                    { id: 'saved', label: 'Salvos', count: savedCount, icon: Bookmark }
+                  ];
+                  const tabIndex = tabs.findIndex(t => t.id === talentSubTab);
+
+                  return (
+                    <>
+                      {tabs.map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setTalentSubTab(tab.id as any)}
+                          className={`flex items-center justify-center gap-2 w-44 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent ${
+                            talentSubTab === tab.id 
+                              ? 'text-slate-900 font-extrabold' 
+                              : 'text-slate-400 hover:text-slate-600'
+                          }`}
+                        >
+                          <tab.icon size={14} className={talentSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
+                          <span>{tab.label} ({tab.count})</span>
+                        </button>
+                      ))}
+                      <motion.div 
+                        animate={{ x: tabIndex * 176 }}
+                        className="absolute bottom-0 left-6 h-[2px] bg-[#533af6]"
+                        style={{ width: 176 }}
+                        transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+                      />
+                    </>
+                  );
+                })()}
+              </div>
 
               {/* Busca por IA integrada e alinhada à direita */}
-              <div className="w-full md:max-w-md shrink-0">
+              <div className="w-full md:max-w-md shrink-0 mb-2 sm:mb-1.5 mr-6">
                 <div className="bg-white p-1 rounded-full shadow-md border border-slate-100/60 flex items-stretch gap-1.5 w-full">
                   <div className="flex-1 relative flex items-center bg-slate-50/50 rounded-full px-3 py-1">
                     {isAiSearching ? (
@@ -3312,7 +3399,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                     {aiPrompt && !isAiSearching && (
                       <button 
                         onClick={() => setAiPrompt('')}
-                        className="p-1.5 text-slate-350 hover:text-slate-500 transition-colors"
+                        className="p-1.5 text-slate-350 hover:text-slate-550 transition-colors"
                       >
                         <CloseIcon size={12} />
                       </button>
@@ -3627,6 +3714,9 @@ Equipe de Recrutamento & Seleção - Colaborh
                 setIsFilterSidebarOpen={setIsFilterSidebarOpen}
                 filteredTalents={filteredTalents}
                 setSelectedResumeApplicant={setSelectedResumeApplicant}
+                selectedCompany={companies.find(c => c.id === selectedCompanyId)}
+                handleToggleSaveTalent={handleToggleSaveTalent}
+                talentSubTab={talentSubTab}
               />
             )}
 
