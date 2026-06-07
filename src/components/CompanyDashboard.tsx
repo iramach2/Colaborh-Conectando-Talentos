@@ -2964,7 +2964,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       </aside>
 
       {/* Main Container */}
-      <div className={`flex-1 min-h-screen flex flex-col ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10 min-w-0 max-w-full`}>
+      <div className={`flex-1 min-h-screen flex flex-col bg-[#f3f4f6] ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10 min-w-0 max-w-full`}>
         <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-[0_5px_15px_rgba(0,0,0,0.08)] px-6 pt-4 flex flex-col gap-4 transition-all duration-200 ${
           activeTab === 'Minhas Vagas' || activeTab === 'Banco de Talentos' ? 'pb-0' : 'pb-4'
         }`}>

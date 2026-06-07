@@ -3297,7 +3297,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       </aside>
 
       {/* Main Container */}
-      <div className={`flex-1 min-h-screen flex flex-col ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10`}>
+      <div className={`flex-1 min-h-screen flex flex-col bg-[#f3f4f6] ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10`}>
         {/* Novo Cabeçalho Premium - Estilo Barra Horizontal do Mockup */}
                 <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 transition-all duration-300 ${
           activeTab === 'Meu Currículo'
