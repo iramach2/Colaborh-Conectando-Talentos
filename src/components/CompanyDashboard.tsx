@@ -3285,16 +3285,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
           {/* Bottom row (AI search bar glued to the header for Talent Bank) */}
           {activeTab === 'Banco de Talentos' && (
-            <div className="w-full pb-3 pt-1 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="h-6 w-1 bg-[#533af6] rounded-full" />
-                <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase flex items-center gap-2">
-                  Banco de Talentos
-                  <span className="text-[9px] bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full lowercase tracking-normal font-bold">
-                    todos os candidatos
-                  </span>
-                </h3>
-              </div>
+            <div className="w-full pb-3 pt-1 flex justify-end">
 
               {/* Busca por IA integrada e alinhada à direita */}
               <div className="w-full md:max-w-md shrink-0">
