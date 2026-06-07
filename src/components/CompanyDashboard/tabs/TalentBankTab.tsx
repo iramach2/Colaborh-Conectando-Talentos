@@ -105,12 +105,12 @@ export const TalentBankTab = ({
         {filteredTalents.length > 0 ? (
           filteredTalents.map(talent => {
             const isSaved = selectedCompany?.savedTalents?.includes(talent.id) || false;
-            return (
+                        return (
               <motion.div 
                 key={talent.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-[2rem] border border-slate-100/70 hover:border-primary-100/50 shadow-sleek p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group text-left flex flex-col justify-between h-full"
+                className="bg-white rounded-[10px] border border-slate-100/70 hover:border-primary-100/50 shadow-sleek p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group text-left flex flex-col justify-between h-full"
               >
                 {/* Botão de Salvar (Favoritar) no canto superior direito */}
                 <button
@@ -122,21 +122,17 @@ export const TalentBankTab = ({
                   className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-300 active:scale-90 cursor-pointer shadow-sm z-10 ${
                     isSaved 
                       ? 'bg-primary-50 border-primary-200 text-[#533af6]' 
-                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-650'
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-655'
                   }`}
                   title={isSaved ? "Remover dos salvos" : "Salvar candidato"}
                 >
                   <Bookmark size={14} className={isSaved ? "fill-[#533af6]" : ""} />
                 </button>
 
-                <div className="absolute top-0 right-0 p-6 opacity-[0.02] group-hover:opacity-[0.08] group-hover:scale-110 text-primary-600 transition-all duration-500 pointer-events-none">
-                  <BrainCircuit size={80} />
-                </div>
-
                 <div>
                   {/* Cabeçalho do Candidato */}
                   <div className="flex items-start gap-3 mb-4 pr-6">
-                    <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative">
+                    <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative">
                       {talent.profile_pic ? (
                         <img src={talent.profile_pic} alt={talent.name} className="w-full h-full object-cover" />
                       ) : (
@@ -176,8 +172,8 @@ export const TalentBankTab = ({
                   {/* Resumo Profissional estilo chat bubble */}
                   {talent.summary ? (
                     <div className="bg-slate-50/30 p-3.5 rounded-2xl border border-slate-100/60 text-left relative mb-4">
-                      <h5 className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                        <BrainCircuit size={10} className="text-primary-500" /> Resumo Profissional
+                      <h5 className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1">
+                        Resumo Profissional
                       </h5>
                       <p className="text-[9.5px] font-medium text-slate-550 leading-relaxed italic text-justify line-clamp-2">
                         "{talent.summary}"
@@ -240,7 +236,7 @@ export const TalentBankTab = ({
                           }
                         });
                       }}
-                      className="flex-1 py-3 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all duration-200 cursor-pointer border-0 outline-none shadow-sm hover:shadow-[#533af6]/10"
+                      className="flex-1 py-3 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-200 cursor-pointer border-0 outline-none shadow-sm hover:shadow-[#533af6]/10"
                       title="Visualizar Informações"
                     >
                       Informações
@@ -253,7 +249,7 @@ export const TalentBankTab = ({
                           href={whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-11 h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl flex items-center justify-center transition-all duration-200 border border-emerald-600 shadow-sm cursor-pointer shrink-0 hover:shadow-emerald-100"
+                          className="w-11 h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center transition-all duration-200 border border-emerald-600 shadow-sm cursor-pointer shrink-0 hover:shadow-emerald-100"
                         >
                           <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
                             <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.371a9.994 9.994 0 0 0 4.779 1.205h.004c5.505 0 9.988-4.479 9.99-9.985a9.983 9.983 0 0 0-9.994-9.849zm4.987 14.111c-.273.767-1.345 1.4-1.887 1.49-.49.08-1.129.13-3.268-.744-2.734-1.12-4.5-3.88-4.637-4.06-.137-.18-1.109-1.47-1.109-2.81 0-1.34.702-1.99.953-2.25.25-.26.55-.33.733-.33h.523c.16 0 .373-.06.58.45.22.53.73 1.77.8 1.91.07.14.11.31.02.49-.09.18-.14.28-.27.44-.13.16-.28.36-.39.49-.13.13-.26.27-.11.53.15.26.66 1.09 1.42 1.76.98.87 1.8 1.14 2.06 1.27.26.13.41.11.56-.05.15-.17.65-.76.83-.98.18-.22.37-.18.62-.09s1.6.76 1.87.9.46.26.52.37c.07.11.07.65-.2 1.41z"/>

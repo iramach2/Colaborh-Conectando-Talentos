@@ -3360,7 +3360,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                           }`}
                         >
                           <tab.icon size={14} className={talentSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
-                          <span>{tab.label} ({tab.count})</span>
+                          <span>{tab.label}{tab.id === 'saved' ? ` (${tab.count})` : ''}</span>
                         </button>
                       ))}
                       <motion.div 
