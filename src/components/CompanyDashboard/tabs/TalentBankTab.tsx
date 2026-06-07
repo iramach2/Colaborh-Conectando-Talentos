@@ -263,7 +263,7 @@ export const TalentBankTab = ({
             );
           })
         ) : (
-          <div className="col-span-full py-32 bg-white rounded-[3rem] shadow-sleek border border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-10">
+          <div className="col-span-full py-32 bg-white rounded-[10px] shadow-sleek border border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-10">
              {talentSubTab === 'saved' ? (
                <>
                  <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 overflow-hidden relative border border-slate-100/50">

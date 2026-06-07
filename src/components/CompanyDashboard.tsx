@@ -3365,7 +3365,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                       ))}
                       <motion.div 
                         animate={{ x: tabIndex * 176 }}
-                        className="absolute bottom-0 left-6 h-[2px] bg-[#533af6]"
+                        className="absolute bottom-0 left-0 h-[2px] bg-[#533af6]"
                         style={{ width: 176 }}
                         transition={{ type: 'spring', stiffness: 120, damping: 22 }}
                       />
