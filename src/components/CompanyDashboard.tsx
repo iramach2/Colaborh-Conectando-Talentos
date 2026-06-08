@@ -2853,10 +2853,10 @@ Equipe de Recrutamento & Seleção - Colaborh
       return;
     }
 
-    if (selectedCompanyId !== 'new') {
+    if (editingCompanyId) {
       // Editar empresa existente
       const updatedCompanies = companies.map(c => {
-        if (c.id === selectedCompanyId) {
+        if (c.id === editingCompanyId) {
           return {
             ...c,
             razaoSocial: companyForm.razaoSocial,
@@ -2869,6 +2869,7 @@ Equipe de Recrutamento & Seleção - Colaborh
         return c;
       });
       setCompanies(updatedCompanies);
+      setIsRegisteringCompany(false);
       alert('Empresa atualizada com sucesso!');
     } else {
       // Criar nova empresa
@@ -2885,6 +2886,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
       setCompanies([...companies, newCompany]);
       setSelectedCompanyId(newCompany.id); // Auto-seleciona a nova empresa cadastrada
+      setIsRegisteringCompany(false);
       alert('Empresa cadastrada com sucesso!');
     }
   };
@@ -3185,6 +3187,22 @@ Equipe de Recrutamento & Seleção - Colaborh
                             {selectedCompanyId === comp.id && <Check size={12} className="text-primary-600" />}
                           </div>
                         ))}
+                    </div>
+
+                    <div className="border-t border-slate-100 mt-2 pt-2 px-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCompanyId('new');
+                          setCompanyForm({ razaoSocial: '', nomeFantasia: '', solicitante: '', sector: '', logo: '' });
+                          setIsRegisteringCompany(true);
+                          setActiveTab('Empresas');
+                          setIsCompanyDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center justify-center gap-2 py-2 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-xl text-[9.5px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-sm active:scale-95 border-0"
+                      >
+                        <Plus size={12} className="stroke-[2.5]" /> Cadastrar Empresa
+                      </button>
                     </div>
                   </div>
                 )}
@@ -3726,147 +3744,285 @@ Equipe de Recrutamento & Seleção - Colaborh
                 initial={{ opacity: 0, scale: 0.98 }} 
                 animate={{ opacity: 1, scale: 1 }} 
                 exit={{ opacity: 0, scale: 0.98 }}
-                className="max-w-3xl mx-auto space-y-6 text-left"
+                className="max-w-4xl mx-auto space-y-6 text-left font-sans"
               >
-                {/* Cabeçalho de informações da Empresa Selecionada ou Criação */}
-                <div className="bg-white p-6 rounded-[5px] border border-slate-100 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-[#533af6]/10 rounded-[5px] flex items-center justify-center text-[#533af6] shrink-0 overflow-hidden">
-                      {companyForm.logo ? (
-                        <img src={companyForm.logo} alt="Logo" className="w-full h-full object-cover" />
-                      ) : (
-                        <Building size={24} />
+                {selectedCompanyId === 'new' || isRegisteringCompany ? (
+                  <>
+                    {/* Cabeçalho de informações da Empresa Selecionada ou Criação */}
+                    <div className="bg-white p-6 rounded-[10px] border border-slate-100 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 bg-[#533af6]/10 rounded-full flex items-center justify-center text-[#533af6] shrink-0 overflow-hidden border border-[#533af6]/10">
+                          {companyForm.logo ? (
+                            <img src={companyForm.logo} alt="Logo" className="w-full h-full object-cover" />
+                          ) : (
+                            <Building size={24} />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-base font-black text-slate-900 tracking-tight leading-snug">
+                            {selectedCompanyId === 'new' ? 'Nova Empresa Parceira' : companyForm.nomeFantasia || 'Empresa Parceira'}
+                          </h3>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                            {selectedCompanyId === 'new' ? 'Cadastre uma nova conta de recrutamento no sistema' : 'Editar dados cadastrais e configurações'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {selectedCompanyId !== 'new' && selectedCompanyId !== '1' && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            handleDeleteCompany(selectedCompanyId, e);
+                            setIsRegisteringCompany(false);
+                          }}
+                          className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full font-black text-[9.5px] uppercase tracking-wider flex items-center gap-1.5 transition-all border border-red-200/40 cursor-pointer active:scale-95 shrink-0"
+                        >
+                          <Trash2 size={12} /> Excluir Empresa
+                        </button>
                       )}
                     </div>
-                    <div>
-                      <h3 className="text-base font-black text-slate-900 tracking-tight leading-snug">
-                        {selectedCompanyId === 'new' ? 'Nova Empresa Parceira' : companyForm.nomeFantasia || 'Empresa Parceira'}
-                      </h3>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
-                        {selectedCompanyId === 'new' ? 'Cadastre uma nova conta de recrutamento no sistema' : 'Editar dados cadastrais e configurações'}
-                      </p>
-                    </div>
-                  </div>
 
-                  {selectedCompanyId !== 'new' && selectedCompanyId !== '1' && (
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeleteCompany(selectedCompanyId, e)}
-                      className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-[5px] font-black text-[9.5px] uppercase tracking-wider flex items-center gap-1.5 transition-all border border-red-200/40 cursor-pointer active:scale-95 shrink-0"
-                    >
-                      <Trash2 size={12} /> Excluir Empresa
-                    </button>
-                  )}
-                </div>
+                    {/* Formulário integrado */}
+                    <div className="bg-white p-8 rounded-[10px] border border-slate-100 shadow-sm space-y-6">
+                      {/* Logo Upload */}
+                      <div className="flex items-center gap-5 bg-slate-50 p-5 rounded-[10px] border border-dashed border-slate-200/80 text-left">
+                        <div className="w-16 h-16 rounded-[10px] bg-white border border-slate-200 overflow-hidden flex items-center justify-center text-slate-450 relative shrink-0">
+                          {companyForm.logo ? (
+                            <img src={companyForm.logo} alt="Preview Logo" className="w-full h-full object-cover" />
+                          ) : (
+                            <Upload size={20} />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <label className="text-[10px] font-black text-slate-800 uppercase tracking-wider block mb-1">Logotipo corporativo</label>
+                          <p className="text-[9px] font-semibold text-slate-450 mb-2 leading-tight">Escolha uma imagem para personalizar os relatórios e vagas da empresa.</p>
+                          <div className="flex gap-2">
+                            <label className="px-3.5 py-1.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-extrabold text-[9px] uppercase tracking-widest rounded-full transition-all cursor-pointer inline-block active:scale-95 shadow-sm shadow-[#533af6]/10 border-0">
+                              Escolher Arquivo
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={handleLogoChange}
+                                className="hidden" 
+                              />
+                            </label>
+                            {companyForm.logo && (
+                              <button
+                                type="button"
+                                onClick={() => setCompanyForm(prev => ({ ...prev, logo: '' }))}
+                                className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-red-50 hover:text-red-500 hover:border-red-100 font-extrabold text-[9px] uppercase tracking-widest rounded-full transition-all cursor-pointer border-0"
+                              >
+                                Remover
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
 
-                {/* Formulário integrado */}
-                <div className="bg-white p-8 rounded-[5px] border border-slate-100 shadow-sm space-y-6">
-                  {/* Logo Upload */}
-                  <div className="flex items-center gap-5 bg-slate-50 p-5 rounded-[5px] border border-dashed border-slate-200/80">
-                    <div className="w-16 h-16 rounded-[5px] bg-white border border-slate-200 overflow-hidden flex items-center justify-center text-slate-450 relative shrink-0">
-                      {companyForm.logo ? (
-                        <img src={companyForm.logo} alt="Preview Logo" className="w-full h-full object-cover" />
-                      ) : (
-                        <Upload size={20} />
-                      )}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <label className="text-[10px] font-black text-slate-800 uppercase tracking-wider block mb-1">Logotipo corporativo</label>
-                      <p className="text-[9px] font-semibold text-slate-450 mb-2 leading-tight">Escolha uma imagem para personalizar os relatórios e vagas da empresa.</p>
-                      <div className="flex gap-2">
-                        <label className="px-3.5 py-1.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-extrabold text-[9px] uppercase tracking-widest rounded-[5px] transition-all cursor-pointer inline-block active:scale-95 shadow-sm shadow-[#533af6]/10 border-0">
-                          Escolher Arquivo
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 block pl-2">Razão Social</label>
                           <input 
-                            type="file" 
-                            accept="image/*" 
-                            onChange={handleLogoChange}
-                            className="hidden" 
+                            type="text" 
+                            value={companyForm.razaoSocial}
+                            onChange={(e) => setCompanyForm({...companyForm, razaoSocial: e.target.value})}
+                            placeholder="Ex: Empresa de Servicos LTDA" 
+                            className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/10 transition-all font-bold text-slate-700 text-xs" 
                           />
-                        </label>
-                        {companyForm.logo && (
-                          <button
-                            type="button"
-                            onClick={() => setCompanyForm(prev => ({ ...prev, logo: '' }))}
-                            className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-red-50 hover:text-red-500 hover:border-red-100 font-extrabold text-[9px] uppercase tracking-widest rounded-[5px] transition-all cursor-pointer"
-                          >
-                            Remover
-                          </button>
-                        )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 block pl-2">Nome Fantasia</label>
+                          <input 
+                            type="text" 
+                            value={companyForm.nomeFantasia}
+                            onChange={(e) => setCompanyForm({...companyForm, nomeFantasia: e.target.value})}
+                            placeholder="Ex: Minha Empresa" 
+                            className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/10 transition-all font-bold text-slate-700 text-xs" 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 block pl-2">Solicitante / Responsável</label>
+                          <input 
+                            type="text" 
+                            value={companyForm.solicitante}
+                            onChange={(e) => setCompanyForm({...companyForm, solicitante: e.target.value})}
+                            placeholder="Nome do Responsável" 
+                            className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/10 transition-all font-bold text-slate-700 text-xs" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 block pl-2">Setor / Ramo de Atuação</label>
+                          <input 
+                            type="text" 
+                            value={companyForm.sector}
+                            onChange={(e) => setCompanyForm({...companyForm, sector: e.target.value})}
+                            placeholder="Ex: Tecnologia" 
+                            className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/10 transition-all font-bold text-slate-700 text-xs" 
+                          />
+                        </div>
+                      </div>
+
+                      {/* Ações Finais do Formulário */}
+                      <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            if (selectedCompanyId === 'new') {
+                              if (companies.length > 0) {
+                                setSelectedCompanyId(companies[0].id);
+                              }
+                            }
+                            setIsRegisteringCompany(false);
+                          }}
+                          className="px-6 py-3 bg-slate-50 text-slate-500 font-extrabold text-[10px] uppercase tracking-widest rounded-full hover:bg-slate-100 transition-all border border-slate-200/50 cursor-pointer border-0"
+                        >
+                          Cancelar
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={handleRegisterCompany}
+                          className="px-8 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-xl shadow-[#533af6]/10 hover:-translate-y-0.5 transition-all border-0 cursor-pointer"
+                        >
+                          {selectedCompanyId === 'new' ? 'Salvar Empresa' : 'Salvar Alterações'}
+                        </button>
                       </div>
                     </div>
-                  </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Cabeçalho da Lista de Empresas */}
+                    <div className="bg-white p-6 rounded-[10px] border border-slate-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-base font-black text-slate-900 tracking-tight leading-snug">
+                          Gestão de Empresas Parceiras
+                        </h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                          Visualize, selecione e cadastre contas de recrutamento no sistema
+                        </p>
+                      </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                      <label className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 block pl-2">Razão Social</label>
-                      <input 
-                        type="text" 
-                        value={companyForm.razaoSocial}
-                        onChange={(e) => setCompanyForm({...companyForm, razaoSocial: e.target.value})}
-                        placeholder="Ex: Empresa de Servicos LTDA" 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/10 transition-all font-bold text-slate-700 text-xs" 
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 block pl-2">Nome Fantasia</label>
-                      <input 
-                        type="text" 
-                        value={companyForm.nomeFantasia}
-                        onChange={(e) => setCompanyForm({...companyForm, nomeFantasia: e.target.value})}
-                        placeholder="Ex: Minha Empresa" 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/10 transition-all font-bold text-slate-700 text-xs" 
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                      <label className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 block pl-2">Solicitante / Responsável</label>
-                      <input 
-                        type="text" 
-                        value={companyForm.solicitante}
-                        onChange={(e) => setCompanyForm({...companyForm, solicitante: e.target.value})}
-                        placeholder="Nome do Responsável" 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/10 transition-all font-bold text-slate-700 text-xs" 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 block pl-2">Setor / Ramo de Atuação</label>
-                      <input 
-                        type="text" 
-                        value={companyForm.sector}
-                        onChange={(e) => setCompanyForm({...companyForm, sector: e.target.value})}
-                        placeholder="Ex: Tecnologia" 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[5px] outline-none focus:bg-white focus:border-[#533af6] focus:ring-4 focus:ring-[#533af6]/10 transition-all font-bold text-slate-700 text-xs" 
-                      />
-                    </div>
-                  </div>
-
-                  {/* Ações Finais do Formulário */}
-                  <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                    {selectedCompanyId === 'new' && (
-                      <button 
+                      <button
                         type="button"
                         onClick={() => {
-                          if (companies.length > 0) {
-                            setSelectedCompanyId(companies[0].id);
-                          }
+                          setSelectedCompanyId('new');
+                          setCompanyForm({ razaoSocial: '', nomeFantasia: '', solicitante: '', sector: '', logo: '' });
+                          setIsRegisteringCompany(true);
                         }}
-                        className="px-6 py-3 bg-slate-50 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-[5px] hover:bg-slate-100 transition-all border border-slate-200/50 cursor-pointer"
+                        className="px-5 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full font-black text-[9px] uppercase tracking-widest flex items-center gap-1.5 transition-all border-0 cursor-pointer shadow-md shadow-[#533af6]/10 active:scale-95 shrink-0"
                       >
-                        Cancelar
+                        <Plus size={13} className="stroke-[2.5]" /> Cadastrar Empresa
                       </button>
-                    )}
-                    <button 
-                      type="button"
-                      onClick={handleRegisterCompany}
-                      className="px-8 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white font-black text-[10px] uppercase tracking-widest rounded-[5px] shadow-xl shadow-[#533af6]/10 hover:-translate-y-0.5 transition-all border-0 cursor-pointer"
-                    >
-                      {selectedCompanyId === 'new' ? 'Salvar Empresa' : 'Salvar Alterações'}
-                    </button>
-                  </div>
-                </div>
+                    </div>
+
+                    {/* Lista de Empresas Cadastradas */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {companies.map((comp) => {
+                        const isActive = selectedCompanyId === comp.id;
+                        return (
+                          <div 
+                            key={comp.id}
+                            className={`bg-white p-6 rounded-[10px] border shadow-sleek transition-all flex flex-col justify-between h-full relative group ${
+                              isActive ? 'border-[#533af6]/40 ring-2 ring-[#533af6]/5' : 'border-slate-100 hover:border-slate-200'
+                            }`}
+                          >
+                            <div>
+                              {/* Topo do Card da Empresa */}
+                              <div className="flex items-start gap-4 mb-4">
+                                <div className="w-14 h-14 bg-[#533af6]/5 border border-slate-100 rounded-full flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative">
+                                  {comp.logo ? (
+                                    <img src={comp.logo} alt={comp.nomeFantasia} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <Building size={24} className="text-slate-400" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0 text-left">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight truncate leading-tight">{comp.nomeFantasia}</h4>
+                                    {isActive && (
+                                      <span className="px-1.5 py-0.5 bg-primary-50 text-[#533af6] border border-primary-100 rounded-full text-[7px] font-black uppercase tracking-widest shrink-0 select-none">
+                                        Ativa
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider truncate mt-0.5">{comp.razaoSocial}</p>
+                                  
+                                  {/* Badges de Plano e Créditos */}
+                                  <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                                    <span className={`px-2 py-0.5 rounded-full text-[7.5px] font-black uppercase tracking-wider ${
+                                      comp.plan === 'enterprise' 
+                                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white'
+                                        : comp.plan === 'growth'
+                                        ? 'bg-[#533af6] text-white'
+                                        : 'bg-slate-100 text-slate-600 border border-slate-200/50'
+                                    }`}>
+                                      {comp.plan || 'Starter'}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full text-[7.5px] font-black text-[#533af6] bg-[#533af6]/5 border border-[#533af6]/10">
+                                      {comp.credits !== undefined ? comp.credits : 5} Créditos
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Infos secundárias do Card */}
+                              <div className="bg-slate-50/50 p-3 rounded-[10px] border border-slate-100/50 text-left space-y-1.5 mb-4">
+                                <p className="text-[9px] font-bold text-slate-550 flex items-center gap-1.5">
+                                  <User size={11} className="text-slate-400 shrink-0" />
+                                  <span>Responsável: <strong className="text-slate-700 font-extrabold uppercase">{comp.solicitante}</strong></span>
+                                </p>
+                                <p className="text-[9px] font-bold text-slate-550 flex items-center gap-1.5">
+                                  <Building size={11} className="text-slate-400 shrink-0" />
+                                  <span>Atuação: <strong className="text-slate-700 font-extrabold uppercase">{comp.sector || 'Geral'}</strong></span>
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Rodapé e Ações do Card */}
+                            <div className="pt-4 border-t border-slate-50 flex gap-2">
+                              {!isActive ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedCompanyId(comp.id)}
+                                  className="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-200 cursor-pointer border-0"
+                                >
+                                  Selecionar
+                                </button>
+                              ) : (
+                                <div className="flex-1 py-2.5 bg-[#533af6]/5 border border-[#533af6]/10 text-[#533af6] rounded-full text-[9px] font-black uppercase tracking-widest text-center select-none flex items-center justify-center gap-1">
+                                  <Check size={11} className="stroke-[2.5]" /> Ativa
+                                </div>
+                              )}
+                              
+                              <button
+                                type="button"
+                                onClick={(e) => handleEditCompany(comp, e)}
+                                className="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-650 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border border-slate-200/50 cursor-pointer"
+                                title="Editar configurações"
+                              >
+                                Editar
+                              </button>
+
+                              {comp.id !== '1' && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDeleteCompany(comp.id, e)}
+                                  className="p-2.5 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-full transition-all border border-slate-200/50 cursor-pointer"
+                                  title="Excluir empresa"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </motion.div>
             )}
             {activeTab === 'Avaliações' && (
