@@ -3414,7 +3414,18 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-12 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 items-start pb-12">
+            <>
+              {/* Título da Página */}
+              <div className="mb-8 text-left">
+                <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                  Meu Currículo
+                </h1>
+                <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest mt-1">
+                  Gerencie suas informações profissionais e visualize seu currículo final em tempo real
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 items-start pb-12">
               {/* Coluna Esquerda: Edição com Abas Horizontais - 60% do espaço (lg:col-span-6) */}
               <div className="lg:col-span-6 flex flex-col gap-0">
                 {/* Barra Horizontal de Abas */}
@@ -3993,6 +4004,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
               </div>
             </div>
+          </>
           ) : activeTab === 'Configurações' ? (
 
             <motion.div 
