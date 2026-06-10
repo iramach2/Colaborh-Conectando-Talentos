@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 html {
@@ -30,8 +30,8 @@ body {
 
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Inter", sans-serif;
+  --font-sans: "Outfit", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
   
   --color-primary-50: #f5f3ff;
   --color-primary-100: #ede9fe;
@@ -127,4 +127,87 @@ body {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Títulos com peso de negrito (600) */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600 !important;
+}
+
+/* Cards do painel do candidato arredondados para 20px */
+section.bg-white,
+aside.bg-white,
+div.bg-white.shadow-sleek,
+div.bg-white.shadow-sm,
+div.bg-white.border.border-slate-100,
+div.bg-white.rounded-\[10px\],
+div.bg-white.shadow-2xl {
+  border-radius: 20px !important;
+}
+
+/* Responsividade do Zoom no Preview de Currículo */
+.resume-preview-container {
+  --zoom-preview: 0.52;
+}
+@media (max-width: 1400px) {
+  .resume-preview-container {
+    --zoom-preview: 0.46;
+  }
+}
+@media (max-width: 1200px) {
+  .resume-preview-container {
+    --zoom-preview: 0.41;
+  }
+}
+@media (max-width: 1024px) {
+  .resume-preview-container {
+    --zoom-preview: 0.75;
+  }
+}
+@media (max-width: 640px) {
+  .resume-preview-container {
+    --zoom-preview: 0.42;
+  }
+}
+
+.resume-preview-container > div {
+  zoom: var(--zoom-preview);
+}
+
+/* Efeito Aba Fusão (Orelha Integrada com Curvas Invertidas) */
+.active-tab-ear {
+  position: relative;
+  margin-bottom: -1px !important;
+}
+
+.active-tab-ear::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -20px;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border-bottom-right-radius: 20px;
+  box-shadow: 10px 10px 0 0 white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-right: 1px solid rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.active-tab-ear::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: -20px;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border-bottom-left-radius: 20px;
+  box-shadow: -10px 10px 0 0 white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  z-index: 10;
 }

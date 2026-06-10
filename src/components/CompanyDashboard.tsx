@@ -322,7 +322,7 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
 
   const handleEditCustomTemplate = (template: any) => {
     setEditingTemplateId(template.id);
-    setIsCreatingNewTemplate(false);
+    setIsCreatingNewTemplate(true);
     setCustomTestTitle(template.title);
     setCustomQuestions(template.questions || []);
   };
@@ -2986,7 +2986,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       }`}>
         <div className={`mb-10 flex ${isSidebarExpanded ? 'lg:flex-row justify-between lg:justify-start lg:gap-4' : 'lg:flex-col justify-between lg:justify-center lg:gap-4'} items-center w-full gap-4`}>
           {/* Logo completa no mobile e no desktop expandido */}
-          <img src="/logo.png" alt="Colaborh" className={`h-10 w-auto ${isSidebarExpanded ? '' : 'lg:hidden'}`} />
+          <img src="/logo-original.png" alt="Colaborh" className={`h-10 w-auto ${isSidebarExpanded ? '' : 'lg:hidden'}`} />
           
           {/* Símbolo minimalista no desktop recolhido */}
           <div className={`hidden ${isSidebarExpanded ? 'lg:hidden' : 'lg:flex'} justify-center items-center w-full`}>
@@ -3066,7 +3066,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       {/* Main Container */}
       <div className={`flex-1 min-h-screen flex flex-col bg-[#f3f4f6] ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10 min-w-0 max-w-full`}>
         <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-[0_5px_15px_rgba(0,0,0,0.08)] px-6 pt-4 flex flex-col gap-4 transition-all duration-200 ${
-          activeTab === 'Minhas Vagas' || activeTab === 'Banco de Talentos' ? 'pb-0' : 'pb-4'
+          activeTab === 'Minhas Vagas' || activeTab === 'Banco de Talentos' || activeTab === 'Avaliações' ? 'pb-0' : 'pb-4'
         }`}>
           {/* Top row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
@@ -3434,6 +3434,77 @@ Equipe de Recrutamento & Seleção - Colaborh
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'Avaliações' && (
+            <div className="flex -mx-6 bg-transparent px-6 relative justify-between items-center w-full">
+              <div className="flex relative">
+                {(() => {
+                  const candidatesWithTestsCount = companyApplications.map(app => {
+                    const phoneStr = app.candidate_phone || '';
+                    const parsedData = parseCandidatePhoneData(phoneStr);
+                    let discStatus = parsedData.disc ? (parsedData.disc.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.disc === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
+                    let mbtiStatus = parsedData.mbti ? (parsedData.mbti.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.mbti === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
+                    let questionsStatus = parsedData.questions ? (parsedData.questions.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.questions === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
+                    let temperamentosStatus = parsedData.temperamentos ? (parsedData.temperamentos.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.temperamentos === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
+                    let customTestStatus = parsedData.customTest ? (parsedData.customTest.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.customTest === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
+                    return {
+                      discStatus,
+                      mbtiStatus,
+                      questionsStatus,
+                      temperamentosStatus,
+                      customTestStatus
+                    };
+                  }).filter(c => 
+                    c.discStatus !== 'NONE' || 
+                    c.mbtiStatus !== 'NONE' || 
+                    c.questionsStatus !== 'NONE' || 
+                    c.temperamentosStatus !== 'NONE' ||
+                    c.customTestStatus !== 'NONE'
+                  ).length;
+
+                  const tabs = [
+                    { id: 'relatorios', label: 'Relatórios de Candidatos', count: candidatesWithTestsCount, icon: FileText },
+                    { id: 'criar', label: 'Biblioteca de Testes', count: customTemplates.length, icon: Bookmark },
+                    { id: 'guia', label: 'Guia de Testes', count: 4, icon: Award }
+                  ];
+                  const tabIndex = tabs.findIndex(t => t.id === resultsSubTab);
+
+                  return (
+                    <>
+                      {tabs.map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setResultsSubTab(tab.id as any)}
+                          className={`flex items-center justify-center gap-2 w-52 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent ${
+                            resultsSubTab === tab.id 
+                              ? 'text-slate-900 font-extrabold' 
+                              : 'text-slate-400 hover:text-slate-600'
+                          }`}
+                        >
+                          <tab.icon size={14} className={resultsSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
+                          <span>{tab.label} ({tab.count})</span>
+                        </button>
+                      ))}
+                      <motion.div 
+                        animate={{ x: tabIndex * 208 }}
+                        className="absolute bottom-0 left-0 h-[2px] bg-[#533af6]"
+                        style={{ width: 208 }}
+                        transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+                      />
+                    </>
+                  );
+                })()}
+              </div>
+
+              <button 
+                type="button"
+                onClick={handleStartNewTemplate}
+                className="flex items-center gap-2 px-5 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95 border-0 cursor-pointer shrink-0 mr-6 mb-2.5 sm:mb-1.5"
+              >
+                <Plus size={13} className="stroke-[2.5]" /> Criar Questionário
+              </button>
             </div>
           )}
 
@@ -3881,50 +3952,10 @@ Equipe de Recrutamento & Seleção - Colaborh
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="space-y-6 text-left"
+                className="space-y-6 text-left w-full font-sans"
               >
-                {/* Menu de Sub-abas */}
-                <div className="flex border-b border-slate-100 bg-slate-50/50 p-1.5 rounded-2xl gap-2 overflow-x-auto no-scrollbar mb-6 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setResultsSubTab('relatorios')}
-                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex-1 text-center cursor-pointer ${
-                      resultsSubTab === 'relatorios'
-                        ? 'bg-white text-slate-900 shadow-md border border-slate-100/50'
-                        : 'text-slate-400 hover:text-slate-700'
-                    }`}
-                    style={resultsSubTab === 'relatorios' ? { borderLeft: '3px solid #533af6' } : {}}
-                  >
-                    Relatórios de Candidatos
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setResultsSubTab('guia')}
-                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex-1 text-center cursor-pointer ${
-                      resultsSubTab === 'guia'
-                        ? 'bg-white text-slate-900 shadow-md border border-slate-100/50'
-                        : 'text-slate-400 hover:text-slate-700'
-                    }`}
-                    style={resultsSubTab === 'guia' ? { borderLeft: '3px solid #533af6' } : {}}
-                  >
-                    Guia de Testes
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setResultsSubTab('criar')}
-                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex-1 text-center cursor-pointer ${
-                      resultsSubTab === 'criar'
-                        ? 'bg-white text-slate-900 shadow-md border border-slate-100/50'
-                        : 'text-slate-400 hover:text-slate-700'
-                    }`}
-                    style={resultsSubTab === 'criar' ? { borderLeft: '3px solid #533af6' } : {}}
-                  >
-                    Criar Questionário Customizado
-                  </button>
-                </div>
-
                 {isFetchingCompanyApps ? (
-                  <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] shadow-sleek">
+                  <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[10px] border border-slate-100 shadow-sleek">
                     <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-6">
                       <Loader2 size={32} className="text-primary-600 animate-spin" />
                     </div>
@@ -4025,13 +4056,13 @@ Equipe de Recrutamento & Seleção - Colaborh
 
                     if (candidatesWithTests.length === 0) {
                       return (
-                        <div className="bg-white p-16 rounded-[3rem] text-center border border-dashed border-slate-200 max-w-xl mx-auto shadow-sm">
+                        <div className="bg-white p-16 rounded-[10px] text-center border border-dashed border-slate-200 max-w-xl mx-auto shadow-sleek">
                           <Award className="mx-auto text-slate-300 mb-6" size={44} />
                           <h3 className="text-lg font-black text-slate-900 mb-2">Nenhum Teste Iniciado</h3>
                           <p className="text-slate-500 font-medium text-xs leading-relaxed mb-6">
                             Nenhum candidato desta empresa possui solicitações ou respostas de testes no momento.
                           </p>
-                          <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-left text-xs font-semibold text-slate-500">
+                          <div className="p-4 bg-slate-50 border border-slate-100 rounded-[10px] text-left text-xs font-semibold text-slate-550">
                             <p className="font-bold text-slate-700 uppercase text-[9px] tracking-wider mb-1.5 font-sans">Como solicitar?</p>
                             Acesse o painel <strong>Minhas Vagas</strong>, clique em <strong>Ver Candidatos (Kanban)</strong> em alguma vaga, mova o candidato para a etapa de <strong>Testes</strong> e solicite o teste correspondente.
                           </div>
@@ -4040,7 +4071,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                     }
 
                     return (
-                      <div className="bg-white p-8 rounded-[3rem] shadow-sleek border border-white space-y-6">
+                      <div className="bg-white p-6 rounded-[10px] shadow-sleek border border-slate-100 space-y-6">
                         <div className="overflow-x-auto">
                           <table className="w-full text-left border-collapse min-w-[900px]">
                             <thead>
@@ -4062,7 +4093,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                   }
                                   if (status === 'PENDING') {
                                     return (
-                                      <span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                                      <span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded-full text-[9px] font-black uppercase tracking-wider">
                                         Pendente
                                       </span>
                                     );
@@ -4071,7 +4102,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                     <button
                                       type="button"
                                       onClick={onViewClick}
-                                      className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 hover:border-indigo-200 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1 mx-auto shadow-xs active:scale-95 cursor-pointer"
+                                      className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 hover:border-indigo-200 rounded-full text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1 mx-auto shadow-xs active:scale-95 cursor-pointer"
                                       style={{ backgroundColor: 'rgba(83, 58, 246, 0.05)', color: '#533af6', borderColor: 'rgba(83, 58, 246, 0.1)' }}
                                     >
                                       <Eye size={10} /> Ver
@@ -4083,7 +4114,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                   <tr key={app.id} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="py-4">
                                       <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-slate-100 text-slate-400 border border-slate-100 rounded-xl overflow-hidden flex items-center justify-center shadow-sm shrink-0">
+                                        <div className="w-10 h-10 bg-slate-100 text-slate-400 border border-slate-100 rounded-full overflow-hidden flex items-center justify-center shadow-sm shrink-0">
                                           {app.profile_pic ? (
                                             <img src={app.profile_pic} alt={app.candidate_name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                           ) : (
@@ -4204,12 +4235,12 @@ Equipe de Recrutamento & Seleção - Colaborh
                           return (
                             <div 
                               key={idx}
-                              className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sleek hover:border-[#533af6]/30 transition-all flex flex-col justify-between"
+                              className="bg-white p-8 rounded-[10px] border border-slate-100 shadow-sleek hover:border-[#533af6]/30 transition-all flex flex-col justify-between"
                             >
                               <div>
                                 <div className="flex justify-between items-start mb-6">
                                   <div 
-                                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-sm"
+                                    className="w-12 h-12 rounded-[10px] flex items-center justify-center text-white shadow-sm"
                                     style={{ backgroundColor: guide.colorVal }}
                                   >
                                     <GuideIcon size={22} />
@@ -4227,7 +4258,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                   {guide.desc}
                                 </p>
                                 
-                                <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-left text-xs font-semibold text-slate-600 mb-4 leading-relaxed">
+                                <div className="p-4 bg-slate-50 border border-slate-100 rounded-[10px] text-left text-xs font-semibold text-slate-600 mb-4 leading-relaxed">
                                   <strong className="text-slate-800">Objetivo e Foco:</strong> {guide.target}
                                 </div>
                               </div>
@@ -4243,251 +4274,77 @@ Equipe de Recrutamento & Seleção - Colaborh
                     );
                   }
 
-                  // --- SUB-ABA 3: CRIAR QUESTIONÁRIO CUSTOMIZADO ---
                   if (resultsSubTab === 'criar') {
-                    if (!isCreatingNewTemplate && !editingTemplateId) {
-                      // MODO LISTA DE TEMPLATES
-                      return (
-                        <div className="bg-white p-8 sm:p-10 rounded-[3rem] shadow-sleek border border-white space-y-8 text-left">
-                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div>
-                              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Biblioteca de Avaliações Customizadas</h3>
-                              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Crie e gerencie questionários independentes para enviar aos candidatos na etapa de testes</p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={handleStartNewTemplate}
-                              className="px-5 py-3 bg-[#533af6] hover:bg-[#432ec4] text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-lg shadow-[#533af6]/20 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0 outline-none"
-                            >
-                              <PlusCircle size={14} />
-                              Criar Questionário
-                            </button>
-                          </div>
-
-                          {customTemplates.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200 text-center">
-                              <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4">
-                                <FileText size={24} />
-                              </div>
-                              <p className="text-xs font-black text-slate-600 uppercase tracking-widest">Nenhum Questionário Cadastrado</p>
-                              <p className="text-[10px] text-slate-400 mt-1.5 max-w-sm leading-relaxed">
-                                Você ainda não possui questionários customizados na sua biblioteca. Clique no botão acima para criar o seu primeiro questionário independente de vaga.
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              {customTemplates.map(template => (
-                                <div key={template.id} className="bg-slate-55/50 hover:bg-slate-50 p-6 rounded-3xl border border-slate-200/60 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-all text-left">
-                                  <div className="space-y-3">
-                                    <div className="flex justify-between items-start gap-2">
-                                      <h4 className="text-sm font-extrabold text-slate-900 line-clamp-2">{template.title}</h4>
-                                      <span className="px-2 py-0.5 bg-primary-50 text-primary-700 border border-primary-100/50 rounded-md text-[8px] font-black uppercase tracking-wider shrink-0">
-                                        Customizado
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-4 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                                      <span className="flex items-center gap-1">
-                                        <MessageSquare size={10} />
-                                        {template.questions?.length || 0} Perguntas
-                                      </span>
-                                      <span>
-                                        Criado em {new Date(template.createdAt).toLocaleDateString('pt-BR')}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex gap-2.5 mt-6 pt-4 border-t border-slate-200/50">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleEditCustomTemplate(template)}
-                                      className="flex-1 py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border border-slate-200 cursor-pointer outline-none"
-                                    >
-                                      Editar
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDeleteCustomTemplate(template.id)}
-                                      className="py-2 px-3 bg-white hover:bg-red-50 text-red-500 hover:border-red-200 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border border-slate-200 cursor-pointer outline-none"
-                                      title="Excluir questionário"
-                                    >
-                                      <Trash2 size={12} />
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-
-                    // MODO FORMULÁRIO DE CRIAÇÃO / EDIÇÃO
                     return (
-                      <div className="bg-white p-8 sm:p-10 rounded-[3rem] shadow-sleek border border-white space-y-8 text-left">
-                        <div className="flex items-center gap-3">
+                      <div className="bg-white p-8 sm:p-10 rounded-[10px] shadow-sleek border border-slate-100 space-y-8 text-left">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div>
+                            <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Biblioteca de Avaliações Customizadas</h3>
+                            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Crie e gerencie questionários independentes para enviar aos candidatos na etapa de testes</p>
+                          </div>
                           <button
                             type="button"
-                            onClick={handleCancelTemplateEdit}
-                            className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-900 rounded-xl transition-all cursor-pointer border-0 outline-none"
+                            onClick={handleStartNewTemplate}
+                            className="px-5 py-3 bg-[#533af6] hover:bg-[#432ec4] text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-lg shadow-[#533af6]/20 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0 outline-none"
                           >
-                            <ChevronLeft size={16} />
+                            <PlusCircle size={14} />
+                            Criar Questionário
                           </button>
-                          <div>
-                            <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">
-                              {editingTemplateId ? 'Editar Questionário' : 'Novo Questionário Customizado'}
-                            </h3>
-                            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Cadastre perguntas abertas ou de múltipla escolha para a biblioteca</p>
-                          </div>
                         </div>
 
-                        {/* Título do Questionário */}
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block pl-1">Nome do Questionário</label>
-                          <input
-                            type="text"
-                            value={customTestTitle}
-                            onChange={(e) => setCustomTestTitle(e.target.value)}
-                            placeholder="Ex: Questionário Técnico React / Fit Cultural"
-                            className="w-full max-w-xl px-5 py-4 bg-slate-50 border border-slate-200/60 focus:border-[#533af6]/30 focus:bg-white rounded-2xl text-xs font-bold text-slate-800 transition-all outline-none"
-                          />
-                        </div>
-
-                        <div className="space-y-6 pt-4 border-t border-slate-100">
-                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest">Estrutura das Perguntas ({customQuestions.length})</h4>
-                            
-                            <div className="flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() => addCustomQuestion('text')}
-                                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border-0 outline-none"
-                              >
-                                <MessageSquare size={12} />
-                                + Pergunta Aberta
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => addCustomQuestion('choice')}
-                                className="px-4 py-2 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border-0 outline-none"
-                              >
-                                <PlusCircle size={12} />
-                                + Múltipla Escolha
-                              </button>
+                        {customTemplates.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-[10px] border border-dashed border-slate-200 text-center">
+                            <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4">
+                              <FileText size={24} />
                             </div>
+                            <p className="text-xs font-black text-slate-600 uppercase tracking-widest">Nenhum Questionário Cadastrado</p>
+                            <p className="text-[10px] text-slate-400 mt-1.5 max-w-sm leading-relaxed">
+                              Você ainda não possui questionários customizados na sua biblioteca. Clique no botão acima para criar o seu primeiro questionário independente de vaga.
+                            </p>
                           </div>
-
-                          {customQuestions.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200 text-center">
-                              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-3">
-                                <FileText size={20} />
-                              </div>
-                              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nenhuma pergunta adicionada ainda</p>
-                              <p className="text-[10px] text-slate-400 mt-1 max-w-[280px]">Adicione perguntas abertas ou de múltipla escolha usando os botões acima.</p>
-                            </div>
-                          ) : (
-                            <div className="space-y-4">
-                              {customQuestions.map((q, qIdx) => (
-                                <div key={q.id} className="p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-4 relative group transition-all hover:bg-slate-50/80">
-                                  <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-2">
-                                      <span className="w-6 h-6 bg-slate-200 text-slate-700 rounded-full flex items-center justify-center text-[10px] font-black">
-                                        {qIdx + 1}
-                                      </span>
-                                      <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider ${
-                                        q.type === 'choice' 
-                                          ? 'bg-primary-50 text-primary-600 border border-primary-100/50' 
-                                          : 'bg-amber-50 text-amber-600 border border-amber-100/50'
-                                      }`}>
-                                        {q.type === 'choice' ? 'Múltipla Escolha' : 'Texto Aberto'}
-                                      </span>
-                                    </div>
-                                    
-                                    <button
-                                      type="button"
-                                      onClick={() => removeCustomQuestion(q.id)}
-                                      className="w-8 h-8 bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-xl flex items-center justify-center border border-slate-100 hover:border-red-100 transition-all cursor-pointer outline-none"
-                                      title="Remover pergunta"
-                                    >
-                                      <Trash2 size={14} />
-                                    </button>
+                        ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {customTemplates.map(template => (
+                              <div key={template.id} className="bg-slate-50/50 hover:bg-slate-100/50 p-6 rounded-[10px] border border-slate-200/60 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-all text-left">
+                                <div className="space-y-3">
+                                  <div className="flex justify-between items-start gap-2">
+                                    <h4 className="text-sm font-extrabold text-slate-900 line-clamp-2">{template.title}</h4>
+                                    <span className="px-2 py-0.5 bg-primary-50 text-primary-700 border border-primary-100/50 rounded-md text-[8px] font-black uppercase tracking-wider shrink-0">
+                                      Customizado
+                                    </span>
                                   </div>
-
-                                  <div className="space-y-2">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block pl-1">Enunciado da Pergunta</label>
-                                    <input
-                                      type="text"
-                                      value={q.question}
-                                      onChange={(e) => updateCustomQuestionText(q.id, e.target.value)}
-                                      placeholder="Ex: Conte sobre uma experiência em que você liderou um projeto difícil..."
-                                      className="w-full px-4 py-3 bg-white border border-slate-200/60 focus:border-[#533af6]/30 rounded-xl text-xs font-bold text-slate-700 transition-all outline-none"
-                                    />
+                                  <div className="flex items-center gap-4 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <span className="flex items-center gap-1">
+                                      <MessageSquare size={10} />
+                                      {template.questions?.length || 0} Perguntas
+                                    </span>
+                                    <span>
+                                      Criado em {new Date(template.createdAt).toLocaleDateString('pt-BR')}
+                                    </span>
                                   </div>
-
-                                  {q.type === 'choice' && (
-                                    <div className="pl-4 border-l-2 border-slate-200/60 space-y-3">
-                                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block pl-1">Opções de Resposta</label>
-                                      
-                                      <div className="space-y-2">
-                                        {(q.options || []).map((option: string, optIndex: number) => (
-                                          <div key={optIndex} className="flex items-center gap-2">
-                                            <span className="w-5 h-5 bg-white border border-slate-200 rounded-full flex items-center justify-center text-[9px] text-slate-400 font-bold shrink-0">
-                                              {String.fromCharCode(65 + optIndex)}
-                                            </span>
-                                            <input
-                                              type="text"
-                                              value={option}
-                                              onChange={(e) => updateOptionText(q.id, optIndex, e.target.value)}
-                                              placeholder={`Opção ${optIndex + 1}`}
-                                              className="flex-1 px-4 py-2.5 bg-white border border-slate-200/60 focus:border-[#533af6]/30 rounded-xl text-xs font-semibold text-slate-700 transition-all outline-none"
-                                            />
-                                            {(q.options || []).length > 2 && (
-                                              <button
-                                                type="button"
-                                                onClick={() => removeOptionFromChoice(q.id, optIndex)}
-                                                className="w-7 h-7 bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg flex items-center justify-center border border-slate-100 transition-all cursor-pointer outline-none"
-                                                title="Remover opção"
-                                              >
-                                                <Trash2 size={12} />
-                                              </button>
-                                            )}
-                                          </div>
-                                        ))}
-                                      </div>
-
-                                      <button
-                                        type="button"
-                                        onClick={() => addOptionToChoice(q.id)}
-                                        className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-600 rounded-lg text-[9px] font-bold border border-slate-100 transition-all flex items-center gap-1 cursor-pointer mt-1 outline-none"
-                                      >
-                                        <Plus size={10} />
-                                        Adicionar Opção
-                                      </button>
-                                    </div>
-                                  )}
                                 </div>
-                              ))}
-                            </div>
-                          )}
 
-                          {/* Botões de Ação */}
-                          <div className="pt-4 flex justify-end gap-3">
-                            <button
-                              type="button"
-                              onClick={handleCancelTemplateEdit}
-                              className="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all cursor-pointer border-0 outline-none"
-                            >
-                              Cancelar
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleSaveCustomTemplate}
-                              className="px-6 py-3.5 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-xl shadow-slate-900/10 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0 outline-none"
-                            >
-                              <Check size={14} />
-                              Salvar Questionário
-                            </button>
+                                <div className="flex gap-2.5 mt-6 pt-4 border-t border-slate-200/50">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleEditCustomTemplate(template)}
+                                    className="flex-1 py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border border-slate-200 cursor-pointer outline-none"
+                                  >
+                                    Editar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteCustomTemplate(template.id)}
+                                    className="py-2 px-3 bg-white hover:bg-red-50 text-red-500 hover:border-red-200 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border border-slate-200 cursor-pointer outline-none"
+                                    title="Excluir questionário"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        </div>
+                        )}
                       </div>
                     );
                   }
@@ -6912,6 +6769,207 @@ Equipe de Recrutamento & Seleção - Colaborh
                       className="px-8 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-xl shadow-[#533af6]/10 hover:-translate-y-0.5 transition-all border-0 cursor-pointer"
                     >
                       {editingCompanyId ? 'Salvar Alterações' : 'Salvar Empresa'}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Drawer Lateral de Criação/Edição de Questionários */}
+          <AnimatePresence>
+            {isCreatingNewTemplate && (
+              <div className="fixed inset-0 z-[150] flex justify-end">
+                {/* Backdrop escuro com desfoque suave */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={handleCancelTemplateEdit}
+                  className="absolute inset-0 bg-slate-950/50 backdrop-blur-[4px]"
+                />
+
+                {/* Painel lateral (Drawer) */}
+                <motion.div
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+                  className="relative w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10"
+                >
+                  {/* Cabeçalho do Drawer */}
+                  <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 shadow-sm border border-primary-100/20">
+                        <FileText size={18} />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight leading-none">
+                          {editingTemplateId ? 'Editar Questionário' : 'Novo Questionário Customizado'}
+                        </h4>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                          Cadastre perguntas para a biblioteca de avaliações
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleCancelTemplateEdit}
+                      className="w-9 h-9 rounded-full bg-white text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 flex items-center justify-center hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer"
+                    >
+                      <CloseIcon size={16} />
+                    </button>
+                  </div>
+
+                  {/* Corpo do Drawer (Rolável) */}
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6 text-left font-sans bg-slate-50/20 no-scrollbar">
+                    {/* Nome do Questionário */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block pl-1">Nome do Questionário</label>
+                      <input
+                        type="text"
+                        value={customTestTitle}
+                        onChange={(e) => setCustomTestTitle(e.target.value)}
+                        placeholder="Ex: Questionário Técnico React / Fit Cultural"
+                        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 focus:border-[#533af6]/30 focus:bg-white rounded-[10px] text-xs font-bold text-slate-800 transition-all outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-6 pt-4 border-t border-slate-100">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest">Estrutura das Perguntas ({customQuestions.length})</h4>
+                        
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => addCustomQuestion('text')}
+                            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border-0 outline-none"
+                          >
+                            <MessageSquare size={12} />
+                            + Pergunta Aberta
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => addCustomQuestion('choice')}
+                            className="px-4 py-2 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-full text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border-0 outline-none"
+                            style={{ backgroundColor: 'rgba(83, 58, 246, 0.05)', color: '#533af6' }}
+                          >
+                            <PlusCircle size={12} />
+                            + Múltipla Escolha
+                          </button>
+                        </div>
+                      </div>
+
+                      {customQuestions.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-[10px] border border-dashed border-slate-200 text-center">
+                          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-3">
+                            <FileText size={20} />
+                          </div>
+                          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nenhuma pergunta adicionada ainda</p>
+                          <p className="text-[10px] text-slate-400 mt-1 max-w-[280px]">Adicione perguntas abertas ou de múltipla escolha usando os botões acima.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {customQuestions.map((q, qIdx) => (
+                            <div key={q.id} className="p-6 bg-slate-50 rounded-[10px] border border-slate-100 space-y-4 relative group transition-all hover:bg-slate-50/80">
+                              <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-6 h-6 bg-slate-200 text-slate-700 rounded-full flex items-center justify-center text-[10px] font-black">
+                                    {qIdx + 1}
+                                  </span>
+                                  <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider ${
+                                    q.type === 'choice' 
+                                      ? 'bg-primary-50 text-primary-600 border border-primary-100/50' 
+                                      : 'bg-amber-50 text-amber-600 border border-amber-100/50'
+                                  }`}>
+                                    {q.type === 'choice' ? 'Múltipla Escolha' : 'Texto Aberto'}
+                                  </span>
+                                </div>
+                                
+                                <button
+                                  type="button"
+                                  onClick={() => removeCustomQuestion(q.id)}
+                                  className="w-8 h-8 bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-[10px] flex items-center justify-center border border-slate-100 hover:border-red-100 transition-all cursor-pointer outline-none"
+                                  title="Remover pergunta"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+
+                              <div className="space-y-2">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block pl-1">Enunciado da Pergunta</label>
+                                <input
+                                  type="text"
+                                  value={q.question}
+                                  onChange={(e) => updateCustomQuestionText(q.id, e.target.value)}
+                                  placeholder="Ex: Conte sobre uma experiência em que você liderou um projeto difícil..."
+                                  className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-[#533af6]/30 rounded-[10px] text-xs font-bold text-slate-700 transition-all outline-none"
+                                />
+                              </div>
+
+                              {q.type === 'choice' && (
+                                <div className="pl-4 border-l-2 border-slate-200 space-y-3">
+                                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block pl-1">Opções de Resposta</label>
+                                  
+                                  <div className="space-y-2">
+                                    {(q.options || []).map((option: string, optIndex: number) => (
+                                      <div key={optIndex} className="flex items-center gap-2">
+                                        <span className="w-5 h-5 bg-white border border-slate-200 rounded-full flex items-center justify-center text-[9px] text-slate-400 font-bold shrink-0">
+                                          {String.fromCharCode(65 + optIndex)}
+                                        </span>
+                                        <input
+                                          type="text"
+                                          value={option}
+                                          onChange={(e) => updateOptionText(q.id, optIndex, e.target.value)}
+                                          placeholder={`Opção ${optIndex + 1}`}
+                                          className="flex-1 px-4 py-2.5 bg-white border border-slate-200 focus:border-[#533af6]/30 rounded-[10px] text-xs font-semibold text-slate-700 transition-all outline-none"
+                                        />
+                                        {(q.options || []).length > 2 && (
+                                          <button
+                                            type="button"
+                                            onClick={() => removeOptionFromChoice(q.id, optIndex)}
+                                            className="w-7 h-7 bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg flex items-center justify-center border border-slate-100 transition-all cursor-pointer outline-none"
+                                            title="Remover opção"
+                                          >
+                                            <Trash2 size={12} />
+                                          </button>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => addOptionToChoice(q.id)}
+                                    className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-600 rounded-lg text-[9px] font-bold border border-slate-100 transition-all flex items-center gap-1 cursor-pointer mt-1 outline-none"
+                                  >
+                                    <Plus size={10} />
+                                    Adicionar Opção
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Rodapé do Drawer */}
+                  <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleCancelTemplateEdit}
+                      className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full transition-all cursor-pointer border-0 outline-none"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveCustomTemplate}
+                      className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-xl shadow-slate-900/10 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0 outline-none"
+                    >
+                      <Check size={14} />
+                      Salvar Questionário
                     </button>
                   </div>
                 </motion.div>
