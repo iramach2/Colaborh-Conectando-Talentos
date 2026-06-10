@@ -1335,6 +1335,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   }, [isResumeDirty]);
 
   const [isParsing, setIsParsing] = useState(false);
+  const [showActionDropdown, setShowActionDropdown] = useState(false);
   const [showExpModal, setShowExpModal] = useState(false);
   const [showEduModal, setShowEduModal] = useState(false);
   const [showLangModal, setShowLangModal] = useState(false);
@@ -3986,8 +3987,81 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </div>
 
               {/* Coluna Direita: Preview do Currículo - 40% do espaço (lg:col-span-4) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-hidden p-0">
-                <div className="resume-preview-container flex justify-center w-full">
+              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-hidden p-0 flex flex-col">
+                {/* Menu de Ações do Currículo (Três Pontinhos) alinhado na altura das abas */}
+                <div className="h-12 flex items-center justify-end px-4 mb-2 relative z-30">
+                  <div className="relative">
+                    {/* Botão de três pontinhos redondo roxo */}
+                    <button
+                      onClick={() => setShowActionDropdown(!showActionDropdown)}
+                      className="w-9 h-9 rounded-full bg-[#533af6] text-white flex items-center justify-center hover:bg-[#4128df] transition-all shadow-md focus:outline-none cursor-pointer border-0"
+                      title="Opções do Currículo"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="5" cy="12" r="2" />
+                        <circle cx="12" cy="12" r="2" />
+                        <circle cx="19" cy="12" r="2" />
+                      </svg>
+                    </button>
+
+                    {/* Input invisível para carregar arquivo da IA */}
+                    <input 
+                      type="file" 
+                      id="ai-resume-upload" 
+                      className="hidden" 
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleAIParse(file);
+                        }
+                        setShowActionDropdown(false);
+                      }}
+                    />
+
+                    {/* Dropdown Menu com opções */}
+                    <AnimatePresence>
+                      {showActionDropdown && (
+                        <>
+                          {/* Backdrop invisível para fechar ao clicar fora */}
+                          <div 
+                            className="fixed inset-0 z-40 bg-transparent"
+                            onClick={() => setShowActionDropdown(false)}
+                          />
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-xl shadow-lg py-1.5 z-50 text-left"
+                          >
+                            <button
+                              onClick={() => {
+                                document.getElementById('ai-resume-upload')?.click();
+                              }}
+                              className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent text-left"
+                            >
+                              <Brain size={14} className="text-primary-500" />
+                              <span>Preencher com IA</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleDownloadResume();
+                                setShowActionDropdown(false);
+                              }}
+                              className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent text-left"
+                            >
+                              <FileText size={14} className="text-primary-500" />
+                              <span>Baixar PDF</span>
+                            </button>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                <div className="resume-preview-container flex justify-center w-full flex-1">
                   <ResumeA4Preview resumeData={resumeData} calculateAge={calculateAge} calculateDuration={calculateDuration} />
                 </div>
               </div>
@@ -7394,6 +7468,20 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           loadCandidateNotifications();
         }}
       />
+
+      {isParsing && (
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center text-white">
+          <div className="bg-white/15 backdrop-blur-lg border border-white/20 p-8 rounded-[2rem] shadow-2xl flex flex-col items-center gap-6 max-w-sm text-center">
+            <div className="w-16 h-16 border-4 border-[#8959f5] border-t-transparent rounded-full animate-spin" />
+            <div>
+              <h3 className="text-lg font-black uppercase tracking-wider mb-2 text-white">Processando com IA</h3>
+              <p className="text-xs text-slate-200 font-semibold leading-relaxed">
+                Nossa Inteligência Artificial está lendo seu currículo para extrair os dados e preencher o formulário automaticamente. Aguarde alguns instantes...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
