@@ -3414,20 +3414,18 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-12 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
-            <>
-              {/* Título da Página */}
-              <div className="mb-8 text-left">
-                <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
-                  Meu Currículo
-                </h1>
-                <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest mt-1">
-                  Gerencie suas informações profissionais e visualize seu currículo final em tempo real
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 items-start pb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 items-start pb-12">
               {/* Coluna Esquerda: Edição com Abas Horizontais - 60% do espaço (lg:col-span-6) */}
               <div className="lg:col-span-6 flex flex-col gap-0">
+                {/* Título da Página */}
+                <div className="mb-8 text-left">
+                  <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                    Meu Currículo
+                  </h1>
+                  <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest mt-1">
+                    Gerencie suas informações profissionais e visualize seu currículo final em tempo real
+                  </p>
+                </div>
                 {/* Barra Horizontal de Abas */}
                 <div className="flex items-end gap-3 px-6 h-12 w-full mb-0 select-none">
                   {[
@@ -3988,13 +3986,12 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </div>
 
               {/* Coluna Direita: Preview do Currículo - 40% do espaço (lg:col-span-4) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-y-auto p-0 scrollbar-thin">
+              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-hidden p-0">
                 <div className="resume-preview-container flex justify-center w-full">
                   <ResumeA4Preview resumeData={resumeData} calculateAge={calculateAge} calculateDuration={calculateDuration} />
                 </div>
               </div>
             </div>
-          </>
           ) : activeTab === 'Configurações' ? (
 
             <motion.div 
@@ -7692,7 +7689,7 @@ const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }: Resume
       {/* Header Zone */}
       <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
         {/* Circular Photo */}
-        <div style={{ position: 'absolute', left: '50px', top: '75px', zIndex: 100 }}>
+        <div style={{ position: 'absolute', left: '35px', top: '75px', zIndex: 100 }}>
           <div style={{ width: '170px', height: '170px', borderRadius: '50%', border: '6px solid #FFFFFF', overflow: 'hidden', backgroundColor: '#e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
             {resumeData.profilePic ? (
               <img src={resumeData.profilePic} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -7716,7 +7713,7 @@ const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }: Resume
       {/* Columns Zone */}
       <div style={{ display: 'flex', flex: 1, width: '100%', boxSizing: 'border-box' }}>
         {/* Sidebar Column */}
-        <div style={{ width: '240px', backgroundColor: '#f3f0ff', paddingTop: '110px', paddingLeft: '30px', paddingRight: '30px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
+        <div style={{ width: '240px', backgroundColor: '#f3f0ff', paddingTop: '100px', paddingLeft: '20px', paddingRight: '20px', paddingBottom: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
           {/* CONTATO SECTION */}
           <div style={{ width: '100%', textAlign: 'center', marginBottom: '35px' }}>
             <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#7044ff', letterSpacing: '1.5px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Contato</h3>
@@ -7775,7 +7772,7 @@ const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }: Resume
         </div>
 
         {/* Main Content Column */}
-        <div style={{ flex: 1, padding: '40px 40px 40px 35px', display: 'flex', flexDirection: 'column', textAlign: 'left', boxSizing: 'border-box' }}>
+        <div style={{ flex: 1, padding: '30px 25px 30px 25px', display: 'flex', flexDirection: 'column', textAlign: 'left', boxSizing: 'border-box' }}>
           {/* PERFIL SECTION */}
           <div style={{ marginBottom: '32px' }}>
             <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Perfil</h2>
