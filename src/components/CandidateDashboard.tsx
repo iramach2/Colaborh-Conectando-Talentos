@@ -3214,7 +3214,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f4f6] relative font-sans">
+    <div className="flex flex-col lg:flex-row min-h-screen relative font-sans" style={{ backgroundColor: '#faf8ff' }}>
       {/* Decorative Blobs */}
       <div className="fixed top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary-100 rounded-full blur-[120px] opacity-20 pointer-events-none" />
       <div className="fixed bottom-[-10%] left-[20%] w-[30%] h-[30%] bg-indigo-100 rounded-full blur-[100px] opacity-20 pointer-events-none" />
@@ -3227,27 +3227,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       )}
 
       {/* Backdrop overlay for mobile */}
-      {isMobileSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[90] lg:hidden"
-          onClick={() => setIsMobileSidebarOpen(false)}
-        />
-      )}
 
-      {/* Sidebar - Premium Style WITH RESPONSIVE BEHAVIOR */}
-      {/* Sidebar - Premium Style WITH RESPONSIVE BEHAVIOR */}
-      <aside className={`bg-gradient-to-b from-[#940dff] to-[#533af6] flex flex-col fixed z-[100] transition-all duration-300 inset-y-0 left-0 w-64 p-6 h-full shadow-2xl ${
-        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:left-12 lg:top-32 lg:bottom-6 lg:w-16 lg:h-[calc(100vh-9.5rem)] lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:pt-2 lg:pb-2 lg:px-0 lg:justify-between lg:translate-x-0`}>
-        {/* Topo da Sidebar - Apenas botão de fechar no mobile (sem logo) */}
-        <div className="mb-4 flex justify-end items-center w-full shrink-0 lg:hidden">
-          <button 
-            onClick={() => setIsMobileSidebarOpen(false)} 
-            className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-all"
-          >
-            <X size={20} />
-          </button>
-        </div>
+
+      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-12 lg:top-32 lg:bottom-6 lg:w-16 lg:h-[calc(100vh-9.5rem)] lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:pt-2 lg:pb-2 lg:px-0 lg:justify-between">
 
         <nav className="flex-1 space-y-3 lg:space-y-1.5 lg:py-0 w-full flex flex-col items-center justify-start py-4">
           <SidebarItem icon={FileText} label="Meu Currículo" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
@@ -3298,21 +3280,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10">
         {/* Novo Cabeçalho Premium - Estilo Barra Horizontal do Mockup */}
-                        <header className={`sticky top-4 lg:top-6 z-40 mx-4 lg:mx-6 mt-4 lg:mt-6 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/50 shadow-[0_10px_30px_rgba(0,0,0,0.03)] px-6 transition-all duration-300 ${
+        <header className={`relative z-40 mx-0 mt-0 lg:mx-6 lg:mt-6 rounded-none lg:rounded-full bg-white/95 backdrop-blur-md border-b border-slate-200/50 lg:border shadow-[0_10px_30px_rgba(0,0,0,0.03)] px-4 lg:px-6 transition-all duration-300 ${
           activeTab === 'Testes' && !isHeaderScrolled ? 'py-4 flex flex-col gap-4' : 'py-3.5 flex flex-col gap-0'
         }`}>
           {/* Linha Principal do Cabeçalho */}
           <div className="flex items-center justify-between w-full">
-            {/* Lado Esquerdo: Botão Menu (mobile) + Logo */}
+            {/* Lado Esquerdo: Logo (sem botão hambúrguer mobile) */}
             <div className="flex items-center gap-3">
-              {/* Botão de abrir menu móvel (apenas mobile/tablet) */}
-              <button
-                onClick={() => setIsMobileSidebarOpen(true)}
-                className="lg:hidden p-2 text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-50 transition-all shrink-0"
-              >
-                <Menu size={20} />
-              </button>
-
               {/* Logo completa */}
               <img src="/logo-original.png" alt="Colaborh" className="h-9 md:h-11 w-auto object-contain shrink-0" />
             </div>
@@ -3320,7 +3294,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             {/* Lado Direito: Chat + Notificações + Avatar */}
             <div className="flex items-center gap-3 md:gap-4 shrink-0">
               {/* Ícone de Chat (inativo, com visual idêntico ao mockup do Flowsync) */}
-              <div className="relative group/chat hidden sm:flex items-center justify-center w-10 h-10 bg-slate-50 hover:bg-slate-100 border border-slate-200/50 rounded-full text-slate-400 hover:text-slate-600 transition-all active:scale-95 cursor-pointer">
+              <div className="relative group/chat flex items-center justify-center w-10 h-10 bg-slate-50 hover:bg-slate-100 border border-slate-200/50 rounded-full text-slate-400 hover:text-slate-600 transition-all active:scale-95 cursor-pointer">
                 <MessageSquare size={18} />
                 <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white" />
                 
@@ -3415,18 +3389,91 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-4 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 items-start pb-12">
-              {/* Coluna Esquerda: Edição com Abas Horizontais - 60% do espaço (lg:col-span-6) */}
-              <div className="lg:col-span-6 flex flex-col gap-0">
-                {/* Título da Página */}
-                <div className="mb-8 text-left">
+            <>
+              {/* Título da Página + Botão de Ações */}
+              <div className="mb-8 flex items-center justify-between">
+                <div className="text-left">
                   <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
                     Meu Currículo
                   </h1>
-                  <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest mt-1">
-                    Gerencie suas informações profissionais e visualize seu currículo final em tempo real
-                  </p>
                 </div>
+
+                {/* Botão de três pontinhos na linha do título */}
+                <div className="relative">
+                  {/* Botão de três pontinhos redondo roxo */}
+                  <button
+                    onClick={() => setShowActionDropdown(!showActionDropdown)}
+                    className="w-9 h-9 rounded-full bg-[#533af6] text-white flex items-center justify-center hover:bg-[#4128df] transition-all shadow-md focus:outline-none cursor-pointer border-0"
+                    title="Opções do Currículo"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <circle cx="5" cy="12" r="2" />
+                      <circle cx="12" cy="12" r="2" />
+                      <circle cx="19" cy="12" r="2" />
+                    </svg>
+                  </button>
+
+                  {/* Input invisível para carregar arquivo da IA */}
+                  <input 
+                    type="file" 
+                    id="ai-resume-upload" 
+                    className="hidden" 
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleAIParse(file);
+                      }
+                      setShowActionDropdown(false);
+                    }}
+                  />
+
+                  {/* Dropdown Menu com opções */}
+                  <AnimatePresence>
+                    {showActionDropdown && (
+                      <>
+                        {/* Backdrop invisível para fechar ao clicar fora */}
+                        <div 
+                          className="fixed inset-0 z-40 bg-transparent"
+                          onClick={() => setShowActionDropdown(false)}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-xl shadow-lg py-1.5 z-50 text-left"
+                        >
+                          <button
+                            onClick={() => {
+                              document.getElementById('ai-resume-upload')?.click();
+                            }}
+                            className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent text-left"
+                          >
+                            <Brain size={14} className="text-primary-500" />
+                            <span>Preencher com IA</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleDownloadResume();
+                              setShowActionDropdown(false);
+                            }}
+                            className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent text-left"
+                            title="Baixar PDF"
+                          >
+                            <FileText size={14} className="text-primary-500" />
+                            <span>Baixar PDF</span>
+                          </button>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-10 gap-y-6 lg:gap-0 items-start pb-12">
+                {/* Coluna Esquerda: Edição com Abas Horizontais - 60% do espaço (lg:col-span-6) */}
+                <div className="lg:col-span-6 flex flex-col gap-0">
                 {/* Barra Horizontal de Abas */}
                 <div className="flex items-end gap-3 px-6 h-12 w-full mb-0 select-none">
                   {[
@@ -3987,85 +4034,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </div>
 
               {/* Coluna Direita: Preview do Currículo - 40% do espaço (lg:col-span-4) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-hidden p-0 relative flex flex-col">
-                {/* Botão de três pontinhos flutuando de forma absoluta no topo direito para não empurrar o A4 */}
-                <div className="absolute right-4 top-1.5 z-30">
-                  <div className="relative">
-                    {/* Botão de três pontinhos redondo roxo */}
-                    <button
-                      onClick={() => setShowActionDropdown(!showActionDropdown)}
-                      className="w-9 h-9 rounded-full bg-[#533af6] text-white flex items-center justify-center hover:bg-[#4128df] transition-all shadow-md focus:outline-none cursor-pointer border-0"
-                      title="Opções do Currículo"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <circle cx="5" cy="12" r="2" />
-                        <circle cx="12" cy="12" r="2" />
-                        <circle cx="19" cy="12" r="2" />
-                      </svg>
-                    </button>
-
-                    {/* Input invisível para carregar arquivo da IA */}
-                    <input 
-                      type="file" 
-                      id="ai-resume-upload" 
-                      className="hidden" 
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleAIParse(file);
-                        }
-                        setShowActionDropdown(false);
-                      }}
-                    />
-
-                    {/* Dropdown Menu com opções */}
-                    <AnimatePresence>
-                      {showActionDropdown && (
-                        <>
-                          {/* Backdrop invisível para fechar ao clicar fora */}
-                          <div 
-                            className="fixed inset-0 z-40 bg-transparent"
-                            onClick={() => setShowActionDropdown(false)}
-                          />
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                            transition={{ duration: 0.15 }}
-                            className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-xl shadow-lg py-1.5 z-50 text-left"
-                          >
-                            <button
-                              onClick={() => {
-                                document.getElementById('ai-resume-upload')?.click();
-                              }}
-                              className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent text-left"
-                            >
-                              <Brain size={14} className="text-primary-500" />
-                              <span>Preencher com IA</span>
-                            </button>
-                            <button
-                              onClick={() => {
-                                handleDownloadResume();
-                                setShowActionDropdown(false);
-                              }}
-                              className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent text-left"
-                            >
-                              <FileText size={14} className="text-primary-500" />
-                              <span>Baixar PDF</span>
-                            </button>
-                          </motion.div>
-                        </>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
+              <div className="lg:col-span-4 lg:sticky lg:top-32 lg:h-[calc(100vh-10.5rem)] h-auto overflow-hidden p-0 relative flex flex-col">
                 <div className="resume-preview-container flex justify-center w-full flex-1">
                   <ResumeA4Preview resumeData={resumeData} calculateAge={calculateAge} calculateDuration={calculateDuration} />
                 </div>
               </div>
             </div>
+          </>
           ) : activeTab === 'Configurações' ? (
 
             <motion.div 
@@ -7468,6 +7443,41 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           loadCandidateNotifications();
         }}
       />
+
+      {/* Barra de Navegação Inferior Mobile (Pílula Flutuante) */}
+      <div 
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[420px] border border-white/15 rounded-full p-1.5 shadow-[0_10px_30px_rgba(83,58,246,0.25)] flex justify-between items-center h-14 lg:hidden"
+        style={{ background: 'linear-gradient(to bottom, #9012fc, #573af7)' }}
+      >
+        {[
+          { label: 'Meu Currículo', icon: FileText },
+          { label: 'Candidaturas', icon: Briefcase },
+          { label: 'Vagas', icon: Star },
+          { label: 'Testes', icon: Brain },
+          { label: 'Configurações', icon: Settings }
+        ].map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.label;
+          return (
+            <button
+              key={item.label}
+              onClick={() => handleSelectTab(item.label)}
+              className={`relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300 cursor-pointer border-0 bg-transparent ${
+                isActive 
+                  ? 'bg-white text-[#9012fc] shadow-md scale-105' 
+                  : 'text-white/60 hover:text-white'
+              }`}
+              title={item.label}
+            >
+              <Icon size={20} className="stroke-[2.2]" />
+              {/* Notificação no ícone de testes se houver pendências */}
+              {item.label === 'Testes' && pendingTests.length > 0 && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white animate-pulse" />
+              )}
+            </button>
+          );
+        })}
+      </div>
 
       {isParsing && (
         <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center text-white">
