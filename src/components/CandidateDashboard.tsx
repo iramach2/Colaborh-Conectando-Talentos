@@ -3412,10 +3412,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-12 relative z-10">
+          <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-4 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 items-start pb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 items-start pb-12">
               {/* Coluna Esquerda: Edição com Abas Horizontais - 60% do espaço (lg:col-span-6) */}
               <div className="lg:col-span-6 flex flex-col gap-0">
                 {/* Título da Página */}
@@ -3987,9 +3987,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </div>
 
               {/* Coluna Direita: Preview do Currículo - 40% do espaço (lg:col-span-4) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-hidden p-0 flex flex-col">
-                {/* Menu de Ações do Currículo (Três Pontinhos) alinhado na altura das abas */}
-                <div className="h-12 flex items-center justify-end px-4 mb-2 relative z-30">
+              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-hidden p-0 relative flex flex-col">
+                {/* Botão de três pontinhos flutuando de forma absoluta no topo direito para não empurrar o A4 */}
+                <div className="absolute right-4 top-1.5 z-30">
                   <div className="relative">
                     {/* Botão de três pontinhos redondo roxo */}
                     <button
@@ -7790,7 +7790,7 @@ const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }: Resume
         </div>
 
         {/* Name Header */}
-        <div style={{ marginLeft: '260px', paddingRight: '40px', flex: 1, textAlign: 'left' }}>
+        <div style={{ marginLeft: '260px', paddingRight: '15px', flex: 1, textAlign: 'left' }}>
           <h1 style={{ fontSize: '32px', fontWeight: 900, textTransform: 'uppercase', color: '#FFFFFF', letterSpacing: '2px', margin: 0, paddingBottom: '10px' }}>
             {resumeData.fullName || 'Seu Nome'}
           </h1>
@@ -7801,7 +7801,7 @@ const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }: Resume
       {/* Columns Zone */}
       <div style={{ display: 'flex', flex: 1, width: '100%', boxSizing: 'border-box' }}>
         {/* Sidebar Column */}
-        <div style={{ width: '240px', backgroundColor: '#f3f0ff', paddingTop: '100px', paddingLeft: '20px', paddingRight: '20px', paddingBottom: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
+        <div style={{ width: '240px', backgroundColor: '#f3f0ff', paddingTop: '100px', paddingLeft: '12px', paddingRight: '12px', paddingBottom: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
           {/* CONTATO SECTION */}
           <div style={{ width: '100%', textAlign: 'center', marginBottom: '35px' }}>
             <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#7044ff', letterSpacing: '1.5px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Contato</h3>
@@ -7860,7 +7860,7 @@ const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }: Resume
         </div>
 
         {/* Main Content Column */}
-        <div style={{ flex: 1, padding: '30px 25px 30px 25px', display: 'flex', flexDirection: 'column', textAlign: 'left', boxSizing: 'border-box' }}>
+        <div style={{ flex: 1, padding: '30px 15px 30px 15px', display: 'flex', flexDirection: 'column', textAlign: 'left', boxSizing: 'border-box' }}>
           {/* PERFIL SECTION */}
           <div style={{ marginBottom: '32px' }}>
             <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Perfil</h2>
