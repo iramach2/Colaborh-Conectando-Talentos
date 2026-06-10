@@ -1111,6 +1111,8 @@ const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpa
 export default function CandidateDashboard({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('Meu Currículo');
   const [activeAccordion, setActiveAccordion] = useState('info');
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
@@ -3455,6 +3457,17 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                           </button>
                           <button
                             onClick={() => {
+                              setIsPreviewModalOpen(true);
+                              setShowActionDropdown(false);
+                            }}
+                            className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer border-0 bg-transparent text-left"
+                            title="Visualizar Currículo"
+                          >
+                            <Eye size={14} className="text-primary-500" />
+                            <span>Visualizar Currículo</span>
+                          </button>
+                          <button
+                            onClick={() => {
                               handleDownloadResume();
                               setShowActionDropdown(false);
                             }}
@@ -3471,576 +3484,56 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-10 gap-y-6 lg:gap-0 items-start pb-12">
-                {/* Coluna Esquerda: Edição com Abas Horizontais - 60% do espaço (lg:col-span-6) */}
-                <div className="lg:col-span-6 flex flex-col gap-0">
-                {/* Barra Horizontal de Abas */}
-                <div className="flex items-end gap-3 px-6 h-12 w-full mb-0 select-none">
+              <div className="w-full max-w-6xl mx-auto pb-12 flex flex-col gap-6 items-start">
+                {/* Grade de Cards das Seções */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                   {[
-                    { id: 'info', icon: User, label: 'Foto & Dados Pessoais' },
-                    { id: 'summary', icon: FileText, label: 'Resumo Profissional' },
-                    { id: 'experience', icon: Briefcase, label: 'Experiência Profissional' },
-                    { id: 'education', icon: GraduationCap, label: 'Formação Acadêmica' },
-                    { id: 'skills', icon: Star, label: 'Habilidades' },
-                    { id: 'languages', icon: Languages, label: 'Idiomas' },
-                    { id: 'achievements', icon: Award, label: 'Cursos ou Certificados' },
-                    { id: 'diversity', icon: Accessibility, label: 'Diversidade' }
-                  ].map((tab) => {
-                    const Icon = tab.icon;
-                    const isActive = activeAccordion === tab.id;
+                    { id: 'info', icon: User, title: 'Dados Pessoais', desc: 'Altere sua foto de perfil, nome completo, contato, pretensão salarial e links de redes sociais.' },
+                    { id: 'summary', icon: FileText, title: 'Resumo Profissional', desc: 'Escreva uma breve apresentação destacando seus objetivos, conquistas e trajetória.' },
+                    { id: 'experience', icon: Briefcase, title: 'Experiências', desc: 'Adicione seu histórico de trabalho, cargos anteriores, datas e responsabilidades.' },
+                    { id: 'education', icon: GraduationCap, title: 'Formação Acadêmica', desc: 'Insira suas graduações, faculdades, cursos técnicos, certificações e datas.' },
+                    { id: 'skills', icon: Star, title: 'Habilidades', desc: 'Destaque suas principais competências técnicas ou comportamentais e nível de domínio.' },
+                    { id: 'languages', icon: Languages, title: 'Idiomas', desc: 'Adicione as línguas estrangeiras que fala e o seu respectivo nível de fluência.' },
+                    { id: 'achievements', icon: Award, title: 'Certificações & Cursos', desc: 'Registre cursos extracurriculares, workshops, licenças profissionais e certificados.' },
+                    { id: 'diversity', icon: Accessibility, title: 'Diversidade & PCD', desc: 'Preencha opcionalmente informações de acessibilidade, gênero, raça ou orientação.' }
+                  ].map((section) => {
+                    const Icon = section.icon;
                     return (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveAccordion(tab.id)}
-                        title={tab.label}
-                        className={isActive 
-                          ? `h-11 px-5 bg-white/85 backdrop-blur-md border-t border-x border-white/40 rounded-t-[20px] text-[#533af6] flex items-center justify-center relative z-20 transition-all font-bold cursor-pointer active-tab-ear shadow-[0_-5px_15px_rgba(0,0,0,0.015)]`
-                          : `w-9 h-9 rounded-full bg-slate-200/50 hover:bg-slate-200/80 text-slate-500 flex items-center justify-center transition-all cursor-pointer border-0 shadow-xs mb-1.5`
-                        }
+                      <div 
+                        key={section.id}
+                        className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex items-center justify-between hover:shadow-md hover:bg-white/95 transition-all duration-300 group text-left"
                       >
-                        <Icon size={isActive ? 18 : 16} />
-                        {isActive && (
-                          <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-white z-30" />
-                        )}
-                      </button>
+                        <div className="flex items-center gap-4 pr-4">
+                          <div className="w-12 h-12 rounded-full bg-[#533af6]/10 text-[#533af6] flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105">
+                            <Icon size={22} className="stroke-[2]" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">
+                              {section.title}
+                            </h3>
+                            <p className="text-xs text-slate-400 mt-1 leading-relaxed max-w-sm">
+                              {section.desc}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setActiveAccordion(section.id);
+                            setIsEditModalOpen(true);
+                          }}
+                          className="w-10 h-10 rounded-full bg-[#533af6] hover:bg-[#4128df] text-white flex items-center justify-center transition-all cursor-pointer border-0 shadow-sm active:scale-95 shrink-0"
+                          title={`Preencher ${section.title}`}
+                        >
+                          <Plus size={20} className="stroke-[2.5]" />
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
 
-                {/* Card de Conteúdo da Aba Ativa */}
-                <div className="bg-white/85 backdrop-blur-md border border-white/40 rounded-[20px] shadow-sleek p-6 relative z-10">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={activeAccordion}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="space-y-6"
-                    >
-                      {/* Título interno do painel da aba ativa */}
-                      <div className="pb-3.5 border-b border-slate-100/80 text-left">
-                        <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">
-                          {activeAccordion === 'info' && 'Foto & Dados Pessoais'}
-                          {activeAccordion === 'summary' && 'Resumo Profissional'}
-                          {activeAccordion === 'experience' && 'Experiência Profissional'}
-                          {activeAccordion === 'education' && 'Formação Acadêmica'}
-                          {activeAccordion === 'skills' && 'Habilidades'}
-                          {activeAccordion === 'languages' && 'Idiomas'}
-                          {activeAccordion === 'achievements' && 'Cursos ou Certificados'}
-                          {activeAccordion === 'diversity' && 'Diversidade'}
-                        </h2>
-                      </div>
-
-                      {/* 1. DADOS PESSOAIS E FOTO */}
-                      {activeAccordion === 'info' && (
-                        <div className="space-y-5">
-                          {/* Bloco de Foto de Perfil + Nome Completo Lado a Lado */}
-                          <div className="flex flex-col sm:flex-row items-center gap-6 pb-2 text-left">
-                            {/* Foto de Perfil Redonda sem Fundo Gigante */}
-                            <div className="relative group/photo shrink-0">
-                              <div className="w-20 h-20 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center relative transition-transform duration-300 hover:scale-105 shadow-sm">
-                                {resumeData.profilePic ? (
-                                  <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                  <User size={30} className="text-slate-400" />
-                                )}
-                                <div className="absolute inset-0 bg-primary-600/80 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300 cursor-pointer">
-                                  <Camera size={14} className="text-white mb-0.5" />
-                                  <span className="text-[6px] font-bold text-white uppercase tracking-widest text-center leading-none">Alterar</span>
-                                </div>
-                                <input 
-                                  type="file" 
-                                  ref={profilePicRef} 
-                                  className="absolute inset-0 opacity-0 cursor-pointer z-30" 
-                                  accept="image/*" 
-                                  onChange={handleProfilePicSelect}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Campo de Nome Completo do lado da Foto */}
-                            <div className="flex-1 w-full">
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Nome Completo</label>
-                              <input 
-                                type="text"
-                                value={resumeData.fullName}
-                                onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
-                                className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
-                                placeholder="Nome completo"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Inputs de Informações Pessoais */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                            
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">E-mail</label>
-                              <input 
-                                type="email"
-                                value={resumeData.email}
-                                onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
-                                className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
-                                placeholder="seu@email.com"
-                              />
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Gênero</label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={resumeData.gender}
-                                  onChange={(e) => setResumeData({...resumeData, gender: e.target.value})}
-                                  className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none pr-10 text-xs shadow-xs"
-                                >
-                                  <option value="">Selecione seu gênero</option>
-                                  {GENDER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                                </select>
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">WhatsApp / Telefone</label>
-                              <div className="relative">
-                                <Phone size={12} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
-                                <input 
-                                  type="tel"
-                                  value={resumeData.phone}
-                                  onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
-                                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
-                                  placeholder="(00) 00000-0000"
-                                />
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Data de Nascimento</label>
-                              <input 
-                                type="date"
-                                value={resumeData.birthDate}
-                                onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
-                                className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
-                              />
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Estado</label>
-                              <div className="relative">
-                                <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                <select 
-                                  value={resumeData.state}
-                                  onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
-                                  className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs shadow-xs"
-                                >
-                                  <option value="">UF</option>
-                                  {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
-                                </select>
-                              </div>
-                            </div>
-
-                            {resumeData.state && (
-                              <div>
-                                <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Cidade</label>
-                                <div className="relative">
-                                  {isLoadingCities ? (
-                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2">
-                                      <Loader2 size={12} className="animate-spin text-primary-500" />
-                                    </div>
-                                  ) : (
-                                    <MapPin size={12} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
-                                  )}
-                                  <select 
-                                    value={resumeData.city}
-                                    onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
-                                    disabled={isLoadingCities || !cities.length}
-                                    className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs disabled:opacity-50 shadow-xs"
-                                  >
-                                    <option value="">{isLoadingCities ? 'Carregando...' : 'Selecione a cidade'}</option>
-                                    {cities.map(city => <option key={city} value={city}>{city}</option>)}
-                                  </select>
-                                  {!isLoadingCities && <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />}
-                                </div>
-                              </div>
-                            )}
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Pretensão Salarial</label>
-                              <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">R$</span>
-                                <input 
-                                  type="text"
-                                  value={resumeData.salary}
-                                  onChange={(e) => setResumeData({...resumeData, salary: e.target.value})}
-                                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
-                                  placeholder="Ex: 2.500,00"
-                                />
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Acessibilidade</label>
-                              <div className="flex flex-col gap-2 bg-slate-50 p-3 rounded-[10px] border border-transparent shadow-xs">
-                                <label className="flex items-center gap-3 cursor-pointer group/toggle shrink-0">
-                                  <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isPcd ? 'bg-primary-600' : 'bg-slate-200'}`}>
-                                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isPcd ? 'translate-x-5' : ''}`} />
-                                    <input 
-                                      type="checkbox" 
-                                      className="hidden" 
-                                      checked={resumeData.isPcd} 
-                                      onChange={(e) => setResumeData({...resumeData, isPcd: e.target.checked})} 
-                                    />
-                                  </div>
-                                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
-                                    <Accessibility size={14} /> PCD
-                                  </span>
-                                </label>
-                                
-                                <AnimatePresence>
-                                  {resumeData.isPcd && (
-                                    <motion.div
-                                      initial={{ opacity: 0, height: 0 }}
-                                      animate={{ opacity: 1, height: 'auto' }}
-                                      exit={{ opacity: 0, height: 0 }}
-                                      className="overflow-hidden pt-1"
-                                    >
-                                      <input 
-                                        type="text"
-                                        value={resumeData.cid}
-                                        onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
-                                        className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-[10px] outline-none font-bold text-[10px] text-primary-600 uppercase placeholder:text-slate-350"
-                                        placeholder="COD CID"
-                                      />
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 2. RESUMO PROFISSIONAL */}
-                      {activeAccordion === 'summary' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-1">
-                            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${resumeData.summary.length >= 300 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                              {resumeData.summary.length >= 300 ? <CheckCircle2 size={10} /> : <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />}
-                              {resumeData.summary.length} / 300
-                            </div>
-                          </div>
-                          <textarea 
-                            value={resumeData.summary}
-                            onChange={(e) => setResumeData({...resumeData, summary: e.target.value})}
-                            className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all min-h-[140px] leading-relaxed font-medium text-slate-600 text-sm italic shadow-xs"
-                            placeholder="Conte um pouco sobre sua trajetória..."
-                          />
-                        </div>
-                      )}
-
-                      {/* 3. EXPERIÊNCIA PROFISSIONAL */}
-                      {activeAccordion === 'experience' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center mb-2 text-left">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isFirstJob ? 'bg-primary-600' : 'bg-slate-200'}`}>
-                                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isFirstJob ? 'translate-x-5' : ''}`} />
-                                <input 
-                                  type="checkbox" 
-                                  className="hidden" 
-                                  checked={resumeData.isFirstJob} 
-                                  onChange={(e) => setResumeData({...resumeData, isFirstJob: e.target.checked})} 
-                                />
-                              </div>
-                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Primeiro Emprego</span>
-                            </label>
-
-                            {!resumeData.isFirstJob && (
-                              <button 
-                                onClick={() => { setEditingExp(null); setShowExpModal(true); }}
-                                className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                              >
-                                <Plus size={20} />
-                              </button>
-                            )}
-                          </div>
-
-                          {resumeData.isFirstJob ? (
-                            <div className="bg-primary-50/20 p-8 rounded-[10px] text-center border-2 border-dashed border-primary-50/50">
-                              <div className="w-12 h-12 bg-white rounded-[10px] shadow-sm flex items-center justify-center mx-auto mb-4 text-primary-500 border border-slate-100/50">
-                                <Sparkles size={24} />
-                              </div>
-                              <h3 className="text-base font-bold text-slate-800 mb-1">Pronto para sua jornada?</h3>
-                              <p className="text-slate-400 max-w-sm mx-auto text-[11px] font-medium uppercase tracking-wider">Focaremos na sua formação e habilidades.</p>
-                            </div>
-                          ) : (
-                            <div className="space-y-4">
-                              {resumeData.experiences.length === 0 ? (
-                                <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
-                                  <Briefcase size={32} className="text-slate-200 mx-auto mb-3" />
-                                  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
-                                </div>
-                              ) : (
-                                resumeData.experiences.map((exp) => (
-                                  <div key={exp.id} className="group relative bg-white p-5 rounded-[10px] border border-slate-150 hover:border-primary-100 hover:bg-slate-50/50 transition-all shadow-xs text-left">
-                                    <div className="flex justify-between items-start gap-3">
-                                      <div className="flex gap-4">
-                                        <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-[10px] flex items-center justify-center text-primary-600 shadow-xs shrink-0">
-                                          <Building size={18} />
-                                        </div>
-                                        <div>
-                                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight leading-tight">{exp.role}</h3>
-                                          <div className="flex flex-wrap items-center gap-2 mt-1">
-                                            <span className="text-slate-700 font-bold text-[11px]">{exp.company}</span>
-                                            <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                            <span className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                              <Clock size={10} className="text-primary-400" />
-                                              {calculateDuration(exp.startDate, exp.endDate, exp.current)}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="flex gap-1">
-                                        <button onClick={() => { setEditingExp(exp); setShowExpModal(true); }} className="p-2 bg-white text-slate-400 hover:text-primary-600 rounded-full shadow-xs border border-slate-100 transition-colors cursor-pointer border-0"><Settings size={14} /></button>
-                                        <button onClick={() => setResumeData({...resumeData, experiences: resumeData.experiences.filter(e => e.id !== exp.id)})} className="p-2 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-xs border border-slate-100 transition-colors cursor-pointer border-0"><Trash2 size={14} /></button>
-                                      </div>
-                                    </div>
-                                    <div className="mt-3 pl-14">
-                                      <p className="text-slate-500 text-[11px] leading-relaxed whitespace-pre-line border-l-2 border-slate-100 pl-4">{exp.description}</p>
-                                    </div>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* 4. FORMÇÃO ACADÊMICA */}
-                      {activeAccordion === 'education' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-2">
-                            <button onClick={() => { setEditingEdu(null); setShowEduModal(true); }} className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0">
-                              <Plus size={20} />
-                            </button>
-                          </div>
-
-                          <div className="space-y-4">
-                            {resumeData.educations.length === 0 ? (
-                              <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
-                                <GraduationCap size={32} className="text-slate-200 mx-auto mb-3" />
-                                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
-                              </div>
-                            ) : (
-                              resumeData.educations.map((edu) => (
-                                <div key={edu.id} className="group bg-white p-5 rounded-[10px] border border-slate-150 hover:border-primary-100 hover:shadow-xs transition-all relative text-left">
-                                  <div className="flex justify-between items-start mb-3">
-                                    <div className="w-9 h-9 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600 border border-slate-100/50">
-                                      <GraduationCap size={18} />
-                                    </div>
-                                    <div className="flex gap-1">
-                                      <button onClick={() => { setEditingEdu(edu); setShowEduModal(true); }} className="p-2 text-slate-350 hover:text-primary-600 cursor-pointer border-0 bg-transparent"><Settings size={14} /></button>
-                                      <button onClick={() => setResumeData({...resumeData, educations: resumeData.educations.filter(e => e.id !== edu.id)})} className="p-2 text-slate-350 hover:text-red-500 cursor-pointer border-0 bg-transparent"><Trash2 size={14} /></button>
-                                    </div>
-                                  </div>
-                                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight mb-1">{edu.course}</h3>
-                                  <p className="text-[10px] font-bold text-slate-500 mb-4">{edu.institution}</p>
-                                  <div className="flex items-center justify-between">
-                                    <span className={`px-2.5 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ${
-                                      edu.status === 'Completo' ? 'bg-green-100 text-green-700' : 
-                                      edu.status === 'Cursando' ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-600'
-                                    }`}>
-                                      {edu.status}
-                                    </span>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Ano: {edu.gradYear}</span>
-                                  </div>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 5. HABILIDADES */}
-                      {activeAccordion === 'skills' && (
-                        <div className="space-y-4">
-                          <div className="flex flex-wrap gap-2">
-                            {resumeData.skills.map((skill, index) => (
-                              <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-highlight-50 text-highlight-700 rounded-[10px] text-xs font-bold border border-highlight-100 group transition-all hover:bg-highlight-100 shadow-xs">
-                                {skill}
-                                <button 
-                                  onClick={() => setResumeData({...resumeData, skills: resumeData.skills.filter((_, i) => i !== index)})}
-                                  className="text-primary-300 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-0 flex items-center"
-                                >
-                                  <X size={12} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-
-                          <div className="flex gap-2 text-left">
-                            <input 
-                              type="text"
-                              placeholder="Adicione uma habilidade (ex: React, Inglês...)"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  const val = e.currentTarget.value.trim();
-                                  if (val && !resumeData.skills.includes(val)) {
-                                    setResumeData({...resumeData, skills: [...resumeData.skills, val]});
-                                    e.currentTarget.value = '';
-                                  }
-                                }
-                              }}
-                              className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-[10px] focus:bg-white outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
-                            />
-                            <button 
-                              onClick={(e) => {
-                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                                const val = input.value.trim();
-                                if (val && !resumeData.skills.includes(val)) {
-                                  setResumeData({...resumeData, skills: [...resumeData.skills, val]});
-                                  input.value = '';
-                                }
-                              }}
-                              className="w-9 h-9 flex items-center justify-center bg-primary-600 text-white rounded-[10px] hover:bg-primary-700 transition-colors cursor-pointer shrink-0 border-0"
-                            >
-                              <Plus size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 6. IDIOMAS */}
-                      {activeAccordion === 'languages' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-2">
-                            <button 
-                              onClick={() => setShowLangModal(true)}
-                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                            >
-                              <Plus size={18} />
-                            </button>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2">
-                            {(!resumeData.languages || resumeData.languages.length === 0) ? (
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-4 text-center border border-dashed border-slate-100 rounded-xl w-full">Nenhum idioma adicionado.</p>
-                            ) : (
-                              resumeData.languages.map((item) => (
-                                <div key={item.id} className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-[10px] text-xs font-bold border border-emerald-100 group transition-all hover:bg-emerald-100 shadow-xs">
-                                  <span>{item.language}</span>
-                                  <span className="px-1.5 py-0.5 bg-emerald-200 text-emerald-950 rounded-md text-[7px] font-black uppercase tracking-widest">{item.level}</span>
-                                  <button 
-                                    onClick={() => handleRemoveLanguage(item.id)}
-                                    className="text-emerald-500 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-0 flex items-center"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 7. CURSOS OU CERTIFICADOS */}
-                      {activeAccordion === 'achievements' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-2">
-                            <button 
-                              onClick={() => setShowAchModal(true)}
-                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                            >
-                              <Plus size={18} />
-                            </button>
-                          </div>
-
-                          <div className="space-y-3">
-                            {(!resumeData.achievements || resumeData.achievements.length === 0) ? (
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-4 text-center border border-dashed border-slate-100 rounded-xl w-full">Nenhuma conquista ou certificado adicionado.</p>
-                            ) : (
-                              resumeData.achievements.map((item) => (
-                                <div key={item.id} className="flex items-start justify-between bg-slate-50 p-4 rounded-[10px] border border-slate-100 hover:border-slate-200 transition-colors text-left shadow-xs">
-                                  <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs font-bold text-slate-700">{item.title}</span>
-                                      <span className="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full text-[7px] font-black uppercase tracking-widest">{item.type}</span>
-                                    </div>
-                                    {item.description && <p className="text-[10px] text-slate-400 font-semibold italic">{item.description}</p>}
-                                  </div>
-                                  <button 
-                                    onClick={() => handleRemoveAchievement(item.id)}
-                                    className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-1 shrink-0"
-                                  >
-                                    <X size={14} />
-                                  </button>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 8. DIVERSIDADE */}
-                      {activeAccordion === 'diversity' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-2">
-                            <button 
-                              onClick={() => setShowDiversityModal(true)}
-                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                            >
-                              <Plus size={18} />
-                            </button>
-                          </div>
-
-                          <div className="bg-slate-50 p-4 rounded-[10px] border border-slate-100/50 text-left shadow-xs">
-                            {(!resumeData.diversity || (!resumeData.diversity.pronoun && !resumeData.diversity.genderIdentity && !resumeData.diversity.sexualOrientation && !resumeData.diversity.race)) ? (
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-2 text-center">Nenhuma informação de diversidade preenchida.</p>
-                            ) : (
-                              <div className="grid grid-cols-2 gap-4 text-xs">
-                                {resumeData.diversity.pronoun && (
-                                  <div>
-                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Pronome</p>
-                                    <p className="font-bold text-slate-700">{resumeData.diversity.pronoun}</p>
-                                  </div>
-                                )}
-                                {resumeData.diversity.genderIdentity && (
-                                  <div>
-                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Identidade Gênero</p>
-                                    <p className="font-bold text-slate-700">{resumeData.diversity.genderIdentity}</p>
-                                  </div>
-                                )}
-                                {resumeData.diversity.sexualOrientation && (
-                                  <div>
-                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Orientação Sexual</p>
-                                    <p className="font-bold text-slate-700">{resumeData.diversity.sexualOrientation}</p>
-                                  </div>
-                                )}
-                                {resumeData.diversity.race && (
-                                  <div>
-                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Cor / Raça</p>
-                                    <p className="font-bold text-slate-700">{resumeData.diversity.race}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              {/* Coluna Direita: Preview do Currículo - 40% do espaço (lg:col-span-4) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-32 lg:h-[calc(100vh-10.5rem)] h-auto overflow-hidden p-0 relative flex flex-col">
-                <div className="resume-preview-container flex justify-center w-full flex-1">
-                  <ResumeA4Preview resumeData={resumeData} calculateAge={calculateAge} calculateDuration={calculateDuration} />
-                </div>
-              </div>
-            </div>
-          </>
+      </div>
+    </>
           ) : activeTab === 'Configurações' ? (
 
             <motion.div 
@@ -7479,6 +6972,672 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         })}
       </div>
 
+                {/* Modal de Edição (Popup) */}
+                <AnimatePresence>
+                  {isEditModalOpen && (
+                    <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-md flex items-center justify-end z-[9999]">
+                      {/* Backdrop para fechar */}
+                      <div 
+                        className="absolute inset-0 cursor-pointer" 
+                        onClick={() => setIsEditModalOpen(false)} 
+                      />
+
+                      <motion.div
+                        initial={{ x: '100%', opacity: 1 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: '105%', opacity: 1 }}
+                        transition={{ type: "spring", damping: 26, stiffness: 220 }}
+                        style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, height: '100%' }}
+                        className="bg-[#faf8ff] rounded-none md:rounded-l-[2rem] w-full max-w-xl md:max-w-2xl overflow-y-auto fixed top-0 bottom-0 right-0 p-6 md:p-8 border-l border-white/20 shadow-2xl flex flex-col z-[10000] text-left"
+                      >
+                        {/* Cabeçalho do Modal */}
+                        <div className="w-full flex items-center justify-between mb-6 border-b border-slate-200/50 pb-4 shrink-0">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-[#533af6]/10 text-[#533af6] flex items-center justify-center">
+                              {activeAccordion === 'info' && <User size={20} />}
+                              {activeAccordion === 'summary' && <FileText size={20} />}
+                              {activeAccordion === 'experience' && <Briefcase size={20} />}
+                              {activeAccordion === 'education' && <GraduationCap size={20} />}
+                              {activeAccordion === 'skills' && <Star size={20} />}
+                              {activeAccordion === 'languages' && <Languages size={20} />}
+                              {activeAccordion === 'achievements' && <Award size={20} />}
+                              {activeAccordion === 'diversity' && <Accessibility size={20} />}
+                            </div>
+                            <div>
+                              <h2 className="text-base font-black text-slate-800 uppercase tracking-wider">
+                                {activeAccordion === 'info' && 'Dados Pessoais'}
+                                {activeAccordion === 'summary' && 'Resumo Profissional'}
+                                {activeAccordion === 'experience' && 'Experiência Profissional'}
+                                {activeAccordion === 'education' && 'Formação Acadêmica'}
+                                {activeAccordion === 'skills' && 'Habilidades'}
+                                {activeAccordion === 'languages' && 'Idiomas'}
+                                {activeAccordion === 'achievements' && 'Certificações & Cursos'}
+                                {activeAccordion === 'diversity' && 'Diversidade & PCD'}
+                              </h2>
+                              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                                Preencha as informações da seção abaixo
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => setIsEditModalOpen(false)}
+                            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all cursor-pointer border-0"
+                            title="Fechar"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+
+                        {/* Corpo do Modal: Formulários Originais */}
+                        <div className="flex-1 overflow-y-auto pr-1">
+                          <AnimatePresence mode="wait">
+                            <motion.div
+                              key={activeAccordion}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              transition={{ duration: 0.2 }}
+                              className="space-y-6"
+                            >
+                      {/* Título interno do painel da aba ativa */}
+                      <div className="pb-3.5 border-b border-slate-100/80 text-left">
+                        <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">
+                          {activeAccordion === 'info' && 'Foto & Dados Pessoais'}
+                          {activeAccordion === 'summary' && 'Resumo Profissional'}
+                          {activeAccordion === 'experience' && 'Experiência Profissional'}
+                          {activeAccordion === 'education' && 'Formação Acadêmica'}
+                          {activeAccordion === 'skills' && 'Habilidades'}
+                          {activeAccordion === 'languages' && 'Idiomas'}
+                          {activeAccordion === 'achievements' && 'Cursos ou Certificados'}
+                          {activeAccordion === 'diversity' && 'Diversidade'}
+                        </h2>
+                      </div>
+
+                      {/* 1. DADOS PESSOAIS E FOTO */}
+                      {activeAccordion === 'info' && (
+                        <div className="space-y-5">
+                          {/* Bloco de Foto de Perfil + Nome Completo Lado a Lado */}
+                          <div className="flex flex-col sm:flex-row items-center gap-6 pb-2 text-left">
+                            {/* Foto de Perfil Redonda sem Fundo Gigante */}
+                            <div className="relative group/photo shrink-0">
+                              <div className="w-20 h-20 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center relative transition-transform duration-300 hover:scale-105 shadow-sm">
+                                {resumeData.profilePic ? (
+                                  <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                  <User size={30} className="text-slate-400" />
+                                )}
+                                <div className="absolute inset-0 bg-primary-600/80 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300 cursor-pointer">
+                                  <Camera size={14} className="text-white mb-0.5" />
+                                  <span className="text-[6px] font-bold text-white uppercase tracking-widest text-center leading-none">Alterar</span>
+                                </div>
+                                <input 
+                                  type="file" 
+                                  ref={profilePicRef} 
+                                  className="absolute inset-0 opacity-0 cursor-pointer z-30" 
+                                  accept="image/*" 
+                                  onChange={handleProfilePicSelect}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Campo de Nome Completo do lado da Foto */}
+                            <div className="flex-1 w-full">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Nome Completo</label>
+                              <input 
+                                type="text"
+                                value={resumeData.fullName}
+                                onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
+                                placeholder="Nome completo"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Inputs de Informações Pessoais */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                            
+                            <div>
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">E-mail</label>
+                              <input 
+                                type="email"
+                                value={resumeData.email}
+                                onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
+                                placeholder="seu@email.com"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Gênero</label>
+                              <div className="relative">
+                                <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                <select 
+                                  value={resumeData.gender}
+                                  onChange={(e) => setResumeData({...resumeData, gender: e.target.value})}
+                                  className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none pr-10 text-xs shadow-xs"
+                                >
+                                  <option value="">Selecione seu gênero</option>
+                                  {GENDER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">WhatsApp / Telefone</label>
+                              <div className="relative">
+                                <Phone size={12} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
+                                <input 
+                                  type="tel"
+                                  value={resumeData.phone}
+                                  onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
+                                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
+                                  placeholder="(00) 00000-0000"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Data de Nascimento</label>
+                              <input 
+                                type="date"
+                                value={resumeData.birthDate}
+                                onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Estado</label>
+                              <div className="relative">
+                                <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                <select 
+                                  value={resumeData.state}
+                                  onChange={(e) => setResumeData({...resumeData, state: e.target.value, city: ''})}
+                                  className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs shadow-xs"
+                                >
+                                  <option value="">UF</option>
+                                  {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+                                </select>
+                              </div>
+                            </div>
+
+                            {resumeData.state && (
+                              <div>
+                                <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Cidade</label>
+                                <div className="relative">
+                                  {isLoadingCities ? (
+                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2">
+                                      <Loader2 size={12} className="animate-spin text-primary-500" />
+                                    </div>
+                                  ) : (
+                                    <MapPin size={12} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
+                                  )}
+                                  <select 
+                                    value={resumeData.city}
+                                    onChange={(e) => setResumeData({...resumeData, city: e.target.value})}
+                                    disabled={isLoadingCities || !cities.length}
+                                    className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 appearance-none text-xs disabled:opacity-50 shadow-xs"
+                                  >
+                                    <option value="">{isLoadingCities ? 'Carregando...' : 'Selecione a cidade'}</option>
+                                    {cities.map(city => <option key={city} value={city}>{city}</option>)}
+                                  </select>
+                                  {!isLoadingCities && <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />}
+                                </div>
+                              </div>
+                            )}
+
+                            <div>
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Pretensão Salarial</label>
+                              <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">R$</span>
+                                <input 
+                                  type="text"
+                                  value={resumeData.salary}
+                                  onChange={(e) => setResumeData({...resumeData, salary: e.target.value})}
+                                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
+                                  placeholder="Ex: 2.500,00"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Acessibilidade</label>
+                              <div className="flex flex-col gap-2 bg-slate-50 p-3 rounded-[10px] border border-transparent shadow-xs">
+                                <label className="flex items-center gap-3 cursor-pointer group/toggle shrink-0">
+                                  <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isPcd ? 'bg-primary-600' : 'bg-slate-200'}`}>
+                                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isPcd ? 'translate-x-5' : ''}`} />
+                                    <input 
+                                      type="checkbox" 
+                                      className="hidden" 
+                                      checked={resumeData.isPcd} 
+                                      onChange={(e) => setResumeData({...resumeData, isPcd: e.target.checked})} 
+                                    />
+                                  </div>
+                                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                                    <Accessibility size={14} /> PCD
+                                  </span>
+                                </label>
+                                
+                                <AnimatePresence>
+                                  {resumeData.isPcd && (
+                                    <motion.div
+                                      initial={{ opacity: 0, height: 0 }}
+                                      animate={{ opacity: 1, height: 'auto' }}
+                                      exit={{ opacity: 0, height: 0 }}
+                                      className="overflow-hidden pt-1"
+                                    >
+                                      <input 
+                                        type="text"
+                                        value={resumeData.cid}
+                                        onChange={(e) => setResumeData({...resumeData, cid: e.target.value})}
+                                        className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-[10px] outline-none font-bold text-[10px] text-primary-600 uppercase placeholder:text-slate-350"
+                                        placeholder="COD CID"
+                                      />
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 2. RESUMO PROFISSIONAL */}
+                      {activeAccordion === 'summary' && (
+                        <div className="space-y-4">
+                          <div className="flex justify-end items-center mb-1">
+                            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${resumeData.summary.length >= 300 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                              {resumeData.summary.length >= 300 ? <CheckCircle2 size={10} /> : <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />}
+                              {resumeData.summary.length} / 300
+                            </div>
+                          </div>
+                          <textarea 
+                            value={resumeData.summary}
+                            onChange={(e) => setResumeData({...resumeData, summary: e.target.value})}
+                            className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all min-h-[140px] leading-relaxed font-medium text-slate-600 text-sm italic shadow-xs"
+                            placeholder="Conte um pouco sobre sua trajetória..."
+                          />
+                        </div>
+                      )}
+
+                      {/* 3. EXPERIÊNCIA PROFISSIONAL */}
+                      {activeAccordion === 'experience' && (
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center mb-2 text-left">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isFirstJob ? 'bg-primary-600' : 'bg-slate-200'}`}>
+                                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isFirstJob ? 'translate-x-5' : ''}`} />
+                                <input 
+                                  type="checkbox" 
+                                  className="hidden" 
+                                  checked={resumeData.isFirstJob} 
+                                  onChange={(e) => setResumeData({...resumeData, isFirstJob: e.target.checked})} 
+                                />
+                              </div>
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Primeiro Emprego</span>
+                            </label>
+
+                            {!resumeData.isFirstJob && (
+                              <button 
+                                onClick={() => { setEditingExp(null); setShowExpModal(true); }}
+                                className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
+                              >
+                                <Plus size={20} />
+                              </button>
+                            )}
+                          </div>
+
+                          {resumeData.isFirstJob ? (
+                            <div className="bg-primary-50/20 p-8 rounded-[10px] text-center border-2 border-dashed border-primary-50/50">
+                              <div className="w-12 h-12 bg-white rounded-[10px] shadow-sm flex items-center justify-center mx-auto mb-4 text-primary-500 border border-slate-100/50">
+                                <Sparkles size={24} />
+                              </div>
+                              <h3 className="text-base font-bold text-slate-800 mb-1">Pronto para sua jornada?</h3>
+                              <p className="text-slate-400 max-w-sm mx-auto text-[11px] font-medium uppercase tracking-wider">Focaremos na sua formação e habilidades.</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              {resumeData.experiences.length === 0 ? (
+                                <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
+                                  <Briefcase size={32} className="text-slate-200 mx-auto mb-3" />
+                                  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
+                                </div>
+                              ) : (
+                                resumeData.experiences.map((exp) => (
+                                  <div key={exp.id} className="group relative bg-white p-5 rounded-[10px] border border-slate-150 hover:border-primary-100 hover:bg-slate-50/50 transition-all shadow-xs text-left">
+                                    <div className="flex justify-between items-start gap-3">
+                                      <div className="flex gap-4">
+                                        <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-[10px] flex items-center justify-center text-primary-600 shadow-xs shrink-0">
+                                          <Building size={18} />
+                                        </div>
+                                        <div>
+                                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight leading-tight">{exp.role}</h3>
+                                          <div className="flex flex-wrap items-center gap-2 mt-1">
+                                            <span className="text-slate-700 font-bold text-[11px]">{exp.company}</span>
+                                            <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                            <span className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                              <Clock size={10} className="text-primary-400" />
+                                              {calculateDuration(exp.startDate, exp.endDate, exp.current)}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-1">
+                                        <button onClick={() => { setEditingExp(exp); setShowExpModal(true); }} className="p-2 bg-white text-slate-400 hover:text-primary-600 rounded-full shadow-xs border border-slate-100 transition-colors cursor-pointer border-0"><Settings size={14} /></button>
+                                        <button onClick={() => setResumeData({...resumeData, experiences: resumeData.experiences.filter(e => e.id !== exp.id)})} className="p-2 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-xs border border-slate-100 transition-colors cursor-pointer border-0"><Trash2 size={14} /></button>
+                                      </div>
+                                    </div>
+                                    <div className="mt-3 pl-14">
+                                      <p className="text-slate-500 text-[11px] leading-relaxed whitespace-pre-line border-l-2 border-slate-100 pl-4">{exp.description}</p>
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* 4. FORMÇÃO ACADÊMICA */}
+                      {activeAccordion === 'education' && (
+                        <div className="space-y-4">
+                          <div className="flex justify-end items-center mb-2">
+                            <button onClick={() => { setEditingEdu(null); setShowEduModal(true); }} className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0">
+                              <Plus size={20} />
+                            </button>
+                          </div>
+
+                          <div className="space-y-4">
+                            {resumeData.educations.length === 0 ? (
+                              <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
+                                <GraduationCap size={32} className="text-slate-200 mx-auto mb-3" />
+                                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
+                              </div>
+                            ) : (
+                              resumeData.educations.map((edu) => (
+                                <div key={edu.id} className="group bg-white p-5 rounded-[10px] border border-slate-150 hover:border-primary-100 hover:shadow-xs transition-all relative text-left">
+                                  <div className="flex justify-between items-start mb-3">
+                                    <div className="w-9 h-9 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600 border border-slate-100/50">
+                                      <GraduationCap size={18} />
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <button onClick={() => { setEditingEdu(edu); setShowEduModal(true); }} className="p-2 text-slate-350 hover:text-primary-600 cursor-pointer border-0 bg-transparent"><Settings size={14} /></button>
+                                      <button onClick={() => setResumeData({...resumeData, educations: resumeData.educations.filter(e => e.id !== edu.id)})} className="p-2 text-slate-350 hover:text-red-500 cursor-pointer border-0 bg-transparent"><Trash2 size={14} /></button>
+                                    </div>
+                                  </div>
+                                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight mb-1">{edu.course}</h3>
+                                  <p className="text-[10px] font-bold text-slate-500 mb-4">{edu.institution}</p>
+                                  <div className="flex items-center justify-between">
+                                    <span className={`px-2.5 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ${
+                                      edu.status === 'Completo' ? 'bg-green-100 text-green-700' : 
+                                      edu.status === 'Cursando' ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-600'
+                                    }`}>
+                                      {edu.status}
+                                    </span>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Ano: {edu.gradYear}</span>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 5. HABILIDADES */}
+                      {activeAccordion === 'skills' && (
+                        <div className="space-y-4">
+                          <div className="flex flex-wrap gap-2">
+                            {resumeData.skills.map((skill, index) => (
+                              <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-highlight-50 text-highlight-700 rounded-[10px] text-xs font-bold border border-highlight-100 group transition-all hover:bg-highlight-100 shadow-xs">
+                                {skill}
+                                <button 
+                                  onClick={() => setResumeData({...resumeData, skills: resumeData.skills.filter((_, i) => i !== index)})}
+                                  className="text-primary-300 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-0 flex items-center"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="flex gap-2 text-left">
+                            <input 
+                              type="text"
+                              placeholder="Adicione uma habilidade (ex: React, Inglês...)"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  const val = e.currentTarget.value.trim();
+                                  if (val && !resumeData.skills.includes(val)) {
+                                    setResumeData({...resumeData, skills: [...resumeData.skills, val]});
+                                    e.currentTarget.value = '';
+                                  }
+                                }
+                              }}
+                              className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-[10px] focus:bg-white outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
+                            />
+                            <button 
+                              onClick={(e) => {
+                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                const val = input.value.trim();
+                                if (val && !resumeData.skills.includes(val)) {
+                                  setResumeData({...resumeData, skills: [...resumeData.skills, val]});
+                                  input.value = '';
+                                }
+                              }}
+                              className="w-9 h-9 flex items-center justify-center bg-primary-600 text-white rounded-[10px] hover:bg-primary-700 transition-colors cursor-pointer shrink-0 border-0"
+                            >
+                              <Plus size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 6. IDIOMAS */}
+                      {activeAccordion === 'languages' && (
+                        <div className="space-y-4">
+                          <div className="flex justify-end items-center mb-2">
+                            <button 
+                              onClick={() => setShowLangModal(true)}
+                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
+                            >
+                              <Plus size={18} />
+                            </button>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {(!resumeData.languages || resumeData.languages.length === 0) ? (
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-4 text-center border border-dashed border-slate-100 rounded-xl w-full">Nenhum idioma adicionado.</p>
+                            ) : (
+                              resumeData.languages.map((item) => (
+                                <div key={item.id} className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-[10px] text-xs font-bold border border-emerald-100 group transition-all hover:bg-emerald-100 shadow-xs">
+                                  <span>{item.language}</span>
+                                  <span className="px-1.5 py-0.5 bg-emerald-200 text-emerald-950 rounded-md text-[7px] font-black uppercase tracking-widest">{item.level}</span>
+                                  <button 
+                                    onClick={() => handleRemoveLanguage(item.id)}
+                                    className="text-emerald-500 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-0 flex items-center"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 7. CURSOS OU CERTIFICADOS */}
+                      {activeAccordion === 'achievements' && (
+                        <div className="space-y-4">
+                          <div className="flex justify-end items-center mb-2">
+                            <button 
+                              onClick={() => setShowAchModal(true)}
+                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
+                            >
+                              <Plus size={18} />
+                            </button>
+                          </div>
+
+                          <div className="space-y-3">
+                            {(!resumeData.achievements || resumeData.achievements.length === 0) ? (
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-4 text-center border border-dashed border-slate-100 rounded-xl w-full">Nenhuma conquista ou certificado adicionado.</p>
+                            ) : (
+                              resumeData.achievements.map((item) => (
+                                <div key={item.id} className="flex items-start justify-between bg-slate-50 p-4 rounded-[10px] border border-slate-100 hover:border-slate-200 transition-colors text-left shadow-xs">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs font-bold text-slate-700">{item.title}</span>
+                                      <span className="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full text-[7px] font-black uppercase tracking-widest">{item.type}</span>
+                                    </div>
+                                    {item.description && <p className="text-[10px] text-slate-400 font-semibold italic">{item.description}</p>}
+                                  </div>
+                                  <button 
+                                    onClick={() => handleRemoveAchievement(item.id)}
+                                    className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-1 shrink-0"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 8. DIVERSIDADE */}
+                      {activeAccordion === 'diversity' && (
+                        <div className="space-y-4">
+                          <div className="flex justify-end items-center mb-2">
+                            <button 
+                              onClick={() => setShowDiversityModal(true)}
+                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
+                            >
+                              <Plus size={18} />
+                            </button>
+                          </div>
+
+                          <div className="bg-slate-50 p-4 rounded-[10px] border border-slate-100/50 text-left shadow-xs">
+                            {(!resumeData.diversity || (!resumeData.diversity.pronoun && !resumeData.diversity.genderIdentity && !resumeData.diversity.sexualOrientation && !resumeData.diversity.race)) ? (
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-2 text-center">Nenhuma informação de diversidade preenchida.</p>
+                            ) : (
+                              <div className="grid grid-cols-2 gap-4 text-xs">
+                                {resumeData.diversity.pronoun && (
+                                  <div>
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Pronome</p>
+                                    <p className="font-bold text-slate-700">{resumeData.diversity.pronoun}</p>
+                                  </div>
+                                )}
+                                {resumeData.diversity.genderIdentity && (
+                                  <div>
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Identidade Gênero</p>
+                                    <p className="font-bold text-slate-700">{resumeData.diversity.genderIdentity}</p>
+                                  </div>
+                                )}
+                                {resumeData.diversity.sexualOrientation && (
+                                  <div>
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Orientação Sexual</p>
+                                    <p className="font-bold text-slate-700">{resumeData.diversity.sexualOrientation}</p>
+                                  </div>
+                                )}
+                                {resumeData.diversity.race && (
+                                  <div>
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Cor / Raça</p>
+                                    <p className="font-bold text-slate-700">{resumeData.diversity.race}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                {/* Rodapé do Modal com Ação de Salvar */}
+                <div className="w-full border-t border-slate-200/50 pt-4 mt-6 flex justify-end shrink-0">
+                  <button
+                    onClick={async () => {
+                      await handleSaveToSupabase();
+                      setIsEditModalOpen(false);
+                    }}
+                    className="w-full sm:w-auto px-6 py-2.5 bg-[#533af6] hover:bg-[#4128df] text-white rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer border-0 flex items-center justify-center gap-2 active:scale-98"
+                  >
+                    <Save size={14} />
+                    <span>SALVAR</span>
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Modal de Visualização do Currículo (Popup Centralizado) */}
+        <AnimatePresence>
+          {isPreviewModalOpen && (
+            <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 md:p-6 overflow-y-auto">
+              {/* Backdrop para fechar */}
+              <div 
+                className="absolute inset-0 cursor-pointer" 
+                onClick={() => setIsPreviewModalOpen(false)} 
+              />
+
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                className="bg-white/95 backdrop-blur-md rounded-[2rem] w-full max-w-4xl h-[85vh] flex flex-col relative overflow-hidden shadow-2xl border border-white/20 z-[10000] text-left"
+              >
+                {/* Cabeçalho do Modal */}
+                <div className="w-full flex items-center justify-between p-6 border-b border-slate-200/50 shrink-0 bg-slate-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#533af6]/10 text-[#533af6] flex items-center justify-center">
+                      <Eye size={20} />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">
+                        Visualização do Currículo
+                      </h2>
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                        Este é o formato oficial A4 gerado pela plataforma
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleDownloadResume()}
+                      className="px-4 py-2 bg-[#533af6] hover:bg-[#4128df] text-white rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer border-0 flex items-center gap-2 active:scale-95"
+                      title="Baixar PDF"
+                    >
+                      <Download size={14} />
+                      <span className="hidden sm:inline">Baixar PDF</span>
+                    </button>
+                    <button
+                      onClick={() => setIsPreviewModalOpen(false)}
+                      className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all cursor-pointer border-0"
+                      title="Fechar"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Corpo do Modal: Visualizador A4 do Currículo */}
+                <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-100/40 flex justify-center items-start">
+                  <div className="resume-preview-container flex justify-center w-full min-h-fit">
+                    <ResumeA4Preview 
+                      resumeData={resumeData} 
+                      calculateAge={calculateAge} 
+                      calculateDuration={calculateDuration} 
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       {isParsing && (
         <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center text-white">
           <div className="bg-white/15 backdrop-blur-lg border border-white/20 p-8 rounded-[2rem] shadow-2xl flex flex-col items-center gap-6 max-w-sm text-center">
