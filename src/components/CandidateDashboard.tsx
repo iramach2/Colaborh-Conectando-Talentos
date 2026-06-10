@@ -3473,17 +3473,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       className="space-y-6"
                     >
                       {/* Título interno do painel da aba ativa */}
-                      <div className="flex items-center gap-3 pb-3.5 border-b border-slate-100/80 text-left">
-                        <div className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center shadow-xs">
-                          {activeAccordion === 'info' && <User size={16} />}
-                          {activeAccordion === 'summary' && <FileText size={16} />}
-                          {activeAccordion === 'experience' && <Building size={16} />}
-                          {activeAccordion === 'education' && <GraduationCap size={16} />}
-                          {activeAccordion === 'skills' && <Star size={16} />}
-                          {activeAccordion === 'languages' && <Languages size={16} />}
-                          {activeAccordion === 'achievements' && <Award size={16} />}
-                          {activeAccordion === 'diversity' && <Accessibility size={16} />}
-                        </div>
+                      <div className="pb-3.5 border-b border-slate-100/80 text-left">
                         <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">
                           {activeAccordion === 'info' && 'Foto & Dados Pessoais'}
                           {activeAccordion === 'summary' && 'Resumo Profissional'}
@@ -3998,7 +3988,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               </div>
 
               {/* Coluna Direita: Preview do Currículo - 40% do espaço (lg:col-span-4) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-y-auto rounded-[20px] bg-white/70 backdrop-blur-md border border-white/50 p-4 shadow-sleek scrollbar-thin">
+              <div className="lg:col-span-4 lg:sticky lg:top-32 h-[calc(100vh-10.5rem)] overflow-y-auto p-0 scrollbar-thin">
                 <div className="resume-preview-container flex justify-center w-full">
                   <ResumeA4Preview resumeData={resumeData} calculateAge={calculateAge} calculateDuration={calculateDuration} />
                 </div>
