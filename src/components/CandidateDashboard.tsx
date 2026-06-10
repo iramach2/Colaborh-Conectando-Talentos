@@ -3488,30 +3488,19 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       {/* 1. DADOS PESSOAIS E FOTO */}
                       {activeAccordion === 'info' && (
                         <div className="space-y-5">
-                          {/* Destaque da Foto */}
-                          <div className="w-full h-44 rounded-[20px] flex items-center justify-center relative overflow-hidden bg-slate-100/50 border border-slate-100">
-                            {resumeData.profilePic ? (
-                              <img 
-                                src={resumeData.profilePic} 
-                                alt="Profile Blur" 
-                                className="absolute inset-0 w-full h-full object-cover blur-sm opacity-45 scale-125 select-none pointer-events-none" 
-                              />
-                            ) : (
-                              <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-highlight-500/10" />
-                            )}
-                            <div className="absolute inset-0 bg-black/5 z-0 pointer-events-none" />
-                            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/70 to-transparent pointer-events-none z-10" />
-                            
-                            <div className="relative group/photo shrink-0 z-20">
-                              <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative ring-2 ring-white/30 transition-transform duration-500 hover:scale-105">
+                          {/* Bloco de Foto de Perfil + Nome Completo Lado a Lado */}
+                          <div className="flex flex-col sm:flex-row items-center gap-6 pb-2 text-left">
+                            {/* Foto de Perfil Redonda sem Fundo Gigante */}
+                            <div className="relative group/photo shrink-0">
+                              <div className="w-20 h-20 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center relative transition-transform duration-300 hover:scale-105 shadow-sm">
                                 {resumeData.profilePic ? (
                                   <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
-                                  <User size={36} className="text-slate-200" />
+                                  <User size={30} className="text-slate-400" />
                                 )}
                                 <div className="absolute inset-0 bg-primary-600/80 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300 cursor-pointer">
-                                  <Camera size={16} className="text-white mb-1" />
-                                  <span className="text-[7px] font-bold text-white uppercase tracking-widest text-center leading-none">Alterar</span>
+                                  <Camera size={14} className="text-white mb-0.5" />
+                                  <span className="text-[6px] font-bold text-white uppercase tracking-widest text-center leading-none">Alterar</span>
                                 </div>
                                 <input 
                                   type="file" 
@@ -3522,11 +3511,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                 />
                               </div>
                             </div>
-                          </div>
 
-                          {/* Inputs de Informações Pessoais */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                            <div className="col-span-full">
+                            {/* Campo de Nome Completo do lado da Foto */}
+                            <div className="flex-1 w-full">
                               <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Nome Completo</label>
                               <input 
                                 type="text"
@@ -3536,6 +3523,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                 placeholder="Nome completo"
                               />
                             </div>
+                          </div>
+
+                          {/* Inputs de Informações Pessoais */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                             
                             <div>
                               <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">E-mail</label>
@@ -3641,7 +3632,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               </div>
                             </div>
 
-                            <div className="col-span-full">
+                            <div>
                               <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1.5 block pl-1">Acessibilidade</label>
                               <div className="flex flex-col gap-2 bg-slate-50 p-3 rounded-[10px] border border-transparent shadow-xs">
                                 <label className="flex items-center gap-3 cursor-pointer group/toggle shrink-0">
