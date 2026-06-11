@@ -3363,9 +3363,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10">
         {/* Novo Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo */}
-        <header className={`sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 transition-all duration-300 ${
-          activeTab === 'Testes' && !isHeaderScrolled ? 'py-4 flex flex-col gap-4' : 'py-3.5 flex flex-col gap-0'
-        }`}>
+        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-3.5 flex flex-col gap-0 transition-all duration-300">
           {/* Linha Principal do Cabeçalho */}
           <div className="flex items-center justify-between w-full">
             {/* Lado Esquerdo: Logo (sem botão hambúrguer mobile) */}
@@ -3425,47 +3423,6 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             </div>
           </div>
 
-          {/* Segunda Linha Condicional (Abas e Ações) */}
-          {(activeTab === 'Testes' && !isHeaderScrolled) && (
-            <div className="w-full border-t border-slate-100/80 pt-3 flex flex-col gap-2">
-              {/* Sub-abas de Testes */}
-              {activeTab === 'Testes' && (
-                <div className="flex items-center gap-8 pl-1">
-                  {/* Aba Pendentes */}
-                  <button
-                    onClick={() => setActiveTestSubTab('pending')}
-                    className="flex items-center gap-2 pb-1 relative font-black text-[11px] uppercase tracking-widest cursor-pointer border-0 bg-transparent transition-all outline-none"
-                  >
-                    <Clock size={14} className={activeTestSubTab === 'pending' ? 'text-primary-600' : 'text-slate-400'} />
-                    <span>Pendentes ({pendingTests.length})</span>
-                    {activeTestSubTab === 'pending' && (
-                      <motion.div 
-                        layoutId="activeTestSubTabBorder"
-                        className="absolute bottom-[-14px] left-0 right-0 h-[3px] bg-primary-600 rounded-full"
-                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                      />
-                    )}
-                  </button>
-
-                  {/* Aba Concluídos */}
-                  <button
-                    onClick={() => setActiveTestSubTab('completed')}
-                    className="flex items-center gap-2 pb-1 relative font-black text-[11px] uppercase tracking-widest cursor-pointer border-0 bg-transparent transition-all outline-none"
-                  >
-                    <CheckCircle2 size={14} className={activeTestSubTab === 'completed' ? 'text-primary-600' : 'text-slate-400'} />
-                    <span>Concluídos ({completedTests.length})</span>
-                    {activeTestSubTab === 'completed' && (
-                      <motion.div 
-                        layoutId="activeTestSubTabBorder"
-                        className="absolute bottom-[-14px] left-0 right-0 h-[3px] bg-primary-600 rounded-full"
-                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                      />
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
         </header>
 
           {/* Main Content */}
@@ -5708,6 +5665,39 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
                 return (
                   <div className="space-y-6">
+                    {/* Título da Página */}
+                    <div className="mb-4 text-left">
+                      <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                        Testes Avaliativos
+                      </h1>
+                    </div>
+
+                    {/* Sub-abas horizontais */}
+                    <div className="flex gap-4 border-b border-slate-200/50 pb-px mb-6 text-left">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTestSubTab('pending')}
+                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
+                          activeTestSubTab === 'pending'
+                            ? 'border-[#533af6] text-[#533af6]'
+                            : 'border-transparent text-slate-400 hover:text-slate-650'
+                        }`}
+                      >
+                        Pendentes ({pendingTests.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTestSubTab('completed')}
+                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
+                          activeTestSubTab === 'completed'
+                            ? 'border-[#533af6] text-[#533af6]'
+                            : 'border-transparent text-slate-400 hover:text-slate-650'
+                        }`}
+                      >
+                        Concluídos ({completedTests.length})
+                      </button>
+                    </div>
+
                     {activeTestSubTab === 'pending' ? (
                       <div>
                         {pendingTests.length === 0 ? (
