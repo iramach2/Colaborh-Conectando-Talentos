@@ -1841,6 +1841,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [vacancyCityFilter, setVacancyCityFilter] = useState('');
   const [vacancyCitiesList, setVacancyCitiesList] = useState<string[]>([]);
   const [isLoadingVacancyCities, setIsLoadingVacancyCities] = useState(false);
+  const [activeVacancySubTab, setActiveVacancySubTab] = useState<'todas' | 'minhas'>('todas');
   const [drawerTestResult, setDrawerTestResult] = useState<'DISC' | 'MBTI' | 'TEMPERAMENTOS' | 'CUSTOM' | 'QUESTIONS' | null>(null);
   const [activeTestSubTab, setActiveTestSubTab] = useState<'pending' | 'completed'>('pending');
   const [discTestState, setDiscTestState] = useState<'initial' | 'taking' | 'completed' | 'none'>('none');
@@ -3316,7 +3317,6 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
         <nav className="flex-1 space-y-3 lg:space-y-1.5 lg:py-0 w-full flex flex-col items-center justify-start py-4">
           <SidebarItem icon={FileText} label="Meu Currículo" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
-          <SidebarItem icon={Briefcase} label="Candidaturas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Star} label="Vagas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Brain} label="Testes" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
         </nav>
@@ -3789,193 +3789,212 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               className="space-y-6"
             >
               {/* Topo da página: Título, Busca e Filtro */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 text-left">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 text-left">
                 <div>
                   <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
                     Vagas Disponíveis
                   </h1>
                 </div>
                 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  {/* Campo de Busca */}
-                  <div className="relative flex-1 sm:w-64">
-                    <input
-                      type="text"
-                      value={vacancySearch}
-                      onChange={(e) => setVacancySearch(e.target.value)}
-                      placeholder="Buscar vagas..."
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-full focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm pl-4 pr-10"
-                    />
-                    {vacancySearch && (
-                      <button
-                        type="button"
-                        onClick={() => setVacancySearch('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 bg-transparent border-0 cursor-pointer p-0.5 flex items-center justify-center"
-                      >
-                        <X size={14} />
-                      </button>
-                    )}
-                  </div>
+                {activeVacancySubTab === 'todas' && (
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    {/* Campo de Busca */}
+                    <div className="relative flex-1 sm:w-64">
+                      <input
+                        type="text"
+                        value={vacancySearch}
+                        onChange={(e) => setVacancySearch(e.target.value)}
+                        placeholder="Buscar vagas..."
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-full focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm pl-4 pr-10"
+                      />
+                      {vacancySearch && (
+                        <button
+                          type="button"
+                          onClick={() => setVacancySearch('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 bg-transparent border-0 cursor-pointer p-0.5 flex items-center justify-center"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
 
-                  {/* Ícone de Filtro Redondo Roxo */}
-                  <button
-                    type="button"
-                    onClick={() => setIsFilterSidebarOpen(true)}
-                    className="w-9 h-9 rounded-full bg-[#533af6] hover:bg-[#4128df] text-white flex items-center justify-center transition-all cursor-pointer border-0 shadow-md active:scale-95 shrink-0 relative"
-                    title="Filtrar Vagas"
-                  >
-                    <Filter size={16} />
-                    {(vacancyModalityFilter || vacancyContractFilter || vacancyStateFilter || vacancyCityFilter) && (
-                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white" />
-                    )}
-                  </button>
-                </div>
+                    {/* Ícone de Filtro Redondo Roxo */}
+                    <button
+                      type="button"
+                      onClick={() => setIsFilterSidebarOpen(true)}
+                      className="w-9 h-9 rounded-full bg-[#533af6] hover:bg-[#4128df] text-white flex items-center justify-center transition-all cursor-pointer border-0 shadow-md active:scale-95 shrink-0 relative"
+                      title="Filtrar Vagas"
+                    >
+                      <Filter size={16} />
+                      {(vacancyModalityFilter || vacancyContractFilter || vacancyStateFilter || vacancyCityFilter) && (
+                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white" />
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {isFetchingVacancies ? (
-                <div className="text-center py-20 bg-white rounded-[2rem] shadow-sleek border border-white">
-                  <Loader2 className="animate-spin mx-auto text-primary-600 mb-4" size={32} />
-                  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Buscando melhores oportunidades...</p>
-                </div>
-              ) : vacancies.length === 0 ? (
-                <div className="bg-white p-20 rounded-[3rem] text-center border border-dashed border-slate-200">
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
-                    <Star size={40} />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900 mb-2">Aguardando oportunidades...</h3>
-                  <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium">As empresas ainda estão preparando as melhores vagas para você. Fique de olho!</p>
-                </div>
-              ) : filteredVacancies.length === 0 ? (
-                <div className="bg-white p-20 rounded-[3rem] text-center border border-dashed border-slate-200 flex flex-col items-center">
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 text-slate-300">
-                    <Filter size={32} />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900 mb-2">Nenhuma vaga encontrada</h3>
-                  <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium">Não encontramos vagas que correspondam aos termos de busca e filtros selecionados.</p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVacancySearch('');
-                      setVacancyModalityFilter('');
-                      setVacancyContractFilter('');
-                      setVacancyStateFilter('');
-                      setVacancyCityFilter('');
-                    }}
-                    className="py-3 px-8 bg-[#533af6] hover:bg-[#4128df] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:-translate-y-0.5 transition-all text-[9px] border-0 cursor-pointer"
-                  >
-                    Limpar Filtros
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-                  {filteredVacancies.map((v) => {
-                    const isApplied = appliedJobIds.includes(v.id);
-                    
-                    // Limpar a descrição removendo etapas e cabeçalhos de metadados
-                    const cleanDesc = cleanEmojiFromText(
-                      (v.description || '')
-                        .split('===ETAPAS_JSON===')[0]
-                        .replace(/📍 Localização:[^\n]*\n?/gi, '')
-                        .replace(/📝 Contratação:[^\n]*\n?/gi, '')
-                        .replace(/⏰ Escala:[^\n]*\n?/gi, '')
-                        .replace(/🔞 Idade Mínima:[^\n]*\n?/gi, '')
-                        .trim()
-                    );
-                    
-                    const titleClean = cleanEmojiFromText(v.title || '');
+              {/* Sub-abas horizontais */}
+              <div className="flex gap-4 border-b border-slate-200/50 pb-px mb-6 text-left">
+                <button
+                  type="button"
+                  onClick={() => setActiveVacancySubTab('todas')}
+                  className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
+                    activeVacancySubTab === 'todas'
+                      ? 'border-[#533af6] text-[#533af6]'
+                      : 'border-transparent text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  Todas as Vagas
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveVacancySubTab('minhas')}
+                  className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
+                    activeVacancySubTab === 'minhas'
+                      ? 'border-[#533af6] text-[#533af6]'
+                      : 'border-transparent text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  Minhas Candidaturas
+                </button>
+              </div>
 
-                    // Calcular iniciais da vaga de forma consistente
-                    const initials = (() => {
-                      const words = titleClean.trim().split(/\s+/).filter(w => w.length > 0);
-                      if (words.length >= 2) {
-                        return (words[0][0] + words[1][0]).toUpperCase();
-                      }
-                      return words[0] ? words[0].substring(0, 2).toUpperCase() : 'VG';
-                    })();
-                    
-                    return (
-                      <div 
-                        key={v.id} 
-                        className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col relative overflow-hidden h-[310px]"
-                      >
-                        <div className="flex flex-col h-full">
-                          <div>
-                            {/* Topo do Card: Ícone e Info Principal (Título ao lado do ícone) */}
-                            <div className="flex items-center gap-3.5 mb-4 mt-1 min-w-0">
-                              {/* Círculo redondo de iniciais da vaga */}
-                              <div className="w-11 h-11 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs">
-                                {initials}
-                              </div>
-                              
-                              <div className="min-w-0 flex-1 text-left">
-                                {/* Título da Vaga */}
-                                <h3 className="text-base font-black text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5" title={titleClean}>
-                                  {titleClean}
-                                </h3>
-                                {/* Badges */}
-                                <div className="flex gap-1.5 items-center">
-                                  <span className="px-2 py-0.5 bg-primary-50 text-primary-600 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
-                                    {v.modality || 'Remoto'}
-                                  </span>
-                                  {v.contract_type && (
-                                    <span className="px-2 py-0.5 bg-highlight-50 text-highlight-700 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
-                                      {v.contract_type}
+              {activeVacancySubTab === 'todas' ? (
+                isFetchingVacancies ? (
+                  <div className="text-center py-20 bg-white rounded-[2rem] shadow-sleek border border-white">
+                    <Loader2 className="animate-spin mx-auto text-primary-600 mb-4" size={32} />
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Buscando melhores oportunidades...</p>
+                  </div>
+                ) : vacancies.length === 0 ? (
+                  <div className="bg-white p-20 rounded-[3rem] text-center border border-dashed border-slate-200">
+                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                      <Star size={40} />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-900 mb-2">Aguardando oportunidades...</h3>
+                    <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium">As empresas ainda estão preparando as melhores vagas para você. Fique de olho!</p>
+                  </div>
+                ) : filteredVacancies.length === 0 ? (
+                  <div className="bg-white p-20 rounded-[3rem] text-center border border-dashed border-slate-200 flex flex-col items-center">
+                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 text-slate-300">
+                      <Filter size={32} />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-900 mb-2">Nenhuma vaga encontrada</h3>
+                    <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium">Não encontramos vagas que correspondam aos termos de busca e filtros selecionados.</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVacancySearch('');
+                        setVacancyModalityFilter('');
+                        setVacancyContractFilter('');
+                        setVacancyStateFilter('');
+                        setVacancyCityFilter('');
+                      }}
+                      className="py-3 px-8 bg-[#533af6] hover:bg-[#4128df] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:-translate-y-0.5 transition-all text-[9px] border-0 cursor-pointer"
+                    >
+                      Limpar Filtros
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                    {filteredVacancies.map((v) => {
+                      const isApplied = appliedJobIds.includes(v.id);
+                      
+                      const cleanDesc = cleanEmojiFromText(
+                        (v.description || '')
+                          .split('===ETAPAS_JSON===')[0]
+                          .replace(/📍 Localização:[^\n]*\n?/gi, '')
+                          .replace(/📝 Contratação:[^\n]*\n?/gi, '')
+                          .replace(/⏰ Escala:[^\n]*\n?/gi, '')
+                          .replace(/🔞 Idade Mínima:[^\n]*\n?/gi, '')
+                          .trim()
+                      );
+                      
+                      const titleClean = cleanEmojiFromText(v.title || '');
+
+                      const initials = (() => {
+                        const words = titleClean.trim().split(/\s+/).filter(w => w.length > 0);
+                        if (words.length >= 2) {
+                          return (words[0][0] + words[1][0]).toUpperCase();
+                        }
+                        return words[0] ? words[0].substring(0, 2).toUpperCase() : 'VG';
+                      })();
+                      
+                      return (
+                        <div 
+                          key={v.id} 
+                          className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col relative overflow-hidden h-[310px]"
+                        >
+                          <div className="flex flex-col h-full">
+                            <div>
+                              <div className="flex items-center gap-3.5 mb-4 mt-1 min-w-0">
+                                <div className="w-11 h-11 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs">
+                                  {initials}
+                                </div>
+                                
+                                <div className="min-w-0 flex-1 text-left">
+                                  <h3 className="text-base font-black text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5" title={titleClean}>
+                                    {titleClean}
+                                  </h3>
+                                  <div className="flex gap-1.5 items-center">
+                                    <span className="px-2 py-0.5 bg-primary-50 text-primary-600 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
+                                      {v.modality || 'Remoto'}
                                     </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Nome da Empresa e Localização */}
-                            <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">
-                              <span className="text-slate-500">{v.company_name || 'Empresa Parceira'}</span>
-                              <span>•</span>
-                              <span className="flex items-center gap-0.5">
-                                <MapPin size={10} className="text-slate-450" />
-                                {
-                                  (() => {
-                                    if (v.city && v.state) return `${v.city}, ${v.state}`;
-                                    if (v.city) return v.city;
-                                    if (v.state) return v.state;
-                                    if (v.description) {
-                                      const locMatch = (v.description || '').match(/Localização:\s*([^\n]+)/i);
-                                      if (locMatch && locMatch[1]) {
-                                        return locMatch[1].trim();
-                                      }
-                                    }
-                                    return v.modality || 'Remoto';
-                                  })()
-                                }
-                              </span>
-                            </div>
-                            
-                            {/* Descrição Curta */}
-                            <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3 mb-3">
-                              {cleanDesc || 'Nenhuma descrição fornecida para esta oportunidade de trabalho.'}
-                            </p>
-
-                            {/* Tags de Detalhes Técnicos */}
-                            <div className="grid grid-cols-2 gap-1.5 mb-4">
-                              <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-                                <DollarSign size={13} className="text-emerald-500 flex-shrink-0" />
-                                <div className="min-w-0">
-                                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Salário</p>
-                                  <p className="text-xs font-bold text-slate-700 truncate">{v.salary || 'A combinar'}</p>
+                                    {v.contract_type && (
+                                      <span className="px-2 py-0.5 bg-highlight-50 text-highlight-700 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
+                                        {v.contract_type}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                               
-                              <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-                                <Clock size={14} className="text-primary-500 flex-shrink-0" />
-                                <div className="min-w-0">
-                                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Jornada</p>
-                                  <p className="text-xs font-bold text-slate-700 truncate">{v.work_schedule || 'A combinar'}</p>
+                              <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                                <span className="text-slate-500">{v.company_name || 'Empresa Parceira'}</span>
+                                <span>•</span>
+                                <span className="flex items-center gap-0.5">
+                                  <MapPin size={10} className="text-slate-450" />
+                                  {
+                                    (() => {
+                                      if (v.city && v.state) return `${v.city}, ${v.state}`;
+                                      if (v.city) return v.city;
+                                      if (v.state) return v.state;
+                                      if (v.description) {
+                                        const locMatch = (v.description || '').match(/Localização:\s*([^\n]+)/i);
+                                        if (locMatch && locMatch[1]) {
+                                          return locMatch[1].trim();
+                                        }
+                                      }
+                                      return v.modality || 'Remoto';
+                                    })()
+                                  }
+                                </span>
+                              </div>
+                              
+                              <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3 mb-3">
+                                {cleanDesc || 'Nenhuma descrição fornecida para esta oportunidade de trabalho.'}
+                              </p>
+
+                              <div className="grid grid-cols-2 gap-1.5 mb-4">
+                                <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+                                  <DollarSign size={13} className="text-emerald-500 flex-shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Salário</p>
+                                    <p className="text-xs font-bold text-slate-700 truncate">{v.salary || 'A combinar'}</p>
+                                  </div>
+                                </div>
+                                
+                                <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+                                  <Clock size={14} className="text-primary-500 flex-shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Jornada</p>
+                                    <p className="text-xs font-bold text-slate-700 truncate">{v.work_schedule || 'A combinar'}</p>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Ações do Card */}
-                          <div className="flex gap-2 mt-auto">
+                            <div className="flex gap-2 mt-auto">
                               <button 
                                 type="button"
                                 onClick={() => setSelectedJobForDetails(v)}
@@ -4004,122 +4023,107 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                           </div>
                         </div>
                       );
-                  })}
-                </div>
-              )}
-            </motion.div>
-          ) : activeTab === 'Candidaturas' ? (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="space-y-6 text-left"
-            >
-              {/* Título da Página */}
-              <div className="mb-8 flex items-center justify-between">
-                <div className="text-left">
-                  <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
-                    Minhas Candidaturas
-                  </h1>
-                </div>
-              </div>
-
-              {myApplications.length === 0 ? (
-                <div className="text-center py-24 bg-white rounded-[3rem] shadow-sm flex flex-col items-center">
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-6">
-                    <Briefcase size={40} />
+                    })}
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 mb-1">Candidaturas Vazias</h3>
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-widest italic">Você ainda não se aplicou para nenhuma vaga.</p>
-                </div>
+                )
               ) : (
-                <div className="space-y-4">
-                  {myApplications.map((app, i) => {
-                    const job = vacancies.find(v => v.id === app.job_id);
-                    const appDate = app.created_at 
-                      ? new Date(app.created_at).toLocaleDateString('pt-BR') 
-                      : 'Recentemente';
+                myApplications.length === 0 ? (
+                  <div className="text-center py-24 bg-white rounded-[3rem] shadow-sm flex flex-col items-center">
+                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-6">
+                      <Briefcase size={40} />
+                    </div>
+                    <h3 className="text-lg font-black text-slate-900 mb-1">Candidaturas Vazias</h3>
+                    <p className="text-xs font-medium text-slate-400 uppercase tracking-widest italic">Você ainda não se aplicou para nenhuma vaga.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4 text-left">
+                    {myApplications.map((app, i) => {
+                      const job = vacancies.find(v => v.id === app.job_id);
+                      const appDate = app.created_at 
+                        ? new Date(app.created_at).toLocaleDateString('pt-BR') 
+                        : 'Recentemente';
 
-                    const currentStatus = app.status || 'Triagem';
-                    
-                    // Retrieve the custom stages list from the vacancy description or stages column
-                    const parsedStagesFromDesc = (() => {
-                      if (job?.description && job.description.includes('===ETAPAS_JSON===')) {
-                        try {
-                          const part = job.description.split('===ETAPAS_JSON===')[1].split('===FIM_ETAPAS===')[0];
-                          return JSON.parse(part);
-                        } catch (e) {
-                          console.error('Error parsing stages from description:', e);
+                      const currentStatus = app.status || 'Triagem';
+                      
+                      const parsedStagesFromDesc = (() => {
+                        if (job?.description && job.description.includes('===ETAPAS_JSON===')) {
+                          try {
+                            const part = job.description.split('===ETAPAS_JSON===')[1].split('===FIM_ETAPAS===')[0];
+                            return JSON.parse(part);
+                          } catch (e) {
+                            console.error('Error parsing stages from description:', e);
+                          }
                         }
+                        return null;
+                      })();
+
+                      const stagesList: string[] = parsedStagesFromDesc || (Array.isArray(job?.stages) 
+                        ? job.stages 
+                        : (typeof job?.stages === 'string' 
+                            ? JSON.parse(job.stages) 
+                            : ['Análise de Currículo']));
+
+                      const firstStageName = stagesList[0] || 'Triagem';
+                      const normalizedStatus = (currentStatus === 'Triagem') ? firstStageName : currentStatus;
+
+                      let statusColorClass = 'text-primary-600 bg-primary-50';
+                      if (normalizedStatus === 'Contratado') {
+                        statusColorClass = 'text-emerald-600 bg-emerald-50';
+                      } else if (normalizedStatus === 'Reprovado') {
+                        statusColorClass = 'text-rose-600 bg-rose-50';
+                      } else if (normalizedStatus === 'Entrevista') {
+                        statusColorClass = 'text-indigo-600 bg-indigo-50';
+                      } else if (normalizedStatus === 'Testes') {
+                        statusColorClass = 'text-sky-600 bg-sky-50 border border-sky-100/60';
                       }
-                      return null;
-                    })();
 
-                    const stagesList: string[] = parsedStagesFromDesc || (Array.isArray(job?.stages) 
-                      ? job.stages 
-                      : (typeof job?.stages === 'string' 
-                          ? JSON.parse(job.stages) 
-                          : ['Análise de Currículo']));
+                      const initials = (() => {
+                        const title = job?.title || 'Candidatura Enviada';
+                        const words = title.trim().split(/\s+/).filter(w => w.length > 0);
+                        if (words.length >= 2) {
+                          return (words[0][0] + words[1][0]).toUpperCase();
+                        }
+                        return words[0] ? words[0].substring(0, 2).toUpperCase() : 'CE';
+                      })();
 
-                    const firstStageName = stagesList[0] || 'Triagem';
-                    const normalizedStatus = (currentStatus === 'Triagem') ? firstStageName : currentStatus;
-
-                    let statusColorClass = 'text-primary-600 bg-primary-50';
-                    if (normalizedStatus === 'Contratado') {
-                      statusColorClass = 'text-emerald-600 bg-emerald-50';
-                    } else if (normalizedStatus === 'Reprovado') {
-                      statusColorClass = 'text-rose-600 bg-rose-50';
-                    } else if (normalizedStatus === 'Entrevista') {
-                      statusColorClass = 'text-indigo-600 bg-indigo-50';
-                    } else if (normalizedStatus === 'Testes') {
-                      statusColorClass = 'text-sky-600 bg-sky-50 border border-sky-100/60';
-                    }
-
-                    const initials = (() => {
-                      const title = job?.title || 'Candidatura Enviada';
-                      const words = title.trim().split(/\s+/).filter(w => w.length > 0);
-                      if (words.length >= 2) {
-                        return (words[0][0] + words[1][0]).toUpperCase();
-                      }
-                      return words[0] ? words[0].substring(0, 2).toUpperCase() : 'CE';
-                    })();
-
-                    return (
-                      <div key={i} className="bg-white/80 backdrop-blur-md border border-white/50 p-5 sm:p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 hover:shadow-md hover:bg-white/95 transition-all duration-300">
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-11 h-11 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs">
-                            {initials}
-                          </div>
-                          <div className="text-left min-w-0 flex-1">
-                            <h4 className="font-bold text-slate-900 uppercase tracking-tight text-xs sm:text-sm mb-1 truncate w-full" title={job?.title}>
-                              {job?.title || 'Candidatura Enviada'}
-                            </h4>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Status:</span>
-                              <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${statusColorClass}`}>
-                                {normalizedStatus}
-                              </span>
+                      return (
+                        <div key={i} className="bg-white/80 backdrop-blur-md border border-white/50 p-5 sm:p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 hover:shadow-md hover:bg-white/95 transition-all duration-300">
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div className="w-11 h-11 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs">
+                              {initials}
+                            </div>
+                            <div className="text-left min-w-0 flex-1">
+                              <h4 className="font-bold text-slate-900 uppercase tracking-tight text-xs sm:text-sm mb-1 truncate w-full" title={job?.title}>
+                                {job?.title || 'Candidatura Enviada'}
+                              </h4>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Status:</span>
+                                <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${statusColorClass}`}>
+                                  {normalizedStatus}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center justify-between sm:justify-end gap-6 border-t border-slate-100 sm:border-0 pt-3 sm:pt-0 mt-1 sm:mt-0">
-                          <div className="text-left sm:text-right">
-                            <p className="text-[8px] font-black text-slate-350 uppercase tracking-widest mb-0.5">Enviado em</p>
-                            <p className="text-[10px] sm:text-xs font-bold text-slate-500">{appDate}</p>
+                          <div className="flex items-center justify-between sm:justify-end gap-6 border-t border-slate-100 sm:border-0 pt-3 sm:pt-0 mt-1 sm:mt-0">
+                            <div className="text-left sm:text-right">
+                              <p className="text-[8px] font-black text-slate-350 uppercase tracking-widest mb-0.5">Enviado em</p>
+                              <p className="text-[10px] sm:text-xs font-bold text-slate-500">{appDate}</p>
+                            </div>
+                            {job && (
+                              <button 
+                                onClick={() => setSelectedJobForDetails(job)}
+                                className="px-5 py-2.5 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-primary-500/10 cursor-pointer active:scale-95 border-0"
+                              >
+                                Ver Detalhes
+                              </button>
+                            )}
                           </div>
-                          {job && (
-                            <button 
-                              onClick={() => setSelectedJobForDetails(job)}
-                              className="px-5 py-2.5 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-primary-500/10 cursor-pointer active:scale-95 border-0"
-                            >
-                              Ver Detalhes
-                            </button>
-                          )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )
+              )}
             </motion.div>
           ) : activeTab === 'Testes' ? (
             <motion.div 
@@ -6797,7 +6801,6 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       >
         {[
           { label: 'Meu Currículo', icon: FileText },
-          { label: 'Candidaturas', icon: Briefcase },
           { label: 'Vagas', icon: Star },
           { label: 'Testes', icon: Brain },
           { label: 'Configurações', icon: Settings }
