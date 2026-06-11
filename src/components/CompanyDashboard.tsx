@@ -384,6 +384,16 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     return saved || '1';
   });
 
+  // Ajuste dinâmico de cor de fundo do html e body para casar com o CompanyDashboard
+  useEffect(() => {
+    document.documentElement.style.backgroundColor = '#f3f4f6';
+    document.body.style.backgroundColor = '#f3f4f6';
+    return () => {
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+    };
+  }, []);
+
   // Persistir empresas e empresa selecionada no localStorage
   useEffect(() => {
     localStorage.setItem('colaborh_companies', JSON.stringify(companies));
@@ -4676,7 +4686,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                   className="relative w-full max-w-4xl bg-white rounded-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
                 >
                   {/* Cabeçalho de visualização */}
@@ -5472,7 +5482,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                   className="relative w-full max-w-md bg-white rounded-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
                 >
                   {/* Drawer Header */}
@@ -6613,7 +6623,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                   className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10"
                 >
                   {/* Cabeçalho do Drawer */}
@@ -6794,7 +6804,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                   className="relative w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10"
                 >
                   {/* Cabeçalho do Drawer */}
@@ -6995,7 +7005,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                   className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10 animate-none"
                 >
                   {/* Cabeçalho do Drawer */}
@@ -7220,7 +7230,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                   className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10 text-left font-sans"
                 >
                   {/* Cabeçalho do Drawer */}

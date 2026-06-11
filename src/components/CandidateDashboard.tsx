@@ -41,7 +41,8 @@ import {
   Check,
   Globe,
   Languages,
-  Info
+  Info,
+  Filter
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -1082,7 +1083,7 @@ const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpa
             : 'lg:bg-transparent lg:text-white/70'
           }
           /* Efeito Hover no Desktop */
-          lg:hover:w-48 lg:hover:bg-white/90 lg:hover:backdrop-blur-xs lg:hover:text-[#533af6] lg:hover:shadow-2xl lg:hover:z-50 lg:hover:justify-start lg:hover:pl-3.5 lg:hover:pr-8
+          lg:group-hover/item:w-48 lg:group-hover/item:bg-white/90 lg:group-hover/item:backdrop-blur-xs lg:group-hover/item:text-[#533af6] lg:group-hover/item:shadow-2xl lg:group-hover/item:z-50 lg:group-hover/item:justify-start lg:group-hover/item:pl-3.5 lg:group-hover/item:pr-8
         `}
       >
         <Icon size={18} className={`shrink-0 transition-all duration-200 ${
@@ -1129,8 +1130,17 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     const handleScroll = () => {
       setIsHeaderScrolled(window.scrollY > 40);
     };
+
+    // Ajuste dinâmico de cor de fundo do html e body para casar com o CandidateDashboard
+    document.documentElement.style.backgroundColor = '#faf8ff';
+    document.body.style.backgroundColor = '#faf8ff';
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+    };
   }, []);
 
   // Custom Alert / Confirm Dialog states
@@ -1823,6 +1833,14 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [myApplications, setMyApplications] = useState<any[]>([]);
   const [isApplying, setIsApplying] = useState<string | null>(null);
   const [selectedJobForDetails, setSelectedJobForDetails] = useState<any | null>(null);
+  const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
+  const [vacancySearch, setVacancySearch] = useState('');
+  const [vacancyModalityFilter, setVacancyModalityFilter] = useState('');
+  const [vacancyContractFilter, setVacancyContractFilter] = useState('');
+  const [vacancyStateFilter, setVacancyStateFilter] = useState('');
+  const [vacancyCityFilter, setVacancyCityFilter] = useState('');
+  const [vacancyCitiesList, setVacancyCitiesList] = useState<string[]>([]);
+  const [isLoadingVacancyCities, setIsLoadingVacancyCities] = useState(false);
   const [drawerTestResult, setDrawerTestResult] = useState<'DISC' | 'MBTI' | 'TEMPERAMENTOS' | 'CUSTOM' | 'QUESTIONS' | null>(null);
   const [activeTestSubTab, setActiveTestSubTab] = useState<'pending' | 'completed'>('pending');
   const [discTestState, setDiscTestState] = useState<'initial' | 'taking' | 'completed' | 'none'>('none');
@@ -2435,6 +2453,47 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     }
   }, [resumeData.email, resumeData.fullName]);
 
+  // Limpar emojis do texto (títulos de vaga)
+  const cleanEmojiFromText = (text: string): string => {
+    if (!text) return '';
+    try {
+      return text
+        .replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]|\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    } catch (e) {
+      return text
+        .replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+  };
+
+  // Carregar cidades com base no estado selecionado para o filtro de vagas
+  useEffect(() => {
+    if (vacancyStateFilter) {
+      if (vacancyStateFilter === 'DF') {
+        setVacancyCitiesList(DF_REGIONS);
+        setIsLoadingVacancyCities(false);
+        return;
+      }
+      setIsLoadingVacancyCities(true);
+      fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${vacancyStateFilter}/municipios`)
+        .then(res => res.json())
+        .then(data => {
+          setVacancyCitiesList(data.map((city: any) => city.nome).sort());
+          setIsLoadingVacancyCities(false);
+        })
+        .catch(err => {
+          console.error('Error fetching vacancy cities:', err);
+          setIsLoadingVacancyCities(false);
+        });
+    } else {
+      setVacancyCitiesList([]);
+      setVacancyCityFilter('');
+    }
+  }, [vacancyStateFilter]);
+
   useEffect(() => {
     async function loadVacancies() {
       if (!import.meta.env.VITE_SUPABASE_URL) return;
@@ -2878,6 +2937,28 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     });
   })();
 
+  // Vagas Filtradas
+  const filteredVacancies = vacancies.filter(v => {
+    const titleClean = cleanEmojiFromText(v.title || '').toLowerCase();
+    const descClean = (v.description || '').toLowerCase();
+    const companyClean = (v.company_name || '').toLowerCase();
+    const searchLower = vacancySearch.toLowerCase();
+    
+    const matchesSearch = !vacancySearch || 
+      titleClean.includes(searchLower) || 
+      descClean.includes(searchLower) || 
+      companyClean.includes(searchLower);
+
+    const matchesModality = !vacancyModalityFilter || v.modality === vacancyModalityFilter;
+    const matchesContract = !vacancyContractFilter || v.contract_type === vacancyContractFilter;
+    const matchesState = !vacancyStateFilter || v.state === vacancyStateFilter;
+    
+    const matchesCity = !vacancyCityFilter || 
+      (v.city && v.city.toLowerCase().trim() === vacancyCityFilter.toLowerCase().trim());
+
+    return matchesSearch && matchesModality && matchesContract && matchesState && matchesCity;
+  });
+
   const renderDrawerTestContent = () => {
     if (drawerTestResult === 'DISC' && discResult) {
       const { D, I, S, C } = discResult;
@@ -3281,8 +3362,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10">
-        {/* Novo Cabeçalho Premium - Estilo Barra Horizontal do Mockup */}
-        <header className={`relative z-40 mx-0 mt-0 lg:mx-6 lg:mt-6 rounded-none lg:rounded-full bg-white/95 backdrop-blur-md border-b border-slate-200/50 lg:border shadow-[0_10px_30px_rgba(0,0,0,0.03)] px-4 lg:px-6 transition-all duration-300 ${
+        {/* Novo Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo */}
+        <header className={`sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 transition-all duration-300 ${
           activeTab === 'Testes' && !isHeaderScrolled ? 'py-4 flex flex-col gap-4' : 'py-3.5 flex flex-col gap-0'
         }`}>
           {/* Linha Principal do Cabeçalho */}
@@ -3388,7 +3469,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-4 relative z-10">
+          <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-12 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
             <>
@@ -3484,9 +3565,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
               </div>
 
-              <div className="w-full max-w-6xl mx-auto pb-12 flex flex-col gap-6 items-start">
+              <div className="w-full pb-12 flex flex-col gap-6 items-start">
                 {/* Grade de Cards das Seções */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
                   {[
                     { id: 'info', icon: User, title: 'Dados Pessoais', desc: 'Altere sua foto de perfil, nome completo, contato, pretensão salarial e links de redes sociais.' },
                     { id: 'summary', icon: FileText, title: 'Resumo Profissional', desc: 'Escreva uma breve apresentação destacando seus objetivos, conquistas e trajetória.' },
@@ -3494,14 +3575,14 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     { id: 'education', icon: GraduationCap, title: 'Formação Acadêmica', desc: 'Insira suas graduações, faculdades, cursos técnicos, certificações e datas.' },
                     { id: 'skills', icon: Star, title: 'Habilidades', desc: 'Destaque suas principais competências técnicas ou comportamentais e nível de domínio.' },
                     { id: 'languages', icon: Languages, title: 'Idiomas', desc: 'Adicione as línguas estrangeiras que fala e o seu respectivo nível de fluência.' },
-                    { id: 'achievements', icon: Award, title: 'Certificações & Cursos', desc: 'Registre cursos extracurriculares, workshops, licenças profissionais e certificados.' },
+                    { id: 'achievements', icon: Award, title: 'Certificações', desc: 'Registre cursos extracurriculares, workshops, licenças profissionais e certificados.' },
                     { id: 'diversity', icon: Accessibility, title: 'Diversidade & PCD', desc: 'Preencha opcionalmente informações de acessibilidade, gênero, raça ou orientação.' }
                   ].map((section) => {
                     const Icon = section.icon;
                     return (
                       <div 
                         key={section.id}
-                        className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex items-center justify-between hover:shadow-md hover:bg-white/95 transition-all duration-300 group text-left"
+                        className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex items-center justify-between hover:shadow-md hover:bg-white/95 transition-all duration-300 group text-left h-[128px]"
                       >
                         <div className="flex items-center gap-4 pr-4">
                           <div className="w-12 h-12 rounded-full bg-[#533af6]/10 text-[#533af6] flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105">
@@ -3511,7 +3592,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">
                               {section.title}
                             </h3>
-                            <p className="text-xs text-slate-400 mt-1 leading-relaxed max-w-sm">
+                            <p className="text-xs text-slate-400 mt-1 leading-relaxed max-w-sm line-clamp-2 lg:line-clamp-3">
                               {section.desc}
                             </p>
                           </div>
@@ -3707,53 +3788,143 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
+              {/* Topo da página: Título, Busca e Filtro */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 text-left">
+                <div>
+                  <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                    Vagas Disponíveis
+                  </h1>
+                </div>
+                
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  {/* Campo de Busca */}
+                  <div className="relative flex-1 sm:w-64">
+                    <input
+                      type="text"
+                      value={vacancySearch}
+                      onChange={(e) => setVacancySearch(e.target.value)}
+                      placeholder="Buscar vagas..."
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-full focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm pl-4 pr-10"
+                    />
+                    {vacancySearch && (
+                      <button
+                        type="button"
+                        onClick={() => setVacancySearch('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 bg-transparent border-0 cursor-pointer p-0.5 flex items-center justify-center"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Ícone de Filtro Redondo Roxo */}
+                  <button
+                    type="button"
+                    onClick={() => setIsFilterSidebarOpen(true)}
+                    className="w-9 h-9 rounded-full bg-[#533af6] hover:bg-[#4128df] text-white flex items-center justify-center transition-all cursor-pointer border-0 shadow-md active:scale-95 shrink-0 relative"
+                    title="Filtrar Vagas"
+                  >
+                    <Filter size={16} />
+                    {(vacancyModalityFilter || vacancyContractFilter || vacancyStateFilter || vacancyCityFilter) && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {isFetchingVacancies ? (
                 <div className="text-center py-20 bg-white rounded-[2rem] shadow-sleek border border-white">
                   <Loader2 className="animate-spin mx-auto text-primary-600 mb-4" size={32} />
                   <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Buscando melhores oportunidades...</p>
                 </div>
-              ) : vacancies.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {vacancies.map((v) => {
+              ) : vacancies.length === 0 ? (
+                <div className="bg-white p-20 rounded-[3rem] text-center border border-dashed border-slate-200">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                    <Star size={40} />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900 mb-2">Aguardando oportunidades...</h3>
+                  <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium">As empresas ainda estão preparando as melhores vagas para você. Fique de olho!</p>
+                </div>
+              ) : filteredVacancies.length === 0 ? (
+                <div className="bg-white p-20 rounded-[3rem] text-center border border-dashed border-slate-200 flex flex-col items-center">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 text-slate-300">
+                    <Filter size={32} />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900 mb-2">Nenhuma vaga encontrada</h3>
+                  <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium">Não encontramos vagas que correspondam aos termos de busca e filtros selecionados.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVacancySearch('');
+                      setVacancyModalityFilter('');
+                      setVacancyContractFilter('');
+                      setVacancyStateFilter('');
+                      setVacancyCityFilter('');
+                    }}
+                    className="py-3 px-8 bg-[#533af6] hover:bg-[#4128df] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:-translate-y-0.5 transition-all text-[9px] border-0 cursor-pointer"
+                  >
+                    Limpar Filtros
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                  {filteredVacancies.map((v) => {
                     const isApplied = appliedJobIds.includes(v.id);
                     
                     // Limpar a descrição removendo etapas e cabeçalhos de metadados
-                    const cleanDesc = (v.description || '')
-                      .split('===ETAPAS_JSON===')[0]
-                      .replace(/📍 Localização:[^\n]*\n?/gi, '')
-                      .replace(/📝 Contratação:[^\n]*\n?/gi, '')
-                      .replace(/⏰ Escala:[^\n]*\n?/gi, '')
-                      .replace(/🔞 Idade Mínima:[^\n]*\n?/gi, '')
-                      .trim();
+                    const cleanDesc = cleanEmojiFromText(
+                      (v.description || '')
+                        .split('===ETAPAS_JSON===')[0]
+                        .replace(/📍 Localização:[^\n]*\n?/gi, '')
+                        .replace(/📝 Contratação:[^\n]*\n?/gi, '')
+                        .replace(/⏰ Escala:[^\n]*\n?/gi, '')
+                        .replace(/🔞 Idade Mínima:[^\n]*\n?/gi, '')
+                        .trim()
+                    );
+                    
+                    const titleClean = cleanEmojiFromText(v.title || '');
+
+                    // Calcular iniciais da vaga de forma consistente
+                    const initials = (() => {
+                      const words = titleClean.trim().split(/\s+/).filter(w => w.length > 0);
+                      if (words.length >= 2) {
+                        return (words[0][0] + words[1][0]).toUpperCase();
+                      }
+                      return words[0] ? words[0].substring(0, 2).toUpperCase() : 'VG';
+                    })();
                     
                     return (
                       <div 
                         key={v.id} 
-                        className="bg-white p-6 rounded-[10px] shadow-sleek border border-slate-100 hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[395px]"
+                        className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col relative overflow-hidden h-[310px]"
                       >
-                        {/* Sutil linha de gradiente superior no estilo do site */}
-                        <div className="absolute top-0 left-0 w-[5px] h-full bg-gradient-to-b from-primary-500 to-highlight-500" />
-                        
-                        <div className="flex flex-col h-full justify-between">
+                        <div className="flex flex-col h-full">
                           <div>
-                            {/* Topo do Card: Badges da Vaga */}
-                            <div className="flex justify-between items-center mb-4 mt-1">
-                              <div className="flex gap-1.5">
-                                <span className="px-2.5 py-0.5 bg-primary-50 text-primary-600 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
-                                  {v.modality || 'Remoto'}
-                                </span>
-                                {v.contract_type && (
-                                  <span className="px-2.5 py-0.5 bg-highlight-50 text-highlight-700 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
-                                    {v.contract_type}
+                            {/* Topo do Card: Ícone e Info Principal (Título ao lado do ícone) */}
+                            <div className="flex items-center gap-3.5 mb-4 mt-1 min-w-0">
+                              {/* Círculo redondo de iniciais da vaga */}
+                              <div className="w-11 h-11 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs">
+                                {initials}
+                              </div>
+                              
+                              <div className="min-w-0 flex-1 text-left">
+                                {/* Título da Vaga */}
+                                <h3 className="text-base font-black text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5" title={titleClean}>
+                                  {titleClean}
+                                </h3>
+                                {/* Badges */}
+                                <div className="flex gap-1.5 items-center">
+                                  <span className="px-2 py-0.5 bg-primary-50 text-primary-600 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
+                                    {v.modality || 'Remoto'}
                                   </span>
-                                )}
+                                  {v.contract_type && (
+                                    <span className="px-2 py-0.5 bg-highlight-50 text-highlight-700 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
+                                      {v.contract_type}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                            
-                            {/* Título da Vaga */}
-                            <h3 className="text-sm font-black text-slate-800 tracking-tight group-hover:text-primary-600 transition-colors uppercase line-clamp-1 mb-1" title={v.title}>
-                              {v.title}
-                            </h3>
                             
                             {/* Nome da Empresa e Localização */}
                             <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">
@@ -3779,41 +3950,32 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             </div>
                             
                             {/* Descrição Curta */}
-                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed line-clamp-3 mb-4 min-h-[50px]">
+                            <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3 mb-3">
                               {cleanDesc || 'Nenhuma descrição fornecida para esta oportunidade de trabalho.'}
                             </p>
-                          </div>
 
-                          <div>
                             {/* Tags de Detalhes Técnicos */}
-                            <div className="grid grid-cols-2 gap-2 mb-5">
+                            <div className="grid grid-cols-2 gap-1.5 mb-4">
                               <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
                                 <DollarSign size={13} className="text-emerald-500 flex-shrink-0" />
                                 <div className="min-w-0">
-                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Salário</p>
-                                  <p className="text-[9px] font-bold text-slate-700 truncate">{v.salary || 'A combinar'}</p>
+                                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Salário</p>
+                                  <p className="text-xs font-bold text-slate-700 truncate">{v.salary || 'A combinar'}</p>
                                 </div>
                               </div>
                               
                               <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
                                 <Clock size={14} className="text-primary-500 flex-shrink-0" />
                                 <div className="min-w-0">
-                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Jornada</p>
-                                  <p className="text-[9px] font-bold text-slate-700 truncate">{v.work_schedule || 'A combinar'}</p>
+                                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Jornada</p>
+                                  <p className="text-xs font-bold text-slate-700 truncate">{v.work_schedule || 'A combinar'}</p>
                                 </div>
                               </div>
                             </div>
-                            
-                            {/* Idade Mínima se aplicável */}
-                            {v.min_age && v.min_age > 0 && (
-                              <div className="flex items-center gap-1.5 text-[9px] text-slate-400 font-bold mb-4">
-                                <User size={11} className="text-slate-450" />
-                                <span>Idade mínima: <strong className="text-red-500">{v.min_age} anos</strong></span>
-                              </div>
-                            )}
+                          </div>
 
-                            {/* Ações do Card */}
-                            <div className="flex gap-2 mt-auto">
+                          {/* Ações do Card */}
+                          <div className="flex gap-2 mt-auto">
                               <button 
                                 type="button"
                                 onClick={() => setSelectedJobForDetails(v)}
@@ -3828,7 +3990,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                 className={`flex-[1.5] py-2.5 rounded-full font-black text-[9px] uppercase tracking-[0.08em] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md ${
                                   isApplied 
                                     ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100/50' 
-                                    : 'bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-0.5 active:scale-95 shadow-slate-200/40'
+                                    : 'bg-[#533af6] text-white hover:bg-[#4128df] hover:-translate-y-0.5 active:scale-95 shadow-[#533af6]/10'
                                 }`}
                               >
                                 {isApplying === v.id ? <Loader2 size={12} className="animate-spin" /> : null}
@@ -3841,17 +4003,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
+                      );
                   })}
-                </div>
-              ) : (
-                <div className="bg-white p-20 rounded-[3rem] text-center border border-dashed border-slate-200">
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
-                    <Star size={40} />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900 mb-2">Aguardando oportunidades...</h3>
-                  <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium">As empresas ainda estão preparando as melhores vagas para você. Fique de olho!</p>
                 </div>
               )}
             </motion.div>
@@ -3859,8 +4012,17 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="space-y-4"
+              className="space-y-6 text-left"
             >
+              {/* Título da Página */}
+              <div className="mb-8 flex items-center justify-between">
+                <div className="text-left">
+                  <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                    Minhas Candidaturas
+                  </h1>
+                </div>
+              </div>
+
               {myApplications.length === 0 ? (
                 <div className="text-center py-24 bg-white rounded-[3rem] shadow-sm flex flex-col items-center">
                   <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-6">
@@ -3870,81 +4032,94 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   <p className="text-xs font-medium text-slate-400 uppercase tracking-widest italic">Você ainda não se aplicou para nenhuma vaga.</p>
                 </div>
               ) : (
-                myApplications.map((app, i) => {
-                  const job = vacancies.find(v => v.id === app.job_id);
-                  const appDate = app.created_at 
-                    ? new Date(app.created_at).toLocaleDateString('pt-BR') 
-                    : 'Recentemente';
+                <div className="space-y-4">
+                  {myApplications.map((app, i) => {
+                    const job = vacancies.find(v => v.id === app.job_id);
+                    const appDate = app.created_at 
+                      ? new Date(app.created_at).toLocaleDateString('pt-BR') 
+                      : 'Recentemente';
 
-                  const currentStatus = app.status || 'Triagem';
-                  
-                  // Retrieve the custom stages list from the vacancy description or stages column
-                  const parsedStagesFromDesc = (() => {
-                    if (job?.description && job.description.includes('===ETAPAS_JSON===')) {
-                      try {
-                        const part = job.description.split('===ETAPAS_JSON===')[1].split('===FIM_ETAPAS===')[0];
-                        return JSON.parse(part);
-                      } catch (e) {
-                        console.error('Error parsing stages from description:', e);
+                    const currentStatus = app.status || 'Triagem';
+                    
+                    // Retrieve the custom stages list from the vacancy description or stages column
+                    const parsedStagesFromDesc = (() => {
+                      if (job?.description && job.description.includes('===ETAPAS_JSON===')) {
+                        try {
+                          const part = job.description.split('===ETAPAS_JSON===')[1].split('===FIM_ETAPAS===')[0];
+                          return JSON.parse(part);
+                        } catch (e) {
+                          console.error('Error parsing stages from description:', e);
+                        }
                       }
+                      return null;
+                    })();
+
+                    const stagesList: string[] = parsedStagesFromDesc || (Array.isArray(job?.stages) 
+                      ? job.stages 
+                      : (typeof job?.stages === 'string' 
+                          ? JSON.parse(job.stages) 
+                          : ['Análise de Currículo']));
+
+                    const firstStageName = stagesList[0] || 'Triagem';
+                    const normalizedStatus = (currentStatus === 'Triagem') ? firstStageName : currentStatus;
+
+                    let statusColorClass = 'text-primary-600 bg-primary-50';
+                    if (normalizedStatus === 'Contratado') {
+                      statusColorClass = 'text-emerald-600 bg-emerald-50';
+                    } else if (normalizedStatus === 'Reprovado') {
+                      statusColorClass = 'text-rose-600 bg-rose-50';
+                    } else if (normalizedStatus === 'Entrevista') {
+                      statusColorClass = 'text-indigo-600 bg-indigo-50';
+                    } else if (normalizedStatus === 'Testes') {
+                      statusColorClass = 'text-sky-600 bg-sky-50 border border-sky-100/60';
                     }
-                    return null;
-                  })();
 
-                  const stagesList: string[] = parsedStagesFromDesc || (Array.isArray(job?.stages) 
-                    ? job.stages 
-                    : (typeof job?.stages === 'string' 
-                        ? JSON.parse(job.stages) 
-                        : ['Análise de Currículo']));
+                    const initials = (() => {
+                      const title = job?.title || 'Candidatura Enviada';
+                      const words = title.trim().split(/\s+/).filter(w => w.length > 0);
+                      if (words.length >= 2) {
+                        return (words[0][0] + words[1][0]).toUpperCase();
+                      }
+                      return words[0] ? words[0].substring(0, 2).toUpperCase() : 'CE';
+                    })();
 
-                  const firstStageName = stagesList[0] || 'Triagem';
-                  const normalizedStatus = (currentStatus === 'Triagem') ? firstStageName : currentStatus;
-
-                  let statusColorClass = 'text-primary-600 bg-primary-50';
-                  if (normalizedStatus === 'Contratado') {
-                    statusColorClass = 'text-emerald-600 bg-emerald-50';
-                  } else if (normalizedStatus === 'Reprovado') {
-                    statusColorClass = 'text-rose-600 bg-rose-50';
-                  } else if (normalizedStatus === 'Entrevista') {
-                    statusColorClass = 'text-indigo-600 bg-indigo-50';
-                  } else if (normalizedStatus === 'Testes') {
-                    statusColorClass = 'text-sky-600 bg-sky-50 border border-sky-100/60';
-                  }
-
-                  return (
-                    <div key={i} className="bg-white p-6 rounded-[10px] shadow-sleek border border-white flex flex-wrap items-center justify-between gap-6">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-[8px] flex items-center justify-center shadow-sm">
-                          <CheckCircle2 size={28} />
-                        </div>
-                        <div className="text-left">
-                          <h4 className="font-black text-slate-900 uppercase tracking-tight text-lg mb-1">{job?.title || 'Candidatura Enviada'}</h4>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status:</span>
-                            <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${statusColorClass}`}>
-                              {normalizedStatus}
-                            </span>
+                    return (
+                      <div key={i} className="bg-white/80 backdrop-blur-md border border-white/50 p-5 sm:p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 hover:shadow-md hover:bg-white/95 transition-all duration-300">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-11 h-11 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs">
+                            {initials}
+                          </div>
+                          <div className="text-left min-w-0 flex-1">
+                            <h4 className="font-bold text-slate-900 uppercase tracking-tight text-xs sm:text-sm mb-1 truncate w-full" title={job?.title}>
+                              {job?.title || 'Candidatura Enviada'}
+                            </h4>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Status:</span>
+                              <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${statusColorClass}`}>
+                                {normalizedStatus}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div className="text-right hidden sm:block">
-                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Enviado em</p>
-                          <p className="text-xs font-bold text-slate-600">{appDate}</p>
-                        </div>
-                        {job && (
-                          <button 
-                            onClick={() => setSelectedJobForDetails(job)}
-                            className="px-6 py-3 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-primary-500/10 cursor-pointer"
-                          >
-                            Ver Detalhes
-                          </button>
-                        )}
+                        <div className="flex items-center justify-between sm:justify-end gap-6 border-t border-slate-100 sm:border-0 pt-3 sm:pt-0 mt-1 sm:mt-0">
+                          <div className="text-left sm:text-right">
+                            <p className="text-[8px] font-black text-slate-350 uppercase tracking-widest mb-0.5">Enviado em</p>
+                            <p className="text-[10px] sm:text-xs font-bold text-slate-500">{appDate}</p>
+                          </div>
+                          {job && (
+                            <button 
+                              onClick={() => setSelectedJobForDetails(job)}
+                              className="px-5 py-2.5 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-primary-500/10 cursor-pointer active:scale-95 border-0"
+                            >
+                              Ver Detalhes
+                            </button>
+                          )}
                       </div>
                     </div>
                   );
-                })
-              )}
+                })}
+              </div>
+            )}
             </motion.div>
           ) : activeTab === 'Testes' ? (
             <motion.div 
@@ -6118,286 +6293,6 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         )}
       </AnimatePresence>
 
-      {/* Drawer de Idiomas */}
-      <AnimatePresence>
-        {showLangModal && (
-          <div className="fixed inset-0 z-[100] flex justify-end overflow-hidden">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowLangModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
-            />
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
-            >
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-8">
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                      Novo Idioma
-                    </h3>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Idiomas e proficiência</p>
-                  </div>
-                  <button onClick={() => setShowLangModal(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-all">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <form className="space-y-4" onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const newLang: LanguageItem = {
-                    id: crypto.randomUUID(),
-                    language: formData.get('language') as string,
-                    level: formData.get('level') as any,
-                  };
-
-                  setResumeData({
-                    ...resumeData,
-                    languages: [...(resumeData.languages || []), newLang]
-                  });
-                  setShowLangModal(false);
-                }}>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Idioma</label>
-                      <input name="language" required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: Inglês, Espanhol, Alemão..." />
-                    </div>
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Nível de Proficiência</label>
-                      <select name="level" defaultValue="Básico" className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
-                        <option value="Básico">Básico</option>
-                        <option value="Intermediário">Intermediário</option>
-                        <option value="Avançado">Avançado</option>
-                        <option value="Fluente">Fluente</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3 mt-8">
-                    <button type="button" onClick={() => setShowLangModal(false)} className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600">Cancelar</button>
-                    <button type="submit" className="px-10 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all">Adicionar</button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Drawer de Cursos ou certificados */}
-      <AnimatePresence>
-        {showAchModal && (
-          <div className="fixed inset-0 z-[100] flex justify-end overflow-hidden">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAchModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
-            />
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
-            >
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-8">
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                      Novo Curso ou Certificado
-                    </h3>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cursos, Certificados e Conquistas</p>
-                  </div>
-                  <button onClick={() => setShowAchModal(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-all">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <form className="space-y-4" onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const newAch: AchievementItem = {
-                    id: crypto.randomUUID(),
-                    type: formData.get('type') as any,
-                    title: formData.get('title') as string,
-                    description: formData.get('description') as string,
-                  };
-
-                  setResumeData({
-                    ...resumeData,
-                    achievements: [...(resumeData.achievements || []), newAch]
-                  });
-                  setShowAchModal(false);
-                }}>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Tipo</label>
-                      <select name="type" defaultValue="Curso" className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
-                        <option value="Curso">Curso</option>
-                        <option value="Certificado">Certificado</option>
-                        <option value="Reconhecimento">Reconhecimento</option>
-                        <option value="Trabalho Voluntário">Trabalho Voluntário</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Título</label>
-                      <input name="title" required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: UX Design Avançado, Scrum Master..." />
-                    </div>
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Descrição (Opcional)</label>
-                      <textarea name="description" className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium h-24 resize-none" placeholder="Ex: Carga horária de 40h, emitido pela plataforma X..." />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3 mt-8">
-                    <button type="button" onClick={() => setShowAchModal(false)} className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600">Cancelar</button>
-                    <button type="submit" className="px-10 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all">Adicionar</button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Drawer de Diversidade */}
-      <AnimatePresence>
-        {showDiversityModal && (
-          <div className="fixed inset-0 z-[100] flex justify-end overflow-hidden">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowDiversityModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
-            />
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
-            >
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-6">
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                      Diversidade
-                    </h3>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Inclusão e Acessibilidade</p>
-                  </div>
-                  <button onClick={() => setShowDiversityModal(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-all">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                {/* Banner de Informação Exato do Usuário */}
-                <div className="flex gap-3 bg-[#eefaf6] border border-[#a2e0c9] p-4 rounded-[10px] text-emerald-800 text-[11px] font-medium leading-relaxed mb-6 text-left items-start">
-                  <div className="text-[#0f9f68] shrink-0 mt-0.5">
-                    <Info size={16} />
-                  </div>
-                  <p className="margin-0 text-[#0c704a]">
-                    O preenchimento desta seção é opcional. As informações serão usadas em todos os processos que utilizam a solução de Diversidade. Nenhum dado será utilizado como critério de eliminação.
-                  </p>
-                </div>
-
-                <form className="space-y-4" onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  
-                  setResumeData({
-                    ...resumeData,
-                    diversity: {
-                      pronoun: formData.get('pronoun') as string,
-                      genderIdentity: formData.get('genderIdentity') as string,
-                      sexualOrientation: formData.get('sexualOrientation') as string,
-                      race: formData.get('race') as string,
-                      consent: formData.get('consent') === 'true',
-                    }
-                  });
-                  setShowDiversityModal(false);
-                }}>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Pronome</label>
-                      <select name="pronoun" defaultValue={resumeData.diversity?.pronoun || ''} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
-                        <option value="">Selecione</option>
-                        <option value="Ele/Dele">Ele/Dele</option>
-                        <option value="Ela/Dela">Ela/Dela</option>
-                        <option value="Neutro">Neutro (Elu/Delu)</option>
-                        <option value="Outro">Outro</option>
-                        <option value="Prefiro não responder">Prefiro não responder</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Identidade de Gênero</label>
-                      <select name="genderIdentity" defaultValue={resumeData.diversity?.genderIdentity || ''} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
-                        <option value="">Selecione</option>
-                        <option value="Cisgênero">Cisgênero</option>
-                        <option value="Transgênero">Transgênero</option>
-                        <option value="Não-binário">Não-binário</option>
-                        <option value="Prefiro não responder">Prefiro não responder</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Orientação Sexual</label>
-                      <select name="sexualOrientation" defaultValue={resumeData.diversity?.sexualOrientation || ''} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
-                        <option value="">Selecione</option>
-                        <option value="Heterossexual">Heterossexual</option>
-                        <option value="Homossexual">Homossexual</option>
-                        <option value="Bissexual">Bissexual</option>
-                        <option value="Pansexual">Pansexual</option>
-                        <option value="Assexual">Assexual</option>
-                        <option value="Outro">Outro</option>
-                        <option value="Prefiro não responder">Prefiro não responder</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Cor / Raça</label>
-                      <select name="race" defaultValue={resumeData.diversity?.race || ''} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
-                        <option value="">Selecione</option>
-                        <option value="Branco">Branca</option>
-                        <option value="Preto">Preta</option>
-                        <option value="Pardo">Parda</option>
-                        <option value="Amarelo">Amarela</option>
-                        <option value="Indígena">Indígena</option>
-                        <option value="Prefiro não responder">Prefiro não responder</option>
-                      </select>
-                    </div>
-
-                    <label className="flex items-start gap-2.5 pt-2 cursor-pointer select-none">
-                      <input 
-                        type="checkbox" 
-                        name="consent"
-                        value="true"
-                        defaultChecked={resumeData.diversity?.consent || false}
-                        className="mt-1 accent-[#8959f5]" 
-                      />
-                      <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-relaxed">
-                        Consinto com o tratamento de dados de diversidade para vagas afirmativas.
-                      </span>
-                    </label>
-                  </div>
-                  <div className="flex justify-end gap-3 mt-8">
-                    <button type="button" onClick={() => setShowDiversityModal(false)} className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600">Cancelar</button>
-                    <button type="submit" className="px-10 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all">Confirmar</button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
       <AnimatePresence>
         {imageToCrop && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -6442,203 +6337,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         )}
       </AnimatePresence>
 
-      {/* Experience Drawer */}
-      <AnimatePresence>
-        {showExpModal && (
-          <div className="fixed inset-0 z-[100] flex justify-end overflow-hidden">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowExpModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
-            />
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
-            >
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-6">
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                      {editingExp ? 'Editar Experiência' : 'Nova Jornada'}
-                    </h3>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Detalhes profissionais</p>
-                  </div>
-                  <button onClick={() => setShowExpModal(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-all cursor-pointer">
-                    <X size={20} />
-                  </button>
-                </div>
- 
-                 <form className="space-y-4" onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!tempExp) return;
- 
-                   if (editingExp) {
-                    setResumeData({...resumeData, experiences: resumeData.experiences.map(e => e.id === editingExp.id ? tempExp : e)});
-                  } else {
-                    setResumeData({...resumeData, experiences: [tempExp, ...resumeData.experiences]});
-                  }
-                  setShowExpModal(false);
-                }}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-full">
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Empresa</label>
-                      <input 
-                        value={tempExp?.company || ''} 
-                        onChange={(e) => setTempExp(prev => prev ? {...prev, company: e.target.value} : null)}
-                        required 
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
-                        placeholder="Ex: Google, Itaú, Ambev..." 
-                      />
-                    </div>
-                    <div className="col-span-full">
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Seu Cargo</label>
-                      <input 
-                        value={tempExp?.role || ''} 
-                        onChange={(e) => setTempExp(prev => prev ? {...prev, role: e.target.value} : null)}
-                        required 
-                        className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
-                        placeholder="Ex: Vendedor, Analista, Coordenador..." 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Data Início</label>
-                      <input 
-                        type="date" 
-                        value={tempExp?.startDate || ''} 
-                        onChange={(e) => setTempExp(prev => prev ? {...prev, startDate: e.target.value} : null)}
-                        required 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium" 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Data Término</label>
-                      <input 
-                        type="date" 
-                        value={tempExp?.endDate || ''} 
-                        onChange={(e) => setTempExp(prev => prev ? {...prev, endDate: e.target.value} : null)}
-                        disabled={tempExp?.current} 
-                        className="w-full px-4 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 text-sm font-medium disabled:opacity-30" 
-                      />
-                    </div>
-                    <div className="col-span-full pb-1 pl-1">
-                       <label className="flex items-center gap-3 cursor-pointer group">
-                        <div 
-                          onClick={() => setTempExp(prev => prev ? {...prev, current: !prev.current, endDate: !prev.current ? '' : prev.endDate} : null)}
-                          className={`w-9 h-5 rounded-full relative transition-colors ${tempExp?.current ? 'bg-primary-600' : 'bg-slate-200'}`}
-                        >
-                          <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${tempExp?.current ? 'translate-x-4' : ''}`} />
-                        </div>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Trabalho atualmente aqui</span>
-                      </label>
-                    </div>
-                    <div className="col-span-full">
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Principais Atividades</label>
-                      <textarea 
-                        value={tempExp?.description || ''} 
-                        onChange={(e) => setTempExp(prev => prev ? {...prev, description: e.target.value} : null)}
-                        required 
-                        className="w-full px-5 py-4 bg-slate-50 border border-transparent rounded-[10px] outline-none min-h-[100px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium italic" 
-                        placeholder="Descreva brevemente o que você entregou..." 
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3 mt-8">
-                    <button type="button" onClick={() => setShowExpModal(false)} className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600 cursor-pointer">Cancelar</button>
-                    <button type="submit" className="px-10 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border-0">Salvar Registro</button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
-      {/* Education Drawer */}
-      <AnimatePresence>
-        {showEduModal && (
-          <div className="fixed inset-0 z-[100] flex justify-end overflow-hidden">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowEduModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
-            />
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-[460px] h-full bg-white shadow-2xl overflow-y-auto border-l border-slate-100 flex flex-col rounded-none z-10"
-            >
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-8">
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                      {editingEdu ? 'Editar Formação' : 'Nova Formação'}
-                    </h3>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Educação e cursos</p>
-                  </div>
-                  <button onClick={() => setShowEduModal(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-all">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <form className="space-y-4" onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const newEdu: Education = {
-                    id: editingEdu?.id || crypto.randomUUID(),
-                    institution: formData.get('institution') as string,
-                    course: formData.get('course') as string,
-                    status: formData.get('status') as any,
-                    gradYear: formData.get('gradYear') as string,
-                  };
-
-                  if (editingEdu) {
-                    setResumeData({...resumeData, educations: resumeData.educations.map(e => e.id === editingEdu.id ? newEdu : e)});
-                  } else {
-                    setResumeData({...resumeData, educations: [newEdu, ...resumeData.educations]});
-                  }
-                  setShowEduModal(false);
-                }}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-full">
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Instituição</label>
-                      <input name="institution" defaultValue={editingEdu?.institution} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: USP, Senac, Alura..." />
-                    </div>
-                    <div className="col-span-full">
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Curso</label>
-                      <input name="course" defaultValue={editingEdu?.course} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: Administração, Marketing..." />
-                    </div>
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Status Atual</label>
-                      <select name="status" defaultValue={editingEdu?.status || 'Completo'} className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm appearance-none">
-                        <option value="Completo">Completo</option>
-                        <option value="Incompleto">Incompleto</option>
-                        <option value="Cursando">Cursando</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Ano Conclusão</label>
-                      <input name="gradYear" defaultValue={editingEdu?.gradYear} required className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: 2024" />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3 mt-8">
-                    <button type="button" onClick={() => setShowEduModal(false)} className="px-6 py-3 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600">Cancelar</button>
-                    <button type="submit" className="px-10 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[10px] rounded-full shadow-lg hover:-translate-y-0.5 transition-all">Salvar Formação</button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* Vacancy Details Drawer */}
       <AnimatePresence>
@@ -6781,6 +6480,160 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         )}
       </AnimatePresence>
 
+      {/* Drawer de Filtros de Vagas */}
+      <AnimatePresence>
+        {isFilterSidebarOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsFilterSidebarOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99]" 
+            />
+            {/* Drawer Panel */}
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-full max-w-[420px] bg-white shadow-2xl z-[100] flex flex-col rounded-none border-l border-slate-100 overflow-hidden text-left"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div>
+                  <h3 className="text-md font-black text-slate-900 tracking-tight uppercase">
+                    Filtros de Vagas
+                  </h3>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                    Refine sua busca por vagas
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setIsFilterSidebarOpen(false)} 
+                  className="p-2 text-slate-400 hover:text-slate-900 transition-all rounded-full hover:bg-slate-100 cursor-pointer border-0 bg-transparent flex items-center justify-center"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Filtro: Estado */}
+                <div className="space-y-2">
+                  <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1 block">Estado</label>
+                  <select
+                    value={vacancyStateFilter}
+                    onChange={(e) => setVacancyStateFilter(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-[12px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs"
+                  >
+                    <option value="">Todos os Estados</option>
+                    {BRAZIL_STATES.map(uf => (
+                      <option key={uf} value={uf}>{uf}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Filtro: Cidade */}
+                <div className="space-y-2">
+                  <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1 block">Cidade</label>
+                  <select
+                    value={vacancyCityFilter}
+                    onChange={(e) => setVacancyCityFilter(e.target.value)}
+                    disabled={!vacancyStateFilter || isLoadingVacancyCities}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-[12px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs disabled:opacity-60"
+                  >
+                    <option value="">
+                      {isLoadingVacancyCities 
+                        ? 'Carregando cidades...' 
+                        : !vacancyStateFilter 
+                          ? 'Selecione um Estado primeiro' 
+                          : 'Todas as Cidades'}
+                    </option>
+                    {vacancyCitiesList.map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Filtro: Modalidade */}
+                <div className="space-y-2">
+                  <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1 block">Modalidade</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Remoto', 'Presencial', 'Híbrido'].map(mode => {
+                      const isActive = vacancyModalityFilter === mode;
+                      return (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setVacancyModalityFilter(isActive ? '' : mode)}
+                          className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border cursor-pointer ${
+                            isActive
+                              ? 'bg-[#533af6] border-[#533af6] text-white shadow-sm'
+                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          {mode}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Filtro: Tipo de Contrato */}
+                <div className="space-y-2">
+                  <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-1 block">Tipo de Contrato</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['CLT', 'PJ', 'Estágio', 'Temporário'].map(contract => {
+                      const isActive = vacancyContractFilter === contract;
+                      return (
+                        <button
+                          key={contract}
+                          type="button"
+                          onClick={() => setVacancyContractFilter(isActive ? '' : contract)}
+                          className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border cursor-pointer ${
+                            isActive
+                              ? 'bg-[#533af6] border-[#533af6] text-white shadow-sm'
+                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          {contract}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-between gap-3 items-center">
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setVacancyModalityFilter('');
+                    setVacancyContractFilter('');
+                    setVacancyStateFilter('');
+                    setVacancyCityFilter('');
+                  }}
+                  disabled={!vacancyModalityFilter && !vacancyContractFilter && !vacancyStateFilter && !vacancyCityFilter}
+                  className="px-4 py-3 font-black text-rose-500 hover:text-rose-700 uppercase tracking-wider text-[9px] cursor-pointer disabled:opacity-50 border-0 bg-transparent"
+                >
+                  Limpar
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setIsFilterSidebarOpen(false)}
+                  className="px-8 py-3 bg-[#533af6] hover:bg-[#4128df] text-white font-black uppercase tracking-wider text-[9px] rounded-full shadow-md hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer border-0"
+                >
+                  Aplicar Filtros
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {customDialog.isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <motion.div 
@@ -6878,7 +6731,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.35, ease: 'easeOut' }}
+              transition={{ type: 'tween', duration: 0.22, ease: 'easeOut' }}
               className="relative w-full max-w-2xl h-full bg-slate-50 shadow-2xl overflow-hidden flex flex-col rounded-none z-10 text-left border-l border-slate-100"
             >
               {/* Header do Drawer */}
@@ -6986,7 +6839,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         initial={{ x: '100%', opacity: 1 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: '105%', opacity: 1 }}
-                        transition={{ type: "spring", damping: 26, stiffness: 220 }}
+                        transition={{ type: "spring", damping: 30, stiffness: 300 }}
                         style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, height: '100%' }}
                         className="bg-[#faf8ff] rounded-none md:rounded-l-[2rem] w-full max-w-xl md:max-w-2xl overflow-y-auto fixed top-0 bottom-0 right-0 p-6 md:p-8 border-l border-white/20 shadow-2xl flex flex-col z-[10000] text-left"
                       >
@@ -7255,8 +7108,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                           <textarea 
                             value={resumeData.summary}
                             onChange={(e) => setResumeData({...resumeData, summary: e.target.value})}
-                            className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all min-h-[140px] leading-relaxed font-medium text-slate-600 text-sm italic shadow-xs"
+                            className="w-full px-6 py-5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all min-h-[220px] leading-relaxed font-medium text-slate-600 text-sm italic shadow-xs"
                             placeholder="Conte um pouco sobre sua trajetória..."
+                            rows={8}
                           />
                         </div>
                       )}
@@ -7264,77 +7118,165 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       {/* 3. EXPERIÊNCIA PROFISSIONAL */}
                       {activeAccordion === 'experience' && (
                         <div className="space-y-4">
-                          <div className="flex justify-between items-center mb-2 text-left">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isFirstJob ? 'bg-primary-600' : 'bg-slate-200'}`}>
-                                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isFirstJob ? 'translate-x-5' : ''}`} />
-                                <input 
-                                  type="checkbox" 
-                                  className="hidden" 
-                                  checked={resumeData.isFirstJob} 
-                                  onChange={(e) => setResumeData({...resumeData, isFirstJob: e.target.checked})} 
-                                />
-                              </div>
-                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Primeiro Emprego</span>
-                            </label>
-
-                            {!resumeData.isFirstJob && (
-                              <button 
-                                onClick={() => { setEditingExp(null); setShowExpModal(true); }}
-                                className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                              >
-                                <Plus size={20} />
-                              </button>
-                            )}
-                          </div>
-
-                          {resumeData.isFirstJob ? (
-                            <div className="bg-primary-50/20 p-8 rounded-[10px] text-center border-2 border-dashed border-primary-50/50">
-                              <div className="w-12 h-12 bg-white rounded-[10px] shadow-sm flex items-center justify-center mx-auto mb-4 text-primary-500 border border-slate-100/50">
-                                <Sparkles size={24} />
-                              </div>
-                              <h3 className="text-base font-bold text-slate-800 mb-1">Pronto para sua jornada?</h3>
-                              <p className="text-slate-400 max-w-sm mx-auto text-[11px] font-medium uppercase tracking-wider">Focaremos na sua formação e habilidades.</p>
+                          {showExpModal ? (
+                            <div className="p-5 bg-slate-50 border border-slate-200/50 rounded-[20px] text-left">
+                              <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-200/50 pb-2">
+                                {editingExp ? 'Editar Experiência' : 'Nova Experiência'}
+                              </h3>
+                              <form className="space-y-4" onSubmit={(e) => {
+                                e.preventDefault();
+                                if (!tempExp) return;
+                                if (editingExp) {
+                                  setResumeData({...resumeData, experiences: resumeData.experiences.map(exp => exp.id === editingExp.id ? tempExp : exp)});
+                                } else {
+                                  setResumeData({...resumeData, experiences: [tempExp, ...resumeData.experiences]});
+                                }
+                                setShowExpModal(false);
+                              }}>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="col-span-full">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Empresa</label>
+                                    <input 
+                                      value={tempExp?.company || ''} 
+                                      onChange={(e) => setTempExp(prev => prev ? {...prev, company: e.target.value} : null)}
+                                      required 
+                                      className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
+                                      placeholder="Ex: Google, Itaú, Ambev..." 
+                                    />
+                                  </div>
+                                  <div className="col-span-full">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Seu Cargo</label>
+                                    <input 
+                                      value={tempExp?.role || ''} 
+                                      onChange={(e) => setTempExp(prev => prev ? {...prev, role: e.target.value} : null)}
+                                      required 
+                                      className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" 
+                                      placeholder="Ex: Vendedor, Analista, Coordenador..." 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Data Início</label>
+                                    <input 
+                                      type="date" 
+                                      value={tempExp?.startDate || ''} 
+                                      onChange={(e) => setTempExp(prev => prev ? {...prev, startDate: e.target.value} : null)}
+                                      required 
+                                      className="w-full px-4 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 text-sm font-medium" 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Data Término</label>
+                                    <input 
+                                      type="date" 
+                                      value={tempExp?.endDate || ''} 
+                                      onChange={(e) => setTempExp(prev => prev ? {...prev, endDate: e.target.value} : null)}
+                                      disabled={tempExp?.current} 
+                                      className="w-full px-4 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 text-sm font-medium disabled:opacity-30" 
+                                    />
+                                  </div>
+                                  <div className="col-span-full pb-1 pl-1">
+                                    <label className="flex items-center gap-3 cursor-pointer group">
+                                      <div 
+                                        onClick={() => setTempExp(prev => prev ? {...prev, current: !prev.current, endDate: !prev.current ? '' : prev.endDate} : null)}
+                                        className={`w-9 h-5 rounded-full relative transition-colors ${tempExp?.current ? 'bg-primary-600' : 'bg-slate-200'}`}
+                                      >
+                                        <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${tempExp?.current ? 'translate-x-4' : ''}`} />
+                                      </div>
+                                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Trabalho atualmente aqui</span>
+                                    </label>
+                                  </div>
+                                  <div className="col-span-full">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Principais Atividades</label>
+                                    <textarea 
+                                      value={tempExp?.description || ''} 
+                                      onChange={(e) => setTempExp(prev => prev ? {...prev, description: e.target.value} : null)}
+                                      required 
+                                      className="w-full px-5 py-4 bg-white border border-slate-200/50 rounded-[10px] outline-none min-h-[100px] focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium italic" 
+                                      placeholder="Descreva brevemente o que você entregou..." 
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex justify-end gap-3 mt-6">
+                                  <button type="button" onClick={() => setShowExpModal(false)} className="px-6 py-2.5 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600 border-0 bg-transparent cursor-pointer">Cancelar</button>
+                                  <button type="submit" className="px-8 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[9px] rounded-full shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border-0">Salvar Registro</button>
+                                </div>
+                              </form>
                             </div>
                           ) : (
-                            <div className="space-y-4">
-                              {resumeData.experiences.length === 0 ? (
-                                <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
-                                  <Briefcase size={32} className="text-slate-200 mx-auto mb-3" />
-                                  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
+                            <>
+                              <div className="flex justify-between items-center mb-2 text-left">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <div className={`w-10 h-5 rounded-full relative transition-colors ${resumeData.isFirstJob ? 'bg-primary-600' : 'bg-slate-200'}`}>
+                                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${resumeData.isFirstJob ? 'translate-x-5' : ''}`} />
+                                    <input 
+                                      type="checkbox" 
+                                      className="hidden" 
+                                      checked={resumeData.isFirstJob} 
+                                      onChange={(e) => setResumeData({...resumeData, isFirstJob: e.target.checked})} 
+                                    />
+                                  </div>
+                                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Primeiro Emprego</span>
+                                </label>
+
+                                {!resumeData.isFirstJob && (
+                                  <button 
+                                    onClick={() => { setEditingExp(null); setShowExpModal(true); }}
+                                    className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
+                                  >
+                                    <Plus size={20} />
+                                  </button>
+                                )}
+                              </div>
+
+                              {resumeData.isFirstJob ? (
+                                <div className="bg-primary-50/20 p-8 rounded-[10px] text-center border-2 border-dashed border-primary-50/50">
+                                  <div className="w-12 h-12 bg-white rounded-[10px] shadow-sm flex items-center justify-center mx-auto mb-4 text-primary-500 border border-slate-100/50">
+                                    <Sparkles size={24} />
+                                  </div>
+                                  <h3 className="text-base font-bold text-slate-800 mb-1">Pronto para sua jornada?</h3>
+                                  <p className="text-slate-400 max-w-sm mx-auto text-[11px] font-medium uppercase tracking-wider">Focaremos na sua formação e habilidades.</p>
                                 </div>
                               ) : (
-                                resumeData.experiences.map((exp) => (
-                                  <div key={exp.id} className="group relative bg-white p-5 rounded-[10px] border border-slate-150 hover:border-primary-100 hover:bg-slate-50/50 transition-all shadow-xs text-left">
-                                    <div className="flex justify-between items-start gap-3">
-                                      <div className="flex gap-4">
-                                        <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-[10px] flex items-center justify-center text-primary-600 shadow-xs shrink-0">
-                                          <Building size={18} />
-                                        </div>
-                                        <div>
-                                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight leading-tight">{exp.role}</h3>
-                                          <div className="flex flex-wrap items-center gap-2 mt-1">
-                                            <span className="text-slate-700 font-bold text-[11px]">{exp.company}</span>
-                                            <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                            <span className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                              <Clock size={10} className="text-primary-400" />
-                                              {calculateDuration(exp.startDate, exp.endDate, exp.current)}
-                                            </span>
+                                <div className="space-y-4">
+                                  {resumeData.experiences.length === 0 ? (
+                                    <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
+                                      <Briefcase size={32} className="text-slate-200 mx-auto mb-3" />
+                                      <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
+                                    </div>
+                                  ) : (
+                                    resumeData.experiences.map((exp) => (
+                                      <div key={exp.id} className="group relative bg-white p-5 rounded-[10px] border border-slate-100 hover:border-primary-100 hover:bg-slate-50/50 transition-all shadow-xs text-left">
+                                        <div className="flex justify-between items-start gap-3">
+                                          <div className="flex gap-4">
+                                            <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-[10px] flex items-center justify-center text-primary-600 shadow-xs shrink-0">
+                                              <Building size={18} />
+                                            </div>
+                                            <div>
+                                              <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight leading-tight">{exp.role}</h3>
+                                              <div className="flex flex-wrap items-center gap-2 mt-1">
+                                                <span className="text-slate-700 font-bold text-[11px]">{exp.company}</span>
+                                                <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                                <span className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                                  <Clock size={10} className="text-primary-400" />
+                                                  {calculateDuration(exp.startDate, exp.endDate, exp.current)}
+                                                </span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div className="flex gap-1">
+                                            <button onClick={() => { setEditingExp(exp); setShowExpModal(true); }} className="p-2 bg-white text-slate-400 hover:text-primary-600 rounded-full shadow-xs border border-slate-100 transition-colors cursor-pointer border-0"><Settings size={14} /></button>
+                                            <button onClick={() => setResumeData({...resumeData, experiences: resumeData.experiences.filter(e => e.id !== exp.id)})} className="p-2 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-xs border border-slate-100 transition-colors cursor-pointer border-0"><Trash2 size={14} /></button>
                                           </div>
                                         </div>
+                                        <div className="mt-3 pl-14">
+                                          <p className="text-slate-500 text-[11px] leading-relaxed whitespace-pre-line border-l-2 border-slate-100 pl-4">{exp.description}</p>
+                                        </div>
                                       </div>
-                                      <div className="flex gap-1">
-                                        <button onClick={() => { setEditingExp(exp); setShowExpModal(true); }} className="p-2 bg-white text-slate-400 hover:text-primary-600 rounded-full shadow-xs border border-slate-100 transition-colors cursor-pointer border-0"><Settings size={14} /></button>
-                                        <button onClick={() => setResumeData({...resumeData, experiences: resumeData.experiences.filter(e => e.id !== exp.id)})} className="p-2 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-xs border border-slate-100 transition-colors cursor-pointer border-0"><Trash2 size={14} /></button>
-                                      </div>
-                                    </div>
-                                    <div className="mt-3 pl-14">
-                                      <p className="text-slate-500 text-[11px] leading-relaxed whitespace-pre-line border-l-2 border-slate-100 pl-4">{exp.description}</p>
-                                    </div>
-                                  </div>
-                                ))
+                                    ))
+                                  )}
+                                </div>
                               )}
-                            </div>
+                            </>
                           )}
                         </div>
                       )}
@@ -7342,45 +7284,100 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       {/* 4. FORMÇÃO ACADÊMICA */}
                       {activeAccordion === 'education' && (
                         <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-2">
-                            <button onClick={() => { setEditingEdu(null); setShowEduModal(true); }} className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0">
-                              <Plus size={20} />
-                            </button>
-                          </div>
+                          {showEduModal ? (
+                            <div className="p-5 bg-slate-50 border border-slate-200/50 rounded-[20px] text-left">
+                              <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-200/50 pb-2">
+                                {editingEdu ? 'Editar Formação' : 'Nova Formação'}
+                              </h3>
+                              <form className="space-y-4" onSubmit={(e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.currentTarget);
+                                const newEdu: Education = {
+                                  id: editingEdu?.id || crypto.randomUUID(),
+                                  institution: formData.get('institution') as string,
+                                  course: formData.get('course') as string,
+                                  status: formData.get('status') as any,
+                                  gradYear: formData.get('gradYear') as string,
+                                };
 
-                          <div className="space-y-4">
-                            {resumeData.educations.length === 0 ? (
-                              <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
-                                <GraduationCap size={32} className="text-slate-200 mx-auto mb-3" />
-                                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
-                              </div>
-                            ) : (
-                              resumeData.educations.map((edu) => (
-                                <div key={edu.id} className="group bg-white p-5 rounded-[10px] border border-slate-150 hover:border-primary-100 hover:shadow-xs transition-all relative text-left">
-                                  <div className="flex justify-between items-start mb-3">
-                                    <div className="w-9 h-9 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600 border border-slate-100/50">
-                                      <GraduationCap size={18} />
-                                    </div>
-                                    <div className="flex gap-1">
-                                      <button onClick={() => { setEditingEdu(edu); setShowEduModal(true); }} className="p-2 text-slate-350 hover:text-primary-600 cursor-pointer border-0 bg-transparent"><Settings size={14} /></button>
-                                      <button onClick={() => setResumeData({...resumeData, educations: resumeData.educations.filter(e => e.id !== edu.id)})} className="p-2 text-slate-350 hover:text-red-500 cursor-pointer border-0 bg-transparent"><Trash2 size={14} /></button>
-                                    </div>
+                                if (editingEdu) {
+                                  setResumeData({...resumeData, educations: resumeData.educations.map(e => e.id === editingEdu.id ? newEdu : e)});
+                                } else {
+                                  setResumeData({...resumeData, educations: [newEdu, ...resumeData.educations]});
+                                }
+                                setShowEduModal(false);
+                              }}>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="col-span-full">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Instituição</label>
+                                    <input name="institution" defaultValue={editingEdu?.institution} required className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: USP, Senac, Alura..." />
                                   </div>
-                                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight mb-1">{edu.course}</h3>
-                                  <p className="text-[10px] font-bold text-slate-500 mb-4">{edu.institution}</p>
-                                  <div className="flex items-center justify-between">
-                                    <span className={`px-2.5 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ${
-                                      edu.status === 'Completo' ? 'bg-green-100 text-green-700' : 
-                                      edu.status === 'Cursando' ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-600'
-                                    }`}>
-                                      {edu.status}
-                                    </span>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Ano: {edu.gradYear}</span>
+                                  <div className="col-span-full">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Curso</label>
+                                    <input name="course" defaultValue={editingEdu?.course} required className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: Administração, Marketing..." />
+                                  </div>
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Status Atual</label>
+                                    <select name="status" defaultValue={editingEdu?.status || 'Completo'} className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm">
+                                      <option value="Completo">Completo</option>
+                                      <option value="Incompleto">Incompleto</option>
+                                      <option value="Cursando">Cursando</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Ano Conclusão</label>
+                                    <input name="gradYear" defaultValue={editingEdu?.gradYear} required className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: 2024" />
                                   </div>
                                 </div>
-                              ))
-                            )}
-                          </div>
+                                <div className="flex justify-end gap-3 mt-6">
+                                  <button type="button" onClick={() => setShowEduModal(false)} className="px-6 py-2.5 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600 border-0 bg-transparent cursor-pointer">Cancelar</button>
+                                  <button type="submit" className="px-8 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[9px] rounded-full shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border-0">Salvar Formação</button>
+                                </div>
+                              </form>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex justify-end items-center mb-2">
+                                <button onClick={() => { setEditingEdu(null); setShowEduModal(true); }} className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0">
+                                  <Plus size={20} />
+                                </button>
+                              </div>
+
+                              <div className="space-y-4">
+                                {resumeData.educations.length === 0 ? (
+                                  <div className="text-center py-12 bg-slate-50 rounded-[10px] border-2 border-dashed border-slate-200">
+                                    <GraduationCap size={32} className="text-slate-200 mx-auto mb-3" />
+                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sem registros</p>
+                                  </div>
+                                ) : (
+                                  resumeData.educations.map((edu) => (
+                                    <div key={edu.id} className="group bg-white p-5 rounded-[10px] border border-slate-100 hover:border-primary-100 hover:shadow-xs transition-all relative text-left">
+                                      <div className="flex justify-between items-start mb-3">
+                                        <div className="w-9 h-9 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600 border border-slate-100/50">
+                                          <GraduationCap size={18} />
+                                        </div>
+                                        <div className="flex gap-1">
+                                          <button onClick={() => { setEditingEdu(edu); setShowEduModal(true); }} className="p-2 text-slate-350 hover:text-primary-600 cursor-pointer border-0 bg-transparent"><Settings size={14} /></button>
+                                          <button onClick={() => setResumeData({...resumeData, educations: resumeData.educations.filter(e => e.id !== edu.id)})} className="p-2 text-slate-350 hover:text-red-500 cursor-pointer border-0 bg-transparent"><Trash2 size={14} /></button>
+                                        </div>
+                                      </div>
+                                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight mb-1">{edu.course}</h3>
+                                      <p className="text-[10px] font-bold text-slate-500 mb-4">{edu.institution}</p>
+                                      <div className="flex items-center justify-between">
+                                        <span className={`px-2.5 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ${
+                                          edu.status === 'Completo' ? 'bg-green-100 text-green-700' : 
+                                          edu.status === 'Cursando' ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-600'
+                                        }`}>
+                                          {edu.status}
+                                        </span>
+                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Ano: {edu.gradYear}</span>
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
 
@@ -7436,117 +7433,294 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       {/* 6. IDIOMAS */}
                       {activeAccordion === 'languages' && (
                         <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-2">
-                            <button 
-                              onClick={() => setShowLangModal(true)}
-                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                            >
-                              <Plus size={18} />
-                            </button>
-                          </div>
+                          {showLangModal ? (
+                            <div className="p-5 bg-slate-50 border border-slate-100 rounded-[20px] text-left">
+                              <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-200/50 pb-2">
+                                Novo Idioma
+                              </h3>
+                              <form className="space-y-4" onSubmit={(e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.currentTarget);
+                                const newLang: LanguageItem = {
+                                  id: crypto.randomUUID(),
+                                  language: formData.get('language') as string,
+                                  level: formData.get('level') as any,
+                                };
 
-                          <div className="flex flex-wrap gap-2">
-                            {(!resumeData.languages || resumeData.languages.length === 0) ? (
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-4 text-center border border-dashed border-slate-100 rounded-xl w-full">Nenhum idioma adicionado.</p>
-                            ) : (
-                              resumeData.languages.map((item) => (
-                                <div key={item.id} className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-[10px] text-xs font-bold border border-emerald-100 group transition-all hover:bg-emerald-100 shadow-xs">
-                                  <span>{item.language}</span>
-                                  <span className="px-1.5 py-0.5 bg-emerald-200 text-emerald-950 rounded-md text-[7px] font-black uppercase tracking-widest">{item.level}</span>
-                                  <button 
-                                    onClick={() => handleRemoveLanguage(item.id)}
-                                    className="text-emerald-500 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-0 flex items-center"
-                                  >
-                                    <X size={12} />
-                                  </button>
+                                setResumeData({
+                                  ...resumeData,
+                                  languages: [...(resumeData.languages || []), newLang]
+                                });
+                                setShowLangModal(false);
+                              }}>
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Idioma</label>
+                                    <input name="language" required className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: Inglês, Espanhol, Alemão..." />
+                                  </div>
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Nível de Proficiência</label>
+                                    <select name="level" defaultValue="Básico" className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm">
+                                      <option value="Básico">Básico</option>
+                                      <option value="Intermediário">Intermediário</option>
+                                      <option value="Avançado">Avançado</option>
+                                      <option value="Fluente">Fluente</option>
+                                    </select>
+                                  </div>
                                 </div>
-                              ))
-                            )}
-                          </div>
+                                <div className="flex justify-end gap-3 mt-6">
+                                  <button type="button" onClick={() => setShowLangModal(false)} className="px-6 py-2.5 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600 border-0 bg-transparent cursor-pointer">Cancelar</button>
+                                  <button type="submit" className="px-8 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[9px] rounded-full shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border-0">Adicionar Idioma</button>
+                                </div>
+                              </form>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex justify-end items-center mb-2">
+                                <button 
+                                  onClick={() => setShowLangModal(true)}
+                                  className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
+                                >
+                                  <Plus size={18} />
+                                </button>
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                {(!resumeData.languages || resumeData.languages.length === 0) ? (
+                                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-4 text-center border border-dashed border-slate-100 rounded-xl w-full">Nenhum idioma adicionado.</p>
+                                ) : (
+                                  resumeData.languages.map((item) => (
+                                    <div key={item.id} className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-[10px] text-xs font-bold border border-emerald-100 group transition-all hover:bg-emerald-100 shadow-xs">
+                                      <span>{item.language}</span>
+                                      <span className="px-1.5 py-0.5 bg-emerald-200 text-emerald-950 rounded-md text-[7px] font-black uppercase tracking-widest">{item.level}</span>
+                                      <button 
+                                        onClick={() => handleRemoveLanguage(item.id)}
+                                        className="text-emerald-500 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-0 flex items-center"
+                                      >
+                                        <X size={12} />
+                                      </button>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
 
                       {/* 7. CURSOS OU CERTIFICADOS */}
                       {activeAccordion === 'achievements' && (
                         <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-2">
-                            <button 
-                              onClick={() => setShowAchModal(true)}
-                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                            >
-                              <Plus size={18} />
-                            </button>
-                          </div>
+                          {showAchModal ? (
+                            <div className="p-5 bg-slate-50 border border-slate-100 rounded-[20px] text-left">
+                              <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-200/50 pb-2">
+                                Novo Curso ou Certificado
+                              </h3>
+                              <form className="space-y-4" onSubmit={(e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.currentTarget);
+                                const newAch: AchievementItem = {
+                                  id: crypto.randomUUID(),
+                                  type: formData.get('type') as any,
+                                  title: formData.get('title') as string,
+                                  description: formData.get('description') as string,
+                                };
 
-                          <div className="space-y-3">
-                            {(!resumeData.achievements || resumeData.achievements.length === 0) ? (
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-4 text-center border border-dashed border-slate-100 rounded-xl w-full">Nenhuma conquista ou certificado adicionado.</p>
-                            ) : (
-                              resumeData.achievements.map((item) => (
-                                <div key={item.id} className="flex items-start justify-between bg-slate-50 p-4 rounded-[10px] border border-slate-100 hover:border-slate-200 transition-colors text-left shadow-xs">
-                                  <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs font-bold text-slate-700">{item.title}</span>
-                                      <span className="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full text-[7px] font-black uppercase tracking-widest">{item.type}</span>
-                                    </div>
-                                    {item.description && <p className="text-[10px] text-slate-400 font-semibold italic">{item.description}</p>}
+                                setResumeData({
+                                  ...resumeData,
+                                  achievements: [...(resumeData.achievements || []), newAch]
+                                });
+                                setShowAchModal(false);
+                              }}>
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Tipo</label>
+                                    <select name="type" defaultValue="Curso" className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm">
+                                      <option value="Curso">Curso</option>
+                                      <option value="Certificado">Certificado</option>
+                                      <option value="Reconhecimento">Reconhecimento</option>
+                                      <option value="Trabalho Voluntário">Trabalho Voluntário</option>
+                                    </select>
                                   </div>
-                                  <button 
-                                    onClick={() => handleRemoveAchievement(item.id)}
-                                    className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-1 shrink-0"
-                                  >
-                                    <X size={14} />
-                                  </button>
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Título</label>
+                                    <input name="title" required className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium" placeholder="Ex: UX Design Avançado, Scrum Master..." />
+                                  </div>
+                                  <div>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Descrição (Opcional)</label>
+                                    <textarea name="description" className="w-full px-5 py-3 bg-white border border-slate-200/50 rounded-[10px] outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all text-sm font-medium h-24 resize-none" placeholder="Ex: Carga horária de 40h, emitido pela plataforma X..." />
+                                  </div>
                                 </div>
-                              ))
-                            )}
-                          </div>
+                                <div className="flex justify-end gap-3 mt-6">
+                                  <button type="button" onClick={() => setShowAchModal(false)} className="px-6 py-2.5 font-bold text-slate-400 uppercase tracking-widest text-[9px] hover:text-slate-600 border-0 bg-transparent cursor-pointer">Cancelar</button>
+                                  <button type="submit" className="px-8 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black uppercase tracking-widest text-[9px] rounded-full shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border-0">Adicionar</button>
+                                </div>
+                              </form>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex justify-end items-center mb-2">
+                                <button 
+                                  onClick={() => setShowAchModal(true)}
+                                  className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
+                                >
+                                  <Plus size={18} />
+                                </button>
+                              </div>
+
+                              <div className="space-y-3">
+                                {(!resumeData.achievements || resumeData.achievements.length === 0) ? (
+                                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-4 text-center border border-dashed border-slate-100 rounded-xl w-full">Nenhuma conquista ou certificado adicionado.</p>
+                                ) : (
+                                  resumeData.achievements.map((item) => (
+                                    <div key={item.id} className="flex items-start justify-between bg-slate-50 p-4 rounded-[10px] border border-slate-100 hover:border-slate-200 transition-colors text-left shadow-xs">
+                                      <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-bold text-slate-700">{item.title}</span>
+                                          <span className="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full text-[7px] font-black uppercase tracking-widest">{item.type}</span>
+                                        </div>
+                                        {item.description && <p className="text-[10px] text-slate-400 font-semibold italic">{item.description}</p>}
+                                      </div>
+                                      <button 
+                                        onClick={() => handleRemoveAchievement(item.id)}
+                                        className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer border-0 bg-transparent p-1 shrink-0"
+                                      >
+                                        <X size={14} />
+                                      </button>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
 
                       {/* 8. DIVERSIDADE */}
                       {activeAccordion === 'diversity' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-end items-center mb-2">
-                            <button 
-                              onClick={() => setShowDiversityModal(true)}
-                              className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                            >
-                              <Plus size={18} />
-                            </button>
+                        <div className="space-y-4 text-left">
+                          <div className="flex gap-3 bg-[#eefaf6] border border-[#a2e0c9] p-4 rounded-[10px] text-emerald-800 text-[11px] font-medium leading-relaxed mb-6 items-start">
+                            <div className="text-[#0f9f68] shrink-0 mt-0.5">
+                              <Info size={16} />
+                            </div>
+                            <p className="margin-0 text-[#0c704a]">
+                              O preenchimento desta seção é opcional. As informações serão usadas em todos os processos que utilizam a solução de Diversidade. Nenhum dado será utilizado como critério de eliminação.
+                            </p>
                           </div>
 
-                          <div className="bg-slate-50 p-4 rounded-[10px] border border-slate-100/50 text-left shadow-xs">
-                            {(!resumeData.diversity || (!resumeData.diversity.pronoun && !resumeData.diversity.genderIdentity && !resumeData.diversity.sexualOrientation && !resumeData.diversity.race)) ? (
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider py-2 text-center">Nenhuma informação de diversidade preenchida.</p>
-                            ) : (
-                              <div className="grid grid-cols-2 gap-4 text-xs">
-                                {resumeData.diversity.pronoun && (
-                                  <div>
-                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Pronome</p>
-                                    <p className="font-bold text-slate-700">{resumeData.diversity.pronoun}</p>
-                                  </div>
-                                )}
-                                {resumeData.diversity.genderIdentity && (
-                                  <div>
-                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Identidade Gênero</p>
-                                    <p className="font-bold text-slate-700">{resumeData.diversity.genderIdentity}</p>
-                                  </div>
-                                )}
-                                {resumeData.diversity.sexualOrientation && (
-                                  <div>
-                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Orientação Sexual</p>
-                                    <p className="font-bold text-slate-700">{resumeData.diversity.sexualOrientation}</p>
-                                  </div>
-                                )}
-                                {resumeData.diversity.race && (
-                                  <div>
-                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Cor / Raça</p>
-                                    <p className="font-bold text-slate-700">{resumeData.diversity.race}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Pronome</label>
+                              <select 
+                                value={resumeData.diversity?.pronoun || ''} 
+                                onChange={(e) => setResumeData({
+                                  ...resumeData, 
+                                  diversity: Object.assign(
+                                    { pronoun: '', genderIdentity: '', sexualOrientation: '', race: '', consent: false },
+                                    resumeData.diversity,
+                                    { pronoun: e.target.value }
+                                  )
+                                })}
+                                className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm"
+                              >
+                                <option value="">Selecione</option>
+                                <option value="Ele/Dele">Ele/Dele</option>
+                                <option value="Ela/Dela">Ela/Dela</option>
+                                <option value="Neutro">Neutro (Elu/Delu)</option>
+                                <option value="Outro">Outro</option>
+                                <option value="Prefiro não responder">Prefiro não responder</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Identidade de Gênero</label>
+                              <select 
+                                value={resumeData.diversity?.genderIdentity || ''} 
+                                onChange={(e) => setResumeData({
+                                  ...resumeData, 
+                                  diversity: Object.assign(
+                                    { pronoun: '', genderIdentity: '', sexualOrientation: '', race: '', consent: false },
+                                    resumeData.diversity,
+                                    { genderIdentity: e.target.value }
+                                  )
+                                })}
+                                className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm"
+                              >
+                                <option value="">Selecione</option>
+                                <option value="Cisgênero">Cisgênero</option>
+                                <option value="Transgênero">Transgênero</option>
+                                <option value="Não-binário">Não-binário</option>
+                                <option value="Prefiro não responder">Prefiro não responder</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Orientação Sexual</label>
+                              <select 
+                                value={resumeData.diversity?.sexualOrientation || ''} 
+                                onChange={(e) => setResumeData({
+                                  ...resumeData, 
+                                  diversity: Object.assign(
+                                    { pronoun: '', genderIdentity: '', sexualOrientation: '', race: '', consent: false },
+                                    resumeData.diversity,
+                                    { sexualOrientation: e.target.value }
+                                  )
+                                })}
+                                className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm"
+                              >
+                                <option value="">Selecione</option>
+                                <option value="Heterossexual">Heterossexual</option>
+                                <option value="Homossexual">Homossexual</option>
+                                <option value="Bissexual">Bissexual</option>
+                                <option value="Pansexual">Pansexual</option>
+                                <option value="Assexual">Assexual</option>
+                                <option value="Outro">Outro</option>
+                                <option value="Prefiro não responder">Prefiro não responder</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-4 mb-2 block">Cor / Raça</label>
+                              <select 
+                                value={resumeData.diversity?.race || ''} 
+                                onChange={(e) => setResumeData({
+                                  ...resumeData, 
+                                  diversity: Object.assign(
+                                    { pronoun: '', genderIdentity: '', sexualOrientation: '', race: '', consent: false },
+                                    resumeData.diversity,
+                                    { race: e.target.value }
+                                  )
+                                })}
+                                className="w-full px-5 py-3 bg-slate-50 border border-transparent rounded-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all font-bold text-slate-700 text-sm"
+                              >
+                                <option value="">Selecione</option>
+                                <option value="Branco">Branca</option>
+                                <option value="Preto">Preta</option>
+                                <option value="Pardo">Parda</option>
+                                <option value="Amarelo">Amarela</option>
+                                <option value="Indígena">Indígena</option>
+                                <option value="Prefiro não responder">Prefiro não responder</option>
+                              </select>
+                            </div>
+
+                            <label className="flex items-start gap-2.5 pt-2 cursor-pointer select-none">
+                              <input 
+                                type="checkbox" 
+                                checked={resumeData.diversity?.consent || false}
+                                onChange={(e) => setResumeData({
+                                  ...resumeData, 
+                                  diversity: Object.assign(
+                                    { pronoun: '', genderIdentity: '', sexualOrientation: '', race: '', consent: false },
+                                    resumeData.diversity,
+                                    { consent: e.target.checked }
+                                  )
+                                })}
+                                className="mt-1 accent-[#8959f5]" 
+                              />
+                              <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-relaxed">
+                                Consinto com o tratamento de dados de diversidade para vagas afirmativas.
+                              </span>
+                            </label>
                           </div>
                         </div>
                       )}

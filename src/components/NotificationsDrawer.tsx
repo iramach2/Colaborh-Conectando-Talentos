@@ -60,7 +60,7 @@ export const NotificationsDrawer = ({
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="relative w-full max-w-md bg-white rounded-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10 text-left"
           >
             {/* Header Accent Line */}
