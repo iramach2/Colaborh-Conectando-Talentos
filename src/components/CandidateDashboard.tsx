@@ -5714,10 +5714,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               const isTemperamentos = item.type === 'TEMPERAMENTOS';
                               const isCustom = item.type === 'CUSTOM';
                               return (
-                                <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
-                                  <div className="absolute top-0 left-0 w-[5px] h-full bg-gradient-to-b from-primary-500 to-highlight-500" />
-                                  <div className="mb-6">
-                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
+                                <div 
+                                  key={item.id} 
+                                  className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[285px]"
+                                >
+                                  <div>
+                                    <div 
+                                      className="w-11 h-11 rounded-full flex items-center justify-center mb-4 border border-white/50 shadow-xs shrink-0" 
                                       style={{ 
                                         backgroundColor: isDisc ? 'rgba(99, 102, 241, 0.1)' : isMbti ? 'rgba(83, 58, 246, 0.1)' : isTemperamentos ? 'rgba(14, 165, 233, 0.1)' : isCustom ? 'rgba(16, 185, 129, 0.1)' : 'rgba(83, 58, 246, 0.1)', 
                                         color: isDisc ? '#6366f1' : isMbti ? '#533af6' : isTemperamentos ? '#0ea5e9' : isCustom ? '#10b981' : '#533af6' 
@@ -5725,13 +5728,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                     >
                                       {isDisc ? <Brain size={20} /> : isMbti ? <Sparkles size={20} /> : isTemperamentos ? <Compass size={20} /> : isCustom ? <FileText size={20} /> : <FileText size={20} />}
                                     </div>
-                                    <h4 className="font-black text-slate-900 uppercase tracking-tight text-md mb-1">
+                                    <h4 className="text-base font-black text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5">
                                       {isDisc ? 'Teste de Perfil DISC 5.0' : isMbti ? 'Teste de Personalidade MBTI' : isTemperamentos ? 'Teste de Temperamentos e Perfil' : isCustom ? 'Questionário Customizado' : 'Mapeamento de Perfil'}
                                     </h4>
-                                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
                                       Vaga: {item.jobTitle}
                                     </p>
-                                    <p className="text-slate-500 text-xs font-semibold leading-relaxed">
+                                    <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3">
                                       {isDisc 
                                         ? `Solicitado por ${item.companyName}. Responda para mapear seu perfil comportamental e prosseguir no processo seletivo.`
                                         : isMbti
@@ -5770,7 +5773,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                         setQuestionsState('initial');
                                       }
                                     }}
-                                    className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] font-black text-[9px] uppercase tracking-widest transition-all shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                                    className="w-full py-2.5 bg-[#533af6] hover:bg-[#4128df] text-white rounded-full font-black text-[9px] uppercase tracking-widest transition-all shadow-md shadow-[#533af6]/10 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer border-0 mt-auto"
                                   >
                                     Começar Avaliação {isDisc ? <Brain size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
                                   </button>
@@ -5796,10 +5799,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               const isTemperamentos = item.type === 'TEMPERAMENTOS';
                               const isCustom = item.type === 'CUSTOM';
                               return (
-                                <div key={item.id} className="bg-white pt-7 px-6 pb-6 rounded-[10px] border border-slate-100 shadow-sleek flex flex-col justify-between group hover:border-primary-200 hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
-                                  <div className="absolute top-0 left-0 w-[5px] h-full bg-gradient-to-b from-primary-500 to-highlight-500" />
-                                  <div className="mb-6">
-                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" 
+                                <div 
+                                  key={item.id} 
+                                  className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[285px]"
+                                >
+                                  <div>
+                                    <div 
+                                      className="w-11 h-11 rounded-full flex items-center justify-center mb-4 border border-white/50 shadow-xs shrink-0" 
                                       style={{ 
                                         backgroundColor: isDisc ? 'rgba(99, 102, 241, 0.08)' : isMbti ? 'rgba(83, 58, 246, 0.08)' : isTemperamentos ? 'rgba(14, 165, 233, 0.08)' : isCustom ? 'rgba(16, 185, 129, 0.08)' : 'rgba(83, 58, 246, 0.08)', 
                                         color: isDisc ? '#6366f1' : isMbti ? '#533af6' : isTemperamentos ? '#0ea5e9' : isCustom ? '#10b981' : '#533af6' 
@@ -5807,13 +5813,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                     >
                                       {isDisc ? <Award size={20} /> : isMbti ? <Sparkles size={20} /> : isTemperamentos ? <Compass size={20} /> : isCustom ? <CheckCircle2 size={20} /> : <CheckCircle2 size={20} />}
                                     </div>
-                                    <h4 className="font-black text-slate-900 uppercase tracking-tight text-md mb-1">
+                                    <h4 className="text-base font-black text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5">
                                       {isDisc ? 'DISC 5.0 Concluído' : isMbti ? 'MBTI Concluído' : isTemperamentos ? 'Temperamentos Concluído' : isCustom ? 'Questionário Customizado Concluído' : 'Mapeamento de Perfil Concluído'}
                                     </h4>
-                                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
                                       Vaga: {item.jobTitle}
                                     </p>
-                                    <p className="text-slate-500 text-xs font-semibold leading-relaxed">
+                                    <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3">
                                       {isDisc 
                                         ? `Avaliação de perfil comportamental concluída com sucesso para a vaga da ${item.companyName}.`
                                         : isMbti
@@ -5864,7 +5870,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                         setDrawerTestResult('QUESTIONS');
                                       }
                                     }}
-                                    className="w-full py-3.5 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full font-black text-[9px] uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border-0"
+                                    className="w-full py-2.5 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full font-black text-[9px] uppercase tracking-widest transition-all shadow-md shadow-[#8959f5]/15 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer border-0 mt-auto"
                                   >
                                     Visualizar Relatório {isDisc ? <Award size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
                                   </button>
