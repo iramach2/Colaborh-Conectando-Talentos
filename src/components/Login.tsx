@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, User, Mail, Lock, Phone, Building, Loader2, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -10,6 +10,20 @@ interface LoginProps {
 }
 
 export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }: LoginProps) {
+  useEffect(() => {
+    // Alinha o background global do body/html com o da tela de login
+    const origHtmlBg = document.documentElement.style.backgroundColor;
+    const origBodyBg = document.body.style.backgroundColor;
+    
+    document.documentElement.style.backgroundColor = '#f3f0ff';
+    document.body.style.backgroundColor = '#f3f0ff';
+    
+    return () => {
+      document.documentElement.style.backgroundColor = origHtmlBg;
+      document.body.style.backgroundColor = origBodyBg;
+    };
+  }, []);
+
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [regType, setRegType] = useState<'candidate' | 'company'>('candidate');
   const [isLoading, setIsLoading] = useState(false);

@@ -1113,6 +1113,8 @@ const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpa
 
 export default function CandidateDashboard({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('Meu Currículo');
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const [activeAccordion, setActiveAccordion] = useState('info');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -1152,6 +1154,18 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       window.removeEventListener('scroll', handleScroll);
       document.documentElement.style.backgroundColor = '';
       document.body.style.backgroundColor = '';
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -3504,51 +3518,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Backdrop overlay for mobile */}
 
 
-      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-12 lg:top-32 lg:bottom-6 lg:w-16 lg:h-[calc(100vh-9.5rem)] lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:pt-2 lg:pb-2 lg:px-0 lg:justify-between">
+      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-12 lg:top-32 lg:w-16 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
 
-        <nav className="flex-1 space-y-3 lg:space-y-1.5 lg:py-0 w-full flex flex-col items-center justify-start py-4">
+        <nav className="space-y-3 lg:space-y-6 w-full flex flex-col items-center justify-start">
           <SidebarItem icon={FileText} label="Meu Currículo" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Star} label="Vagas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Brain} label="Testes" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
         </nav>
-
-        <div className="mt-auto pt-4 border-t border-white/15 w-full flex flex-col gap-3 lg:gap-2 shrink-0">
-          {/* Configurações */}
-          <SidebarItem icon={Settings} label="Configurações" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
-
-          {/* Sair */}
-          <div className="relative group/item w-full lg:h-12 flex justify-center">
-            <button 
-              onClick={onLogout}
-              className="flex items-center transition-all duration-300 ease-in-out
-                /* Estilo Mobile */
-                w-full py-3.5 px-4 justify-start gap-3 rounded-2xl
-                text-white/70 hover:bg-white/10 hover:text-white
-                /* Estilo Desktop */
-                lg:absolute lg:left-2 lg:top-0 lg:w-12 lg:h-12 lg:p-0 lg:justify-center lg:rounded-full lg:space-x-0 lg:gap-0 lg:z-10
-                lg:bg-transparent lg:shadow-none
-                lg:text-white/70
-                /* Efeito Hover no Desktop */
-                lg:hover:w-48 lg:hover:bg-white/90 lg:hover:backdrop-blur-xs lg:hover:text-red-600 lg:hover:shadow-2xl lg:hover:z-50 lg:hover:justify-start lg:hover:pl-3.5 lg:hover:pr-8
-              "
-            >
-              <LogOut size={18} className="shrink-0 transition-all duration-200 text-white/70 group-hover/item:text-red-600" />
-              
-              {/* Rótulo de texto que expande no desktop ao passar o mouse */}
-              <span className="font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all duration-300 ease-in-out
-                /* Mobile */
-                lg:hidden
-                /* Desktop: oculto por padrão, expande no hover do container pai */
-                lg:w-0 lg:opacity-0 lg:overflow-hidden lg:ml-0
-                lg:group-hover/item:w-auto lg:group-hover/item:opacity-100 lg:group-hover/item:inline-block lg:group-hover/item:overflow-visible
-                lg:group-hover/item:flex-1 lg:group-hover/item:text-center
-                text-red-600
-              ">
-                Sair
-              </span>
-            </button>
-          </div>
-        </div>
       </aside>
 
       {/* Main Container */}
@@ -3609,15 +3585,64 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 </div>
               </div>
 
-              {/* Avatar / Foto de Perfil */}
-              <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm shrink-0" title={resumeData.fullName}>
-                {resumeData.profilePic ? (
-                  <img src={resumeData.profilePic} alt="Perfil" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-slate-600 font-extrabold text-sm">
-                    {resumeData.fullName ? resumeData.fullName.substring(0, 2).toUpperCase() : 'CA'}
-                  </span>
-                )}
+              {/* Avatar / Foto de Perfil com Menu Dropdown */}
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm shrink-0 cursor-pointer focus:outline-none transition-transform hover:scale-105 active:scale-95 p-0"
+                  title={resumeData.fullName}
+                >
+                  {resumeData.profilePic ? (
+                    <img src={resumeData.profilePic} alt="Perfil" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-slate-600 font-extrabold text-sm">
+                      {resumeData.fullName ? resumeData.fullName.substring(0, 2).toUpperCase() : 'CA'}
+                    </span>
+                  )}
+                </button>
+
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {isProfileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-md border border-slate-200/50 rounded-2xl shadow-[0_10px_30px_rgba(83,58,246,0.08)] py-3 px-2 z-50 text-left"
+                    >
+                      {/* Header do Dropdown: Informações do Candidato */}
+                      <div className="px-3 py-2.5 border-b border-slate-100 mb-2">
+                        <p className="text-[10px] font-black text-[#533af6] uppercase tracking-wider leading-none mb-1">Candidato</p>
+                        <p className="text-xs font-bold text-slate-800 truncate">{resumeData.fullName || 'Cadastrado'}</p>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{resumeData.email}</p>
+                      </div>
+
+                      {/* Itens do Menu */}
+                      <button
+                        onClick={() => {
+                          handleSelectTab('Configurações');
+                          setIsProfileMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-600 hover:bg-[#533af6]/5 hover:text-[#533af6] transition-all cursor-pointer border-0 bg-transparent focus:outline-none"
+                      >
+                        <Settings size={16} className="text-slate-400" />
+                        <span>Configurações</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          onLogout();
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer border-0 bg-transparent focus:outline-none"
+                      >
+                        <LogOut size={16} className="text-red-400" />
+                        <span>Sair</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
@@ -3625,7 +3650,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-12 relative z-10">
+          <main className="flex-1 px-6 pt-6 pb-28 lg:py-10 lg:pl-40 lg:pr-12 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
             <>
@@ -7293,8 +7318,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         {[
           { label: 'Meu Currículo', icon: FileText },
           { label: 'Vagas', icon: Star },
-          { label: 'Testes', icon: Brain },
-          { label: 'Configurações', icon: Settings }
+          { label: 'Testes', icon: Brain }
         ].map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.label;
@@ -7386,19 +7410,56 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               transition={{ duration: 0.2 }}
                               className="space-y-6"
                             >
-                      {/* Título interno do painel da aba ativa */}
-                      <div className="pb-3.5 border-b border-slate-100/80 text-left">
-                        <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">
-                          {activeAccordion === 'info' && 'Foto & Dados Pessoais'}
-                          {activeAccordion === 'summary' && 'Resumo Profissional'}
-                          {activeAccordion === 'experience' && 'Experiência Profissional'}
-                          {activeAccordion === 'education' && 'Formação Acadêmica'}
-                          {activeAccordion === 'skills' && 'Habilidades'}
-                          {activeAccordion === 'languages' && 'Idiomas'}
-                          {activeAccordion === 'achievements' && 'Cursos ou Certificados'}
-                          {activeAccordion === 'diversity' && 'Diversidade'}
-                        </h2>
-                      </div>
+
+                      {/* Linha com botão de adicionar (+) à direita para as seções selecionadas */}
+                      {['experience', 'education', 'languages', 'achievements'].includes(activeAccordion) && (
+                        <div className="flex justify-end pb-3 border-b border-slate-100/80 mb-6 shrink-0">
+                          {activeAccordion === 'experience' && !resumeData.isFirstJob && (
+                            <button 
+                              type="button"
+                              onClick={() => { setEditingExp(null); setShowExpModal(true); }}
+                              className="h-7 px-3.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full flex items-center justify-center gap-1.5 transition-all duration-300 cursor-pointer border-0 shadow-xs text-[9px] font-black tracking-wider uppercase"
+                              title="Adicionar Experiência"
+                            >
+                              <Plus size={12} className="stroke-[3]" />
+                              <span>Incluir</span>
+                            </button>
+                          )}
+                          {activeAccordion === 'education' && (
+                            <button 
+                              type="button"
+                              onClick={() => { setEditingEdu(null); setShowEduModal(true); }}
+                              className="h-7 px-3.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full flex items-center justify-center gap-1.5 transition-all duration-300 cursor-pointer border-0 shadow-xs text-[9px] font-black tracking-wider uppercase"
+                              title="Adicionar Formação"
+                            >
+                              <Plus size={12} className="stroke-[3]" />
+                              <span>Incluir</span>
+                            </button>
+                          )}
+                          {activeAccordion === 'languages' && (
+                            <button 
+                              type="button"
+                              onClick={() => setShowLangModal(true)}
+                              className="h-7 px-3.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full flex items-center justify-center gap-1.5 transition-all duration-300 cursor-pointer border-0 shadow-xs text-[9px] font-black tracking-wider uppercase"
+                              title="Adicionar Idioma"
+                            >
+                              <Plus size={12} className="stroke-[3]" />
+                              <span>Incluir</span>
+                            </button>
+                          )}
+                          {activeAccordion === 'achievements' && (
+                            <button 
+                              type="button"
+                              onClick={() => setShowAchModal(true)}
+                              className="h-7 px-3.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full flex items-center justify-center gap-1.5 transition-all duration-300 cursor-pointer border-0 shadow-xs text-[9px] font-black tracking-wider uppercase"
+                              title="Adicionar Conquista"
+                            >
+                              <Plus size={12} className="stroke-[3]" />
+                              <span>Incluir</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
 
                       {/* 1. DADOS PESSOAIS E FOTO */}
                       {activeAccordion === 'info' && (
@@ -7710,15 +7771,6 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                   </div>
                                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Primeiro Emprego</span>
                                 </label>
-
-                                {!resumeData.isFirstJob && (
-                                  <button 
-                                    onClick={() => { setEditingExp(null); setShowExpModal(true); }}
-                                    className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                                  >
-                                    <Plus size={20} />
-                                  </button>
-                                )}
                               </div>
 
                               {resumeData.isFirstJob ? (
@@ -7830,11 +7882,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             </div>
                           ) : (
                             <>
-                              <div className="flex justify-end items-center mb-2">
-                                <button onClick={() => { setEditingEdu(null); setShowEduModal(true); }} className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0">
-                                  <Plus size={20} />
-                                </button>
-                              </div>
+
 
                               <div className="space-y-4">
                                 {resumeData.educations.length === 0 ? (
@@ -7969,14 +8017,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             </div>
                           ) : (
                             <>
-                              <div className="flex justify-end items-center mb-2">
-                                <button 
-                                  onClick={() => setShowLangModal(true)}
-                                  className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                                >
-                                  <Plus size={18} />
-                                </button>
-                              </div>
+
 
                               <div className="flex flex-wrap gap-2">
                                 {(!resumeData.languages || resumeData.languages.length === 0) ? (
@@ -8052,14 +8093,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                             </div>
                           ) : (
                             <>
-                              <div className="flex justify-end items-center mb-2">
-                                <button 
-                                  onClick={() => setShowAchModal(true)}
-                                  className="w-10 h-10 flex items-center justify-center bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-full transition-all cursor-pointer border-0"
-                                >
-                                  <Plus size={18} />
-                                </button>
-                              </div>
+
 
                               <div className="space-y-3">
                                 {(!resumeData.achievements || resumeData.achievements.length === 0) ? (
