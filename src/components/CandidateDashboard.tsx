@@ -3765,7 +3765,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         key={section.id}
                         className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex items-center justify-between hover:shadow-md hover:bg-white/95 transition-all duration-300 group text-left h-[128px]"
                       >
-                        <div className="flex items-center gap-4 pr-4">
+                        <div className="flex items-center gap-4 pr-4 min-w-0">
                           <div className="relative shrink-0">
                             <div className="w-12 h-12 rounded-full bg-[#533af6]/10 text-[#533af6] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                               <Icon size={22} className="stroke-[2]" />
@@ -3776,7 +3776,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                               </div>
                             )}
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">
                               {section.title}
                             </h3>
@@ -7346,7 +7346,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 {/* Modal de Edição (Popup) */}
                 <AnimatePresence>
                   {isEditModalOpen && (
-                    <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-md flex items-center justify-end z-[9999]">
+                    <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-md flex items-center justify-end z-[9999] overflow-hidden">
                       {/* Backdrop para fechar */}
                       <div 
                         className="absolute inset-0 cursor-pointer" 
@@ -7359,7 +7359,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         exit={{ x: '105%', opacity: 1 }}
                         transition={{ type: "spring", damping: 30, stiffness: 300 }}
                         style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, height: '100%' }}
-                        className="bg-[#faf8ff] rounded-none md:rounded-l-[2rem] w-full max-w-xl md:max-w-2xl overflow-y-auto fixed top-0 bottom-0 right-0 p-6 md:p-8 border-l border-white/20 shadow-2xl flex flex-col z-[10000] text-left"
+                        className="bg-[#faf8ff] rounded-none md:rounded-l-[2rem] w-full max-w-xl md:max-w-2xl overflow-hidden fixed top-0 bottom-0 right-0 p-6 md:p-8 border-l border-white/20 shadow-2xl flex flex-col z-[10000] text-left"
                       >
                         {/* Cabeçalho do Modal */}
                         <div className="w-full flex items-center justify-between mb-6 border-b border-slate-200/50 pb-4 shrink-0">
