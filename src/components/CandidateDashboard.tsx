@@ -1146,8 +1146,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     };
 
     // Ajuste dinâmico de cor de fundo do html e body para casar com o CandidateDashboard
-    document.documentElement.style.backgroundColor = '#faf8ff';
-    document.body.style.backgroundColor = '#faf8ff';
+    document.documentElement.style.backgroundColor = '#ffffff';
+    document.body.style.backgroundColor = '#ffffff';
 
     window.addEventListener('scroll', handleScroll);
     return () => {
@@ -7359,7 +7359,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         exit={{ x: '105%', opacity: 1 }}
                         transition={{ type: "spring", damping: 30, stiffness: 300 }}
                         style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, height: '100%' }}
-                        className="bg-[#faf8ff] rounded-none md:rounded-l-[2rem] w-full max-w-xl md:max-w-2xl overflow-hidden fixed top-0 bottom-0 right-0 p-6 md:p-8 border-l border-white/20 shadow-2xl flex flex-col z-[10000] text-left"
+                        className="bg-[#faf8ff] rounded-none md:rounded-l-[2rem] w-full max-w-xl md:max-w-2xl max-w-full overflow-x-hidden overflow-hidden fixed top-0 bottom-0 right-0 p-6 md:p-8 border-l border-white/20 shadow-2xl flex flex-col z-[10000] text-left"
                       >
                         {/* Cabeçalho do Modal */}
                         <div className="w-full flex items-center justify-between mb-6 border-b border-slate-200/50 pb-4 shrink-0">
@@ -7400,7 +7400,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         </div>
 
                         {/* Corpo do Modal: Formulários Originais */}
-                        <div className="flex-1 overflow-y-auto pr-1">
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1">
                           <AnimatePresence mode="wait">
                             <motion.div
                               key={activeAccordion}
