@@ -471,6 +471,14 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
   const [tempNotesText, setTempNotesText] = useState('');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
 
+  // Estados para chat com o candidato
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
+  const [selectedApplicantForChat, setSelectedApplicantForChat] = useState<any>(null);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [newMessageText, setNewMessageText] = useState('');
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [isFetchingChat, setIsFetchingChat] = useState(false);
+
   // Estados para questionário do candidato
   const [isQuestionsModalOpen, setIsQuestionsModalOpen] = useState(false);
   const [selectedApplicantForQuestions, setSelectedApplicantForQuestions] = useState<any>(null);
@@ -537,6 +545,98 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     setTempNotesText(parsedData.notes || '');
     setIsNotesModalOpen(true);
   };
+
+  const loadChatMessages = async (applicationId: string) => {
+    if (!applicationId) return;
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('application_id', applicationId)
+        .order('created_at', { ascending: true });
+      
+      if (!error && data) {
+        setChatMessages(data);
+        
+        // Marcar mensagens do candidato como lidas
+        const unreadCandidateMsgs = data.filter(m => m.sender_type === 'candidate' && !m.read);
+        if (unreadCandidateMsgs.length > 0) {
+          await supabase
+            .from('messages')
+            .update({ read: true })
+            .eq('application_id', applicationId)
+            .eq('sender_type', 'candidate');
+        }
+      }
+    } catch (e) {
+      console.error('Erro ao buscar mensagens do chat:', e);
+    }
+  };
+
+  const handleOpenChat = async (applicant: any) => {
+    const info = getFullApplicantInfo(applicant);
+    setSelectedApplicantForChat(info);
+    setIsChatDrawerOpen(true);
+    setNewMessageText('');
+    setIsFetchingChat(true);
+    await loadChatMessages(info.id); // info.id é o application_id
+    setIsFetchingChat(false);
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessageText.trim() || !selectedApplicantForChat) return;
+    
+    setIsSendingMessage(true);
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([
+          {
+            application_id: selectedApplicantForChat.id,
+            sender_type: 'company',
+            content: newMessageText.trim(),
+            read: false
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
+      // Limpar o campo e atualizar
+      const sentMsg = data?.[0];
+      if (sentMsg) {
+        setChatMessages(prev => [...prev, sentMsg]);
+      }
+      setNewMessageText('');
+      
+      // Notificar candidato por e-mail ou notificação interna
+      const email = selectedApplicantForChat.candidate_email || selectedApplicantForChat.email;
+      if (email && selectedJob) {
+        createNotification(
+          email,
+          'candidate',
+          'Nova mensagem da empresa',
+          `Você recebeu uma mensagem da empresa sobre a vaga "${selectedJob.title}".`,
+          selectedJob.id
+        ).catch(err => console.warn('Erro ao gerar notificação de nova mensagem:', err));
+      }
+    } catch (err) {
+      console.error('Erro ao enviar mensagem:', err);
+      alert('Não foi possível enviar a mensagem.');
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isChatDrawerOpen || !selectedApplicantForChat?.id) return;
+
+    const interval = setInterval(() => {
+      loadChatMessages(selectedApplicantForChat.id);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isChatDrawerOpen, selectedApplicantForChat?.id]);
 
   const handleDownloadResume = async () => {
     if (!resumePrintRef.current || !selectedResumeApplicant) {
@@ -3793,6 +3893,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                 handleRequestCustomTest={handleRequestCustomTest}
                 handleOpenNotes={handleOpenNotes}
                 handleDeleteJob={handleDeleteJob}
+                handleOpenChat={handleOpenChat}
               />
             )}
 
@@ -5483,7 +5584,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
                   transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                  className="relative w-full max-w-md bg-white rounded-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
+                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
                 >
                   {/* Drawer Header */}
                   <div className="p-7 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
@@ -5558,6 +5659,125 @@ Equipe de Recrutamento & Seleção - Colaborh
                           <Loader2 size={12} className="animate-spin" /> Salvando...
                         </>
                       ) : 'Salvar Anotações'}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Modal de Chat com o Candidato */}
+          <AnimatePresence>
+            {isChatDrawerOpen && selectedApplicantForChat && (
+              <div className="fixed inset-0 z-[120] flex justify-end">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => {
+                    setIsChatDrawerOpen(false);
+                    setSelectedApplicantForChat(null);
+                  }}
+                  className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" 
+                />
+                <motion.div 
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
+                >
+                  {/* Drawer Header */}
+                  <div className="p-7 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm shrink-0 border border-indigo-100">
+                        <MessageSquare size={22} className="text-indigo-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight leading-tight">
+                          Chat com Candidato
+                        </h4>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5 truncate max-w-[220px]">
+                          Candidato: {selectedApplicantForChat.candidate_name || selectedApplicantForChat.name}
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setIsChatDrawerOpen(false);
+                        setSelectedApplicantForChat(null);
+                      }} 
+                      className="p-2.5 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full transition-all cursor-pointer border border-slate-100 hover:scale-105 active:scale-95 shadow-sm outline-none flex items-center justify-center w-9 h-9"
+                    >
+                      <CloseIcon size={16} />
+                    </button>
+                  </div>
+
+                  {/* Drawer Body - Messages List */}
+                  <div className="flex-1 p-6 flex flex-col space-y-4 overflow-y-auto bg-slate-50/30">
+                    {isFetchingChat ? (
+                      <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
+                        <Activity className="animate-spin text-indigo-500 mb-2" size={20} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Carregando conversa...</span>
+                      </div>
+                    ) : chatMessages.length === 0 ? (
+                      <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-350">
+                          <MessageSquare size={20} />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-wider text-slate-700">Nenhuma mensagem ainda</p>
+                          <p className="text-[9px] text-slate-400 font-bold uppercase mt-1">Envie uma mensagem abaixo para iniciar o contato com o candidato.</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 flex flex-col">
+                        {chatMessages.map((msg, idx) => {
+                          const isCompany = msg.sender_type === 'company';
+                          return (
+                            <div 
+                              key={msg.id || idx}
+                              className={`flex flex-col max-w-[80%] ${isCompany ? 'self-end items-end' : 'self-start items-start'}`}
+                            >
+                              <div className={`px-4 py-3 rounded-[18px] text-xs font-semibold ${
+                                isCompany 
+                                  ? 'bg-[#533af6] text-white rounded-tr-none' 
+                                  : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none shadow-3xs'
+                              }`}>
+                                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                              </div>
+                              <span className="text-[7.5px] font-bold text-slate-400 uppercase tracking-widest mt-1 px-1">
+                                {new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Drawer Footer - Chat Input */}
+                  <div className="p-4 border-t border-slate-100 bg-white flex items-center gap-2 shrink-0">
+                    <input
+                      type="text"
+                      value={newMessageText}
+                      onChange={(e) => setNewMessageText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !isSendingMessage) {
+                          handleSendMessage();
+                        }
+                      }}
+                      placeholder="Digite sua mensagem..."
+                      className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white transition-all"
+                      disabled={isSendingMessage}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSendMessage}
+                      disabled={isSendingMessage || !newMessageText.trim()}
+                      className="px-4 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-md hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 shrink-0"
+                    >
+                      {isSendingMessage ? 'Enviando...' : 'Enviar'}
                     </button>
                   </div>
                 </motion.div>
@@ -6624,7 +6844,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
                   transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                  className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10"
+                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10"
                 >
                   {/* Cabeçalho do Drawer */}
                   <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
@@ -7006,7 +7226,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
                   transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                  className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10 animate-none"
+                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10 animate-none"
                 >
                   {/* Cabeçalho do Drawer */}
                   <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
@@ -7231,7 +7451,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
                   transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                  className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10 text-left font-sans"
+                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10 text-left font-sans"
                 >
                   {/* Cabeçalho do Drawer */}
                   <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">

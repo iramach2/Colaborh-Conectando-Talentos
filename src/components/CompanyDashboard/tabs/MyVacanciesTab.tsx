@@ -15,7 +15,8 @@ import {
   Plus,
   StickyNote,
   Trash2,
-  Search
+  Search,
+  MessageSquare
 } from 'lucide-react';
 import { 
   parseCandidatePhoneData, 
@@ -49,6 +50,7 @@ interface MyVacanciesTabProps {
   handleRequestCustomTest: (applicant: any) => void;
   handleOpenNotes: (applicant: any) => void;
   handleDeleteJob: (jobId: string, jobTitle: string) => void;
+  handleOpenChat: (applicant: any) => void;
 }
 
 export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
@@ -74,7 +76,8 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
   handleRequestQuestions,
   handleRequestCustomTest,
   handleOpenNotes,
-  handleDeleteJob
+  handleDeleteJob,
+  handleOpenChat
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
@@ -476,6 +479,16 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                                   </a>
                                 );
                               })()}
+
+                              {/* Botão de Mensagens / Chat */}
+                              <button
+                                type="button"
+                                onClick={() => handleOpenChat(app)}
+                                className="w-8 h-8 rounded-full bg-[#533af6] hover:bg-[#4326e5] text-white flex items-center justify-center shrink-0 transition-all active:scale-95 shadow-2xs hover:shadow-xs border border-transparent"
+                                title="Conversar com o candidato"
+                              >
+                                <MessageSquare size={14} className="stroke-[2.5]" />
+                              </button>
 
                               {/* Botão de Anotações */}
                               <button

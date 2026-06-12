@@ -61,11 +61,8 @@ export const NotificationsDrawer = ({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="relative w-full max-w-md bg-white rounded-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10 text-left"
+            className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10 text-left"
           >
-            {/* Header Accent Line */}
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#7b39ec] to-indigo-600" />
-
             {/* Drawer Header */}
             <div className="flex justify-between items-center mb-6 mt-2 shrink-0">
               <div>

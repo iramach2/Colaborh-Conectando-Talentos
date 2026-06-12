@@ -86,7 +86,7 @@ export const ManageStagesModal = ({
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-        className="relative w-full max-w-md bg-white rounded-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
+        className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
       >
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#8959f5] to-indigo-600" />
         

@@ -19,6 +19,7 @@ import {
   Save,
   Clock,
   Accessibility,
+  HeartHandshake,
   Lock,
   CheckCircle2,
   ChevronDown,
@@ -42,7 +43,8 @@ import {
   Globe,
   Languages,
   Info,
-  Filter
+  Filter,
+  Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -1126,6 +1128,16 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [newAchTitle, setNewAchTitle] = useState('');
   const [newAchDesc, setNewAchDesc] = useState('');
 
+  // Estados para o Chat do Candidato
+  const [isCandidateChatDrawerOpen, setIsCandidateChatDrawerOpen] = useState(false);
+  const [candidateConversations, setCandidateConversations] = useState<any[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<any | null>(null);
+  const [candidateChatMessages, setCandidateChatMessages] = useState<any[]>([]);
+  const [candidateNewMessageText, setCandidateNewMessageText] = useState('');
+  const [isCandidateSendingMessage, setIsCandidateSendingMessage] = useState(false);
+  const [isFetchingCandidateChat, setIsFetchingCandidateChat] = useState(false);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsHeaderScrolled(window.scrollY > 40);
@@ -1221,6 +1233,38 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [originalResumeData, setOriginalResumeData] = useState<ResumeData | null>(null);
   const [isResumeDirty, setIsResumeDirty] = useState(false);
   const [pendingTabChange, setPendingTabChange] = useState<string | null>(null);
+
+  const isSectionCompleted = (sectionId: string): boolean => {
+    if (!resumeData) return false;
+    switch (sectionId) {
+      case 'info':
+        return !!(
+          resumeData.fullName?.trim() &&
+          resumeData.email?.trim() &&
+          resumeData.phone?.trim() &&
+          resumeData.birthDate?.trim() &&
+          resumeData.gender?.trim() &&
+          resumeData.state?.trim() &&
+          resumeData.city?.trim()
+        );
+      case 'summary':
+        return !!resumeData.summary?.trim();
+      case 'experience':
+        return !!(resumeData.isFirstJob || (resumeData.experiences && resumeData.experiences.length > 0));
+      case 'education':
+        return !!(resumeData.educations && resumeData.educations.length > 0);
+      case 'skills':
+        return !!(resumeData.skills && resumeData.skills.length > 0);
+      case 'languages':
+        return !!(resumeData.languages && resumeData.languages.length > 0);
+      case 'achievements':
+        return !!(resumeData.achievements && resumeData.achievements.length > 0);
+      case 'diversity':
+        return !!(resumeData.diversity && resumeData.diversity.consent);
+      default:
+        return false;
+    }
+  };
 
   // Notifications states
   const [notifications, setNotifications] = useState<ColaborhNotification[]>([]);
@@ -2965,7 +3009,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       const { D, I, S, C } = discResult;
       const scoresList = [
         { key: 'D' as const, label: 'Dominância (D)', val: D, color: 'bg-rose-500', textColor: 'text-rose-600', classColor: 'text-rose-600 bg-rose-50/50 border-rose-100', profile: perfisDISC.D },
-        { key: 'I' as const, label: 'Influência (I)', val: I, color: 'bg-indigo-500', textColor: 'text-indigo-600', classColor: 'text-indigo-600 bg-indigo-50/50 border-indigo-100', profile: perfisDISC.I },
+        { key: 'I' as const, label: 'Influência (I)', val: I, color: 'bg-[#533af6]', textColor: 'text-[#533af6]', classColor: 'text-[#533af6] bg-indigo-50/50 border-indigo-100', profile: perfisDISC.I },
         { key: 'S' as const, label: 'Estabilidade (S)', val: S, color: 'bg-emerald-500', textColor: 'text-emerald-600', classColor: 'text-emerald-600 bg-emerald-50/50 border-emerald-100', profile: perfisDISC.S },
         { key: 'C' as const, label: 'Conformidade (C)', val: C, color: 'bg-amber-500', textColor: 'text-amber-600', classColor: 'text-amber-600 bg-amber-50/50 border-amber-100', profile: perfisDISC.C }
       ];
@@ -3000,29 +3044,27 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       return (
         <div className="space-y-6 text-left pb-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className={`p-5 rounded-[10px] border ${predominant.classColor} relative overflow-hidden`}>
-              <div className="absolute top-0 left-0 w-full h-[4px] bg-primary-500" />
+            <div className={`p-6 rounded-[12px] border ${predominant.classColor} relative overflow-hidden`}>
               <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Perfil Predominante</span>
-              <h3 className="text-md font-black tracking-tight mt-1">{predominant.profile.nome}</h3>
-              <p className="text-xs font-semibold leading-relaxed mt-2 opacity-90">{predominant.profile.desc}</p>
+              <h3 className="text-md font-black tracking-tight mt-1 uppercase">{predominant.profile.nome}</h3>
+              <p className="text-xs font-medium leading-relaxed mt-2 text-slate-600">{predominant.profile.desc}</p>
             </div>
-            <div className={`p-5 rounded-[10px] border ${secondary.classColor} relative overflow-hidden`}>
-              <div className="absolute top-0 left-0 w-full h-[4px] bg-highlight-500" />
+            <div className={`p-6 rounded-[12px] border ${secondary.classColor} relative overflow-hidden`}>
               <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Perfil Secundário</span>
-              <h3 className="text-md font-black tracking-tight mt-1">{secondary.profile.nome}</h3>
-              <p className="text-xs font-semibold leading-relaxed mt-2 opacity-90">{secondary.profile.desc}</p>
+              <h3 className="text-md font-black tracking-tight mt-1 uppercase">{secondary.profile.nome}</h3>
+              <p className="text-xs font-medium leading-relaxed mt-2 text-slate-600">{secondary.profile.desc}</p>
             </div>
           </div>
 
           {combinationText && (
-            <div className="p-5 bg-indigo-50/40 border border-indigo-100/60 rounded-[10px] text-left">
-              <span className="text-[9px] font-black uppercase tracking-widest text-indigo-500">Combinação de Perfil</span>
+            <div className="p-6 bg-indigo-50/40 border border-indigo-100/60 rounded-[12px] text-left">
+              <span className="text-[9px] font-black uppercase tracking-widest text-[#533af6]">Combinação de Perfil</span>
               <h4 className="text-xs font-black text-indigo-950 mt-1">{predominant.profile.label} + {secondary.profile.label}</h4>
-              <p className="text-xs font-semibold text-indigo-800 mt-1 leading-relaxed">{combinationText}</p>
+              <p className="text-xs font-medium text-indigo-800 mt-1 leading-relaxed">{combinationText}</p>
             </div>
           )}
 
-          <div className="bg-white border border-slate-100 p-6 rounded-[10px] shadow-sm space-y-6">
+          <div className="bg-white border border-slate-100 p-6 rounded-[12px] shadow-sm space-y-6">
             <h3 className="text-xs font-black text-slate-800 tracking-tight uppercase">Equilíbrio dos Fatores (DISC)</h3>
             <div className="space-y-4">
               {scoresList.map(f => {
@@ -3050,27 +3092,27 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             </div>
           </div>
 
-          <div className="border border-slate-100 rounded-[10px] p-6 space-y-5 bg-white shadow-sm">
+          <div className="border border-slate-100 rounded-[12px] p-6 space-y-5 bg-white shadow-sm">
             <h3 className="text-xs font-black text-slate-800 tracking-tight uppercase">Detalhamento Comportamental</h3>
             <div className="space-y-4 text-xs font-semibold text-slate-600 leading-relaxed">
               <div>
                 <span className="font-black text-slate-800 block text-[10px] uppercase tracking-wider mb-1">Características Principais</span>
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
                   {predominant.profile.caracteristicas.map((c, i) => (
-                    <span key={i} className="px-2.5 py-1 bg-slate-50 border border-slate-200/50 rounded-md text-[9px] font-bold text-slate-50">{c}</span>
+                    <span key={i} className="px-3 py-1 bg-[#533af6]/5 border border-[#533af6]/10 rounded-full text-[9px] font-black text-[#533af6] uppercase tracking-wider">{c}</span>
                   ))}
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                <div className="bg-emerald-50/20 border border-emerald-100/50 p-4 rounded-[8px]">
-                  <span className="font-black text-emerald-800 block text-[10px] uppercase tracking-wider mb-1">Pontos Fortes</span>
-                  <ul className="list-disc pl-4 space-y-1 mt-2 text-emerald-755">
+                <div className="bg-emerald-50/20 border border-emerald-100 p-5 rounded-[12px]">
+                  <span className="font-black text-emerald-800 block text-[10px] uppercase tracking-wider mb-2">Pontos Fortes</span>
+                  <ul className="list-disc pl-4 space-y-1.5 mt-2 text-emerald-800 font-medium">
                     {predominant.profile.pontosFortes.map((p, i) => <li key={i}>{p}</li>)}
                   </ul>
                 </div>
-                <div className="bg-rose-50/20 border border-rose-100/50 p-4 rounded-[8px]">
-                  <span className="font-black text-rose-800 block text-[10px] uppercase tracking-wider mb-1">Pontos de Atenção</span>
-                  <ul className="list-disc pl-4 space-y-1 mt-2 text-rose-755">
+                <div className="bg-rose-50/20 border border-rose-100 p-5 rounded-[12px]">
+                  <span className="font-black text-rose-800 block text-[10px] uppercase tracking-wider mb-2">Pontos de Atenção</span>
+                  <ul className="list-disc pl-4 space-y-1.5 mt-2 text-rose-800 font-medium">
                     {predominant.profile.pontosAtencao.map((p, i) => <li key={i}>{p}</li>)}
                   </ul>
                 </div>
@@ -3089,7 +3131,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
       return (
         <div className="space-y-6 text-left pb-10">
-          <div className="flex border border-slate-100 bg-white p-1 rounded-[10px] gap-1 overflow-x-auto scrollbar-none shadow-sm">
+          <div className="flex border border-slate-100 bg-white p-1.5 rounded-[12px] gap-1 overflow-x-auto scrollbar-none shadow-sm">
             {categoriesKeys.map((catKey, idx) => {
               const cat = QUESTIONS_CATEGORIES[catKey];
               const isActive = currentQuestionsCategoryIndex === idx;
@@ -3098,9 +3140,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   key={catKey}
                   type="button"
                   onClick={() => setCurrentQuestionsCategoryIndex(idx)}
-                  className={`px-3 py-2 rounded-[8px] text-[9px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex-1 cursor-pointer ${
+                  className={`px-4 py-2.5 rounded-[8px] text-[9px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex-1 cursor-pointer ${
                     isActive
-                      ? 'bg-slate-900 text-white shadow-sm'
+                      ? 'bg-[#533af6] text-white shadow-sm'
                       : 'text-slate-400 hover:text-slate-700 hover:bg-slate-50'
                   }`}
                 >
@@ -3116,16 +3158,16 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               const answerText = selectedQuestionsResult[globalIdx] || selectedQuestionsResult[globalIdx.toString()] || 'Nenhuma resposta gravada.';
 
               return (
-                <div key={globalIdx} className="p-5 rounded-[10px] border border-slate-100 bg-white space-y-3 shadow-xs">
-                  <div className="flex items-start gap-2.5">
-                    <span className="w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center text-white shrink-0 mt-0.5 bg-primary-600">
+                <div key={globalIdx} className="p-5 rounded-[12px] border border-slate-100 bg-white space-y-3 shadow-xs">
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center text-white shrink-0 mt-0.5 bg-[#533af6]">
                       {globalIdx + 1}
                     </span>
-                    <h4 className="font-extrabold text-slate-800 text-xs leading-snug">
+                    <h4 className="font-black text-slate-800 text-xs leading-snug">
                       {questionText}
                     </h4>
                   </div>
-                  <div className="p-4 bg-slate-50 border border-slate-100 rounded-[10px] text-xs font-semibold text-slate-600 leading-relaxed whitespace-pre-line">
+                  <div className="p-4 bg-slate-50/55 border border-slate-100/60 rounded-[10px] text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-line">
                     {answerText}
                   </div>
                 </div>
@@ -3157,45 +3199,58 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       const pctP = 100 - pctJ;
 
       const dimensionsList = [
-        { leftLabel: "Extroversão (E)", rightLabel: "Introversão (I)", leftVal: pctE, rightVal: pctI, dominant: mbtiType[0] },
-        { leftLabel: "Sensação (S)", rightLabel: "Intuição (N)", leftVal: pctS, rightVal: pctN, dominant: mbtiType[1] },
-        { leftLabel: "Pensamento (T)", rightLabel: "Sentimento (F)", leftVal: pctT, rightVal: pctF, dominant: mbtiType[2] },
-        { leftLabel: "Julgamento (J)", rightLabel: "Percepção (P)", leftVal: pctJ, rightVal: pctP, dominant: mbtiType[3] }
+        { leftLabel: "Extroversão (E)", rightLabel: "Introversão (I)", leftVal: pctE, rightVal: pctI },
+        { leftLabel: "Sensação (S)", rightLabel: "Intuição (N)", leftVal: pctS, rightVal: pctN },
+        { leftLabel: "Pensamento (T)", rightLabel: "Sentimento (F)", leftVal: pctT, rightVal: pctF },
+        { leftLabel: "Julgamento (J)", rightLabel: "Percepção (P)", leftVal: pctJ, rightVal: pctP }
       ];
 
       return (
         <div className="space-y-6 text-left pb-10">
-          <div className={`p-6 rounded-[10px] border ${profile.classColor} space-y-4 relative overflow-hidden`}>
-            <div className="absolute top-0 left-0 w-[5px] h-full bg-gradient-to-b from-primary-500 to-highlight-500" />
+          <div className={`p-6 rounded-[12px] border ${profile.classColor} space-y-4 relative overflow-hidden`}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Seu Tipo de Personalidade</span>
-                <h3 className="text-2xl font-black tracking-tight mt-1">{profile.nome}</h3>
-                <p className="text-xs font-extrabold opacity-95">{profile.titulo} • Categoria: {profile.categoria}</p>
+                <h3 className="text-xl font-black tracking-tight mt-1 uppercase">{profile.nome}</h3>
+                <p className="text-xs font-black text-[#533af6] uppercase tracking-wider mt-0.5">{profile.titulo} • Categoria: {profile.categoria}</p>
               </div>
             </div>
             <div className="w-full h-px bg-slate-200/30" />
-            <p className="text-xs font-semibold leading-relaxed opacity-90">{profile.desc}</p>
+            <p className="text-xs font-medium leading-relaxed text-slate-600 opacity-90">{profile.desc}</p>
           </div>
 
-          <div className="bg-white border border-slate-100 p-6 rounded-[10px] space-y-6 shadow-sm">
+          <div className="bg-white border border-slate-100 p-6 rounded-[12px] space-y-6 shadow-sm">
             <h3 className="text-xs font-black text-slate-800 tracking-tight uppercase">Suas Dimensões de Personalidade</h3>
             <div className="space-y-5">
               {dimensionsList.map((dim, idx) => {
-                const isLeftDom = dim.dominant === dim.leftLabel.substring(dim.leftLabel.indexOf('(') + 1, dim.leftLabel.indexOf(')'));
+                const charCode = mbtiType[idx];
+                const isLeftDom = dim.leftLabel.includes(`(${charCode})`);
+
                 return (
                   <div key={idx} className="space-y-1.5">
-                    <div className="flex justify-between items-center text-[9px] font-bold text-slate-700">
-                      <span className={isLeftDom ? 'text-primary-600 font-black' : 'text-slate-400'}>
+                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-700">
+                      <span className={isLeftDom ? 'text-[#533af6] font-black text-xs' : 'text-slate-400 font-medium'}>
                         {dim.leftLabel} • {dim.leftVal}%
                       </span>
-                      <span className={!isLeftDom ? 'text-primary-600 font-black' : 'text-slate-400'}>
+                      <span className={!isLeftDom ? 'text-[#533af6] font-black text-xs' : 'text-slate-400 font-medium'}>
                         {dim.rightLabel} • {dim.rightVal}%
                       </span>
                     </div>
-                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex border border-slate-200/20">
-                      <div className="h-full bg-slate-200 rounded-l-full" style={{ width: `${dim.leftVal}%` }} />
-                      <div className="h-full bg-primary-600 rounded-r-full" style={{ width: `${dim.rightVal}%` }} />
+                    <div className="relative w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200/30">
+                      {/* Divisor do meio */}
+                      <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-slate-300 z-10" />
+                      {/* Barra de preferência */}
+                      {isLeftDom ? (
+                        <div 
+                          className="absolute right-1/2 h-full bg-[#533af6] rounded-l-full transition-all duration-500"
+                          style={{ left: `${100 - dim.leftVal}%` }}
+                        />
+                      ) : (
+                        <div 
+                          className="absolute left-1/2 h-full bg-[#533af6] rounded-r-full transition-all duration-500"
+                          style={{ right: `${100 - dim.rightVal}%` }}
+                        />
+                      )}
                     </div>
                   </div>
                 );
@@ -3219,37 +3274,36 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       };
 
       const listProfiles = [
-        { label: "Idealista / Criativo (I)", val: scores.I, pct: calcPercent(scores.I), color: '#3b82f6' },
-        { label: "Comunicador / Relacional (C)", val: scores.C, pct: calcPercent(scores.C), color: '#ec4899' },
+        { label: "Idealista / Criativo (I)", val: scores.I, pct: calcPercent(scores.I), color: '#533af6' },
+        { label: "Comunicador / Relacional (C)", val: scores.C, pct: calcPercent(scores.C), color: '#8959f5' },
         { label: "Organizador / Analítico (O)", val: scores.O, pct: calcPercent(scores.O), color: '#10b981' },
-        { label: "Executor / Dominante (A)", val: scores.A, pct: calcPercent(scores.A), color: '#ef4444' }
+        { label: "Executor / Dominante (A)", val: scores.A, pct: calcPercent(scores.A), color: '#f43f5e' }
       ];
 
       return (
         <div className="space-y-6 text-left pb-10">
-          <div className="p-6 rounded-[10px] border border-primary-100 bg-white space-y-4 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-primary-500 to-indigo-500" />
+          <div className="p-6 rounded-[12px] border border-primary-100 bg-white space-y-4 shadow-sm relative overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <span className="text-[9px] font-black uppercase tracking-widest text-primary-600">Seu Estilo Predominante</span>
-                <h3 className="text-2xl font-black tracking-tight mt-1 text-slate-900">{profile.name}</h3>
-                <p className="text-xs font-extrabold text-indigo-600 mt-0.5">{profile.title}</p>
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#533af6]">Seu Estilo Predominante</span>
+                <h3 className="text-xl font-black tracking-tight mt-1 text-slate-900 uppercase">{profile.name}</h3>
+                <p className="text-xs font-black text-[#8959f5] uppercase tracking-wider mt-0.5">{profile.title}</p>
               </div>
             </div>
             <div className="w-full h-px bg-slate-200/50" />
-            <p className="text-xs font-semibold leading-relaxed text-slate-600">{profile.description}</p>
+            <p className="text-xs font-medium leading-relaxed text-slate-600">{profile.description}</p>
           </div>
 
-          <div className="bg-white border border-slate-100 p-6 rounded-[10px] space-y-6 shadow-sm">
+          <div className="bg-white border border-slate-100 p-6 rounded-[12px] space-y-6 shadow-sm">
             <h3 className="text-xs font-black text-slate-800 tracking-tight uppercase">Distribuição dos Estilos</h3>
             <div className="space-y-4">
               {listProfiles.map((item, idx) => (
                 <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between items-center text-[9px] font-bold text-slate-700">
-                    <span>{item.label}</span>
-                    <span className="font-black text-slate-900">{item.val} pts ({item.pct}%)</span>
+                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-700">
+                    <span className="font-black uppercase tracking-wider">{item.label}</span>
+                    <span className="font-black text-xs text-slate-900">{item.val} pts ({item.pct}%)</span>
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden flex border border-slate-200/20">
+                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden flex border border-slate-200/20">
                     <div 
                       className="h-full rounded-full transition-all duration-500" 
                       style={{ width: `${item.pct}%`, backgroundColor: item.color }} 
@@ -3270,16 +3324,16 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             {customTestQuestions.map((q, idx) => {
               const answerText = selectedCustomTestResult[q.id] || 'Nenhuma resposta gravada.';
               return (
-                <div key={q.id || idx} className="p-5 rounded-[10px] border border-slate-100 bg-white space-y-3 shadow-xs">
-                  <div className="flex items-start gap-2.5">
-                    <span className="w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center text-white bg-slate-900 shrink-0 mt-0.5">
+                <div key={q.id || idx} className="p-5 rounded-[12px] border border-slate-100 bg-white space-y-3 shadow-xs">
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center text-white bg-[#533af6] shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
-                    <h4 className="font-extrabold text-slate-800 text-xs leading-snug">
+                    <h4 className="font-black text-slate-800 text-xs leading-snug">
                       {q.question}
                     </h4>
                   </div>
-                  <div className="p-4 bg-slate-50 border border-slate-100 rounded-[10px] text-xs font-semibold text-slate-600 leading-relaxed whitespace-pre-line">
+                  <div className="p-4 bg-slate-50/50 border border-slate-100/60 rounded-[10px] text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-line">
                     {answerText}
                   </div>
                 </div>
@@ -3296,6 +3350,143 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       </div>
     );
   };
+
+  const loadCandidateConversations = async () => {
+    if (!myApplications || myApplications.length === 0) {
+      setCandidateConversations([]);
+      setUnreadChatCount(0);
+      return;
+    }
+
+    try {
+      const appIds = myApplications.map((app: any) => app.id);
+      const { data: msgs, error } = await supabase
+        .from('messages')
+        .select('*')
+        .in('application_id', appIds)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Agrupar mensagens por application_id e contar não lidas
+      const msgsByApp: Record<string, any[]> = {};
+      let totalUnread = 0;
+
+      (msgs || []).forEach(m => {
+        if (!msgsByApp[m.application_id]) {
+          msgsByApp[m.application_id] = [];
+        }
+        msgsByApp[m.application_id].push(m);
+        
+        if (m.sender_type === 'company' && !m.read) {
+          totalUnread++;
+        }
+      });
+
+      setUnreadChatCount(totalUnread);
+
+      // Mapear candidaturas que possuem mensagens em conversas ativas
+      const activeConvs = myApplications
+        .map((app: any) => {
+          const appMsgs = msgsByApp[app.id] || [];
+          const hasCompanyMsg = appMsgs.some(m => m.sender_type === 'company');
+          if (!hasCompanyMsg) return null;
+
+          const job = vacancies.find((v: any) => v.id === app.job_id);
+          const unreadForApp = appMsgs.filter(m => m.sender_type === 'company' && !m.read).length;
+
+          return {
+            id: app.id,
+            application: app,
+            job: job || { title: 'Vaga', company_name: 'Empresa' },
+            lastMessage: appMsgs[0] || null, // já que ordenamos DESC
+            unreadCount: unreadForApp
+          };
+        })
+        .filter(Boolean);
+
+      setCandidateConversations(activeConvs);
+
+      // Se temos uma conversa aberta, atualiza as mensagens dela
+      if (selectedConversation) {
+        const openedMsgs = msgsByApp[selectedConversation.id] || [];
+        const sortedMsgs = [...openedMsgs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        setCandidateChatMessages(sortedMsgs);
+
+        // Marcar como lidas
+        const unreadCompany = openedMsgs.filter(m => m.sender_type === 'company' && !m.read);
+        if (unreadCompany.length > 0) {
+          await supabase
+            .from('messages')
+            .update({ read: true })
+            .eq('application_id', selectedConversation.id)
+            .eq('sender_type', 'company');
+          
+          setUnreadChatCount(prev => Math.max(0, prev - unreadCompany.length));
+          setCandidateConversations(prevConvs => 
+            prevConvs.map(c => c.id === selectedConversation.id ? { ...c, unreadCount: 0 } : c)
+          );
+        }
+      }
+    } catch (e) {
+      console.error('Erro ao carregar conversas do candidato:', e);
+    }
+  };
+
+  const handleCandidateSendMessage = async () => {
+    if (!candidateNewMessageText.trim() || !selectedConversation) return;
+
+    setIsCandidateSendingMessage(true);
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([
+          {
+            application_id: selectedConversation.id,
+            sender_type: 'candidate',
+            content: candidateNewMessageText.trim(),
+            read: false
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
+      const sentMsg = data?.[0];
+      if (sentMsg) {
+        setCandidateChatMessages(prev => [...prev, sentMsg]);
+      }
+      setCandidateNewMessageText('');
+
+      // Enviar notificação para a empresa
+      const companyName = selectedConversation.job?.company_name || 'Empresa';
+      const jobTitle = selectedConversation.job?.title || 'Vaga';
+      createNotification(
+        companyName,
+        'company',
+        'Resposta do Candidato',
+        `O candidato ${resumeData.fullName || 'Cadastrado'} enviou uma resposta sobre a vaga "${jobTitle}".`,
+        selectedConversation.job?.id
+      ).catch(err => console.warn('Erro ao notificar empresa de nova mensagem:', err));
+    } catch (err) {
+      console.error('Erro ao enviar resposta do candidato:', err);
+      alert('Não foi possível enviar a resposta.');
+    } finally {
+      setIsCandidateSendingMessage(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!resumeData.email || myApplications.length === 0) return;
+
+    loadCandidateConversations();
+
+    const interval = setInterval(() => {
+      loadCandidateConversations();
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, [resumeData.email, myApplications, vacancies, selectedConversation?.id]);
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen relative font-sans" style={{ backgroundColor: '#faf8ff' }}>
@@ -3374,16 +3565,24 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
             {/* Lado Direito: Chat + Notificações + Avatar */}
             <div className="flex items-center gap-3 md:gap-4 shrink-0">
-              {/* Ícone de Chat (inativo, com visual idêntico ao mockup do Flowsync) */}
-              <div className="relative group/chat flex items-center justify-center w-10 h-10 bg-slate-50 hover:bg-slate-100 border border-slate-200/50 rounded-full text-slate-400 hover:text-slate-600 transition-all active:scale-95 cursor-pointer">
-                <MessageSquare size={18} />
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white" />
+              {/* Ícone de Chat (ativo, com gaveta lateral) */}
+              <button
+                onClick={() => setIsCandidateChatDrawerOpen(true)}
+                className="relative group/chat flex items-center justify-center w-10 h-10 bg-slate-50 hover:bg-slate-100 border border-slate-200/50 rounded-full text-slate-400 hover:text-[#533af6] hover:border-[#533af6]/30 hover:bg-indigo-50/50 transition-all active:scale-95 cursor-pointer border-0 outline-none shrink-0"
+                title="Conversas"
+              >
+                <MessageSquare size={18} className={unreadChatCount > 0 ? 'text-[#533af6]' : 'text-slate-400'} />
+                {unreadChatCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white animate-pulse">
+                    {unreadChatCount}
+                  </span>
+                )}
                 
                 {/* Tooltip Chat */}
                 <div className="absolute top-full mt-2 bg-slate-950 text-white text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover/chat:opacity-100 transition-opacity whitespace-nowrap z-50">
-                  Conversas (Em Breve)
+                  Conversas
                 </div>
-              </div>
+              </button>
 
               {/* Botão de Notificações */}
               <button
@@ -3533,7 +3732,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                     { id: 'skills', icon: Star, title: 'Habilidades', desc: 'Destaque suas principais competências técnicas ou comportamentais e nível de domínio.' },
                     { id: 'languages', icon: Languages, title: 'Idiomas', desc: 'Adicione as línguas estrangeiras que fala e o seu respectivo nível de fluência.' },
                     { id: 'achievements', icon: Award, title: 'Certificações', desc: 'Registre cursos extracurriculares, workshops, licenças profissionais e certificados.' },
-                    { id: 'diversity', icon: Accessibility, title: 'Diversidade & PCD', desc: 'Preencha opcionalmente informações de acessibilidade, gênero, raça ou orientação.' }
+                    { id: 'diversity', icon: HeartHandshake, title: 'Diversidade', desc: 'Preencha opcionalmente informações de acessibilidade, gênero, raça ou orientação.' }
                   ].map((section) => {
                     const Icon = section.icon;
                     return (
@@ -3542,8 +3741,15 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex items-center justify-between hover:shadow-md hover:bg-white/95 transition-all duration-300 group text-left h-[128px]"
                       >
                         <div className="flex items-center gap-4 pr-4">
-                          <div className="w-12 h-12 rounded-full bg-[#533af6]/10 text-[#533af6] flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105">
-                            <Icon size={22} className="stroke-[2]" />
+                          <div className="relative shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-[#533af6]/10 text-[#533af6] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                              <Icon size={22} className="stroke-[2]" />
+                            </div>
+                            {isSectionCompleted(section.id) && (
+                              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md border-2 border-white">
+                                <Check size={10} className="stroke-[4]" />
+                              </div>
+                            )}
                           </div>
                           <div>
                             <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">
@@ -3572,27 +3778,35 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
       </div>
     </>
-          ) : activeTab === 'Configurações' ? (
+                    ) : activeTab === 'Configurações' ? (
 
             <motion.div 
               key="configuracoes"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="w-full space-y-6"
+              className="w-full space-y-6 animate-fade-in"
             >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 text-left">
+                <div>
+                  <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                    Configurações
+                  </h1>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12">
                 {/* Coluna Esquerda: Resumo do Perfil (lg:col-span-3) */}
                 <div className="lg:col-span-3 space-y-6">
-                  <div className="bg-white p-6 rounded-[10px] shadow-sleek border border-slate-100/80 flex flex-col items-center">
+                  <div className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex flex-col items-center hover:bg-white/95 transition-all duration-300">
                     <div className="relative group shrink-0 mb-6">
-                      <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative ring-2 ring-primary-50">
+                      <div className="w-24 h-24 rounded-full bg-slate-50 border-4 border-white shadow-md overflow-hidden flex items-center justify-center relative ring-4 ring-[#533af6]/10 transition-all duration-300 hover:ring-[#533af6]/25">
                         {resumeData.profilePic ? (
                           <img src={resumeData.profilePic} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                           <User size={32} className="text-slate-200" />
                         )}
-                        <div className="absolute inset-0 bg-[#8959f5]/80 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300 cursor-pointer">
+                        <div className="absolute inset-0 bg-[#533af6]/85 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer">
                           <Camera size={16} className="text-white mb-1" />
                           <span className="text-[8px] font-bold text-white uppercase tracking-widest text-center">Mudar</span>
                           <input 
@@ -3604,13 +3818,13 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         </div>
                       </div>
                     </div>
-                    <h3 className="text-md font-black text-slate-900 tracking-tight text-center uppercase line-clamp-1">{resumeData.fullName || 'Seu Nome'}</h3>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Candidato</p>
+                    <h3 className="text-sm font-black text-slate-800 tracking-tight text-center uppercase tracking-wide line-clamp-1">{resumeData.fullName || 'Seu Nome'}</h3>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4">Candidato</p>
                     
                     <div className="w-full pt-4 border-t border-slate-100 space-y-3.5">
                       <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
                         <span className="text-slate-400">Currículo</span>
-                        <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-[10px] font-black border border-emerald-100/30">Pronto</span>
+                        <span className="text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full font-black border border-emerald-100/30 text-[9px] uppercase tracking-wider">Pronto</span>
                       </div>
                       <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
                         <span className="text-slate-400">Idade</span>
@@ -3623,58 +3837,58 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 {/* Coluna Direita: Formulários e Configurações (lg:col-span-9) */}
                 <div className="lg:col-span-9 space-y-8">
                   {/* Card: Dados do Perfil */}
-                  <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80 text-left">
+                  <div className="bg-white/80 backdrop-blur-md border border-white/50 p-8 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] text-left hover:bg-white/95 transition-all duration-300">
                     <div className="flex items-center gap-3 mb-6">
-                       <div className="w-10 h-10 bg-primary-50 rounded-[10px] flex items-center justify-center text-primary-600">
+                       <div className="w-10 h-10 bg-[#533af6]/5 rounded-full flex items-center justify-center text-[#533af6]">
                          <User size={20} />
                        </div>
                        <div>
-                         <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Dados do Perfil</h3>
-                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Mantenha suas informações básicas em dia</p>
+                         <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase tracking-wide">Dados do Perfil</h3>
+                         <p className="text-[9px] font-bold text-slate-450 uppercase tracking-widest mt-0.5">Mantenha suas informações básicas em dia</p>
                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                       <div className="col-span-full">
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">Nome Completo</label>
+                       <div>
+                         <label className="text-[9px] font-extrabold text-slate-450 uppercase tracking-widest mb-1.5 block pl-1">Nome Completo</label>
                          <input 
                            type="text" 
                            value={resumeData.fullName}
                            onChange={(e) => setResumeData({...resumeData, fullName: e.target.value.toUpperCase()})}
                            placeholder="Seu nome" 
-                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                           className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-[14px] focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs focus:bg-white" 
                          />
                        </div>
-                       <div className="col-span-full">
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">E-mail</label>
+                       <div>
+                         <label className="text-[9px] font-extrabold text-slate-450 uppercase tracking-widest mb-1.5 block pl-1">E-mail</label>
                          <input 
                            type="email" 
                            value={resumeData.email}
                            onChange={(e) => setResumeData({...resumeData, email: e.target.value})}
                            placeholder="seu@email.com" 
-                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                           className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-[14px] focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs focus:bg-white" 
                          />
                        </div>
                        <div>
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">WhatsApp / Telefone</label>
+                         <label className="text-[9px] font-extrabold text-slate-450 uppercase tracking-widest mb-1.5 block pl-1">WhatsApp / Telefone</label>
                          <div className="relative">
-                           <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" />
+                           <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                            <input 
                              type="tel" 
                              value={resumeData.phone}
                              onChange={(e) => setResumeData({...resumeData, phone: e.target.value})}
                              placeholder="(00) 00000-0000" 
-                             className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                             className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-[14px] focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs focus:bg-white" 
                            />
                          </div>
                        </div>
                        <div>
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">Data de Nascimento</label>
+                         <label className="text-[9px] font-extrabold text-slate-450 uppercase tracking-widest mb-1.5 block pl-1">Data de Nascimento</label>
                          <input 
                            type="date"
                            value={resumeData.birthDate}
                            onChange={(e) => setResumeData({...resumeData, birthDate: e.target.value})}
-                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm"
+                           className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-[14px] focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs focus:bg-white"
                          />
                        </div>
                     </div>
@@ -3683,7 +3897,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <button 
                         onClick={handleSaveToSupabase}
                         disabled={isSaving}
-                        className="py-3 px-8 bg-[#8959f5] hover:bg-[#784de3] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-primary-500/10 hover:-translate-y-0.5 transition-all text-[9px] disabled:opacity-50 border-0 cursor-pointer"
+                        className="py-3.5 px-8 bg-[#533af6] hover:bg-[#4128df] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-md hover:shadow-[#533af6]/20 hover:-translate-y-0.5 transition-all duration-300 text-[9px] disabled:opacity-50 border-0 cursor-pointer"
                       >
                         {isSaving ? 'Salvando...' : 'Salvar Alterações'}
                       </button>
@@ -3691,36 +3905,36 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   </div>
 
                   {/* Card: Alterar Senha */}
-                  <div className="bg-white p-8 rounded-[10px] shadow-sleek border border-slate-100/80 text-left">
+                  <div className="bg-white/80 backdrop-blur-md border border-white/50 p-8 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] text-left hover:bg-white/95 transition-all duration-300">
                     <div className="flex items-center gap-3 mb-6">
-                       <div className="w-10 h-10 bg-rose-50 rounded-[10px] flex items-center justify-center text-rose-600">
+                       <div className="w-10 h-10 bg-rose-500/5 rounded-full flex items-center justify-center text-rose-500">
                          <Lock size={20} />
                        </div>
                        <div>
-                         <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Alterar Senha</h3>
-                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Mantenha sua conta segura atualizando sua senha</p>
+                         <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase tracking-wide">Alterar Senha</h3>
+                         <p className="text-[9px] font-bold text-slate-450 uppercase tracking-widest mt-0.5">Mantenha sua conta segura atualizando sua senha</p>
                        </div>
                     </div>
 
                     <form onSubmit={handleUpdatePassword} className="grid grid-cols-1 md:grid-cols-2 gap-5">
                        <div>
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">Nova Senha</label>
+                         <label className="text-[9px] font-extrabold text-slate-450 uppercase tracking-widest mb-1.5 block pl-1">Nova Senha</label>
                          <input 
                            type="password" 
                            value={newPassword}
                            onChange={(e) => setNewPassword(e.target.value)}
                            placeholder="Mínimo 6 caracteres" 
-                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                           className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-[14px] focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs focus:bg-white" 
                          />
                        </div>
                        <div>
-                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 block pl-1">Confirmar Nova Senha</label>
+                         <label className="text-[9px] font-extrabold text-slate-450 uppercase tracking-widest mb-1.5 block pl-1">Confirmar Nova Senha</label>
                          <input 
                            type="password" 
                            value={confirmPassword}
                            onChange={(e) => setConfirmPassword(e.target.value)}
                            placeholder="Confirme a senha" 
-                           className="w-full px-4 py-2.5 bg-slate-50 border border-transparent rounded-[10px] focus:bg-white focus:ring-4 focus:ring-primary-50 focus:border-primary-400 outline-none transition-all font-semibold text-slate-700 text-xs shadow-sm" 
+                           className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-[#533af6]/50 rounded-[14px] focus:ring-4 focus:ring-[#533af6]/5 outline-none transition-all font-semibold text-slate-700 text-xs shadow-xs focus:bg-white" 
                          />
                        </div>
                        
@@ -3728,7 +3942,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                          <button 
                            type="submit"
                            disabled={isUpdatingPassword}
-                           className="py-3 px-8 bg-[#8959f5] hover:bg-[#784de3] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-lg hover:shadow-primary-500/10 hover:-translate-y-0.5 transition-all text-[9px] disabled:opacity-50 border-0 cursor-pointer"
+                           className="py-3.5 px-8 bg-[#533af6] hover:bg-[#4128df] text-white font-black uppercase tracking-[0.2em] rounded-full shadow-md hover:shadow-[#533af6]/20 hover:-translate-y-0.5 transition-all duration-300 text-[9px] disabled:opacity-50 border-0 cursor-pointer"
                          >
                            {isUpdatingPassword ? 'Atualizando...' : 'Atualizar Senha'}
                          </button>
@@ -6341,143 +6555,225 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
       {/* Vacancy Details Drawer */}
       <AnimatePresence>
-        {selectedJobForDetails && (
-          <>
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedJobForDetails(null)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99]" 
-            />
-            {/* Drawer Panel */}
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-full max-w-[600px] bg-white shadow-2xl z-[100] flex flex-col rounded-none border-l border-slate-100 overflow-hidden"
-            >
-              {/* Header */}
-              <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-start">
-                <div>
-                  <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm inline-block mb-3">
-                    {selectedJobForDetails.modality}
-                  </span>
-                  <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase leading-snug">
-                    {selectedJobForDetails.title}
-                  </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                    Empresa Parceira • {selectedJobForDetails.city && selectedJobForDetails.state ? `${selectedJobForDetails.city}, ${selectedJobForDetails.state}` : selectedJobForDetails.modality || 'Remoto'}
-                  </p>
-                </div>
-                <button 
-                  onClick={() => setSelectedJobForDetails(null)} 
-                  className="p-2 text-slate-400 hover:text-slate-900 transition-all rounded-full hover:bg-slate-100 cursor-pointer"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+        {selectedJobForDetails && (() => {
+          const candidateApp = myApplications.find((app: any) => app.job_id === selectedJobForDetails.id);
+          const currentStatus = candidateApp ? (candidateApp.status || 'Triagem') : null;
 
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto p-8 space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600">
-                      <DollarSign size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Salário Proposto</p>
-                      <p className="text-xs font-bold text-slate-700">{selectedJobForDetails.salary || 'A combinar'}</p>
-                    </div>
-                  </div>
+          let stagesList: string[] = ['Triagem'];
+          if (selectedJobForDetails.stages) {
+            stagesList = Array.isArray(selectedJobForDetails.stages)
+              ? selectedJobForDetails.stages
+              : (typeof selectedJobForDetails.stages === 'string'
+                  ? JSON.parse(selectedJobForDetails.stages)
+                  : ['Triagem']);
+          } else if (selectedJobForDetails.description && selectedJobForDetails.description.includes('===ETAPAS_JSON===')) {
+            try {
+              const part = selectedJobForDetails.description.split('===ETAPAS_JSON===')[1].split('===FIM_ETAPAS===')[0];
+              stagesList = JSON.parse(part);
+            } catch (e) {
+              stagesList = ['Triagem'];
+            }
+          }
 
-                  <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
-                      <Clock size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Idade Mínima</p>
-                      <p className="text-xs font-bold text-slate-700">{selectedJobForDetails.min_age || selectedJobForDetails.minAge || 18} anos</p>
-                    </div>
-                  </div>
+          // Normalização do status do candidato para bater com as etapas
+          const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !stagesList.includes(currentStatus)) 
+            ? (stagesList[0] || 'Triagem') 
+            : currentStatus;
 
-                  <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
-                      <Building size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Regime</p>
-                      <p className="text-xs font-bold text-slate-700">{selectedJobForDetails.contract_type || 'CLT'}</p>
-                    </div>
-                  </div>
-                </div>
+          const currentStageIndex = stagesList.indexOf(normalizedStatus);
 
-                <div>
-                  <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Descrição da Vaga</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50/50 p-4 rounded-[10px] border border-slate-100 font-medium">
-                    {cleanDescription(selectedJobForDetails.description)}
-                  </p>
-                </div>
-
-                {getRequirementsList(selectedJobForDetails).length > 0 && (
+          return (
+            <>
+              {/* Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedJobForDetails(null)}
+                className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99]" 
+              />
+              {/* Drawer Panel */}
+              <motion.div 
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="fixed top-0 right-0 h-full w-full max-w-[600px] bg-white shadow-2xl z-[100] flex flex-col rounded-l-[24px] rounded-r-none border-l border-slate-100 overflow-hidden"
+              >
+                {/* Header */}
+                <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-start">
                   <div>
-                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Requisitos</h4>
-                    <ul className="grid grid-cols-1 gap-2 bg-slate-50/50 p-4 rounded-[10px] border border-slate-100">
-                      {getRequirementsList(selectedJobForDetails).map((req: string, i: number) => (
-                        <li key={i} className="text-xs text-slate-600 flex items-start gap-2 font-medium">
-                          <span className="text-primary-500 font-bold shrink-0">•</span>
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm inline-block mb-3">
+                      {cleanEmojiFromText(selectedJobForDetails.modality || '')}
+                    </span>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase leading-snug">
+                      {cleanEmojiFromText(selectedJobForDetails.title || '')}
+                    </h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                      Empresa Parceira • {selectedJobForDetails.city && selectedJobForDetails.state ? `${cleanEmojiFromText(selectedJobForDetails.city)}, ${cleanEmojiFromText(selectedJobForDetails.state)}` : cleanEmojiFromText(selectedJobForDetails.modality || 'Remoto')}
+                    </p>
                   </div>
-                )}
+                  <button 
+                    onClick={() => setSelectedJobForDetails(null)} 
+                    className="p-2 text-slate-400 hover:text-slate-900 transition-all rounded-full hover:bg-slate-100 cursor-pointer border-0 bg-transparent"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
 
-                {getBenefitsList(selectedJobForDetails).length > 0 && (
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto p-8 space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600">
+                        <DollarSign size={20} />
+                      </div>
+                      <div>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Salário Proposto</p>
+                        <p className="text-xs font-bold text-slate-700">{cleanEmojiFromText(selectedJobForDetails.salary || 'A combinar')}</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <Clock size={20} />
+                      </div>
+                      <div>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Idade Mínima</p>
+                        <p className="text-xs font-bold text-slate-700">{selectedJobForDetails.min_age || selectedJobForDetails.minAge || 18} anos</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 p-4 rounded-[10px] border border-white shadow-sm flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
+                        <Building size={20} />
+                      </div>
+                      <div>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Regime</p>
+                        <p className="text-xs font-bold text-slate-700">{cleanEmojiFromText(selectedJobForDetails.contract_type || 'CLT')}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Linha do Tempo das Etapas - Exibida apenas para vagas candidatadas */}
+                  {candidateApp && (
+                    <div className="bg-slate-50/50 p-6 rounded-[20px] border border-slate-100/80 text-left">
+                      <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-4">Minha Jornada nesta Vaga</h4>
+                      <div className="relative border-l-2 border-slate-200/60 pl-6 ml-3 space-y-5">
+                        {stagesList.map((stageName: string, idx: number) => {
+                          const isCurrent = idx === currentStageIndex;
+                          const isCompleted = idx < currentStageIndex;
+                          
+                          return (
+                            <div key={idx} className="relative">
+                              {/* Círculo indicador */}
+                              <div className={`absolute -left-[32.5px] top-1 w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${
+                                isCurrent 
+                                  ? 'bg-[#533af6] border-[#533af6] scale-110 shadow-md shadow-[#533af6]/20' 
+                                  : isCompleted
+                                  ? 'bg-emerald-500 border-emerald-500'
+                                  : 'bg-white border-slate-300'
+                              }`}>
+                                {isCompleted && (
+                                  <svg className="w-2.5 h-2.5 text-white stroke-[3.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                                {isCurrent && (
+                                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                                )}
+                              </div>
+                              
+                              <div>
+                                <h5 className={`text-xs font-black uppercase tracking-tight ${
+                                  isCurrent 
+                                    ? 'text-[#533af6]' 
+                                    : isCompleted
+                                    ? 'text-emerald-600'
+                                    : 'text-slate-500'
+                                }`}>
+                                  {cleanEmojiFromText(stageName)}
+                                </h5>
+                                <p className="text-[8.5px] font-black uppercase tracking-widest mt-0.5" style={{ color: isCurrent ? '#533af6' : isCompleted ? '#10b981' : '#94a3b8' }}>
+                                  {isCurrent 
+                                    ? 'Você está aqui' 
+                                    : isCompleted
+                                    ? 'Concluído'
+                                    : 'Pendente'}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   <div>
-                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Benefícios Oferecidos</h4>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50/50 p-4 rounded-[10px] border border-slate-100">
-                      {getBenefitsList(selectedJobForDetails).map((ben: string, i: number) => (
-                        <li key={i} className="text-xs text-slate-600 flex items-center gap-2 font-medium">
-                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span>
-                          <span>{ben}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Descrição da Vaga</h4>
+                    <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50/50 p-4 rounded-[10px] border border-slate-100 font-medium">
+                      {cleanEmojiFromText(cleanDescription(selectedJobForDetails.description || ''))}
+                    </p>
                   </div>
-                )}
-              </div>
 
-              {/* Footer */}
-              <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-                <button 
-                  type="button" 
-                  onClick={() => setSelectedJobForDetails(null)} 
-                  className="px-6 py-3 font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest text-[9px] cursor-pointer"
-                >
-                  Fechar
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    handleApply(selectedJobForDetails);
-                    setSelectedJobForDetails(null);
-                  }}
-                  disabled={appliedJobIds.includes(selectedJobForDetails.id) || isApplying === selectedJobForDetails.id}
-                  className={`px-10 py-3.5 rounded-full font-black uppercase tracking-widest text-[10px] shadow-lg transition-all cursor-pointer ${
-                    appliedJobIds.includes(selectedJobForDetails.id)
-                      ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100'
-                      : 'bg-[#8959f5] hover:bg-[#7747e0] text-white shadow-primary-500/10'
-                  }`}
-                >
-                  {appliedJobIds.includes(selectedJobForDetails.id) ? 'Candidatado' : 'Confirmar Candidatura'}
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
+                  {getRequirementsList(selectedJobForDetails).length > 0 && (
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Requisitos</h4>
+                      <ul className="grid grid-cols-1 gap-2 bg-slate-50/50 p-4 rounded-[10px] border border-slate-100">
+                        {getRequirementsList(selectedJobForDetails).map((req: string, i: number) => (
+                          <li key={i} className="text-xs text-slate-600 flex items-start gap-2 font-medium">
+                            <span className="text-primary-500 font-bold shrink-0">•</span>
+                            <span>{cleanEmojiFromText(req)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {getBenefitsList(selectedJobForDetails).length > 0 && (
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Benefícios Oferecidos</h4>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50/50 p-4 rounded-[10px] border border-slate-100">
+                        {getBenefitsList(selectedJobForDetails).map((ben: string, i: number) => (
+                          <li key={i} className="text-xs text-slate-600 flex items-center gap-2 font-medium">
+                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span>
+                            <span>{cleanEmojiFromText(ben)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => setSelectedJobForDetails(null)} 
+                    className="px-6 py-3 font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest text-[9px] cursor-pointer border-0 bg-transparent"
+                  >
+                    Fechar
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      handleApply(selectedJobForDetails);
+                      setSelectedJobForDetails(null);
+                    }}
+                    disabled={appliedJobIds.includes(selectedJobForDetails.id) || isApplying === selectedJobForDetails.id}
+                    className={`px-10 py-3.5 rounded-full font-black uppercase tracking-widest text-[10px] shadow-lg transition-all cursor-pointer ${
+                      appliedJobIds.includes(selectedJobForDetails.id)
+                        ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100 border-0'
+                        : 'bg-[#8959f5] hover:bg-[#7747e0] text-white shadow-primary-500/10 border-0'
+                    }`}
+                  >
+                    {appliedJobIds.includes(selectedJobForDetails.id) ? 'Candidatado' : 'Confirmar Candidatura'}
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          );
+        })()}
       </AnimatePresence>
 
       {/* Drawer de Filtros de Vagas */}
@@ -6498,7 +6794,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-full max-w-[420px] bg-white shadow-2xl z-[100] flex flex-col rounded-none border-l border-slate-100 overflow-hidden text-left"
+              className="fixed top-0 right-0 h-full w-full max-w-[420px] bg-white shadow-2xl z-[100] flex flex-col rounded-l-[24px] rounded-r-none border-l border-slate-100 overflow-hidden text-left"
             >
               {/* Header */}
               <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -6732,7 +7028,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.22, ease: 'easeOut' }}
-              className="relative w-full max-w-2xl h-full bg-slate-50 shadow-2xl overflow-hidden flex flex-col rounded-none z-10 text-left border-l border-slate-100"
+              className="relative w-full max-w-2xl h-full bg-slate-50 shadow-2xl overflow-hidden flex flex-col rounded-l-[24px] rounded-r-none z-10 text-left border-l border-slate-100"
             >
               {/* Header do Drawer */}
               <div className="p-6 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
@@ -6790,6 +7086,205 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         }}
       />
 
+      {/* Drawer de Chat do Candidato */}
+      <AnimatePresence>
+        {isCandidateChatDrawerOpen && (
+          <div className="fixed inset-0 z-[120] flex justify-end">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setIsCandidateChatDrawerOpen(false);
+                setSelectedConversation(null);
+              }}
+              className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" 
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
+            >
+              {/* Se selectedConversation estiver nulo, exibe a Lista de Conversas */}
+              {!selectedConversation ? (
+                <>
+                  {/* Header: Lista de Conversas */}
+                  <div className="px-8 pt-8 pb-6 flex justify-between items-center shrink-0">
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                        <MessageSquare size={16} className="text-[#533af6] animate-bounce" />
+                        Minhas Conversas
+                      </h3>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                        Mensagens com recrutadores
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => setIsCandidateChatDrawerOpen(false)} 
+                      className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#533af6] transition-colors cursor-pointer"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  {/* Body: Lista de Conversas */}
+                  <div className="flex-1 p-6 overflow-y-auto space-y-3 bg-slate-50/20">
+                    {candidateConversations.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center space-y-3">
+                        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
+                          <MessageSquare size={26} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-wider text-slate-700">Nenhuma conversa ativa</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase mt-1.5 leading-relaxed">
+                            Suas conversas aparecerão aqui quando uma empresa iniciar o contato com você.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      candidateConversations.map((conv) => (
+                        <div 
+                          key={conv.id}
+                          onClick={() => {
+                            setSelectedConversation(conv);
+                            supabase
+                              .from('messages')
+                              .update({ read: true })
+                              .eq('application_id', conv.id)
+                              .eq('sender_type', 'company')
+                              .then(() => loadCandidateConversations());
+                          }}
+                          className="bg-white p-4 rounded-[16px] border border-slate-150/70 hover:border-indigo-200 hover:bg-indigo-50/10 shadow-3xs hover:shadow-2xs transition-all cursor-pointer flex items-center justify-between gap-4 text-left relative overflow-hidden group border-l-4 border-l-indigo-500"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <h5 className="text-xs font-black text-slate-800 uppercase tracking-tight truncate leading-tight group-hover:text-[#533af6] transition-colors">
+                              {conv.job?.title}
+                            </h5>
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 truncate">
+                              {conv.job?.company_name || 'Empresa'}
+                            </p>
+                            {conv.lastMessage && (
+                              <p className="text-[10px] text-slate-500 truncate mt-2 font-medium">
+                                {conv.lastMessage.sender_type === 'company' ? 'Empresa: ' : 'Você: '}
+                                {conv.lastMessage.content}
+                              </p>
+                            )}
+                          </div>
+                          
+                          <div className="flex flex-col items-end shrink-0 gap-2">
+                            {conv.lastMessage && (
+                              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
+                                {new Date(conv.lastMessage.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            )}
+                            {conv.unreadCount > 0 && (
+                              <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm">
+                                {conv.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Header: Conversa Aberta */}
+                  <div className="px-8 pt-8 pb-6 flex justify-between items-center shrink-0">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <button 
+                        onClick={() => setSelectedConversation(null)}
+                        className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-500 hover:text-[#533af6] transition-colors cursor-pointer shrink-0"
+                      >
+                        <ChevronLeft size={14} />
+                      </button>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight truncate max-w-[200px]">
+                          {selectedConversation.job?.title}
+                        </h3>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate max-w-[200px]">
+                          {selectedConversation.job?.company_name || 'Empresa'}
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setIsCandidateChatDrawerOpen(false);
+                        setSelectedConversation(null);
+                      }} 
+                      className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#533af6] transition-colors cursor-pointer"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  {/* Body: Conversa Aberta - Histórico de Mensagens */}
+                  <div className="flex-1 p-6 flex flex-col space-y-4 overflow-y-auto bg-slate-50/30">
+                    {candidateChatMessages.length === 0 ? (
+                      <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
+                        <Activity className="animate-spin text-[#533af6] mb-2" size={20} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Carregando mensagens...</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 flex flex-col">
+                        {candidateChatMessages.map((msg, idx) => {
+                          const isCandidate = msg.sender_type === 'candidate';
+                          return (
+                            <div 
+                              key={msg.id || idx}
+                              className={`flex flex-col max-w-[80%] ${isCandidate ? 'self-end items-end' : 'self-start items-start'}`}
+                            >
+                              <div className={`px-4 py-3 rounded-[18px] text-xs font-semibold ${
+                                isCandidate 
+                                  ? 'bg-[#533af6] text-white rounded-tr-none' 
+                                  : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none shadow-3xs'
+                              }`}>
+                                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                              </div>
+                              <span className="text-[7.5px] font-bold text-slate-400 uppercase tracking-widest mt-1 px-1">
+                                {new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer: Conversa Aberta - Input de Envio */}
+                  <div className="p-4 border-t border-slate-100 bg-white flex items-center gap-2 shrink-0">
+                    <input
+                      type="text"
+                      value={candidateNewMessageText}
+                      onChange={(e) => setCandidateNewMessageText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !isCandidateSendingMessage) {
+                          handleCandidateSendMessage();
+                        }
+                      }}
+                      placeholder="Digite sua resposta..."
+                      className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white transition-all"
+                      disabled={isCandidateSendingMessage}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCandidateSendMessage}
+                      disabled={isCandidateSendingMessage || !candidateNewMessageText.trim()}
+                      className="px-4 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-md hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 shrink-0"
+                    >
+                      {isCandidateSendingMessage ? 'Enviando...' : 'Enviar'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Barra de Navegação Inferior Mobile (Pílula Flutuante) */}
       <div 
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[420px] border border-white/15 rounded-full p-1.5 shadow-[0_10px_30px_rgba(83,58,246,0.25)] flex justify-between items-center h-14 lg:hidden"
@@ -6845,18 +7340,17 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                         {/* Cabeçalho do Modal */}
                         <div className="w-full flex items-center justify-between mb-6 border-b border-slate-200/50 pb-4 shrink-0">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#533af6]/10 text-[#533af6] flex items-center justify-center">
-                              {activeAccordion === 'info' && <User size={20} />}
-                              {activeAccordion === 'summary' && <FileText size={20} />}
-                              {activeAccordion === 'experience' && <Briefcase size={20} />}
-                              {activeAccordion === 'education' && <GraduationCap size={20} />}
-                              {activeAccordion === 'skills' && <Star size={20} />}
-                              {activeAccordion === 'languages' && <Languages size={20} />}
-                              {activeAccordion === 'achievements' && <Award size={20} />}
-                              {activeAccordion === 'diversity' && <Accessibility size={20} />}
-                            </div>
                             <div>
-                              <h2 className="text-base font-black text-slate-800 uppercase tracking-wider">
+                              <h2 className="text-base font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                                {activeAccordion === 'info' && <User size={16} className="text-[#533af6] animate-bounce" />}
+                                {activeAccordion === 'summary' && <FileText size={16} className="text-[#533af6] animate-bounce" />}
+                                {activeAccordion === 'experience' && <Briefcase size={16} className="text-[#533af6] animate-bounce" />}
+                                {activeAccordion === 'education' && <GraduationCap size={16} className="text-[#533af6] animate-bounce" />}
+                                {activeAccordion === 'skills' && <Star size={16} className="text-[#533af6] animate-bounce" />}
+                                {activeAccordion === 'languages' && <Languages size={16} className="text-[#533af6] animate-bounce" />}
+                                {activeAccordion === 'achievements' && <Award size={16} className="text-[#533af6] animate-bounce" />}
+                                {activeAccordion === 'diversity' && <HeartHandshake size={16} className="text-[#533af6] animate-bounce" />}
+
                                 {activeAccordion === 'info' && 'Dados Pessoais'}
                                 {activeAccordion === 'summary' && 'Resumo Profissional'}
                                 {activeAccordion === 'experience' && 'Experiência Profissional'}
@@ -6864,7 +7358,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                 {activeAccordion === 'skills' && 'Habilidades'}
                                 {activeAccordion === 'languages' && 'Idiomas'}
                                 {activeAccordion === 'achievements' && 'Certificações & Cursos'}
-                                {activeAccordion === 'diversity' && 'Diversidade & PCD'}
+                                {activeAccordion === 'diversity' && 'Diversidade'}
                               </h2>
                               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
                                 Preencha as informações da seção abaixo
