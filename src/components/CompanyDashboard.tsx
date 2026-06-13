@@ -1103,7 +1103,8 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
 
       // Trigger notification for candidate
       const appRecord = jobApplicants.find(a => String(a.id) === String(appId));
-      const emailDestinatario = appRecord?.candidate_email || appRecord?.email;
+      const fullInfo = appRecord ? getFullApplicantInfo(appRecord) : null;
+      const emailDestinatario = fullInfo?.candidate_email || fullInfo?.email;
       if (emailDestinatario && selectedJob) {
         const isReprovado = newStatus === 'Reprovado' || newStatus === 'Desclassificado';
         const title = isReprovado ? 'Atualização no Processo Seletivo' : 'Avanço de Etapa';
