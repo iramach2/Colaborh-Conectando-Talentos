@@ -3191,22 +3191,22 @@ Equipe de Recrutamento & Seleção - Colaborh
                 isSidebarExpanded 
                   ? 'lg:w-full lg:h-12 lg:px-4 lg:justify-start lg:space-x-3' 
                   : 'lg:w-12 lg:h-12 lg:px-0 lg:justify-center lg:space-x-0'
-              } flex items-center justify-start space-x-3 py-2.5 rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest ${
+              } flex items-center justify-start space-x-3 py-2.5 rounded-xl transition-all font-bold text-xs uppercase tracking-widest ${
                 activeTab === 'Configurações' 
                   ? 'bg-white/20 text-white shadow-lg' 
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              <Settings size={16} className={activeTab === 'Configurações' ? 'text-white' : 'text-white/50'} />
-              <span className={`font-bold text-[10px] uppercase tracking-widest whitespace-nowrap ${isSidebarExpanded ? 'lg:inline-block' : 'lg:hidden'}`}>Configurações</span>
+              <Settings size={19} className={activeTab === 'Configurações' ? 'text-white' : 'text-white/50'} />
+              <span className={`font-bold text-xs uppercase tracking-widest whitespace-nowrap ${isSidebarExpanded ? 'lg:inline-block' : 'lg:hidden'}`}>Configurações</span>
             </button>
             
             <div 
               onClick={() => handleSelectTab('Configurações')}
               className={`absolute left-0 top-0 h-12 ${isSidebarExpanded ? 'hidden' : 'hidden lg:flex'} items-center justify-start bg-[#533af6]/75 backdrop-blur-[6px] text-white rounded-2xl shadow-[0_10px_25px_rgba(83,58,246,0.25)] cursor-pointer pointer-events-none opacity-0 translate-x-[-24px] group-hover/item:opacity-100 group-hover/item:translate-x-0 group-hover/item:pointer-events-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-[110] w-auto whitespace-nowrap pl-[16px] pr-6 gap-3`}
             >
-              <Settings size={16} className="text-white" />
-              <span className="font-black text-[10px] uppercase tracking-widest text-white leading-none mt-0.5">Configurações</span>
+              <Settings size={19} className="text-white" />
+              <span className="font-black text-[11px] uppercase tracking-widest text-white leading-none mt-0.5">Configurações</span>
             </div>
           </div>
 
@@ -3218,18 +3218,18 @@ Equipe de Recrutamento & Seleção - Colaborh
                 isSidebarExpanded 
                   ? 'lg:w-full lg:h-12 lg:px-4 lg:justify-start lg:space-x-3' 
                   : 'lg:w-12 lg:h-12 lg:px-0 lg:justify-center lg:space-x-0'
-              } flex items-center justify-start space-x-3 py-2.5 rounded-xl text-red-300 hover:text-red-100 hover:bg-red-500/10 transition-all font-bold text-[10px] uppercase tracking-widest`}
+              } flex items-center justify-start space-x-3 py-2.5 rounded-xl text-red-300 hover:text-red-100 hover:bg-red-500/10 transition-all font-bold text-xs uppercase tracking-widest`}
             >
-              <LogOut size={16} />
-              <span className={`font-bold text-[10px] uppercase tracking-widest whitespace-nowrap ${isSidebarExpanded ? 'lg:inline-block' : 'lg:hidden'}`}>Sair</span>
+              <LogOut size={19} />
+              <span className={`font-bold text-xs uppercase tracking-widest whitespace-nowrap ${isSidebarExpanded ? 'lg:inline-block' : 'lg:hidden'}`}>Sair</span>
             </button>
 
             <div 
               onClick={onLogout}
               className={`absolute left-0 top-0 h-12 ${isSidebarExpanded ? 'hidden' : 'hidden lg:flex'} items-center justify-start bg-[#533af6]/75 backdrop-blur-[6px] text-white rounded-2xl shadow-[0_10px_25px_rgba(83,58,246,0.25)] cursor-pointer pointer-events-none opacity-0 translate-x-[-24px] group-hover/item:opacity-100 group-hover/item:translate-x-0 group-hover/item:pointer-events-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-[110] w-auto whitespace-nowrap pl-[16px] pr-6 gap-3`}
             >
-              <LogOut size={16} className="text-white" />
-              <span className="font-black text-[10px] uppercase tracking-widest text-white leading-none mt-0.5">Sair</span>
+              <LogOut size={19} className="text-white" />
+              <span className="font-black text-[11px] uppercase tracking-widest text-white leading-none mt-0.5">Sair</span>
             </div>
           </div>
         </div>

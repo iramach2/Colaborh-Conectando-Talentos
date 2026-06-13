@@ -3632,9 +3632,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                           handleSelectTab('Configurações');
                           setIsProfileMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-600 hover:bg-[#533af6]/5 hover:text-[#533af6] transition-all cursor-pointer border-0 bg-transparent focus:outline-none"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-bold text-slate-600 hover:bg-[#533af6]/5 hover:text-[#533af6] transition-all cursor-pointer border-0 bg-transparent focus:outline-none"
                       >
-                        <Settings size={16} className="text-slate-400" />
+                        <Settings size={19} className="text-slate-400" />
                         <span>Configurações</span>
                       </button>
 
@@ -3643,9 +3643,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                           setIsProfileMenuOpen(false);
                           onLogout();
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer border-0 bg-transparent focus:outline-none"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer border-0 bg-transparent focus:outline-none"
                       >
-                        <LogOut size={16} className="text-red-400" />
+                        <LogOut size={19} className="text-red-400" />
                         <span>Sair</span>
                       </button>
                     </motion.div>
