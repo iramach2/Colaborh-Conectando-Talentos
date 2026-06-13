@@ -60,7 +60,7 @@ export const createNotification = async (
   // 2. Try Supabase insert
   if (import.meta.env.VITE_SUPABASE_URL) {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('notifications')
         .insert([
           {
@@ -73,13 +73,12 @@ export const createNotification = async (
             created_at: newNotif.created_at,
             job_id: newNotif.job_id
           }
-        ])
-        .select();
+        ]);
 
       if (error) {
         console.warn('Supabase notifications insert error, using localStorage fallback:', error);
-      } else if (data && data[0]) {
-        return data[0];
+      } else {
+        return newNotif;
       }
     } catch (e) {
       console.warn('Supabase notifications connection error, using localStorage fallback:', e);
