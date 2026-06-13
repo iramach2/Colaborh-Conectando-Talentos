@@ -6117,7 +6117,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                                         setDrawerTestResult('QUESTIONS');
                                       }
                                     }}
-                                    className="w-full py-2.5 bg-[#8959f5] hover:bg-[#784de3] text-white rounded-full font-black text-[9px] uppercase tracking-widest transition-all shadow-md shadow-[#8959f5]/15 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer border-0 mt-auto"
+                                    className="w-full py-2.5 bg-[#533af6] hover:bg-[#4128df] text-white rounded-full font-black text-[9px] uppercase tracking-widest transition-all shadow-md shadow-[#533af6]/15 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer border-0 mt-auto"
                                   >
                                     Visualizar Relatório {isDisc ? <Award size={12} /> : isMbti ? <Sparkles size={12} /> : isTemperamentos ? <Compass size={12} /> : isCustom ? <FileText size={12} /> : <FileText size={12} />}
                                   </button>
