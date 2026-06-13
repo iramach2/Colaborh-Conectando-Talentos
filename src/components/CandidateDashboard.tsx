@@ -1690,25 +1690,33 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       return;
     }
 
-    // Validation
+    // Validation based on active section
     const errors = [];
-    if (!resumeData.fullName) errors.push('Nome Completo');
-    if (!resumeData.email) errors.push('E-mail');
-    if (!resumeData.phone) errors.push('WhatsApp / Telefone');
-    if (!resumeData.salary) errors.push('Pretensão Salarial');
-    if (!resumeData.state) errors.push('Estado');
-    if (!resumeData.city) errors.push('Cidade');
-    if (!resumeData.gender) errors.push('Gênero');
-    if (!resumeData.birthDate) errors.push('Data de Nascimento');
-    if (!resumeData.summary || resumeData.summary.length < 50) errors.push('Resumo Profissional (mínimo 50 caracteres)');
-    if (resumeData.skills.length === 0) errors.push('Pelo menos uma Habilidade');
-    if (resumeData.educations.length === 0) errors.push('Pelo menos uma Formação Acadêmica');
-    if (!resumeData.isFirstJob && resumeData.experiences.length === 0) {
-      errors.push('Pelo menos uma Experiência Profissional (ou marque "Primeiro Emprego")');
+    if (activeAccordion === 'info') {
+      if (!resumeData.fullName) errors.push('Nome Completo');
+      if (!resumeData.email) errors.push('E-mail');
+      if (!resumeData.phone) errors.push('WhatsApp / Telefone');
+      if (!resumeData.salary) errors.push('Pretensão Salarial');
+      if (!resumeData.state) errors.push('Estado');
+      if (!resumeData.city) errors.push('Cidade');
+      if (!resumeData.gender) errors.push('Gênero');
+      if (!resumeData.birthDate) errors.push('Data de Nascimento');
+    } else if (activeAccordion === 'summary') {
+      if (!resumeData.summary || resumeData.summary.length < 50) {
+        errors.push('Resumo Profissional (mínimo 50 caracteres)');
+      }
+    } else if (activeAccordion === 'skills') {
+      if (resumeData.skills.length === 0) errors.push('Pelo menos uma Habilidade');
+    } else if (activeAccordion === 'education') {
+      if (resumeData.educations.length === 0) errors.push('Pelo menos uma Formação Acadêmica');
+    } else if (activeAccordion === 'experience') {
+      if (!resumeData.isFirstJob && resumeData.experiences.length === 0) {
+        errors.push('Pelo menos uma Experiência Profissional (ou marque "Primeiro Emprego")');
+      }
     }
 
     if (errors.length > 0) {
-      setErrorMessage('Por favor, preencha as informações obrigatórias: ' + errors.join(', '));
+      setErrorMessage('Por favor, preencha as informações obrigatórias desta seção: ' + errors.join(', '));
       setTimeout(() => setErrorMessage(null), 6000);
       return;
     }
