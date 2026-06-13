@@ -7321,7 +7321,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Barra de Navegação Inferior Mobile (Pílula Flutuante) */}
       <div 
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[420px] border border-white/15 rounded-full p-1.5 shadow-[0_10px_30px_rgba(83,58,246,0.25)] flex justify-between items-center h-14 lg:hidden backdrop-blur-md"
-        style={{ background: 'linear-gradient(to bottom, rgba(144, 18, 252, 0.75), rgba(87, 58, 247, 0.75))' }}
+        style={{ background: 'linear-gradient(to bottom, rgba(144, 18, 252, 0.45), rgba(87, 58, 247, 0.45))' }}
       >
         {[
           { label: 'Meu Currículo', icon: FileText },
