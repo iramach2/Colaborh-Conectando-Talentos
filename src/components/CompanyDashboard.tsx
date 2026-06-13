@@ -1105,13 +1105,19 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
       const appRecord = jobApplicants.find(a => String(a.id) === String(appId));
       const emailDestinatario = appRecord?.candidate_email || appRecord?.email;
       if (emailDestinatario && selectedJob) {
+        const isReprovado = newStatus === 'Reprovado' || newStatus === 'Desclassificado';
+        const title = isReprovado ? 'Atualização no Processo Seletivo' : 'Avanço de Etapa';
+        const message = isReprovado
+          ? `O processo seletivo para a vaga "${selectedJob.title}" foi encerrado para o seu perfil. Agradecemos a sua participação!`
+          : `Seu processo seletivo para a vaga "${selectedJob.title}" avançou para a etapa "${newStatus}".`;
+
         createNotification(
           emailDestinatario,
           'candidate',
-          'Avanço de Etapa',
-          `Seu processo seletivo para a vaga "${selectedJob.title}" avançou para a etapa "${newStatus}".`,
+          title,
+          message,
           selectedJob.id
-        ).catch(err => console.warn('Erro ao gerar notificação de avanço de etapa:', err));
+        ).catch(err => console.warn('Erro ao gerar notificação de atualização de status:', err));
       }
 
       // Update state
@@ -1488,6 +1494,17 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
       // Update state
       setJobApplicants(prev => prev.map(item => item.id === appId ? { ...item, candidate_phone: updatedPhoneVal } : item));
 
+      // Notificar candidato internamente
+      if (email && email !== 'candidato@email.com' && selectedJob) {
+        createNotification(
+          email,
+          'candidate',
+          'Teste DISC Solicitado',
+          `A empresa solicitou que você realize o teste comportamental DISC 5.0 para a vaga "${jobTitle}".`,
+          selectedJob.id
+        ).catch(err => console.warn('Erro ao gerar notificação de solicitação do teste DISC:', err));
+      }
+
       // Professional SMTP Email Sending Simulation in developer console
       console.log(`
 ========================================================================
@@ -1632,6 +1649,17 @@ Equipe de Recrutamento & Seleção - Colaborh
 
       // Update state
       setJobApplicants(prev => prev.map(item => item.id === appId ? { ...item, candidate_phone: updatedPhoneVal } : item));
+
+      // Notificar candidato internamente
+      if (email && email !== 'candidato@email.com' && selectedJob) {
+        createNotification(
+          email,
+          'candidate',
+          'Mapeamento de Perfil Solicitado',
+          `A empresa solicitou que você responda ao Mapeamento de Perfil para a vaga "${jobTitle}".`,
+          selectedJob.id
+        ).catch(err => console.warn('Erro ao gerar notificação de solicitação do Mapeamento:', err));
+      }
 
       // Professional SMTP Email Sending Simulation in developer console
       console.log(`
@@ -1780,6 +1808,17 @@ Equipe de Recrutamento & Seleção - Colaborh
       // Update state
       setJobApplicants(prev => prev.map(item => item.id === appId ? { ...item, candidate_phone: updatedPhoneVal } : item));
 
+      // Notificar candidato internamente
+      if (email && email !== 'candidato@email.com' && selectedJob) {
+        createNotification(
+          email,
+          'candidate',
+          'Teste MBTI Solicitado',
+          `A empresa solicitou que você realize o teste de personalidade MBTI para a vaga "${jobTitle}".`,
+          selectedJob.id
+        ).catch(err => console.warn('Erro ao gerar notificação de solicitação do teste MBTI:', err));
+      }
+
       // Professional SMTP Email Sending Simulation in developer console
       console.log(`
 ========================================================================
@@ -1876,6 +1915,17 @@ Equipe de Recrutamento & Seleção - Colaborh
       if (error) throw error;
 
       setJobApplicants(prev => prev.map(item => item.id === appId ? { ...item, candidate_phone: updatedPhoneVal } : item));
+
+      // Notificar candidato internamente
+      if (email && email !== 'candidato@email.com' && selectedJob) {
+        createNotification(
+          email,
+          'candidate',
+          'Questionário Customizado Solicitado',
+          `A empresa solicitou que você responda ao questionário customizado para a vaga "${jobTitle}".`,
+          selectedJob.id
+        ).catch(err => console.warn('Erro ao gerar notificação de solicitação do questionário customizado:', err));
+      }
 
       console.log(`
 ========================================================================
@@ -2088,6 +2138,17 @@ Equipe de Recrutamento & Seleção - Colaborh
 
       // Update state
       setJobApplicants(prev => prev.map(item => item.id === appId ? { ...item, candidate_phone: updatedPhoneVal } : item));
+
+      // Notificar candidato internamente
+      if (email && email !== 'candidato@email.com' && selectedJob) {
+        createNotification(
+          email,
+          'candidate',
+          'Teste de Temperamentos Solicitado',
+          `A empresa solicitou que você realize o teste de temperamentos e perfil comportamental para a vaga "${jobTitle}".`,
+          selectedJob.id
+        ).catch(err => console.warn('Erro ao gerar notificação de solicitação do teste de temperamentos:', err));
+      }
 
       // Professional SMTP Email Sending Simulation in developer console
       console.log(`
