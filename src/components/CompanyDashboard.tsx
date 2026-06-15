@@ -133,35 +133,52 @@ interface SidebarItemProps {
   isSidebarExpanded: boolean;
 }
 
-const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpanded }: SidebarItemProps) => (
-  <div className="relative group/item w-full flex justify-center h-12 lg:h-12">
-    <button
-      onClick={() => setActiveTab(label)}
-      className={`w-full ${
-        isSidebarExpanded 
-          ? 'lg:w-full lg:h-12 lg:px-4 lg:justify-start lg:space-x-3' 
-          : 'lg:w-12 lg:h-12 lg:px-0 lg:justify-center lg:space-x-0'
-      } flex items-center justify-start space-x-3 py-3.5 rounded-2xl transition-all duration-300 bg-transparent text-white/60 hover:text-white hover:bg-white/10`}
-      style={{
-        backgroundColor: activeTab === label ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-        color: activeTab === label ? '#ffffff' : 'rgba(255, 255, 255, 0.6)',
-        boxShadow: activeTab === label ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' : 'none'
-      }}
-    >
-      <Icon size={18} className={activeTab === label ? 'text-white' : 'text-white/50'} />
-      <span className={`font-bold text-[11px] uppercase tracking-widest whitespace-nowrap ${isSidebarExpanded ? 'lg:inline-block' : 'lg:hidden'}`}>{label}</span>
-    </button>
-
-    {/* Balão/Tooltip flutuante de sobreposição perfeita no desktop com animação slide-in e leve transparência */}
-    <div 
-      onClick={() => setActiveTab(label)}
-      className={`absolute left-0 top-0 h-12 ${isSidebarExpanded ? 'hidden' : 'hidden lg:flex'} items-center justify-start bg-[#533af6]/75 backdrop-blur-[6px] text-white rounded-2xl shadow-[0_10px_25px_rgba(83,58,246,0.25)] cursor-pointer pointer-events-none opacity-0 translate-x-[-24px] group-hover/item:opacity-100 group-hover/item:translate-x-0 group-hover/item:pointer-events-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-[110] w-auto whitespace-nowrap pl-[15px] pr-6 gap-3`}
-    >
-      <Icon size={18} className="text-white" />
-      <span className="font-black text-[10px] uppercase tracking-widest text-white leading-none mt-0.5">{label}</span>
+const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpanded }: SidebarItemProps) => {
+  const isActive = activeTab === label;
+  
+  return (
+    <div className="relative group/item w-full lg:h-12 flex justify-center">
+      <button
+        onClick={() => setActiveTab(label)}
+        className={`flex items-center transition-all duration-300 ease-in-out
+          /* Estilo Mobile: linha cheia com bordas arredondadas */
+          w-full py-3.5 px-4 justify-start gap-3 rounded-2xl
+          ${isActive 
+            ? 'bg-white text-[#533af6] shadow-md font-bold' 
+            : 'text-white/70 hover:bg-white/10 hover:text-white'
+          }
+          /* Estilo Desktop (telas lg): botão circular que expande para a direita no hover */
+          lg:absolute lg:left-2 lg:top-0 lg:w-12 lg:h-12 lg:p-0 lg:justify-center lg:rounded-full lg:space-x-0 lg:gap-0 lg:z-10
+          ${isActive 
+            ? 'lg:bg-white lg:text-[#533af6] lg:shadow-lg' 
+            : 'lg:bg-transparent lg:text-white/70'
+          }
+          /* Efeito Hover no Desktop */
+          lg:group-hover/item:w-48 lg:group-hover/item:bg-white/90 lg:group-hover/item:backdrop-blur-xs lg:group-hover/item:text-[#533af6] lg:group-hover/item:shadow-2xl lg:group-hover/item:z-50 lg:group-hover/item:justify-start lg:group-hover/item:pl-3.5 lg:group-hover/item:pr-8
+        `}
+      >
+        <Icon size={18} className={`shrink-0 transition-all duration-200 ${
+          isActive 
+            ? 'text-[#533af6]' 
+            : 'text-white/70 group-hover/item:text-[#533af6]'
+        }`} />
+        
+        {/* Rótulo de texto que expande no desktop ao passar o mouse */}
+        <span className={`font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all duration-300 ease-in-out
+          /* Mobile */
+          lg:hidden
+          /* Desktop: oculto por padrão, expande no hover do container pai */
+          lg:w-0 lg:opacity-0 lg:overflow-hidden lg:ml-0
+          lg:group-hover/item:w-auto lg:group-hover/item:opacity-100 lg:group-hover/item:inline-block lg:group-hover/item:overflow-visible
+          lg:group-hover/item:flex-1 lg:group-hover/item:text-center
+          text-[#533af6]
+        `}>
+          {label}
+        </span>
+      </button>
     </div>
-  </div>
-);
+  );
+};
 
 
 
@@ -430,13 +447,18 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
   }, [selectedCompanyId, companies]);
 
   const companyDropdownRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [companySearchQuery, setCompanySearchQuery] = useState('');
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (companyDropdownRef.current && !companyDropdownRef.current.contains(event.target as Node)) {
         setIsCompanyDropdownOpen(false);
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -2653,6 +2675,35 @@ Equipe de Recrutamento & Seleção - Colaborh
 
   // Dynamic vacancy distribution based on actual applications
   const [companyApplications, setCompanyApplications] = useState<any[]>([]);
+
+  // Métricas do Dashboard calculadas de forma dinâmica e real
+  const totalCandidatesReal = companyApplications.length;
+
+  const candidatesInInterview = companyApplications.filter(app => {
+    const s = (app.status || '').toLowerCase();
+    return s === 'entrevista' || s === 'entrevistas';
+  }).length;
+
+  const closedOrPausedJobsCount = companyJobs.filter(j => {
+    const s = (j.status || '').toLowerCase();
+    return s === 'paused' || s === 'pausada' || s === 'closed' || s === 'encerrada';
+  }).length;
+
+  const recentCandidatesCount = companyApplications.filter(app => {
+    if (!app.created_at) return false;
+    const appDate = new Date(app.created_at);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return appDate >= sevenDaysAgo;
+  }).length;
+
+  const recentJobsCount = companyJobs.filter(job => {
+    if (!job.created_at) return false;
+    const jobDate = new Date(job.created_at);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return jobDate >= sevenDaysAgo;
+  }).length;
   
   const dynamicDistribution = (() => {
     const total = companyApplications.length;
@@ -3139,7 +3190,7 @@ Equipe de Recrutamento & Seleção - Colaborh
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f4f6] relative font-sans">
+    <div className="flex flex-col lg:flex-row min-h-screen relative font-sans" style={{ backgroundColor: '#faf8ff' }}>
       {/* Decorative Blobs */}
       <div className="fixed top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary-100 rounded-full blur-[120px] opacity-20 pointer-events-none" />
       <div className="fixed bottom-[-10%] left-[20%] w-[30%] h-[30%] bg-indigo-100 rounded-full blur-[100px] opacity-20 pointer-events-none" />
@@ -3152,142 +3203,80 @@ Equipe de Recrutamento & Seleção - Colaborh
         />
       )}
 
-      {/* Sidebar - MATCH CANDIDATE STYLE WITH RESPONSIVE BEHAVIOR */}
-      <aside className={`w-64 ${isSidebarExpanded ? 'lg:w-64 lg:p-6' : 'lg:w-20 lg:p-4'} bg-gradient-to-b from-primary-600 via-primary-700 to-highlight-700 p-6 flex flex-col fixed h-full z-[100] shadow-2xl transition-all duration-300 ${
-        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
-        <div className={`mb-10 flex ${isSidebarExpanded ? 'lg:flex-row justify-between lg:justify-start lg:gap-4' : 'lg:flex-col justify-between lg:justify-center lg:gap-4'} items-center w-full gap-4`}>
-          {/* Logo completa no mobile e no desktop expandido */}
-          <img src="/logo-original.png" alt="Colaborh" className={`h-10 w-auto ${isSidebarExpanded ? '' : 'lg:hidden'}`} />
-          
-          {/* Símbolo minimalista no desktop recolhido */}
-          <div className={`hidden ${isSidebarExpanded ? 'lg:hidden' : 'lg:flex'} justify-center items-center w-full`}>
-            <img src="/logo-icon.png" alt="Colaborh" className="h-10 w-10 object-contain" />
-          </div>
+      {/* Sidebar Desktop - MATCH CANDIDATE STYLE */}
+      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-12 lg:top-32 lg:w-16 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
+        <nav className="space-y-6 w-full flex flex-col items-center justify-start">
+          <SidebarItem icon={BarChart3} label="Dashboard" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
+          <SidebarItem icon={Briefcase} label="Minhas Vagas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
+          <SidebarItem icon={Search} label="Banco de Talentos" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
+          <SidebarItem icon={Building} label="Empresas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
+          <SidebarItem icon={Award} label="Avaliações" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
+          <SidebarItem icon={CreditCard} label="Faturamento" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
+        </nav>
+      </aside>
 
+      {/* Sidebar Mobile - RESPONSIVE MENU DRAWER */}
+      <aside className={`w-64 bg-gradient-to-b from-[#940dff] to-[#533af6] p-6 flex flex-col fixed h-full z-[100] shadow-2xl transition-all duration-300 lg:hidden ${
+        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <div className="mb-8 flex justify-between items-center w-full">
+          <img src="/logo-original.png" alt="Colaborh" className="h-9 w-auto" />
           <button 
             onClick={() => setIsMobileSidebarOpen(false)} 
-            className="lg:hidden text-white/70 hover:text-white p-1"
+            className="text-white/70 hover:text-white p-1"
           >
             <CloseIcon size={20} />
           </button>
         </div>
 
-        <nav className="flex-1 space-y-3 lg:space-y-4 w-full flex flex-col items-center">
-          <SidebarItem icon={BarChart3} label="Dashboard" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
-          <SidebarItem icon={Briefcase} label="Minhas Vagas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
-          <SidebarItem icon={Search} label="Banco de Talentos" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
-          <SidebarItem icon={Building} label="Empresas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
-          <SidebarItem icon={Award} label="Avaliações" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
-          <SidebarItem icon={CreditCard} label="Faturamento" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={isSidebarExpanded} />
+        <nav className="flex-1 space-y-3 w-full flex flex-col">
+          <SidebarItem icon={BarChart3} label="Dashboard" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
+          <SidebarItem icon={Briefcase} label="Minhas Vagas" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
+          <SidebarItem icon={Search} label="Banco de Talentos" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
+          <SidebarItem icon={Building} label="Empresas" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
+          <SidebarItem icon={Award} label="Avaliações" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
+          <SidebarItem icon={CreditCard} label="Faturamento" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
+          <SidebarItem icon={Settings} label="Configurações" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
         </nav>
 
-        <div className="mt-auto space-y-3 pt-6 border-t border-white/10 w-full flex flex-col items-center">
-          {/* Configurações */}
-          <div className="relative group/item w-full flex justify-center h-12">
-            <button 
-              onClick={() => handleSelectTab('Configurações')}
-              className={`w-full ${
-                isSidebarExpanded 
-                  ? 'lg:w-full lg:h-12 lg:px-4 lg:justify-start lg:space-x-3' 
-                  : 'lg:w-12 lg:h-12 lg:px-0 lg:justify-center lg:space-x-0'
-              } flex items-center justify-start space-x-3 py-2.5 rounded-xl transition-all font-bold text-xs uppercase tracking-widest ${
-                activeTab === 'Configurações' 
-                  ? 'bg-white/20 text-white shadow-lg' 
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <Settings size={19} className={activeTab === 'Configurações' ? 'text-white' : 'text-white/50'} />
-              <span className={`font-bold text-xs uppercase tracking-widest whitespace-nowrap ${isSidebarExpanded ? 'lg:inline-block' : 'lg:hidden'}`}>Configurações</span>
-            </button>
-            
-            <div 
-              onClick={() => handleSelectTab('Configurações')}
-              className={`absolute left-0 top-0 h-12 ${isSidebarExpanded ? 'hidden' : 'hidden lg:flex'} items-center justify-start bg-[#533af6]/75 backdrop-blur-[6px] text-white rounded-2xl shadow-[0_10px_25px_rgba(83,58,246,0.25)] cursor-pointer pointer-events-none opacity-0 translate-x-[-24px] group-hover/item:opacity-100 group-hover/item:translate-x-0 group-hover/item:pointer-events-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-[110] w-auto whitespace-nowrap pl-[16px] pr-6 gap-3`}
-            >
-              <Settings size={19} className="text-white" />
-              <span className="font-black text-[11px] uppercase tracking-widest text-white leading-none mt-0.5">Configurações</span>
-            </div>
-          </div>
-
-          {/* Sair */}
-          <div className="relative group/item w-full flex justify-center h-12">
-            <button 
-              onClick={onLogout}
-              className={`w-full ${
-                isSidebarExpanded 
-                  ? 'lg:w-full lg:h-12 lg:px-4 lg:justify-start lg:space-x-3' 
-                  : 'lg:w-12 lg:h-12 lg:px-0 lg:justify-center lg:space-x-0'
-              } flex items-center justify-start space-x-3 py-2.5 rounded-xl text-red-300 hover:text-red-100 hover:bg-red-500/10 transition-all font-bold text-xs uppercase tracking-widest`}
-            >
-              <LogOut size={19} />
-              <span className={`font-bold text-xs uppercase tracking-widest whitespace-nowrap ${isSidebarExpanded ? 'lg:inline-block' : 'lg:hidden'}`}>Sair</span>
-            </button>
-
-            <div 
-              onClick={onLogout}
-              className={`absolute left-0 top-0 h-12 ${isSidebarExpanded ? 'hidden' : 'hidden lg:flex'} items-center justify-start bg-[#533af6]/75 backdrop-blur-[6px] text-white rounded-2xl shadow-[0_10px_25px_rgba(83,58,246,0.25)] cursor-pointer pointer-events-none opacity-0 translate-x-[-24px] group-hover/item:opacity-100 group-hover/item:translate-x-0 group-hover/item:pointer-events-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-[110] w-auto whitespace-nowrap pl-[16px] pr-6 gap-3`}
-            >
-              <LogOut size={19} className="text-white" />
-              <span className="font-black text-[11px] uppercase tracking-widest text-white leading-none mt-0.5">Sair</span>
-            </div>
-          </div>
+        <div className="mt-auto pt-6 border-t border-white/10 w-full">
+          <button 
+            onClick={() => { setIsMobileSidebarOpen(false); onLogout(); }}
+            className="w-full flex items-center space-x-3 py-2.5 rounded-xl text-red-200 hover:text-red-100 hover:bg-red-500/10 transition-all font-bold text-xs uppercase tracking-widest"
+          >
+            <LogOut size={19} />
+            <span>Sair</span>
+          </button>
         </div>
       </aside>
 
       {/* Main Container */}
-      <div className={`flex-1 min-h-screen flex flex-col bg-[#f3f4f6] ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300 relative z-10 min-w-0 max-w-full`}>
-        <header className={`sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-[0_5px_15px_rgba(0,0,0,0.08)] px-6 pt-4 flex flex-col gap-4 transition-all duration-200 ${
-          activeTab === 'Minhas Vagas' || activeTab === 'Banco de Talentos' || activeTab === 'Avaliações' ? 'pb-0' : 'pb-4'
+      <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10 min-w-0 max-w-full">
+        {/* Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo */}
+        <header className={`sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-3.5 flex flex-col gap-4 transition-all duration-300 ${
+          activeTab === 'Banco de Talentos' || activeTab === 'Avaliações' ? 'pb-0' : 'pb-4'
         }`}>
           {/* Top row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
-            {/* Lado Esquerdo */}
-            <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+            {/* Lado Esquerdo: Botão Menu Mobile + Logo (sem toggle sidebar desktop) */}
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
               <div className="flex items-center gap-3">
-                {/* Botão de Toggle da Sidebar (visível apenas no desktop) */}
                 <button
-                  onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                  className="hidden lg:flex items-center justify-center w-9 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-full text-slate-500 transition-all active:scale-95 shrink-0 shadow-sm"
-                  title={isSidebarExpanded ? "Recolher menu" : "Expandir menu"}
+                  onClick={() => setIsMobileSidebarOpen(true)}
+                  className="lg:hidden p-2 text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-50 transition-all border-0 bg-transparent cursor-pointer"
                 >
-                  {isSidebarExpanded ? (
-                    <ChevronLeft size={16} />
-                  ) : (
-                    <ChevronRight size={16} />
-                  )}
+                  <Menu size={22} />
                 </button>
-
-                {/* Ícone e Nome da Aba Ativa */}
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 shrink-0">
-                    {activeTab === 'Dashboard' && <BarChart3 size={16} />}
-                    {activeTab === 'Cadastrar Vagas' && <PlusCircle size={16} />}
-                    {activeTab === 'Minhas Vagas' && <Briefcase size={16} />}
-                    {activeTab === 'Banco de Talentos' && <Search size={16} />}
-                    {activeTab === 'Empresas' && <Building size={16} />}
-                    {activeTab === 'Avaliações' && <Award size={16} />}
-                    {activeTab === 'Configurações' && <Settings size={16} />}
-                  </div>
-                  <h1 className="text-sm font-bold text-slate-800 tracking-tight">{activeTab}</h1>
-                </div>
+                <img src="/logo-original.png" alt="Colaborh" className="h-9 md:h-11 w-auto object-contain shrink-0" />
               </div>
-
-              {/* Botão de abrir menu móvel (apenas mobile/tablet) */}
-              <button
-                onClick={() => setIsMobileSidebarOpen(true)}
-                className="lg:hidden p-2 text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-50 transition-all"
-              >
-                <Menu size={22} />
-              </button>
             </div>
 
-            {/* Lado Direito */}
-            <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
-              {/* Botão de Chat */}
+            {/* Lado Direito: Suporte + Notificações + Seletor de Empresa + Avatar Dropdown */}
+            <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto justify-end">
+              {/* Botão de Chat / Suporte */}
               <button 
                 onClick={() => showCustomAlert("Suporte Colaborh: Como podemos te ajudar hoje?", "Suporte")}
-                className="w-9 h-9 bg-primary-600 hover:bg-primary-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-primary-600/35 transition-all hover:scale-105 active:scale-95 shrink-0"
+                className="w-9 h-9 bg-primary-600 hover:bg-primary-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-primary-600/35 transition-all hover:scale-105 active:scale-95 shrink-0 cursor-pointer border-0"
                 title="Suporte"
               >
                 <MessageSquare size={15} />
@@ -3383,121 +3372,72 @@ Equipe de Recrutamento & Seleção - Colaborh
               {/* Divisor Vertical */}
               <div className="h-6 w-[1px] bg-slate-200" />
 
-              {/* Avatar com iniciais ou Logo */}
-              <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm shrink-0" title={selectedCompany?.nomeFantasia}>
-                {selectedCompany?.logo ? (
-                  <img src={selectedCompany.logo} alt="Logo" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-slate-600 font-extrabold text-xs">
-                    {selectedCompany?.nomeFantasia ? selectedCompany.nomeFantasia.substring(0, 2).toUpperCase() : 'CO'}
-                  </span>
-                )}
+              {/* Avatar com Menu Dropdown (como no candidato) */}
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm shrink-0 cursor-pointer focus:outline-none transition-transform hover:scale-105 active:scale-95 p-0"
+                  title={selectedCompany?.nomeFantasia}
+                >
+                  {selectedCompany?.logo ? (
+                    <img src={selectedCompany.logo} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-slate-600 font-extrabold text-xs">
+                      {selectedCompany?.nomeFantasia ? selectedCompany.nomeFantasia.substring(0, 2).toUpperCase() : 'CO'}
+                    </span>
+                  )}
+                </button>
+
+                {/* Dropdown Menu (Configurações e Sair) */}
+                <AnimatePresence>
+                  {isProfileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-md border border-slate-200/50 rounded-2xl shadow-[0_10px_30px_rgba(83,58,246,0.08)] py-3 px-2 z-50 text-left"
+                    >
+                      {/* Header do Dropdown: Informações da Empresa */}
+                      <div className="px-3 py-2.5 border-b border-slate-100 mb-2">
+                        <p className="text-[10px] font-black text-[#533af6] uppercase tracking-wider leading-none mb-1">Empresa Ativa</p>
+                        <p className="text-xs font-bold text-slate-800 truncate">{selectedCompany?.nomeFantasia || 'Colaborh'}</p>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{selectedCompany?.razaoSocial}</p>
+                      </div>
+
+                      {/* Itens do Menu */}
+                      <button
+                        onClick={() => {
+                          handleSelectTab('Configurações');
+                          setIsProfileMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-bold text-slate-600 hover:bg-[#533af6]/5 hover:text-[#533af6] transition-all cursor-pointer border-0 bg-transparent focus:outline-none"
+                      >
+                        <Settings size={19} className="text-slate-400" />
+                        <span>Configurações</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          onLogout();
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer border-0 bg-transparent focus:outline-none"
+                      >
+                        <LogOut size={19} className="text-red-400" />
+                        <span>Sair</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
+
             </div>
           </div>
 
-          {/* Bottom row (Tabs glued to the header) */}
-          {activeTab === 'Minhas Vagas' && selectedJob === null && (
-            <div className="flex -mx-6 bg-transparent px-6 relative justify-between items-center w-full">
-              <div className="flex relative">
-              {(() => {
-                const tabs = [
-                  { id: 'active', label: 'ATIVAS', count: activeJobsCount, icon: Briefcase },
-                  { id: 'paused', label: 'PAUSADAS', count: pausedJobsCount, icon: Clock },
-                  { id: 'closed', label: 'ENCERRADAS', count: closedJobsCount, icon: XCircle }
-                ];
-                const tabIndex = tabs.findIndex(t => t.id === jobSubTab);
 
-                return (
-                  <>
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setJobSubTab(tab.id as any)}
-                        className={`flex items-center justify-center gap-2 w-44 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent ${
-                          jobSubTab === tab.id 
-                            ? 'text-slate-900 font-extrabold' 
-                            : 'text-slate-400 hover:text-slate-600'
-                        }`}
-                      >
-                        <tab.icon size={14} className={jobSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
-                        <span>{tab.label} ({tab.count})</span>
-                      </button>
-                    ))}
-                    <motion.div 
-                      animate={{ x: tabIndex * 176 }}
-                      className="absolute bottom-0 left-6 h-[2px] bg-[#533af6]"
-                      style={{ width: 176 }}
-                      transition={{ type: 'spring', stiffness: 120, damping: 22 }}
-                    />
-                  </>
 
-                );
-              })()}
-              </div>
-              <button 
-                type="button"
-                onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
-                className="flex items-center gap-2 px-5 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95 border-0 cursor-pointer shrink-0 mr-6 mb-2.5 sm:mb-1.5"
-              >
-                <Plus size={13} className="stroke-[2.5]" /> Nova Vaga
-              </button>
-            </div>
-          )}
 
-          {/* Bottom row (Triagem Header glued to the header) */}
-          {activeTab === 'Minhas Vagas' && selectedJob !== null && (
-            <div className="w-full pb-2 pt-1 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 text-left">
-              <div className="space-y-1">
-                {/* Informações da vaga em caixa alta */}
-                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1 select-none">
-                  {(() => {
-                    const locationText = [selectedJob.city, selectedJob.state].filter(Boolean).join(', ');
-                    const modalityText = selectedJob.modality;
-                    const contractText = selectedJob.contractType;
-                    return [locationText, modalityText, contractText].filter(Boolean).join(' • ');
-                  })()}
-                </div>
-                
-                {/* Título e Badge com linha roxa inferior */}
-                <div className="relative pb-2.5 inline-flex items-end gap-3 min-w-[200px]">
-                  <h3 className="text-lg font-black text-slate-900 tracking-tight uppercase leading-none select-none pl-1">
-                    {selectedJob.title}
-                  </h3>
-                  <span className="text-[8px] font-black bg-[#533af6]/10 text-[#533af6] px-2.5 py-1 rounded-full uppercase tracking-wider select-none leading-none mb-0.5">
-                    {jobApplicants.length} {jobApplicants.length === 1 ? 'candidato' : 'candidatos'}
-                  </span>
-                  {/* Linha roxa decorativa embaixo do título */}
-                  <div className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#533af6]" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 w-full md:w-auto justify-end mb-1">
-                <button 
-                  type="button"
-                  onClick={() => handleShareJob(selectedJob)}
-                  className="flex items-center gap-2 px-5 py-3 bg-[#533af6] text-white rounded-full font-black uppercase tracking-widest text-[9px] shadow-md hover:bg-[#4326e5] hover:-translate-y-0.5 active:scale-95 transition-all outline-none cursor-pointer border-0"
-                >
-                  <Share2 size={13} className="stroke-[2.5]" /> Compartilhar Vaga
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setIsConfiguringStages(true)}
-                  className="flex items-center gap-2 px-5 py-3 bg-[#533af6]/10 text-[#533af6] rounded-full font-black uppercase tracking-widest text-[9px] hover:bg-[#533af6]/15 hover:-translate-y-0.5 active:scale-95 transition-all outline-none cursor-pointer border-0"
-                >
-                  <Settings size={13} className="stroke-[2.5]" /> Configurar Etapas
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setSelectedJob(null)} 
-                  className="w-10 h-10 bg-[#533af6] text-white rounded-full flex items-center justify-center shadow-md hover:bg-[#4326e5] hover:-translate-y-0.5 active:scale-95 transition-all outline-none cursor-pointer border-0 shrink-0"
-                  title="Voltar para Vagas"
-                >
-                  <ChevronLeft size={18} className="stroke-[3]" />
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Bottom row (AI search bar + subtabs glued to the header for Talent Bank) */}
           {activeTab === 'Banco de Talentos' && (
@@ -3682,7 +3622,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
         </header>
 
-        <main className="flex-1 p-6 lg:p-10 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
           <div className="w-full">
           <AnimatePresence mode="wait">
             {activeTab === 'Dashboard' && (
@@ -3693,30 +3633,80 @@ Equipe de Recrutamento & Seleção - Colaborh
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-8 pb-10"
               >
-                {/* Top Metrics Cards */}
+                {/* Título da Página */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-left">
+                    <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                      Dashboard
+                    </h1>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Visão geral dos processos seletivos e indicadores de contratação.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Top Metrics Cards - Estilo do Candidato com Dados Reais e Layout Horizontal */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
-                    { label: 'Vagas Ativas', value: '12', trend: '+2', trendUp: true, icon: Briefcase, color: 'text-primary-600', bg: 'bg-primary-50' },
-                    { label: 'Candidatos', value: '1,284', trend: '+12%', trendUp: true, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-                    { label: 'Entrevistas', value: '24', trend: '-3', trendUp: false, icon: Calendar, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                    { label: 'Tempo Médio', value: '18 dias', trend: '-2d', trendUp: true, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
+                    { 
+                      label: 'Vagas Ativas', 
+                      value: activeJobsCount, 
+                      trend: recentJobsCount > 0 ? `+${recentJobsCount} esta semana` : 'Estável', 
+                      trendUp: recentJobsCount > 0,
+                      icon: Briefcase, 
+                      color: 'text-[#533af6]', 
+                      bg: 'bg-[#533af6]/10',
+                      badgeBg: 'bg-[#533af6]/5 text-[#533af6]'
+                    },
+                    { 
+                      label: 'Total de Candidatos', 
+                      value: totalCandidatesReal, 
+                      trend: recentCandidatesCount > 0 ? `+${recentCandidatesCount} esta semana` : 'Estável', 
+                      trendUp: recentCandidatesCount > 0,
+                      icon: Users, 
+                      color: 'text-indigo-600', 
+                      bg: 'bg-indigo-600/10',
+                      badgeBg: 'bg-indigo-600/5 text-indigo-600'
+                    },
+                    { 
+                      label: 'Em Entrevista', 
+                      value: candidatesInInterview, 
+                      trend: candidatesInInterview > 0 ? 'Processo Ativo' : 'Sem agend.', 
+                      trendUp: candidatesInInterview > 0,
+                      icon: Calendar, 
+                      color: 'text-emerald-600', 
+                      bg: 'bg-emerald-600/10',
+                      badgeBg: 'bg-emerald-600/5 text-emerald-600'
+                    },
+                    { 
+                      label: 'Vagas Inativas', 
+                      value: closedOrPausedJobsCount, 
+                      trend: 'Pausadas/Enc.', 
+                      trendUp: false,
+                      icon: Clock, 
+                      color: 'text-amber-600', 
+                      bg: 'bg-amber-600/10',
+                      badgeBg: 'bg-amber-600/5 text-amber-600'
+                    },
                   ].map((stat, i) => (
                     <motion.div 
                       key={i} 
                       whileHover={{ y: -5 }}
-                      className="bg-white p-7 rounded-[2.5rem] shadow-sleek border border-white hover:border-primary-100 transition-all group"
+                      className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex items-center justify-between hover:shadow-md hover:bg-white/95 transition-all duration-300 group text-left relative overflow-hidden"
                     >
-                      <div className="flex justify-between items-start mb-4">
-                        <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`}>
-                          <stat.icon size={22} />
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105 shrink-0`}>
+                          <stat.icon size={22} className="stroke-[2]" />
                         </div>
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black ${stat.trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-                          {stat.trendUp ? <TrendingUp size={10} /> : <Activity size={10} />}
-                          {stat.trend}
+                        <div className="min-w-0">
+                          <h3 className="text-3xl font-black text-slate-800 tracking-tight leading-none mb-1.5">{stat.value}</h3>
+                          <p className="text-[10px] font-black text-slate-450 uppercase tracking-widest leading-none mt-1.5 truncate">{stat.label}</p>
                         </div>
                       </div>
-                      <h3 className="text-2xl font-black text-slate-900 leading-none mb-1">{stat.value}</h3>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                      <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black shrink-0 self-start mt-1 ${stat.badgeBg}`}>
+                        {stat.trendUp && <TrendingUp size={10} />}
+                        {stat.trend}
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -3931,32 +3921,96 @@ Equipe de Recrutamento & Seleção - Colaborh
 
 
             {activeTab === 'Minhas Vagas' && (
-              <MyVacanciesTab
-                jobs={jobs}
-                isFetchingJobs={isFetchingJobs}
-                jobSubTab={jobSubTab}
-                selectedJob={selectedJob}
-                setSelectedJob={setSelectedJob}
-                jobApplicants={jobApplicants}
-                isFetchingApplicants={isFetchingApplicants}
-                handleViewApplicants={handleViewApplicants}
-                handleUpdateJobStatus={handleUpdateJobStatus}
-                handleShareJob={handleShareJob}
-                setIsRegisteringVacancy={setIsRegisteringVacancy}
-                setRegisterStep={setRegisterStep}
-                setIsConfiguringStages={setIsConfiguringStages}
-                handleUpdateApplicantStatus={handleUpdateApplicantStatus}
-                setSelectedResumeApplicant={setSelectedResumeApplicant}
-                getFullApplicantInfo={getFullApplicantInfo}
-                handleRequestDiscTest={handleRequestDiscTest}
-                handleRequestMbtiTest={handleRequestMbtiTest}
-                handleRequestTemperamentosTest={handleRequestTemperamentosTest}
-                handleRequestQuestions={handleRequestQuestions}
-                handleRequestCustomTest={handleRequestCustomTest}
-                handleOpenNotes={handleOpenNotes}
-                handleDeleteJob={handleDeleteJob}
-                handleOpenChat={handleOpenChat}
-              />
+              <div className="space-y-6 w-full text-left">
+                {/* Título da Página + Botão Criar Vaga */}
+                {selectedJob === null && (
+                  <div className="mb-6 flex items-center justify-between">
+                    <div>
+                      <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                        Minhas Vagas
+                      </h1>
+                      <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                        Gerencie e acompanhe suas oportunidades de trabalho publicadas.
+                      </p>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
+                      className="flex items-center gap-2 px-5 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95 border-0 cursor-pointer shrink-0"
+                    >
+                      <Plus size={13} className="stroke-[2.5]" /> Criar Vaga
+                    </button>
+                  </div>
+                )}
+
+                {/* Sub-abas (Ativas, Pausadas, Encerradas) */}
+                {selectedJob === null && (
+                  <div className="flex border-b border-slate-200/60 pb-px relative w-full mb-6">
+                    <div className="flex relative">
+                      {(() => {
+                        const tabs = [
+                          { id: 'active', label: 'ATIVAS', count: activeJobsCount, icon: Briefcase },
+                          { id: 'paused', label: 'PAUSADAS', count: pausedJobsCount, icon: Clock },
+                          { id: 'closed', label: 'ENCERRADAS', count: closedJobsCount, icon: XCircle }
+                        ];
+                        const tabIndex = tabs.findIndex(t => t.id === jobSubTab);
+
+                        return (
+                          <>
+                            {tabs.map((tab) => (
+                              <button
+                                key={tab.id}
+                                onClick={() => setJobSubTab(tab.id as any)}
+                                className={`flex items-center justify-center gap-2 w-44 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
+                                  jobSubTab === tab.id 
+                                    ? 'text-slate-900 font-extrabold border-slate-900' 
+                                    : 'text-slate-400 hover:text-slate-600'
+                                }`}
+                              >
+                                <tab.icon size={14} className={jobSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
+                                <span>{tab.label} ({tab.count})</span>
+                              </button>
+                            ))}
+                            <motion.div 
+                              animate={{ x: tabIndex * 176 }}
+                              className="absolute bottom-0 left-0 h-[2px] bg-[#533af6] z-20"
+                              style={{ width: 176 }}
+                              transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+                            />
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                <MyVacanciesTab
+                  jobs={jobs}
+                  isFetchingJobs={isFetchingJobs}
+                  jobSubTab={jobSubTab}
+                  selectedJob={selectedJob}
+                  setSelectedJob={setSelectedJob}
+                  jobApplicants={jobApplicants}
+                  isFetchingApplicants={isFetchingApplicants}
+                  handleViewApplicants={handleViewApplicants}
+                  handleUpdateJobStatus={handleUpdateJobStatus}
+                  handleShareJob={handleShareJob}
+                  setIsRegisteringVacancy={setIsRegisteringVacancy}
+                  setRegisterStep={setRegisterStep}
+                  setIsConfiguringStages={setIsConfiguringStages}
+                  handleUpdateApplicantStatus={handleUpdateApplicantStatus}
+                  setSelectedResumeApplicant={setSelectedResumeApplicant}
+                  getFullApplicantInfo={getFullApplicantInfo}
+                  handleRequestDiscTest={handleRequestDiscTest}
+                  handleRequestMbtiTest={handleRequestMbtiTest}
+                  handleRequestTemperamentosTest={handleRequestTemperamentosTest}
+                  handleRequestQuestions={handleRequestQuestions}
+                  handleRequestCustomTest={handleRequestCustomTest}
+                  handleOpenNotes={handleOpenNotes}
+                  handleDeleteJob={handleDeleteJob}
+                  handleOpenChat={handleOpenChat}
+                />
+              </div>
             )}
 
             {activeTab === 'Banco de Talentos' && (
@@ -4571,7 +4625,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                 job={selectedJob}
                 jobApplicants={jobApplicants}
                 onAddNewStage={handleAddNewStage}
-                onMoveStage={handleMoveStage}
+                onReorderStages={(newStages) => handleUpdateJobStages(selectedJob.id, newStages)}
                 onDeleteStage={handleDeleteStage}
                 onUpdateStageTests={handleUpdateJobStageTests}
               />

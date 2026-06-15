@@ -82,13 +82,138 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
   const [searchTerm, setSearchTerm] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
 
+  const kanbanContainerRef = React.useRef<HTMLDivElement>(null);
+  const [activeColumnIndex, setActiveColumnIndex] = React.useState(0);
+  const [isDraggingMinimap, setIsDraggingMinimap] = React.useState(false);
+  const startXRef = React.useRef(0);
+  const startScrollLeftRef = React.useRef(0);
+
+  const allColumns = selectedJob ? getCurrentJobStages(selectedJob) : [];
+  const hasMovedRef = React.useRef(false);
+
+  const handleMinimapMouseDown = (e: React.MouseEvent) => {
+    setIsDraggingMinimap(true);
+    startXRef.current = e.clientX;
+    hasMovedRef.current = false;
+    if (kanbanContainerRef.current) {
+      startScrollLeftRef.current = kanbanContainerRef.current.scrollLeft;
+    }
+  };
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingMinimap || !kanbanContainerRef.current) return;
+      const deltaX = e.clientX - startXRef.current;
+      
+      if (Math.abs(deltaX) > 10) {
+        hasMovedRef.current = true;
+      }
+      
+      const container = kanbanContainerRef.current;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (maxScroll <= 0) return;
+      
+      const minimapWidth = allColumns.length * 36;
+      const scrollFactor = maxScroll / (minimapWidth || 1);
+      
+      container.scrollLeft = startScrollLeftRef.current + (deltaX * scrollFactor);
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingMinimap(false);
+    };
+
+    if (isDraggingMinimap) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingMinimap, allColumns.length]);
+
+  const handleKanbanScroll = () => {
+    if (!kanbanContainerRef.current) return;
+    const container = kanbanContainerRef.current;
+    const scrollLeft = container.scrollLeft;
+    const containerWidth = container.clientWidth;
+    const containerRect = container.getBoundingClientRect();
+    
+    let maxVisibleWidth = 0;
+    let activeIndex = 0;
+    
+    const children = (Array.from(container.children) as HTMLElement[]).filter(el => el.hasAttribute('data-kanban-column'));
+    children.forEach((child, index) => {
+      const el = child as HTMLElement;
+      const elRect = el.getBoundingClientRect();
+      const elLeft = elRect.left - containerRect.left + scrollLeft;
+      const elWidth = el.offsetWidth;
+      
+      const visibleLeft = Math.max(scrollLeft, elLeft);
+      const visibleRight = Math.min(scrollLeft + containerWidth, elLeft + elWidth);
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+      
+      if (visibleWidth > maxVisibleWidth) {
+        maxVisibleWidth = visibleWidth;
+        activeIndex = index;
+      }
+    });
+    
+    setActiveColumnIndex(activeIndex);
+  };
+
+  const handleScrollToColumn = (colIndex: number) => {
+    if (!kanbanContainerRef.current) return;
+    const container = kanbanContainerRef.current;
+    const children = (Array.from(container.children) as HTMLElement[]).filter(el => el.hasAttribute('data-kanban-column'));
+    const colElement = children[colIndex] as HTMLElement;
+    if (colElement) {
+      const containerRect = container.getBoundingClientRect();
+      const colRect = colElement.getBoundingClientRect();
+      const relativeLeft = colRect.left - containerRect.left + container.scrollLeft;
+      
+      container.scrollTo({
+        left: relativeLeft - 16,
+        behavior: 'smooth'
+      });
+      setActiveColumnIndex(colIndex);
+    }
+  };
+
+  React.useEffect(() => {
+    if (selectedJob !== null) {
+      const timer = setTimeout(() => {
+        handleKanbanScroll();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedJob, jobApplicants]);
+
   const getJobInitials = (title: string) => {
     if (!title) return 'VA';
-    const words = title.trim().split(/\s+/);
+    const cleanTitle = cleanEmojiFromText(title);
+    const words = cleanTitle.trim().split(/\s+/).filter(w => w.length > 0);
     if (words.length >= 2) {
       return (words[0][0] + words[1][0]).toUpperCase();
     }
-    return title.substring(0, 2).toUpperCase();
+    return cleanTitle.substring(0, 2).toUpperCase();
+  };
+
+  const cleanEmojiFromText = (text: string): string => {
+    if (!text) return '';
+    try {
+      return text
+        .replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]|\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    } catch (e) {
+      return text
+        .replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
   };
   
   if (selectedJob === null) {
@@ -131,7 +256,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           exit={{ opacity: 0, y: -20 }}
-          className="space-y-2.5"
+          className="w-full flex flex-col gap-6"
         >
         {isFetchingJobs ? (
           <div className="text-center py-20">
@@ -158,101 +283,133 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
 
             if (filteredJobs.length === 0) {
               return (
-                <div className="bg-white p-20 rounded-[5px] text-center border border-dashed border-slate-200">
-                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 border border-slate-100/50">
-                    <Briefcase size={32} />
+                <div className="bg-white/80 backdrop-blur-md border border-white/50 p-20 rounded-[24px] text-center shadow-[0_4px_20px_rgba(83,58,246,0.02)] select-none">
+                  <div className="w-16 h-16 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/50 shadow-xs">
+                    <Briefcase size={28} className="stroke-[2]" />
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 mb-1">
+                  <h3 className="text-lg font-black text-slate-800 uppercase tracking-wider mb-1">
                     {searchTerm.trim() !== '' ? 'Nenhuma vaga encontrada' : 'Nenhuma vaga nesta categoria'}
                   </h3>
-                  <p className="text-slate-400 text-xs max-w-sm mx-auto mb-6 font-semibold">
+                  <p className="text-slate-400 text-xs max-w-sm mx-auto mb-6 font-semibold leading-relaxed">
                     {searchTerm.trim() !== '' ? 'Não encontramos vagas correspondentes à sua pesquisa.' : 'Não encontramos vagas com o status selecionado.'}
                   </p>
                 </div>
               );
             }
 
-            return filteredJobs.map((job, i) => (
-              <div 
-                key={job.id || i} 
-                className="bg-white p-5 rounded-[10px] shadow-sm border border-slate-100 border-l-[5px] border-l-[#533af6] flex flex-wrap items-center justify-between gap-4 hover:shadow-md transition-all duration-300"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 bg-[#7b39ec]/10 rounded-full flex items-center justify-center text-[#7b39ec] font-black text-sm border border-[#7b39ec]/20 select-none shrink-0">
-                    {getJobInitials(job.title)}
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full text-left">
+                {filteredJobs.map((job, i) => (
+                  <div 
+                    key={job.id || i} 
+                    className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[240px]"
+                  >
+                    <div className="flex flex-col h-full justify-between">
+                      {/* Top: Ícone iniciais + Título da Vaga */}
+                      <div>
+                        <div className="flex items-center gap-3.5 mb-4 mt-1 min-w-0">
+                          <div className="w-11 h-11 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs select-none">
+                            {getJobInitials(job.title)}
+                          </div>
+                          
+                          <div className="min-w-0 flex-1 text-left">
+                            <h3 
+                              onClick={() => handleViewApplicants(job)}
+                              className="text-base font-black text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5 cursor-pointer select-none" 
+                              title={cleanEmojiFromText(job.title)}
+                            >
+                              {cleanEmojiFromText(job.title)}
+                            </h3>
+                            <div className="flex gap-1.5 items-center">
+                              <span className="px-2 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
+                                {cleanEmojiFromText(job.modality || 'Remoto')}
+                              </span>
+                              {job.contract_type && (
+                                <span className="px-2 py-0.5 bg-highlight-50 text-highlight-750 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
+                                  {cleanEmojiFromText(job.contract_type)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 select-none">
+                          <span>Publicada em {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'}</span>
+                        </div>
+                      </div>
+
+                      {/* Bottom: Candidatos inscritos + Seletor de Status + Botões de Ações */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-t border-slate-100/60 pt-3.5">
+                          {/* Candidatos inscritos */}
+                          <div className="text-left select-none">
+                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Inscritos</p>
+                            <p className="text-lg font-black text-slate-800 leading-none">{job.candidates_count || 0}</p>
+                          </div>
+
+                          {/* Select de Status */}
+                          {(() => {
+                            const status = job.status || 'active';
+                            let colorClasses = 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50';
+                            if (status === 'paused') colorClasses = 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/50';
+                            else if (status === 'closed') colorClasses = 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200/50';
+                            return (
+                              <select
+                                value={status}
+                                onChange={(e) => handleUpdateJobStatus(job.id, e.target.value)}
+                                className={`${colorClasses} px-2.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border outline-none cursor-pointer transition-all`}
+                              >
+                                <option value="active" className="bg-white text-slate-700 font-bold">Ativa</option>
+                                <option value="paused" className="bg-white text-slate-700 font-bold">Pausada</option>
+                                <option value="closed" className="bg-white text-slate-700 font-bold">Encerrada</option>
+                              </select>
+                            );
+                          })()}
+                        </div>
+
+                        {/* Botões de Ações */}
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleViewApplicants(job)}
+                            className="flex-1 py-2 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-xl border-0 text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer font-bold"
+                            title="Ver candidatos e triagem"
+                          >
+                            <Eye size={13} className="stroke-[2.5]" />
+                            <span>Candidatos</span>
+                          </button>
+                          <button 
+                            onClick={() => handleShareJob(job)}
+                            className="p-2 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-xl border-0 transition-all cursor-pointer"
+                            title="Compartilhar vaga"
+                          >
+                            <Share2 size={14} className="stroke-[2.5]" />
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => handleDeleteJob(job.id, job.title)}
+                            className="p-2 bg-[#533af6]/10 text-[#533af6] hover:bg-rose-600/20 hover:text-rose-600 rounded-xl border-0 transition-all cursor-pointer"
+                            title="Excluir vaga"
+                          >
+                            <Trash2 size={14} className="stroke-[2.5]" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <h4 
-                      onClick={() => handleViewApplicants(job)}
-                      className="font-bold text-slate-900 hover:text-[#533af6] cursor-pointer transition-colors uppercase tracking-tight text-sm select-none"
-                    >
-                      {job.title}
-                    </h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'} • {job.modality}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-10">
-                  <div className="text-center">
-                    <p className="text-xl font-black text-slate-900">{job.candidates_count || 0}</p>
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Inscritos</p>
-                  </div>
-                  {(() => {
-                    const status = job.status || 'active';
-                    let colorClasses = 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50';
-                    if (status === 'paused') colorClasses = 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/50';
-                    else if (status === 'closed') colorClasses = 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200/50';
-                    return (
-                      <select
-                        value={status}
-                        onChange={(e) => handleUpdateJobStatus(job.id, e.target.value)}
-                        className={`${colorClasses} px-2.5 py-1.5 rounded-[5px] text-[9.5px] font-black uppercase tracking-widest border outline-none cursor-pointer transition-all`}
-                      >
-                        <option value="active" className="bg-white text-slate-700 font-bold">Ativa</option>
-                        <option value="paused" className="bg-white text-slate-700 font-bold">Pausada</option>
-                        <option value="closed" className="bg-white text-slate-700 font-bold">Encerrada</option>
-                      </select>
-                    );
-                  })()}
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => handleViewApplicants(job)}
-                      className="p-2 bg-slate-50 text-slate-500 hover:text-[#533af6] hover:bg-slate-100 rounded-[5px] border border-slate-100/60 transition-all cursor-pointer"
-                      title="Ver candidatos e triagem"
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button 
-                      onClick={() => handleShareJob(job)}
-                      className="p-2 bg-slate-50 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-[5px] border border-slate-100/60 transition-all cursor-pointer"
-                      title="Compartilhar vaga"
-                    >
-                      <Share2 size={16} />
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => handleDeleteJob(job.id, job.title)}
-                      className="p-2 bg-slate-50 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200/50 rounded-[5px] border border-slate-100/60 transition-all cursor-pointer"
-                      title="Excluir vaga"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
+                ))}
               </div>
-            ));
+            );
           })()
         ) : (
-          <div className="bg-white p-20 rounded-[5px] text-center border border-dashed border-slate-200">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 border border-slate-100/50">
-              <Briefcase size={32} />
+          <div className="bg-white/80 backdrop-blur-md border border-white/50 p-20 rounded-[24px] text-center shadow-[0_4px_20px_rgba(83,58,246,0.02)] select-none">
+            <div className="w-16 h-16 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/50 shadow-xs">
+              <Briefcase size={28} className="stroke-[2]" />
             </div>
-            <h3 className="text-lg font-black text-slate-900 mb-1">Nenhuma vaga publicada</h3>
-            <p className="text-slate-400 text-xs max-w-sm mx-auto mb-6 font-semibold">Você ainda não criou nenhuma oportunidade. Comece a contratar agora mesmo!</p>
+            <h3 className="text-lg font-black text-slate-800 uppercase tracking-wider mb-1">Nenhuma vaga publicada</h3>
+            <p className="text-slate-400 text-xs max-w-sm mx-auto mb-6 font-semibold leading-relaxed">Você ainda não criou nenhuma oportunidade. Comece a contratar agora mesmo!</p>
             <button 
               onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
-              className="px-6 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-[5px] font-black text-[10px] uppercase tracking-widest shadow-md transition-all cursor-pointer"
+              className="px-6 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border-0"
             >
               Publicar Primeira Vaga
             </button>
@@ -271,7 +428,104 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
       exit={{ opacity: 0 }}
       className="space-y-6 w-full max-w-full"
     >
+      {/* Cabeçalho da triagem - Movido do header para abaixo dele */}
+      <div className="w-full pb-4 pt-1 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 text-left">
+        <div className="flex items-start gap-3 w-full md:w-auto">
+          {/* Botão voltar redondo antes do título */}
+          <button 
+            type="button"
+            onClick={() => setSelectedJob(null)} 
+            className="w-10 h-10 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full flex items-center justify-center transition-all outline-none cursor-pointer border-0 shrink-0 mt-0.5"
+            title="Voltar para Vagas"
+          >
+            <ChevronLeft size={18} className="stroke-[3]" />
+          </button>
 
+          <div className="space-y-1 min-w-0 flex-1">
+            {/* Informações da vaga em caixa alta */}
+            <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1 select-none">
+              {(() => {
+                const locationText = [selectedJob.city, selectedJob.state].filter(Boolean).join(', ');
+                const modalityText = selectedJob.modality;
+                const contractText = selectedJob.contractType || selectedJob.contract_type;
+                return [locationText, modalityText, contractText].filter(Boolean).join(' • ');
+              })()}
+            </div>
+            
+            {/* Título e Badge com linha roxa inferior */}
+            <div className="relative pb-2.5 inline-flex items-end gap-3 min-w-[200px]">
+              <h3 className="text-lg font-black text-slate-900 tracking-tight uppercase leading-none select-none pl-1">
+                {cleanEmojiFromText(selectedJob.title)}
+              </h3>
+              <span className="text-[8px] font-black bg-[#533af6]/10 text-[#533af6] px-2.5 py-1 rounded-full uppercase tracking-wider select-none leading-none mb-0.5 font-bold">
+                {jobApplicants.length} {jobApplicants.length === 1 ? 'candidato' : 'candidatos'}
+              </span>
+              {/* Linha roxa decorativa embaixo do título */}
+              <div className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#533af6]" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 w-full md:w-auto justify-end mb-1">
+          <button 
+            type="button"
+            onClick={() => handleShareJob(selectedJob)}
+            className="flex items-center gap-2 px-5 py-3 bg-[#533af6] text-white rounded-full font-black uppercase tracking-widest text-[9px] shadow-md hover:bg-[#4326e5] hover:-translate-y-0.5 active:scale-95 transition-all outline-none cursor-pointer border-0"
+          >
+            <Share2 size={13} className="stroke-[2.5]" /> Compartilhar Vaga
+          </button>
+          <button 
+            type="button"
+            onClick={() => setIsConfiguringStages(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-[#533af6]/10 text-[#533af6] rounded-full font-black uppercase tracking-widest text-[9px] hover:bg-[#533af6]/15 hover:-translate-y-0.5 active:scale-95 transition-all outline-none cursor-pointer border-0 font-bold"
+          >
+            <Settings size={13} className="stroke-[2.5]" /> Configurar Etapas
+          </button>
+        </div>
+      </div>
+
+      {/* Minimap Horizontal Scrollbar */}
+      {(() => {
+        const stagesList = getCurrentJobStages(selectedJob);
+        return stagesList.length > 1 && !isFetchingApplicants && (
+          <div className="fixed bottom-6 right-6 z-[80] select-none cursor-ew-resize">
+            <div 
+              onMouseDown={handleMinimapMouseDown}
+              className={`backdrop-blur-md rounded-2xl px-4 py-3 flex items-center gap-2 border transition-all duration-300 ${
+                isDraggingMinimap 
+                  ? 'bg-white border-[#533af6] shadow-[0_10px_30px_rgba(83,58,246,0.15)] scale-105' 
+                  : 'bg-white/95 border-slate-200 shadow-[0_10px_25px_rgba(0,0,0,0.08)] hover:border-slate-350 hover:shadow-[0_12px_28px_rgba(0,0,0,0.12)]'
+              }`}
+            >
+              {stagesList.map((colName, colIndex) => {
+                const isActive = colIndex === activeColumnIndex;
+                return (
+                  <button
+                    key={colName}
+                    onClick={() => {
+                      if (!hasMovedRef.current) {
+                        handleScrollToColumn(colIndex);
+                      }
+                    }}
+                    className={`w-7 h-11 rounded-lg border transition-all duration-300 flex flex-col justify-between p-1 cursor-pointer select-none outline-none ${
+                      isActive
+                        ? 'border-[#533af6] border-[2px] bg-[#533af6]/5 shadow-xs scale-105 z-10'
+                        : 'border-slate-200/60 bg-white/70 hover:border-slate-350 hover:bg-white'
+                    }`}
+                    title={`Rolar para: ${colName}`}
+                  >
+                    <div className={`w-full h-1.5 rounded-[2px] ${isActive ? 'bg-[#533af6]' : 'bg-slate-300/80'}`} />
+                    <div className="flex flex-col gap-0.5 w-full items-center justify-center flex-1">
+                      <div className={`w-3.5 h-0.5 rounded-[1px] ${isActive ? 'bg-[#533af6]/40' : 'bg-slate-200'}`} />
+                      <div className={`w-2.5 h-0.5 rounded-[1px] ${isActive ? 'bg-[#533af6]/40' : 'bg-slate-200'}`} />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Kanban columns */}
       {isFetchingApplicants ? (
@@ -280,7 +534,11 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
           <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Carregando candidatos e triagem...</p>
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-4 items-start select-none">
+        <div 
+          ref={kanbanContainerRef}
+          onScroll={handleKanbanScroll}
+          className="flex gap-4 overflow-x-auto pb-4 items-start select-none no-scrollbar"
+        >
           {(() => {
             const stagesList = getCurrentJobStages(selectedJob);
             const allColumns = stagesList;
@@ -298,16 +556,17 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
 
               return (
                  <div 
-                   key={colName}
-                   onDragOver={(e) => e.preventDefault()}
-                   onDrop={(e) => {
-                     e.preventDefault();
-                     const appId = e.dataTransfer.getData('text/plain');
-                     if (appId) {
-                       handleUpdateApplicantStatus(appId, colName);
-                     }
-                   }}
-                   className="bg-slate-50/70 border border-slate-100/50 pb-4 rounded-[10px] flex flex-col min-w-[280px] max-w-[320px] max-h-[75vh] shrink-0 overflow-hidden"
+                    key={colName}
+                    data-kanban-column="true"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const appId = e.dataTransfer.getData('text/plain');
+                      if (appId) {
+                        handleUpdateApplicantStatus(appId, colName);
+                      }
+                    }}
+                    className="bg-white border border-slate-200/50 shadow-sm pb-4 rounded-[10px] flex flex-col min-w-[280px] max-w-[320px] max-h-[75vh] shrink-0 overflow-hidden"
                  >
                    {/* Column Header */}
                    <div 
@@ -336,7 +595,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                               e.dataTransfer.setData('text/plain', app.id);
                             }}
                             onClick={() => setSelectedResumeApplicant(info)}
-                            className="bg-white p-4 rounded-[10px] border border-slate-100 border-l-[4px] border-l-[#3319c7] hover:border-slate-200/80 hover:border-l-[#3319c7] shadow-2xs hover:shadow-xs transition-all cursor-grab active:cursor-grabbing text-left space-y-3 relative group overflow-hidden"
+                            className="bg-white p-4 rounded-[10px] border border-slate-100 hover:border-primary-200/60 shadow-[0_4px_16px_rgba(83,58,246,0.06)] hover:shadow-[0_10px_24px_rgba(83,58,246,0.12)] hover:-translate-y-0.5 transition-all cursor-grab active:cursor-grabbing text-left space-y-3 relative group overflow-hidden"
                           >
                             {/* Porcentagem do Match IA no canto superior direito */}
                             <div 

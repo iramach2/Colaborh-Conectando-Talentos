@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { X as CloseIcon, ChevronUp, ChevronDown, Trash2, Check } from 'lucide-react';
+import { X as CloseIcon, ChevronUp, ChevronDown, Trash2, Check, GripVertical } from 'lucide-react';
 import { getCurrentJobStages, getCurrentJobStageTests } from '../../../utils/companyDashboardUtils';
 
 interface ManageStagesModalProps {
@@ -9,7 +9,7 @@ interface ManageStagesModalProps {
   job: any;
   jobApplicants: any[];
   onAddNewStage: (stageName: string) => void;
-  onMoveStage: (stageName: string, direction: 'left' | 'right') => void;
+  onReorderStages: (newStages: string[]) => void;
   onDeleteStage: (stageName: string) => void;
   onUpdateStageTests: (jobId: string, newStageTests: Record<string, string[]>) => Promise<any>;
 }
@@ -20,13 +20,48 @@ export const ManageStagesModal = ({
   job,
   jobApplicants,
   onAddNewStage,
-  onMoveStage,
+  onReorderStages,
   onDeleteStage,
   onUpdateStageTests
 }: ManageStagesModalProps) => {
   if (!job) return null;
 
   const [expandedStages, setExpandedStages] = React.useState<Record<string, boolean>>({});
+  const [stagesOrder, setStagesOrder] = React.useState<string[]>([]);
+  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    if (job) {
+      setStagesOrder(getCurrentJobStages(job));
+    }
+  }, [job]);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    
+    // Cadastro deve ser sempre o índice 0. Não permitir mover nada para antes do Cadastro e não permitir mover o Cadastro.
+    if (index === 0 || draggedIndex === 0) return;
+
+    const newStages = [...stagesOrder];
+    const draggedItem = newStages[draggedIndex];
+    newStages.splice(draggedIndex, 1);
+    newStages.splice(index, 0, draggedItem);
+    
+    setDraggedIndex(index);
+    setStagesOrder(newStages);
+  };
+
+  const handleDragEnd = async () => {
+    setDraggedIndex(null);
+    await onReorderStages(stagesOrder);
+  };
 
   const toggleStageExpanded = (stageName: string) => {
     setExpandedStages(prev => ({
@@ -36,7 +71,7 @@ export const ManageStagesModal = ({
   };
 
   const currentStagesList = getCurrentJobStages(job);
-  const allCols = currentStagesList;
+  const allCols = stagesOrder;
   const currentStageTests = getCurrentJobStageTests(job);
 
   const availableTests = [
@@ -88,7 +123,6 @@ export const ManageStagesModal = ({
         transition={{ type: 'spring', damping: 28, stiffness: 220 }}
         className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
       >
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#8959f5] to-indigo-600" />
         
         <div className="flex justify-between items-center mb-6 mt-2 shrink-0">
           <div>
@@ -154,31 +188,39 @@ export const ManageStagesModal = ({
 
               const isSpecial = false;
               const isCadastro = stageIdx === 0 && colName === 'Cadastro';
-              
-              const stageIndex = currentStagesList.indexOf(colName);
-              const canMoveUp = stageIndex > 0;
-              const canMoveDown = stageIndex !== -1 && stageIndex < currentStagesList.length - 1;
 
               return (
                 <div 
                   key={colName}
+                  draggable={!isCadastro}
+                  onDragStart={(e) => handleDragStart(e, stageIdx)}
+                  onDragOver={(e) => handleDragOver(e, stageIdx)}
+                  onDragEnd={handleDragEnd}
                   className={`rounded-xl border transition-all overflow-hidden text-left ${
                     isCadastro 
                       ? 'border-[#8959f5]/25 bg-[#8959f5]/5' 
                       : isSpecial
                       ? 'bg-slate-50/50 border-slate-100 text-slate-400'
                       : 'bg-white border-slate-100 hover:border-slate-200 text-slate-700'
-                  }`}
+                  } ${draggedIndex === stageIdx ? 'opacity-40 border-dashed border-[#8959f5]' : ''}`}
                 >
                   <div className="flex items-center justify-between p-3">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className={`w-5 h-5 rounded-[4px] flex items-center justify-center font-black text-[10px] shrink-0 ${
+                      {!isCadastro && !isSpecial && (
+                        <div 
+                          className="text-slate-350 hover:text-slate-500 cursor-grab active:cursor-grabbing p-1 -ml-1 rounded transition-colors select-none"
+                          title="Segure e arraste para reordenar"
+                        >
+                          <GripVertical size={14} />
+                        </div>
+                      )}
+                      <div className={`w-5 h-5 rounded-[4px] flex items-center justify-center font-black text-[10px] shrink-0 select-none ${
                         isCadastro ? 'bg-[#8959f5] text-white' : 'bg-slate-100 text-[#8959f5]'
                       }`}>
                         {stageIdx + 1}
                       </div>
-                      <span className="text-xs font-bold truncate uppercase tracking-tight">{colName}</span>
-                      <span className="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black">
+                      <span className="text-xs font-bold truncate uppercase tracking-tight select-none">{colName}</span>
+                      <span className="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black select-none">
                         {count}
                       </span>
                     </div>
@@ -187,36 +229,10 @@ export const ManageStagesModal = ({
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           type="button"
-                          title="Mover para Cima"
-                          disabled={!canMoveUp}
-                          onClick={() => onMoveStage(colName, 'left')}
-                          className={`p-1 rounded-full transition-colors flex items-center justify-center ${
-                            canMoveUp 
-                              ? 'hover:bg-slate-100 text-slate-500 hover:text-slate-800 cursor-pointer' 
-                              : 'text-slate-200 cursor-not-allowed'
-                          }`}
-                        >
-                          <ChevronUp size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          title="Mover para Baixo"
-                          disabled={!canMoveDown}
-                          onClick={() => onMoveStage(colName, 'right')}
-                          className={`p-1 rounded-full transition-colors flex items-center justify-center ${
-                            canMoveDown 
-                              ? 'hover:bg-slate-100 text-slate-500 hover:text-slate-800 cursor-pointer' 
-                              : 'text-slate-200 cursor-not-allowed'
-                          }`}
-                        >
-                          <ChevronDown size={14} />
-                        </button>
-                        <button
-                          type="button"
                           title={count > 0 ? "Não é possível excluir (contém candidatos)" : "Excluir etapa"}
                           disabled={count > 0}
                           onClick={() => onDeleteStage(colName)}
-                          className={`p-1 rounded-full transition-colors flex items-center justify-center ${
+                          className={`p-1.5 rounded-full transition-colors flex items-center justify-center ${
                             count > 0
                               ? 'text-slate-200 cursor-not-allowed'
                               : 'hover:bg-rose-500/10 text-rose-500 hover:text-rose-650 cursor-pointer'
@@ -238,29 +254,43 @@ export const ManageStagesModal = ({
                     )}
                   </div>
 
-                  {/* Botão de Toggle de Testes */}
+                  {/* Botão de Toggle de Testes e Lista de Testes */}
                   {!isSpecial && !isCadastro && (
-                    <button
-                      type="button"
-                      onClick={() => toggleStageExpanded(colName)}
-                      className="w-full px-3.5 py-2.5 flex items-center justify-between border-t border-slate-100/60 hover:bg-slate-50/40 text-[9px] font-black text-slate-400 uppercase tracking-widest transition-all cursor-pointer text-left bg-transparent border-0 outline-none select-none animate-none"
-                    >
-                      <span>Testes e Avaliações</span>
-                      <span className="text-slate-450">
-                        {expandedStages[colName] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                      </span>
-                    </button>
-                  )}
+                    <div className="border-t border-slate-100/60 p-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleStageExpanded(colName)}
+                        className={`w-full py-2 px-3 flex items-center justify-between rounded-lg transition-all cursor-pointer border text-[10px] font-black uppercase tracking-wider select-none outline-none ${
+                          expandedStages[colName]
+                            ? 'bg-[#8959f5] text-white border-[#8959f5] shadow-sm shadow-[#8959f5]/15'
+                            : 'bg-[#8959f5]/8 text-[#8959f5] border-[#8959f5]/15 hover:bg-[#8959f5]/15 hover:border-[#8959f5]/30'
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5 font-bold">
+                          Configurar Testes
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {(() => {
+                            const activeCount = (currentStageTests[colName] || []).length;
+                            if (activeCount > 0) {
+                              return (
+                                <span className={`px-1.5 py-0.5 rounded-full text-[8.5px] font-black ${
+                                  expandedStages[colName]
+                                    ? 'bg-white text-[#8959f5]'
+                                    : 'bg-[#8959f5] text-white'
+                                }`}>
+                                  {activeCount} {activeCount === 1 ? 'ativo' : 'ativos'}
+                                </span>
+                              );
+                            }
+                            return null;
+                          })()}
+                          {expandedStages[colName] ? <ChevronUp size={12} className="stroke-[2.5]" /> : <ChevronDown size={12} className="stroke-[2.5]" />}
+                        </div>
+                      </button>
 
-                  {/* Testes para esta etapa */}
-                  {!isSpecial && (
-                    isCadastro ? (
-                      <div className="px-3 pb-2.5 pt-2 text-[9.5px] text-slate-400 font-medium italic border-t border-slate-100/60 font-sans">
-                        Não é possível solicitar testes na etapa inicial de Cadastro.
-                      </div>
-                    ) : (
-                      expandedStages[colName] && (
-                        <div className="px-3 pb-3 flex flex-col gap-2 border-t border-slate-100/60 pt-3 font-sans">
+                      {expandedStages[colName] && (
+                        <div className="mt-3 flex flex-col gap-2 pt-3 border-t border-slate-100/60 font-sans">
                           {availableTests.map(test => {
                             const matched = (currentStageTests[colName] || []).find((t) => t.split(':')[0] === test.key);
                             const isSelected = !!matched;
@@ -328,8 +358,14 @@ export const ManageStagesModal = ({
                             );
                           })}
                         </div>
-                      )
-                    )
+                      )}
+                    </div>
+                  )}
+
+                  {isCadastro && (
+                    <div className="px-3 pb-2.5 pt-2 text-[9.5px] text-slate-400 font-medium italic border-t border-slate-100/60 font-sans">
+                      Não é possível solicitar testes na etapa inicial de Cadastro.
+                    </div>
                   )}
                 </div>
               );
