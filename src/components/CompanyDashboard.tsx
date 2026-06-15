@@ -53,11 +53,13 @@ import {
   AlertTriangle,
   HelpCircle,
   CreditCard,
-  Bookmark
+  Bookmark,
+  Video
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { perfisDISC, MBTI_PROFILES, MBTI_QUESTIONS, MbtiProfile, MbtiQuestion, TEMPERAMENTOS_PROFILES, TEMPERAMENTOS_QUESTIONS } from './CandidateDashboard';
 import { supabase } from '../lib/supabase';
+import { VideoMeeting } from './VideoMeeting';
 import { createClient } from '@supabase/supabase-js';
 import { jsPDF } from 'jspdf';
 import { 
@@ -469,7 +471,7 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId) || companies[0] || { nomeFantasia: 'Colaborh', razaoSocial: 'Colaborh Soluções LTDA' };
   const [selectedResumeApplicant, setSelectedResumeApplicant] = useState<any>(null);
-  const [resumeDrawerTab, setResumeDrawerTab] = useState<'curriculo' | 'testes'>('curriculo');
+  const [resumeDrawerTab, setResumeDrawerTab] = useState<'curriculo' | 'testes' | 'entrevistas'>('curriculo');
 
   useEffect(() => {
     if (selectedResumeApplicant) {
@@ -2750,6 +2752,116 @@ Equipe de Recrutamento & Seleção - Colaborh
   })();
   const [isFetchingCompanyApps, setIsFetchingCompanyApps] = useState(false);
 
+  const [interviews, setInterviews] = useState<any[]>([]);
+  const [isFetchingInterviews, setIsFetchingInterviews] = useState(false);
+  const [activeVideoMeeting, setActiveVideoMeeting] = useState<any | null>(null);
+
+  const loadInterviews = async () => {
+    if (!import.meta.env.VITE_SUPABASE_URL) return;
+    setIsFetchingInterviews(true);
+    try {
+      const { data, error } = await supabase
+        .from('interviews')
+        .select('*')
+        .order('date_time', { ascending: true });
+      if (!error && data) {
+        setInterviews(data);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar entrevistas:', err);
+    } finally {
+      setIsFetchingInterviews(false);
+    }
+  };
+
+  useEffect(() => {
+    loadInterviews();
+  }, [selectedCompanyId, activeTab]);
+
+  const handleCreateInterview = async (jobId: string, candidateEmail: string, dateTime: string, notes: string) => {
+    try {
+      const roomName = `colaborh-interview-${Math.random().toString(36).substring(2, 11)}`;
+      const companyName = selectedCompany?.nomeFantasia || 'Empresa Colaborh';
+      
+      const { data, error } = await supabase
+        .from('interviews')
+        .insert({
+          job_id: jobId,
+          candidate_email: candidateEmail,
+          company_name: companyName,
+          date_time: dateTime,
+          status: 'scheduled',
+          room_name: roomName,
+          notes: notes
+        })
+        .select();
+
+      if (error) throw error;
+
+      await loadInterviews();
+
+      // Mover o candidato para a etapa "Entrevista" no Kanban se ainda não estiver nela
+      const candidateApp = jobApplicants.find(a => {
+        const info = getFullApplicantInfo(a);
+        return info?.email === candidateEmail || info?.candidate_email === candidateEmail;
+      });
+      if (candidateApp && candidateApp.status !== 'Entrevista') {
+        await handleUpdateApplicantStatus(candidateApp.id, 'Entrevista');
+      }
+
+      // Trigger notification for candidate
+      const formattedDate = new Date(dateTime).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+      createNotification(
+        candidateEmail,
+        'candidate',
+        'Entrevista Agendada',
+        `Sua entrevista de vídeo para a vaga na "${companyName}" foi agendada para ${formattedDate}.`,
+        jobId
+      ).catch(err => console.warn('Erro ao notificar agendamento de entrevista:', err));
+
+      return data;
+    } catch (err) {
+      console.error('Erro ao agendar entrevista:', err);
+      alert('Erro ao agendar entrevista seletiva.');
+    }
+  };
+
+  const handleUpdateInterviewStatus = async (interviewId: string, newStatus: 'scheduled' | 'completed' | 'cancelled') => {
+    try {
+      const { error } = await supabase
+        .from('interviews')
+        .update({ status: newStatus })
+        .eq('id', interviewId);
+
+      if (error) throw error;
+
+      await loadInterviews();
+
+      const interview = interviews.find(i => i.id === interviewId);
+      if (interview) {
+        const companyName = selectedCompany?.nomeFantasia || 'Empresa Colaborh';
+        const formattedDate = new Date(interview.date_time).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        
+        let title = 'Entrevista Cancelada';
+        let message = `Sua entrevista agendada para ${formattedDate} com a "${companyName}" foi cancelada.`;
+        if (newStatus === 'completed') {
+          title = 'Entrevista Concluída';
+          message = `Sua entrevista de vídeo com a "${companyName}" foi concluída. Acompanhe as próximas etapas!`;
+        }
+
+        createNotification(
+          interview.candidate_email,
+          'candidate',
+          title,
+          message,
+          interview.job_id
+        ).catch(err => console.warn('Erro ao notificar atualização de entrevista:', err));
+      }
+    } catch (err) {
+      console.error('Erro ao atualizar status da entrevista:', err);
+    }
+  };
+
   useEffect(() => {
     async function loadCompanyApplications() {
       if ((activeTab !== 'Avaliações' && activeTab !== 'Dashboard') || !import.meta.env.VITE_SUPABASE_URL || companyJobs.length === 0) {
@@ -3184,6 +3296,273 @@ Equipe de Recrutamento & Seleção - Colaborh
 
 
 
+  const renderInterviewsTab = () => {
+    const companyJobIds = companyJobs.map(j => j.id);
+    const filteredInterviews = interviews.filter(i => companyJobIds.includes(i.job_id));
+
+    return (
+      <div className="space-y-6 text-left">
+        <div className="flex justify-between items-center pb-4 border-b border-slate-200/50">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Entrevistas por Vídeo</h1>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">Gerencie agendamentos e faça chamadas de vídeo integradas com os candidatos</p>
+          </div>
+        </div>
+
+        {filteredInterviews.length === 0 ? (
+          <div className="bg-white/80 backdrop-blur-md p-12 rounded-[24px] border border-white/50 shadow-sm text-center max-w-xl mx-auto mt-10">
+            <div className="w-16 h-16 bg-[#533af6]/10 rounded-2xl flex items-center justify-center text-[#533af6] mx-auto mb-4">
+              <Video size={28} className="stroke-[2]" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800 uppercase tracking-tight">Nenhuma entrevista agendada</h3>
+            <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+              Você pode agendar entrevistas por chamada de vídeo diretamente no perfil dos candidatos abrindo os detalhes no Kanban da vaga correspondente.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredInterviews.map((item) => {
+              const matchedJob = jobs.find(j => j.id === item.job_id);
+              const formattedDate = new Date(item.date_time).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+              const candidate = jobApplicants.find(a => getFullApplicantInfo(a)?.email === item.candidate_email || getFullApplicantInfo(a)?.candidate_email === item.candidate_email);
+              const candidateName = candidate ? getFullApplicantInfo(candidate).candidate_name : item.candidate_email;
+
+              return (
+                <div 
+                  key={item.id}
+                  className="bg-white/80 backdrop-blur-md border border-white/50 rounded-[24px] p-6 shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex flex-col justify-between min-h-[200px]"
+                >
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-[#533af6] bg-[#533af6]/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        {formattedDate}
+                      </span>
+                      <span className={`text-[8.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                        item.status === 'scheduled'
+                          ? 'bg-amber-100 text-amber-700'
+                          : item.status === 'completed'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-rose-100 text-rose-700'
+                      }`}>
+                        {item.status === 'scheduled' ? 'Agendada' : item.status === 'completed' ? 'Concluída' : 'Cancelada'}
+                      </span>
+                    </div>
+
+                    <div className="text-left min-w-0">
+                      <h4 className="text-xs font-black text-slate-800 uppercase tracking-tight truncate">
+                        {candidateName}
+                      </h4>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 truncate">
+                        Vaga: {matchedJob ? cleanEmojiFromText(matchedJob.title) : 'Vaga Indisponível'}
+                      </p>
+                    </div>
+
+                    {item.notes && (
+                      <p className="text-[10px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100 italic line-clamp-2">
+                        "{item.notes}"
+                      </p>
+                    )}
+                  </div>
+
+                  {item.status === 'scheduled' && (
+                    <div className="flex gap-2.5 mt-5 pt-4 border-t border-slate-100/60">
+                      <button
+                        type="button"
+                        onClick={() => setActiveVideoMeeting({ roomName: item.room_name, userName: selectedCompany?.nomeFantasia || 'Empresa Colaborh' })}
+                        className="flex-1 py-2 px-3 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer border-0 outline-none flex items-center justify-center gap-1 shadow-sm"
+                      >
+                        <Video size={12} className="stroke-[2.5]" /> Entrar na Sala
+                      </button>
+                      
+                      <div className="flex gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateInterviewStatus(item.id, 'completed')}
+                          title="Marcar como Concluída"
+                          className="py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border border-emerald-100 cursor-pointer outline-none flex items-center justify-center"
+                        >
+                          Concluir
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateInterviewStatus(item.id, 'cancelled')}
+                          title="Cancelar Entrevista"
+                          className="py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border border-rose-100 cursor-pointer outline-none flex items-center justify-center"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderCandidateInterviewsDrawer = () => {
+    if (!selectedResumeApplicant) return null;
+    
+    const companyJobIds = companyJobs.map(j => j.id);
+    const candidateEmail = selectedResumeApplicant.candidate_email || selectedResumeApplicant.email;
+    const candidateInterviews = interviews.filter(i => 
+      companyJobIds.includes(i.job_id) && 
+      (i.candidate_email === candidateEmail)
+    );
+
+    const matchedJob = selectedJob || companyJobs.find(j => j.id === selectedResumeApplicant.job_id);
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-2xs flex items-center gap-4">
+          <div className="w-12 h-12 bg-slate-100 rounded-full overflow-hidden shrink-0 border border-slate-200/60 flex items-center justify-center">
+            {selectedResumeApplicant.profile_pic ? (
+              <img src={selectedResumeApplicant.profile_pic} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <User size={20} className="text-slate-400" />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight truncate leading-none">
+              {selectedResumeApplicant.candidate_name}
+            </h4>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
+              {selectedResumeApplicant.city || 'Não inf.'}{selectedResumeApplicant.state ? `, ${selectedResumeApplicant.state}` : ''}
+            </p>
+          </div>
+        </div>
+
+        {matchedJob && (
+          <div className="bg-white p-6 rounded-[24px] border border-slate-150/60 shadow-2xs space-y-4">
+            <h5 className="text-[10px] font-black text-[#533af6] uppercase tracking-widest border-b border-slate-100 pb-2">
+              Agendar Nova Entrevista por Vídeo
+            </h5>
+            
+            <form 
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const dateVal = (form.elements.namedItem('interview_date') as HTMLInputElement).value;
+                const notesVal = (form.elements.namedItem('interview_notes') as HTMLTextAreaElement).value;
+                
+                if (!dateVal) {
+                  alert('Por favor, selecione a data e hora da entrevista.');
+                  return;
+                }
+                
+                await handleCreateInterview(matchedJob.id, candidateEmail, dateVal, notesVal);
+                form.reset();
+              }}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Data e Hora da Entrevista</label>
+                  <input
+                    type="datetime-local"
+                    name="interview_date"
+                    required
+                    className="w-full px-4 py-2.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#533af6]/50 focus:ring-2 focus:ring-[#533af6]/5 transition-all"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Notas / Instruções para o Candidato</label>
+                  <textarea
+                    name="interview_notes"
+                    placeholder="Ex: Trazer portfólio, ter um local silencioso para a chamada..."
+                    rows={3}
+                    className="w-full px-4 py-2.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#533af6]/50 focus:ring-2 focus:ring-[#533af6]/5 transition-all resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full font-black text-[10px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#533af6]/10 border-0"
+                >
+                  Agendar Entrevista
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <h5 className="text-[10px] font-black text-slate-800 uppercase tracking-widest border-b border-slate-150/40 pb-2">
+            Entrevistas Agendadas
+          </h5>
+
+          {candidateInterviews.length === 0 ? (
+            <p className="text-slate-400 text-xs italic">Nenhuma entrevista agendada com este candidato.</p>
+          ) : (
+            <div className="space-y-3">
+              {candidateInterviews.map((item) => {
+                const formattedDate = new Date(item.date_time).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                
+                return (
+                  <div key={item.id} className="bg-white p-4 rounded-[20px] border border-slate-100 shadow-3xs flex flex-col justify-between gap-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="text-[10px] font-black text-[#533af6] uppercase tracking-wider">
+                          {formattedDate}
+                        </div>
+                        {item.notes && (
+                          <p className="text-[10px] text-slate-500 mt-2 bg-slate-50 p-2.5 rounded-xl italic text-left">
+                            "{item.notes}"
+                          </p>
+                        )}
+                      </div>
+                      <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                        item.status === 'scheduled'
+                          ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                          : item.status === 'completed'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                          : 'bg-rose-50 text-rose-700 border border-rose-100'
+                      }`}>
+                        {item.status === 'scheduled' ? 'Agendada' : item.status === 'completed' ? 'Concluída' : 'Cancelada'}
+                      </span>
+                    </div>
+
+                    {item.status === 'scheduled' && (
+                      <div className="flex gap-2 border-t border-slate-100/60 pt-3">
+                        <button
+                          type="button"
+                          onClick={() => setActiveVideoMeeting({ roomName: item.room_name, userName: selectedCompany?.nomeFantasia || 'Empresa Colaborh' })}
+                          className="flex-1 py-1.5 px-3 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer border-0 outline-none flex items-center justify-center gap-1"
+                        >
+                          <Video size={10} className="stroke-[2.5]" /> Entrar na Sala
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateInterviewStatus(item.id, 'completed')}
+                          className="py-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-wider transition-all border border-emerald-100 cursor-pointer outline-none"
+                        >
+                          Concluir
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateInterviewStatus(item.id, 'cancelled')}
+                          className="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-full text-[9px] font-black uppercase tracking-wider transition-all border border-rose-100 cursor-pointer outline-none"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const handleSelectTab = (tab: string) => {
     setActiveTab(tab);
     setIsMobileSidebarOpen(false);
@@ -3211,6 +3590,7 @@ Equipe de Recrutamento & Seleção - Colaborh
           <SidebarItem icon={Search} label="Banco de Talentos" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Building} label="Empresas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Award} label="Avaliações" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
+          <SidebarItem icon={Video} label="Entrevistas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={CreditCard} label="Faturamento" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
         </nav>
       </aside>
@@ -3235,6 +3615,7 @@ Equipe de Recrutamento & Seleção - Colaborh
           <SidebarItem icon={Search} label="Banco de Talentos" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
           <SidebarItem icon={Building} label="Empresas" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
           <SidebarItem icon={Award} label="Avaliações" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
+          <SidebarItem icon={Video} label="Entrevistas" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
           <SidebarItem icon={CreditCard} label="Faturamento" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
           <SidebarItem icon={Settings} label="Configurações" activeTab={activeTab} setActiveTab={(tab) => { handleSelectTab(tab); setIsMobileSidebarOpen(false); }} isSidebarExpanded={true} />
         </nav>
@@ -4592,6 +4973,18 @@ Equipe de Recrutamento & Seleção - Colaborh
               />
             )}
 
+            {activeTab === 'Entrevistas' && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.25 }}
+                className="w-full flex-1"
+              >
+                {renderInterviewsTab()}
+              </motion.div>
+            )}
+
           </AnimatePresence>
 
         </div>
@@ -4939,7 +5332,8 @@ Equipe de Recrutamento & Seleção - Colaborh
                     {(() => {
                       const drawerTabs = [
                         { id: 'curriculo', label: 'CURRÍCULO', icon: FileText },
-                        { id: 'testes', label: 'TESTES REALIZADOS', icon: Brain }
+                        { id: 'testes', label: 'TESTES REALIZADOS', icon: Brain },
+                        { id: 'entrevistas', label: 'ENTREVISTAS', icon: Calendar }
                       ];
                       const tabIndex = drawerTabs.findIndex(t => t.id === resumeDrawerTab);
                       const tabWidth = 192; 
@@ -4971,7 +5365,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                     })()}
                   </div>
 
-                  {resumeDrawerTab === 'curriculo' ? (
+                  {resumeDrawerTab === 'curriculo' && (
                     /* Conteúdo rolável com a folha de currículo A4 em escala */
                     <div className="flex-1 overflow-y-auto p-8 bg-slate-100 flex justify-center no-scrollbar">
                       <div className="bg-white shadow-2xl w-[210mm] min-h-[297mm] origin-top transform scale-[0.8] sm:scale-[0.9] mb-12">
@@ -5110,7 +5504,9 @@ Equipe de Recrutamento & Seleção - Colaborh
                         </div>
                       </div>
                     </div>
-                  ) : (
+                  )}
+
+                  {resumeDrawerTab === 'testes' && (
                     /* Conteúdo de Testes Realizados */
                     <div className="flex-1 overflow-y-auto p-6 bg-slate-50/20 space-y-6 text-left no-scrollbar">
                       {/* Resumo/Info do Candidato */}
@@ -7946,7 +8342,14 @@ Equipe de Recrutamento & Seleção - Colaborh
                         })()}
                       </div>
                     </div>
-                  </div>
+                  )}
+
+                  {resumeDrawerTab === 'entrevistas' && (
+                    /* Conteúdo de Agendamento e Histórico de Entrevistas */
+                    <div className="flex-1 overflow-y-auto p-6 bg-slate-50/20 space-y-6 text-left no-scrollbar">
+                      {renderCandidateInterviewsDrawer()}
+                    </div>
+                  )}
                 </motion.div>
               </div>
             )}
