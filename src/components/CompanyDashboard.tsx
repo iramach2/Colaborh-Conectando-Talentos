@@ -135,6 +135,10 @@ interface SidebarItemProps {
   isSidebarExpanded: boolean;
 }
 
+const cleanEmojiFromText = (text: string): string => {
+  return text.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "").trim();
+};
+
 const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpanded }: SidebarItemProps) => {
   const isActive = activeTab === label;
   
@@ -5833,6 +5837,13 @@ Equipe de Recrutamento & Seleção - Colaborh
                       </div>
                     </div>
                   )}
+
+                  {resumeDrawerTab === 'entrevistas' && (
+                    /* Conteúdo de Agendamento e Histórico de Entrevistas */
+                    <div className="flex-1 overflow-y-auto p-6 bg-slate-50/20 space-y-6 text-left no-scrollbar">
+                      {renderCandidateInterviewsDrawer()}
+                    </div>
+                  )}
                 </motion.div>
               </div>
             )}
@@ -8342,14 +8353,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                         })()}
                       </div>
                     </div>
-                  )}
-
-                  {resumeDrawerTab === 'entrevistas' && (
-                    /* Conteúdo de Agendamento e Histórico de Entrevistas */
-                    <div className="flex-1 overflow-y-auto p-6 bg-slate-50/20 space-y-6 text-left no-scrollbar">
-                      {renderCandidateInterviewsDrawer()}
-                    </div>
-                  )}
+                  </div>
                 </motion.div>
               </div>
             )}

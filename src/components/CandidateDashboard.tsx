@@ -44,7 +44,8 @@ import {
   Languages,
   Info,
   Filter,
-  Activity
+  Activity,
+  Video
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -61,6 +62,7 @@ import {
   ColaborhNotification 
 } from '../utils/notificationUtils';
 import { NotificationsDrawer } from './NotificationsDrawer';
+import { VideoMeeting } from './VideoMeeting';
 
 // Initialize Gemini
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
@@ -1403,6 +1405,40 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isResumeDirty]);
+
+  // Estados para o Sistema de Entrevistas
+  const [interviews, setInterviews] = useState<any[]>([]);
+  const [isFetchingInterviews, setIsFetchingInterviews] = useState(false);
+  const [activeVideoMeeting, setActiveVideoMeeting] = useState<any | null>(null);
+
+  const loadInterviews = async () => {
+    if (!resumeData.email) return;
+    setIsFetchingInterviews(true);
+    try {
+      const { data, error } = await supabase
+        .from('interviews')
+        .select(`
+          *,
+          job:jobs(*),
+          company:companies(*)
+        `)
+        .eq('candidate_email', resumeData.email)
+        .order('scheduled_at', { ascending: true });
+
+      if (error) throw error;
+      setInterviews(data || []);
+    } catch (e) {
+      console.error('Erro ao carregar entrevistas do candidato:', e);
+    } finally {
+      setIsFetchingInterviews(false);
+    }
+  };
+
+  useEffect(() => {
+    if (resumeData.email) {
+      loadInterviews();
+    }
+  }, [resumeData.email]);
 
   const [isParsing, setIsParsing] = useState(false);
   const [showActionDropdown, setShowActionDropdown] = useState(false);
@@ -3510,6 +3546,142 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     return () => clearInterval(interval);
   }, [resumeData.email, myApplications, vacancies, selectedConversation?.id]);
 
+  const renderInterviewsTab = () => {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6 text-left"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+              Minhas Entrevistas
+            </h1>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              Acompanhe e participe das suas entrevistas por chamada de vídeo marcadas pelas empresas
+            </p>
+          </div>
+        </div>
+
+        {isFetchingInterviews ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-white/50 backdrop-blur-md rounded-[2rem] border border-white/40">
+            <Loader2 className="animate-spin text-[#533af6] mb-3" size={32} />
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Carregando seus agendamentos...</p>
+          </div>
+        ) : interviews.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 bg-white/80 backdrop-blur-md rounded-[2rem] border border-slate-200/40 shadow-sm">
+            <div className="w-16 h-16 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center mb-6">
+              <Video size={28} />
+            </div>
+            <h3 className="text-sm font-black text-slate-850 uppercase tracking-wider">Nenhuma Entrevista Agendada</h3>
+            <p className="text-xs font-semibold text-slate-400 mt-2 max-w-sm text-center">
+              Quando uma empresa agendar uma videoconferência com você, ela aparecerá listada aqui.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {interviews.map((item) => {
+              const formattedDate = new Date(item.scheduled_at).toLocaleDateString('pt-BR', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              });
+              const formattedTime = new Date(item.scheduled_at).toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+
+              // Status Styling
+              let statusLabel = 'Agendada';
+              let statusColor = 'text-[#533af6] bg-indigo-50 border-indigo-100';
+              if (item.status === 'completed') {
+                statusLabel = 'Concluída';
+                statusColor = 'text-emerald-700 bg-emerald-50 border-emerald-100';
+              } else if (item.status === 'cancelled') {
+                statusLabel = 'Cancelada';
+                statusColor = 'text-rose-700 bg-rose-50 border-rose-100';
+              }
+
+              const isScheduled = item.status === 'scheduled';
+
+              return (
+                <div
+                  key={item.id}
+                  className="bg-white/90 backdrop-blur-md border border-slate-200/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] flex flex-col justify-between hover:shadow-lg transition-all duration-300 group"
+                >
+                  <div>
+                    {/* Header: Company and Status */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 font-extrabold text-xs shrink-0">
+                          {item.company?.nomeFantasia ? item.company.nomeFantasia.substring(0, 2).toUpperCase() : 'EP'}
+                        </div>
+                        <div className="text-left">
+                          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide truncate max-w-[120px]" title={item.company?.nomeFantasia || 'Empresa'}>
+                            {item.company?.nomeFantasia || 'Empresa'}
+                          </h4>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Empresa</span>
+                        </div>
+                      </div>
+                      <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${statusColor}`}>
+                        {statusLabel}
+                      </span>
+                    </div>
+
+                    {/* Vaga e Data/Hora */}
+                    <div className="space-y-3 pt-3 border-t border-slate-100/70 text-left">
+                      <div>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Vaga</span>
+                        <p className="text-xs font-black text-slate-700 truncate">{item.job?.title || 'Não especificada'}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Data</span>
+                          <p className="text-xs font-extrabold text-slate-700 capitalize">
+                            {formattedDate.split(',')[1]?.trim() || formattedDate}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Horário</span>
+                          <p className="text-xs font-extrabold text-slate-700">{formattedTime}</p>
+                        </div>
+                      </div>
+
+                      {item.notes && (
+                        <div>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Observações da Empresa</span>
+                          <p className="text-[10px] font-semibold text-slate-500 leading-relaxed mt-1 italic line-clamp-3 bg-slate-50/50 p-2 rounded-lg border border-slate-100">
+                            "{item.notes}"
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  {isScheduled && (
+                    <div className="mt-6 pt-4 border-t border-slate-100/70">
+                      <button
+                        onClick={() => setActiveVideoMeeting({ roomName: item.room_name, userName: resumeData.fullName || 'Candidato Colaborh' })}
+                        className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md shadow-emerald-500/10 flex items-center justify-center gap-2 cursor-pointer border-0"
+                      >
+                        <Video size={14} className="stroke-[2.5]" />
+                        <span>Entrar na Chamada</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </motion.div>
+    );
+  };
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen relative font-sans" style={{ backgroundColor: '#faf8ff' }}>
       {/* Decorative Blobs */}
@@ -3532,6 +3704,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
           <SidebarItem icon={FileText} label="Meu Currículo" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Star} label="Vagas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Brain} label="Testes" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
+          <SidebarItem icon={Video} label="Entrevistas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
         </nav>
       </aside>
 
@@ -6132,6 +6305,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 );
               })()}
             </motion.div>
+          ) : activeTab === 'Entrevistas' ? (
+            renderInterviewsTab()
           ) : (
             <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] shadow-sleek relative overflow-hidden">
                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary-600 to-indigo-600" />
@@ -6145,6 +6320,14 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         </div>
       </main>
     </div>
+
+      {activeVideoMeeting && (
+        <VideoMeeting
+          roomName={activeVideoMeeting.roomName}
+          userName={activeVideoMeeting.userName}
+          onClose={() => setActiveVideoMeeting(null)}
+        />
+      )}
 
       <div 
         ref={resumePrintRef} 
@@ -7326,7 +7509,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         {[
           { label: 'Meu Currículo', icon: FileText },
           { label: 'Vagas', icon: Star },
-          { label: 'Testes', icon: Brain }
+          { label: 'Testes', icon: Brain },
+          { label: 'Entrevistas', icon: Video }
         ].map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.label;
