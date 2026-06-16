@@ -4205,7 +4205,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                     <button 
                       type="button"
                       onClick={() => { setIsRegisteringVacancy(true); setRegisterStep(1); }}
-                      className="flex items-center justify-center gap-2 px-4 py-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 hover:shadow-md hover:shadow-[#7c3aed]/20 active:scale-95 border-0 cursor-pointer shrink-0 hover:-translate-y-0.5"
+                      className="flex items-center justify-center gap-2 px-4 py-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-full text-[12px] font-[650] uppercase tracking-wider transition-all duration-300 hover:shadow-md hover:shadow-[#7c3aed]/20 active:scale-95 border-0 cursor-pointer shrink-0 hover:-translate-y-0.5"
                     >
                       <Plus size={13} className="stroke-[2.5]" /> Criar Vaga
                     </button>
