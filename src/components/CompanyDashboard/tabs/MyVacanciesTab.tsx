@@ -277,14 +277,14 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                 {filteredJobs.map((job, i) => (
                   <div 
                     key={job.id || i} 
-                    className="bg-white/80 backdrop-blur-md border border-white/50 p-5 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative h-[200px]"
+                    className="bg-white/80 backdrop-blur-md border border-white/50 px-3.5 py-4 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative h-[200px]"
                   >
                     <div className="flex flex-col h-full justify-between">
                       {/* Top: Ícone iniciais + Título da Vaga */}
                       <div>
-                        <div className="flex items-start justify-between gap-2 mt-0.5 min-w-0">
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="w-10 h-10 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs select-none">
+                        <div className="flex items-start justify-between gap-1.5 mt-0.5 min-w-0">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="w-8 h-8 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-[10px] shrink-0 border border-white/50 shadow-xs select-none">
                               {getJobInitials(job.title)}
                             </div>
                             
@@ -296,17 +296,17 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                               >
                                 {cleanEmojiFromText(job.title)}
                               </span>
-                              <div className="flex gap-1.5 items-center flex-wrap">
-                                <span className="px-2 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
+                              <div className="flex gap-1 items-center flex-nowrap overflow-x-auto no-scrollbar">
+                                <span className="px-1.5 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30 shrink-0">
                                   {cleanEmojiFromText(job.modality || 'Remoto')}
                                 </span>
                                 {job.contract_type && (
-                                  <span className="px-2 py-0.5 bg-highlight-50 text-highlight-750 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
+                                  <span className="px-1.5 py-0.5 bg-highlight-50 text-highlight-750 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30 shrink-0">
                                     {cleanEmojiFromText(job.contract_type)}
                                   </span>
                                 )}
-                                <span className="px-2 py-0.5 bg-[#533af6]/10 text-[#533af6] rounded-full text-[8px] font-black uppercase tracking-widest border border-[#533af6]/20">
-                                  {job.candidates_count || 0} {job.candidates_count === 1 ? 'Inscrito' : 'Inscritos'}
+                                <span className="px-1.5 py-0.5 bg-[#533af6]/10 text-[#533af6] rounded-full text-[8px] font-black uppercase tracking-widest border border-[#533af6]/20 shrink-0">
+                                  {job.candidates_count || 0} {job.candidates_count === 1 ? 'Insc.' : 'Insc.'}
                                 </span>
                               </div>
                             </div>
