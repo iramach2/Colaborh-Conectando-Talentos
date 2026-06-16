@@ -3639,7 +3639,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10 min-w-0 max-w-full">
         {/* Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo (Compacto para melhor aproveitamento de tela) */}
-        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:pl-24 lg:pr-12 py-2 flex flex-col gap-0 transition-all duration-300">
+        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:pl-28 lg:pr-12 py-2 flex flex-col gap-0 transition-all duration-300">
           {/* Top row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 w-full">
             {/* Lado Esquerdo: Botão Menu Mobile + Logo (sem toggle sidebar desktop) */}
@@ -3897,7 +3897,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
         </header>
 
-        <main className="flex-1 p-6 pt-3 lg:pt-5 lg:pb-10 lg:pl-24 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-6 pt-3 lg:pt-5 lg:pb-10 lg:pl-28 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
           <div className="w-full">
           <AnimatePresence mode="wait">
             {activeTab === 'Dashboard' && (
