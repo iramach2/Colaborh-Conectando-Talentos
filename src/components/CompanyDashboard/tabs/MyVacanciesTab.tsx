@@ -293,7 +293,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                             >
                               {cleanEmojiFromText(job.title)}
                             </span>
-                            <div className="flex gap-1.5 items-center">
+                            <div className="flex gap-1.5 items-center flex-wrap">
                               <span className="px-2 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
                                 {cleanEmojiFromText(job.modality || 'Remoto')}
                               </span>
@@ -302,15 +302,15 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                                   {cleanEmojiFromText(job.contract_type)}
                                 </span>
                               )}
+                              <span className="px-2 py-0.5 bg-[#533af6]/10 text-[#533af6] rounded-full text-[8px] font-black uppercase tracking-widest border border-[#533af6]/20">
+                                {job.candidates_count || 0} {job.candidates_count === 1 ? 'Inscrito' : 'Inscritos'}
+                              </span>
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest mt-3 mb-1.5 select-none">
+                        <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest mt-3 mb-1.5 select-none">
                           <span>Publicada em {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'}</span>
-                          <span className="text-[#533af6] font-bold bg-[#533af6]/10 px-2 py-0.5 rounded-full leading-none flex items-center gap-1 shrink-0">
-                            {job.candidates_count || 0} {job.candidates_count === 1 ? 'Inscrito' : 'Inscritos'}
-                          </span>
                         </div>
                       </div>
 
