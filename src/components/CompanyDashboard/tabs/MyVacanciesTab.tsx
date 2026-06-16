@@ -275,13 +275,13 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                 {filteredJobs.map((job, i) => (
                   <div 
                     key={job.id || i} 
-                    className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[240px]"
+                    className="bg-white/80 backdrop-blur-md border border-white/50 p-5 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[200px]"
                   >
                     <div className="flex flex-col h-full justify-between">
                       {/* Top: Ícone iniciais + Título da Vaga */}
                       <div>
-                        <div className="flex items-center gap-3.5 mb-4 mt-1 min-w-0">
-                          <div className="w-11 h-11 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs select-none">
+                        <div className="flex items-center gap-3 mt-0.5 min-w-0">
+                          <div className="w-10 h-10 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs select-none">
                             {getJobInitials(job.title)}
                           </div>
                           
@@ -306,20 +306,17 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 select-none">
+                        <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest mt-3 mb-1.5 select-none">
                           <span>Publicada em {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'}</span>
+                          <span className="text-[#533af6] font-bold bg-[#533af6]/10 px-2 py-0.5 rounded-full leading-none flex items-center gap-1 shrink-0">
+                            {job.candidates_count || 0} {job.candidates_count === 1 ? 'Inscrito' : 'Inscritos'}
+                          </span>
                         </div>
                       </div>
 
-                      {/* Bottom: Candidatos inscritos + Seletor de Status + Botões de Ações */}
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between border-t border-slate-100/60 pt-3.5">
-                          {/* Candidatos inscritos */}
-                          <div className="text-left select-none">
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Inscritos</p>
-                            <p className="text-lg font-black text-slate-800 leading-none">{job.candidates_count || 0}</p>
-                          </div>
-
+                      {/* Bottom: Seletor de Status + Botões de Ações */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-end border-t border-slate-100/60 pt-2.5">
                           {/* Select de Status */}
                           {(() => {
                             const status = job.status || 'active';
@@ -330,7 +327,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                               <select
                                 value={status}
                                 onChange={(e) => handleUpdateJobStatus(job.id, e.target.value)}
-                                className={`${colorClasses} px-2.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border outline-none cursor-pointer transition-all`}
+                                className={`${colorClasses} px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border outline-none cursor-pointer transition-all`}
                               >
                                 <option value="active" className="bg-white text-slate-700 font-bold">Ativa</option>
                                 <option value="paused" className="bg-white text-slate-700 font-bold">Pausada</option>
@@ -344,26 +341,26 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                         <div className="flex gap-2">
                           <button 
                             onClick={() => handleViewApplicants(job)}
-                            className="flex-1 py-2 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-xl border-0 text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer font-bold"
+                            className="flex-1 py-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-lg border-0 text-[8px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer font-bold"
                             title="Ver candidatos e triagem"
                           >
-                            <Eye size={13} className="stroke-[2.5]" />
+                            <Eye size={12} className="stroke-[2.5]" />
                             <span>Candidatos</span>
                           </button>
                           <button 
                             onClick={() => handleShareJob(job)}
-                            className="p-2 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-xl border-0 transition-all cursor-pointer"
+                            className="p-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-lg border-0 transition-all cursor-pointer"
                             title="Compartilhar vaga"
                           >
-                            <Share2 size={14} className="stroke-[2.5]" />
+                            <Share2 size={12} className="stroke-[2.5]" />
                           </button>
                           <button 
                             type="button"
                             onClick={() => handleDeleteJob(job.id, job.title)}
-                            className="p-2 bg-[#533af6]/10 text-[#533af6] hover:bg-rose-600/20 hover:text-rose-600 rounded-xl border-0 transition-all cursor-pointer"
+                            className="p-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-rose-600/20 hover:text-rose-600 rounded-lg border-0 transition-all cursor-pointer"
                             title="Excluir vaga"
                           >
-                            <Trash2 size={14} className="stroke-[2.5]" />
+                            <Trash2 size={12} className="stroke-[2.5]" />
                           </button>
                         </div>
                       </div>
