@@ -373,7 +373,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex gap-1 items-center flex-nowrap overflow-x-auto no-scrollbar mt-2 mb-0.5">
+                        <div className="flex gap-1 items-center flex-nowrap overflow-x-auto no-scrollbar mt-2.5 mb-0.5">
                           <span className="px-1.5 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30 shrink-0">
                             {cleanEmojiFromText(job.modality || 'Remoto')}
                           </span>
