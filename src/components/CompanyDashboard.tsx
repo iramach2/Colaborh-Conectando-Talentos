@@ -4232,7 +4232,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                               <button
                                 key={tab.id}
                                 onClick={() => setJobSubTab(tab.id as any)}
-                                className={`flex items-center justify-center gap-2 w-44 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
+                                className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
                                   jobSubTab === tab.id 
                                     ? 'text-slate-900 font-extrabold border-slate-900' 
                                     : 'text-slate-400 hover:text-slate-600'
@@ -4414,7 +4414,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                             <button
                               key={tab.id}
                               onClick={() => setTalentSubTab(tab.id as any)}
-                              className={`flex items-center justify-center gap-2 w-44 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
+                              className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
                                 talentSubTab === tab.id 
                                   ? 'text-slate-900 font-extrabold border-slate-900' 
                                   : 'text-slate-400 hover:text-slate-655'
