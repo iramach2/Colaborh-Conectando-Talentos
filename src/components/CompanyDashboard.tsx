@@ -3638,12 +3638,10 @@ Equipe de Recrutamento & Seleção - Colaborh
 
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10 min-w-0 max-w-full">
-        {/* Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo */}
-        <header className={`sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-3.5 flex flex-col gap-4 transition-all duration-300 ${
-          activeTab === 'Avaliações' ? 'pb-0' : 'pb-4'
-        }`}>
+        {/* Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo (Compacto para melhor aproveitamento de tela) */}
+        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-2 flex flex-col gap-0 transition-all duration-300">
           {/* Top row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 w-full">
             {/* Lado Esquerdo: Botão Menu Mobile + Logo (sem toggle sidebar desktop) */}
             <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
               <div className="flex items-center gap-3">

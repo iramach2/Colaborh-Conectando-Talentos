@@ -3710,8 +3710,8 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
 
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10">
-        {/* Novo Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo */}
-        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-3.5 flex flex-col gap-0 transition-all duration-300">
+        {/* Novo Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo (Compacto para melhor aproveitamento de tela) */}
+        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-2 flex flex-col gap-0 transition-all duration-300">
           {/* Linha Principal do Cabeçalho */}
           <div className="flex items-center justify-between w-full">
             {/* Lado Esquerdo: Logo (sem botão hambúrguer mobile) */}
