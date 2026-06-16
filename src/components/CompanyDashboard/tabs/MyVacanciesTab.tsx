@@ -16,7 +16,8 @@ import {
   StickyNote,
   Trash2,
   Search,
-  MessageSquare
+  MessageSquare,
+  MoreVertical
 } from 'lucide-react';
 import { 
   parseCandidatePhoneData, 
@@ -84,6 +85,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
   setJobSearch: setSearchTerm
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
+  const [activeDropdownJobId, setActiveDropdownJobId] = React.useState<string | null>(null);
 
   const kanbanContainerRef = React.useRef<HTMLDivElement>(null);
   const [activeColumnIndex, setActiveColumnIndex] = React.useState(0);
@@ -275,37 +277,108 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                 {filteredJobs.map((job, i) => (
                   <div 
                     key={job.id || i} 
-                    className="bg-white/80 backdrop-blur-md border border-white/50 p-5 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[200px]"
+                    className="bg-white/80 backdrop-blur-md border border-white/50 p-5 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative h-[200px]"
                   >
                     <div className="flex flex-col h-full justify-between">
                       {/* Top: Ícone iniciais + Título da Vaga */}
                       <div>
-                        <div className="flex items-center gap-3 mt-0.5 min-w-0">
-                          <div className="w-10 h-10 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs select-none">
-                            {getJobInitials(job.title)}
-                          </div>
-                          
-                          <div className="min-w-0 flex-1 text-left">
-                            <span 
-                              onClick={() => handleViewApplicants(job)}
-                              className="text-[12px] font-medium text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5 cursor-pointer select-none block" 
-                              title={cleanEmojiFromText(job.title)}
-                            >
-                              {cleanEmojiFromText(job.title)}
-                            </span>
-                            <div className="flex gap-1.5 items-center flex-wrap">
-                              <span className="px-2 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
-                                {cleanEmojiFromText(job.modality || 'Remoto')}
-                              </span>
-                              {job.contract_type && (
-                                <span className="px-2 py-0.5 bg-highlight-50 text-highlight-750 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
-                                  {cleanEmojiFromText(job.contract_type)}
-                                </span>
-                              )}
-                              <span className="px-2 py-0.5 bg-[#533af6]/10 text-[#533af6] rounded-full text-[8px] font-black uppercase tracking-widest border border-[#533af6]/20">
-                                {job.candidates_count || 0} {job.candidates_count === 1 ? 'Inscrito' : 'Inscritos'}
-                              </span>
+                        <div className="flex items-start justify-between gap-2 mt-0.5 min-w-0">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-10 h-10 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center font-black text-xs shrink-0 border border-white/50 shadow-xs select-none">
+                              {getJobInitials(job.title)}
                             </div>
+                            
+                            <div className="min-w-0 flex-1 text-left">
+                              <span 
+                                onClick={() => handleViewApplicants(job)}
+                                className="text-[12px] font-medium text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5 cursor-pointer select-none block" 
+                                title={cleanEmojiFromText(job.title)}
+                              >
+                                {cleanEmojiFromText(job.title)}
+                              </span>
+                              <div className="flex gap-1.5 items-center flex-wrap">
+                                <span className="px-2 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
+                                  {cleanEmojiFromText(job.modality || 'Remoto')}
+                                </span>
+                                {job.contract_type && (
+                                  <span className="px-2 py-0.5 bg-highlight-50 text-highlight-750 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30">
+                                    {cleanEmojiFromText(job.contract_type)}
+                                  </span>
+                                )}
+                                <span className="px-2 py-0.5 bg-[#533af6]/10 text-[#533af6] rounded-full text-[8px] font-black uppercase tracking-widest border border-[#533af6]/20">
+                                  {job.candidates_count || 0} {job.candidates_count === 1 ? 'Inscrito' : 'Inscritos'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Três pontinhos dropdown */}
+                          <div className="relative shrink-0 z-30">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveDropdownJobId(activeDropdownJobId === job.id ? null : job.id);
+                              }}
+                              className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-all cursor-pointer border-0 outline-none"
+                              title="Opções de Status"
+                            >
+                              <MoreVertical size={16} />
+                            </button>
+                            
+                            {activeDropdownJobId === job.id && (
+                              <>
+                                {/* Overlay invisível local para fechar ao clicar fora */}
+                                <div 
+                                  className="fixed inset-0 z-40 bg-transparent"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveDropdownJobId(null);
+                                  }}
+                                />
+                                <div 
+                                  className="absolute right-0 mt-1 w-32 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50 text-left"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <div className="px-2.5 py-1 text-[8px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 mb-1 select-none">
+                                    Status
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleUpdateJobStatus(job.id, 'active');
+                                      setActiveDropdownJobId(null);
+                                    }}
+                                    className="w-full px-3 py-1.5 text-left text-[9px] font-bold uppercase tracking-wider text-slate-655 hover:bg-slate-50 hover:text-emerald-600 flex items-center gap-2 border-0 cursor-pointer"
+                                  >
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    Ativa
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleUpdateJobStatus(job.id, 'paused');
+                                      setActiveDropdownJobId(null);
+                                    }}
+                                    className="w-full px-3 py-1.5 text-left text-[9px] font-bold uppercase tracking-wider text-slate-655 hover:bg-slate-50 hover:text-amber-600 flex items-center gap-2 border-0 cursor-pointer"
+                                  >
+                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                    Pausada
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleUpdateJobStatus(job.id, 'closed');
+                                      setActiveDropdownJobId(null);
+                                    }}
+                                    className="w-full px-3 py-1.5 text-left text-[9px] font-bold uppercase tracking-wider text-slate-655 hover:bg-slate-50 hover:text-rose-600 flex items-center gap-2 border-0 cursor-pointer"
+                                  >
+                                    <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                    Encerrada
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
 
@@ -314,29 +387,8 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                         </div>
                       </div>
 
-                      {/* Bottom: Seletor de Status + Botões de Ações */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-end border-t border-slate-100/60 pt-2.5">
-                          {/* Select de Status */}
-                          {(() => {
-                            const status = job.status || 'active';
-                            let colorClasses = 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50';
-                            if (status === 'paused') colorClasses = 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/50';
-                            else if (status === 'closed') colorClasses = 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200/50';
-                            return (
-                              <select
-                                value={status}
-                                onChange={(e) => handleUpdateJobStatus(job.id, e.target.value)}
-                                className={`${colorClasses} px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border outline-none cursor-pointer transition-all`}
-                              >
-                                <option value="active" className="bg-white text-slate-700 font-bold">Ativa</option>
-                                <option value="paused" className="bg-white text-slate-700 font-bold">Pausada</option>
-                                <option value="closed" className="bg-white text-slate-700 font-bold">Encerrada</option>
-                              </select>
-                            );
-                          })()}
-                        </div>
-
+                      {/* Bottom: Botões de Ações */}
+                      <div className="space-y-3 pt-2.5 border-t border-slate-100/60">
                         {/* Botões de Ações */}
                         <div className="flex gap-2">
                           <button 
