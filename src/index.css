@@ -2,14 +2,14 @@
 @import "tailwindcss";
 
 html {
-  zoom: 90%;
+  zoom: 100%;
   font-size: 108%;
-  background-color: #f3f4f6;
+  background-color: #faf8ff;
   overflow-x: hidden;
 }
 
 body {
-  background-color: #f3f4f6;
+  background-color: #faf8ff;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
