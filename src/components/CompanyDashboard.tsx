@@ -3588,7 +3588,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       )}
 
       {/* Sidebar Desktop - MATCH CANDIDATE STYLE */}
-      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-12 lg:top-32 lg:w-16 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
+      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-6 lg:top-32 lg:w-16 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
         <nav className="space-y-6 w-full flex flex-col items-center justify-start">
           <SidebarItem icon={BarChart3} label="Dashboard" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Briefcase} label="Minhas Vagas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
@@ -3639,7 +3639,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10 min-w-0 max-w-full">
         {/* Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo (Compacto para melhor aproveitamento de tela) */}
-        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-2 flex flex-col gap-0 transition-all duration-300">
+        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:pl-28 lg:pr-12 py-2 flex flex-col gap-0 transition-all duration-300">
           {/* Top row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 w-full">
             {/* Lado Esquerdo: Botão Menu Mobile + Logo (sem toggle sidebar desktop) */}
@@ -3897,7 +3897,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
         </header>
 
-        <main className="flex-1 p-6 lg:py-10 lg:pl-40 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-6 lg:py-10 lg:pl-28 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
           <div className="w-full">
           <AnimatePresence mode="wait">
             {activeTab === 'Dashboard' && (

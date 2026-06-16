@@ -3698,7 +3698,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Backdrop overlay for mobile */}
 
 
-      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-12 lg:top-32 lg:w-16 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
+      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-6 lg:top-32 lg:w-16 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
 
         <nav className="space-y-3 lg:space-y-6 w-full flex flex-col items-center justify-start">
           <SidebarItem icon={FileText} label="Meu Currículo" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
@@ -3711,7 +3711,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10">
         {/* Novo Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo (Compacto para melhor aproveitamento de tela) */}
-        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-2 flex flex-col gap-0 transition-all duration-300">
+        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:pl-28 lg:pr-12 py-2 flex flex-col gap-0 transition-all duration-300">
           {/* Linha Principal do Cabeçalho */}
           <div className="flex items-center justify-between w-full">
             {/* Lado Esquerdo: Logo (sem botão hambúrguer mobile) */}
@@ -3831,7 +3831,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         </header>
 
           {/* Main Content */}
-          <main className="flex-1 px-6 pt-6 pb-28 lg:py-10 lg:pl-40 lg:pr-12 relative z-10">
+          <main className="flex-1 px-6 pt-6 pb-28 lg:py-10 lg:pl-28 lg:pr-12 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
             <>
