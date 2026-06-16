@@ -3639,7 +3639,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10 min-w-0 max-w-full">
         {/* Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo */}
         <header className={`sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:px-12 py-3.5 flex flex-col gap-4 transition-all duration-300 ${
-          activeTab === 'Banco de Talentos' || activeTab === 'Avaliações' ? 'pb-0' : 'pb-4'
+          activeTab === 'Avaliações' ? 'pb-0' : 'pb-4'
         }`}>
           {/* Top row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
@@ -3825,116 +3825,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
 
           {/* Bottom row (AI search bar + subtabs glued to the header for Talent Bank) */}
-          {activeTab === 'Banco de Talentos' && (
-            <div className="flex -mx-6 bg-transparent px-6 relative justify-between items-center w-full flex-wrap sm:flex-nowrap gap-4">
-              <div className="flex relative">
-                {(() => {
-                  const selectedCompany = companies.find(c => c.id === selectedCompanyId);
-                  const savedCount = selectedCompany?.savedTalents?.length || 0;
-                  
-                  // Calcular total de talentos sem filtrar por salvos
-                  const allCount = talents.filter(t => {
-                    if (!t) return false;
-                    if (t.role && (t.role.toLowerCase() === 'empresa' || t.role.toLowerCase() === 'company')) {
-                      return false;
-                    }
-                    const talentAge = t.age || calculateAge(t.birth_date) || 0;
-                    const matchesSearch = t.name.toLowerCase().includes(talentSearch.toLowerCase()) || 
-                                         t.role.toLowerCase().includes(talentSearch.toLowerCase()) ||
-                                         (t.skills && Array.isArray(t.skills) && t.skills.some((s: string) => s && s.toLowerCase().includes(talentSearch.toLowerCase())));
-                    
-                    const matchesFilters = (!talentFilters.role || t.role.toLowerCase().includes(talentFilters.role.toLowerCase())) &&
-                                          (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge) &&
-                                          (!talentFilters.city || t.city.toLowerCase().includes(talentFilters.city.toLowerCase())) &&
-                                          (!talentFilters.state || t.state === talentFilters.state) &&
-                                          (!talentFilters.first_job || t.first_job === true) &&
-                                          (!talentFilters.education || t.education === talentFilters.education) &&
-                                          (!talentFilters.experience || t.experience === talentFilters.experience) &&
-                                          (!talentFilters.modality || t.modality === talentFilters.modality) &&
-                                          (!talentFilters.salary || t.salary.includes(talentFilters.salary));
-                    
-                    return matchesSearch && matchesFilters;
-                  }).length;
-
-                  const tabs = [
-                    { id: 'all', label: 'Todos os Talentos', count: allCount, icon: User },
-                    { id: 'saved', label: 'Salvos', count: savedCount, icon: Bookmark }
-                  ];
-                  const tabIndex = tabs.findIndex(t => t.id === talentSubTab);
-
-                  return (
-                    <>
-                      {tabs.map((tab) => (
-                        <button
-                          key={tab.id}
-                          onClick={() => setTalentSubTab(tab.id as any)}
-                          className={`flex items-center justify-center gap-2 w-44 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent ${
-                            talentSubTab === tab.id 
-                              ? 'text-slate-900 font-extrabold' 
-                              : 'text-slate-400 hover:text-slate-600'
-                          }`}
-                        >
-                          <tab.icon size={14} className={talentSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
-                          <span>{tab.label}{tab.id === 'saved' ? ` (${tab.count})` : ''}</span>
-                        </button>
-                      ))}
-                      <motion.div 
-                        animate={{ x: tabIndex * 176 }}
-                        className="absolute bottom-0 left-0 h-[2px] bg-[#533af6]"
-                        style={{ width: 176 }}
-                        transition={{ type: 'spring', stiffness: 120, damping: 22 }}
-                      />
-                    </>
-                  );
-                })()}
-              </div>
-
-              {/* Busca por IA integrada e alinhada à direita */}
-              <div className="w-full md:max-w-md shrink-0 mb-2 sm:mb-1.5 mr-6">
-                <div className="bg-white p-1 rounded-full shadow-md border border-slate-100/60 flex items-stretch gap-1.5 w-full">
-                  <div className="flex-1 relative flex items-center bg-slate-50/50 rounded-full px-3 py-1">
-                    {isAiSearching ? (
-                      <Cpu size={14} className="text-[#533af6] animate-spin mr-2 shrink-0" />
-                    ) : (
-                      <BrainCircuit size={14} className="text-[#533af6] mr-2 shrink-0" />
-                    )}
-                    <input 
-                      type="text"
-                      value={aiPrompt}
-                      onChange={(e) => setAiPrompt(e.target.value)}
-                      placeholder="Busca por IA: Descreva o perfil do candidato..."
-                      className="w-full bg-transparent border-none outline-none text-xs font-bold text-slate-700 placeholder:text-slate-450 py-1.5"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAiSearch();
-                        }
-                      }}
-                    />
-                    {aiPrompt && !isAiSearching && (
-                      <button 
-                        onClick={() => setAiPrompt('')}
-                        className="p-1.5 text-slate-350 hover:text-slate-550 transition-colors"
-                      >
-                        <CloseIcon size={12} />
-                      </button>
-                    )}
-                  </div>
-                  <button 
-                    onClick={handleAiSearch}
-                    disabled={isAiSearching || !aiPrompt.trim()}
-                    className="px-4 bg-[#533af6] hover:bg-[#4326e5] disabled:opacity-50 text-white rounded-full font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1 transition-all shrink-0 py-2.5 md:py-0 shadow-md shadow-[#533af6]/10"
-                  >
-                    {isAiSearching ? 'Analisando...' : (
-                      <>Puxar Talentos <Zap size={10} /></>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'Avaliações' && (
+                    {activeTab === 'Avaliações' && (
             <div className="flex -mx-6 bg-transparent px-6 relative justify-between items-center w-full">
               <div className="flex relative">
                 {(() => {
@@ -4399,26 +4290,147 @@ Equipe de Recrutamento & Seleção - Colaborh
             )}
 
             {activeTab === 'Banco de Talentos' && (
-              <TalentBankTab
-                isAiSearching={isAiSearching}
-                aiPrompt={aiPrompt}
-                setAiPrompt={setAiPrompt}
-                handleAiSearch={handleAiSearch}
-                isFiltersVisible={isFiltersVisible}
-                setIsFiltersVisible={setIsFiltersVisible}
-                talentFilters={talentFilters}
-                setTalentFilters={setTalentFilters}
-                isTalentLoadingCities={isTalentLoadingCities}
-                talentCities={talentCities}
-                talentSearch={talentSearch}
-                setTalentSearch={setTalentSearch}
-                setIsFilterSidebarOpen={setIsFilterSidebarOpen}
-                filteredTalents={filteredTalents}
-                setSelectedResumeApplicant={setSelectedResumeApplicant}
-                selectedCompany={companies.find(c => c.id === selectedCompanyId)}
-                handleToggleSaveTalent={handleToggleSaveTalent}
-                talentSubTab={talentSubTab}
-              />
+              <div className="space-y-6 w-full text-left">
+                {/* Título da Página + Busca por IA */}
+                <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div>
+                    <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                      Banco de Talentos
+                    </h1>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Explore e filtre profissionais qualificados para sua empresa.
+                    </p>
+                  </div>
+                  
+                  {/* Busca por IA integrada alinhada à direita */}
+                  <div className="w-full md:max-w-md shrink-0 mr-6">
+                    <div className="bg-white p-1 rounded-full shadow-md border border-slate-100/60 flex items-stretch gap-1.5 w-full">
+                      <div className="flex-1 relative flex items-center bg-slate-50/50 rounded-full px-3 py-1">
+                        {isAiSearching ? (
+                          <Cpu size={14} className="text-[#533af6] animate-spin mr-2 shrink-0" />
+                        ) : (
+                          <BrainCircuit size={14} className="text-[#533af6] mr-2 shrink-0" />
+                        )}
+                        <input 
+                          type="text"
+                          value={aiPrompt}
+                          onChange={(e) => setAiPrompt(e.target.value)}
+                          placeholder="Busca por IA: Descreva o perfil do candidato..."
+                          className="w-full bg-transparent border-none outline-none text-xs font-bold text-slate-700 placeholder:text-slate-450 py-1.5"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAiSearch();
+                            }
+                          }}
+                        />
+                        {aiPrompt && !isAiSearching && (
+                          <button 
+                            onClick={() => setAiPrompt('')}
+                            className="p-1.5 text-slate-350 hover:text-slate-550 transition-colors"
+                          >
+                            <CloseIcon size={12} />
+                          </button>
+                        )}
+                      </div>
+                      <button 
+                        onClick={handleAiSearch}
+                        disabled={isAiSearching || !aiPrompt.trim()}
+                        className="px-4 bg-[#533af6] hover:bg-[#4326e5] disabled:opacity-50 text-white rounded-full font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1 transition-all shrink-0 py-2.5 md:py-0 shadow-md shadow-[#533af6]/10"
+                      >
+                        {isAiSearching ? 'Analisando...' : (
+                          <>Puxar Talentos <Zap size={10} /></>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sub-abas (Todos os Talentos, Salvos) */}
+                <div className="flex border-b border-slate-200/60 pb-px relative w-full mb-6">
+                  <div className="flex relative">
+                    {(() => {
+                      const selectedCompany = companies.find(c => c.id === selectedCompanyId);
+                      const savedCount = selectedCompany?.savedTalents?.length || 0;
+                      
+                      const allCount = talents.filter(t => {
+                        if (!t) return false;
+                        if (t.role && (t.role.toLowerCase() === 'empresa' || t.role.toLowerCase() === 'company')) {
+                          return false;
+                        }
+                        const talentAge = t.age || calculateAge(t.birth_date) || 0;
+                        const matchesSearch = t.name.toLowerCase().includes(talentSearch.toLowerCase()) || 
+                                             t.role.toLowerCase().includes(talentSearch.toLowerCase()) ||
+                                             (t.skills && Array.isArray(t.skills) && t.skills.some((s: string) => s && s.toLowerCase().includes(talentSearch.toLowerCase())));
+                        
+                        const matchesFilters = (!talentFilters.role || t.role.toLowerCase().includes(talentFilters.role.toLowerCase())) &&
+                                              (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge) &&
+                                              (!talentFilters.city || t.city.toLowerCase().includes(talentFilters.city.toLowerCase())) &&
+                                              (!talentFilters.state || t.state === talentFilters.state) &&
+                                              (!talentFilters.first_job || t.first_job === true) &&
+                                              (!talentFilters.education || t.education === talentFilters.education) &&
+                                              (!talentFilters.experience || t.experience === talentFilters.experience) &&
+                                              (!talentFilters.modality || t.modality === talentFilters.modality) &&
+                                              (!talentFilters.salary || t.salary.includes(talentFilters.salary));
+                        
+                        return matchesSearch && matchesFilters;
+                      }).length;
+
+                      const tabs = [
+                        { id: 'all', label: 'TODOS OS TALENTOS', count: allCount, icon: User },
+                        { id: 'saved', label: 'SALVOS', count: savedCount, icon: Bookmark }
+                      ];
+                      const tabIndex = tabs.findIndex(t => t.id === talentSubTab);
+
+                      return (
+                        <>
+                          {tabs.map((tab) => (
+                            <button
+                              key={tab.id}
+                              onClick={() => setTalentSubTab(tab.id as any)}
+                              className={`flex items-center justify-center gap-2 w-44 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
+                                talentSubTab === tab.id 
+                                  ? 'text-slate-900 font-extrabold border-slate-900' 
+                                  : 'text-slate-400 hover:text-slate-655'
+                              }`}
+                            >
+                              <tab.icon size={14} className={talentSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
+                              <span>{tab.label}{tab.id === 'saved' ? ` (${tab.count})` : ''}</span>
+                            </button>
+                          ))}
+                          <motion.div 
+                            animate={{ x: tabIndex * 176 }}
+                            className="absolute bottom-0 left-0 h-[2px] bg-[#533af6] z-20"
+                            style={{ width: 176 }}
+                            transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+                          />
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                <TalentBankTab
+                  isAiSearching={isAiSearching}
+                  aiPrompt={aiPrompt}
+                  setAiPrompt={setAiPrompt}
+                  handleAiSearch={handleAiSearch}
+                  isFiltersVisible={isFiltersVisible}
+                  setIsFiltersVisible={setIsFiltersVisible}
+                  talentFilters={talentFilters}
+                  setTalentFilters={setTalentFilters}
+                  isTalentLoadingCities={isTalentLoadingCities}
+                  talentCities={talentCities}
+                  talentSearch={talentSearch}
+                  setTalentSearch={setTalentSearch}
+                  setIsFilterSidebarOpen={setIsFilterSidebarOpen}
+                  filteredTalents={filteredTalents}
+                  setSelectedResumeApplicant={setSelectedResumeApplicant}
+                  selectedCompany={companies.find(c => c.id === selectedCompanyId)}
+                  handleToggleSaveTalent={handleToggleSaveTalent}
+                  talentSubTab={talentSubTab}
+                />
+              </div>
             )}
 
             {activeTab === 'Empresas' && (
@@ -7740,7 +7752,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => setIsFilterSidebarOpen(false)}
-                  className="absolute inset-0 bg-slate-950/50 backdrop-blur-[4px]"
+                  className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
                 />
 
                 {/* Painel lateral (Drawer) */}
@@ -7749,33 +7761,29 @@ Equipe de Recrutamento & Seleção - Colaborh
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
                   transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10 animate-none"
+                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10 animate-none"
                 >
                   {/* Cabeçalho do Drawer */}
-                  <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
+                  <div className="flex justify-between items-center mb-6 mt-2 shrink-0 text-left">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 shadow-sm border border-primary-100/20">
+                      <div className="w-10 h-10 bg-primary-50 rounded-full flex items-center justify-center text-primary-600 shadow-sm border border-primary-100/20">
                         <Filter size={18} />
                       </div>
                       <div>
-                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight leading-none">
-                          Filtros de Candidatos
-                        </h4>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                          Refine sua busca por talentos
-                        </p>
+                        <h3 className="text-md font-black text-slate-900 uppercase tracking-tight">Filtros de Candidatos</h3>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Refine sua busca por talentos</p>
                       </div>
                     </div>
-                    <button
+                    <button 
                       onClick={() => setIsFilterSidebarOpen(false)}
-                      className="w-9 h-9 rounded-full bg-white text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 flex items-center justify-center hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer"
+                      className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer outline-none"
                     >
-                      <CloseIcon size={16} />
+                      <CloseIcon size={14} />
                     </button>
                   </div>
 
                   {/* Corpo do Drawer (Rolável) */}
-                  <div className="flex-1 overflow-y-auto p-6 space-y-6 text-left font-sans bg-slate-50/20 no-scrollbar">
+                  <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 text-left font-sans mb-6 pr-1">
                     {/* Campo: Cargo Desejado */}
                     <div className="space-y-2">
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block pl-1">Cargo Desejado</label>
@@ -7925,13 +7933,13 @@ Equipe de Recrutamento & Seleção - Colaborh
                   </div>
 
                   {/* Rodapé do Drawer */}
-                  <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-4 shrink-0">
+                  <div className="border-t border-slate-100 pt-4 flex items-center justify-between gap-4 shrink-0">
                     <button
                       type="button"
                       onClick={() => {
                         setTalentFilters({ role: '', minAge: 16, maxAge: 60, city: '', state: '', first_job: false, education: '', experience: '', modality: '', salary: '' });
                       }}
-                      className="px-5 py-3 text-[9px] font-black text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors flex items-center gap-1 bg-transparent border-0 cursor-pointer outline-none"
+                      className="px-5 py-2 text-[9px] font-black text-slate-400 hover:text-rose-600 uppercase tracking-widest transition-all flex items-center gap-1 bg-transparent border-0 cursor-pointer outline-none active:scale-95"
                     >
                       Limpar <CloseIcon size={14} />
                     </button>
@@ -7944,7 +7952,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                           setActiveTab('Banco de Talentos');
                         }
                       }}
-                      className="flex-1 px-6 py-3 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg shadow-[#533af6]/10 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border-0 outline-none flex items-center justify-center gap-1.5"
+                      className="flex-1 px-6 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full font-black text-[9px] uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95 border-0 outline-none flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <span>Aplicar Filtros</span>
                       <ChevronRight size={12} className="stroke-[3]" />
