@@ -277,7 +277,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                 {filteredJobs.map((job, i) => (
                   <div 
                     key={job.id || i} 
-                    className="bg-white/80 backdrop-blur-md border border-white/50 px-3.5 py-4 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative h-[200px]"
+                    className="bg-white/80 backdrop-blur-md border border-white/50 px-3.5 py-3 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative h-[145px]"
                   >
                     <div className="flex flex-col h-full justify-between">
                       {/* Top: Ícone iniciais + Título da Vaga */}
@@ -373,7 +373,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex gap-1 items-center flex-nowrap overflow-x-auto no-scrollbar mt-3 mb-0.5">
+                        <div className="flex gap-1 items-center flex-nowrap overflow-x-auto no-scrollbar mt-2 mb-0.5">
                           <span className="px-1.5 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30 shrink-0">
                             {cleanEmojiFromText(job.modality || 'Remoto')}
                           </span>
@@ -389,7 +389,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                       </div>
 
                       {/* Bottom: Botões de Ações */}
-                      <div className="space-y-3 pt-2.5 border-t border-slate-100/60">
+                      <div className="space-y-3 pt-2 border-t border-slate-100/60">
                         {/* Botões de Ações */}
                         <div className="flex gap-2 items-center">
                           <button 
