@@ -2442,6 +2442,7 @@ Equipe de Recrutamento & Seleção - Colaborh
   };
 
   const [jobSearch, setJobSearch] = useState('');
+  const [isJobSearchFocused, setIsJobSearchFocused] = useState(false);
   const [companyForm, setCompanyForm] = useState({
     razaoSocial: '',
     nomeFantasia: '',
@@ -3915,9 +3916,6 @@ Equipe de Recrutamento & Seleção - Colaborh
                     <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
                       Dashboard
                     </h1>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      Visão geral dos processos seletivos e indicadores de contratação.
-                    </p>
                   </div>
                 </div>
 
@@ -4205,9 +4203,6 @@ Equipe de Recrutamento & Seleção - Colaborh
                       <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
                         Minhas Vagas
                       </h1>
-                      <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                        Gerencie e acompanhe suas oportunidades de trabalho publicadas.
-                      </p>
                     </div>
                     <button 
                       type="button"
@@ -4219,9 +4214,9 @@ Equipe de Recrutamento & Seleção - Colaborh
                   </div>
                 )}
 
-                {/* Sub-abas (Ativas, Pausadas, Encerradas) */}
+                {/* Sub-abas e Barra de Pesquisa */}
                 {selectedJob === null && (
-                  <div className="flex border-b border-slate-200/60 pb-px relative w-full mb-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200/60 pb-px relative w-full mb-6 gap-4">
                     <div className="flex relative">
                       {(() => {
                         const tabs = [
@@ -4257,6 +4252,38 @@ Equipe de Recrutamento & Seleção - Colaborh
                         );
                       })()}
                     </div>
+
+                    {/* Barra de Pesquisa de Vagas */}
+                    {jobs.length > 0 && (
+                      <div className="flex justify-end mb-2 md:mb-0 mr-6 w-full md:w-auto">
+                        <div className={`relative w-full sm:w-72 rounded-full border transition-all duration-300 ${
+                          isJobSearchFocused || jobSearch 
+                            ? 'bg-white border-slate-200 shadow-sm' 
+                            : 'bg-[#e8eaed] border-transparent hover:bg-[#dfe1e5]'
+                        }`}>
+                          <input
+                            type="text"
+                            placeholder="Pesquisar vagas..."
+                            value={jobSearch}
+                            onChange={(e) => setJobSearch(e.target.value)}
+                            onFocus={() => setIsJobSearchFocused(true)}
+                            onBlur={() => setIsJobSearchFocused(false)}
+                            className={`w-full bg-transparent border-0 outline-none text-xs font-bold text-slate-700 placeholder:text-slate-450 py-2 transition-all duration-300 ${
+                              isJobSearchFocused || jobSearch ? 'pl-8 pr-3' : 'pl-4 pr-8'
+                            }`}
+                          />
+                          <motion.span 
+                            className="absolute top-1/2 -translate-y-1/2 text-slate-400 flex items-center justify-center pointer-events-none"
+                            animate={{
+                              left: isJobSearchFocused || jobSearch ? '12px' : 'calc(100% - 28px)'
+                            }}
+                            transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+                          >
+                            <Search size={14} className="stroke-[2.5]" />
+                          </motion.span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -4285,6 +4312,8 @@ Equipe de Recrutamento & Seleção - Colaborh
                   handleOpenNotes={handleOpenNotes}
                   handleDeleteJob={handleDeleteJob}
                   handleOpenChat={handleOpenChat}
+                  jobSearch={jobSearch}
+                  setJobSearch={setJobSearch}
                 />
               </div>
             )}
@@ -4297,9 +4326,6 @@ Equipe de Recrutamento & Seleção - Colaborh
                     <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
                       Banco de Talentos
                     </h1>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      Explore e filtre profissionais qualificados para sua empresa.
-                    </p>
                   </div>
                   
                   {/* Busca por IA integrada alinhada à direita */}
@@ -4447,9 +4473,6 @@ Equipe de Recrutamento & Seleção - Colaborh
                     <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
                       Empresas Parceiras
                     </h1>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      Visualize, selecione e cadastre contas de recrutamento no sistema.
-                    </p>
                   </div>
 
                   <button
@@ -4472,8 +4495,10 @@ Equipe de Recrutamento & Seleção - Colaborh
                     return (
                       <div 
                         key={comp.id}
-                        className={`bg-white p-6 rounded-[10px] border shadow-sleek transition-all flex flex-col justify-between h-full relative group ${
-                          isActive ? 'border-[#533af6]/40 ring-2 ring-[#533af6]/5' : 'border-slate-100 hover:border-slate-200'
+                        className={`bg-white p-5 rounded-[16px] border flex flex-col justify-between h-full relative group transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${
+                          isActive 
+                            ? 'border-[#533af6] shadow-[0_8px_30px_rgb(83,58,246,0.06)] ring-4 ring-[#533af6]/5' 
+                            : 'border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-slate-100/80'
                         }`}
                       >
                         <div>
@@ -4516,38 +4541,38 @@ Equipe de Recrutamento & Seleção - Colaborh
                           </div>
 
                           {/* Infos secundárias do Card */}
-                          <div className="bg-slate-50/50 p-3 rounded-[10px] border border-slate-100/50 text-left space-y-1.5 mb-4">
-                            <p className="text-[9px] font-bold text-slate-550 flex items-center gap-1.5">
-                              <User size={11} className="text-slate-400 shrink-0" />
-                              <span>Responsável: <strong className="text-slate-700 font-extrabold uppercase">{comp.solicitante}</strong></span>
+                          <div className="bg-slate-50/40 p-3.5 rounded-[12px] border border-slate-100/50 text-left space-y-2 mb-4">
+                            <p className="text-[9.5px] font-bold text-slate-500 flex items-center gap-1.5">
+                              <User size={12} className="text-slate-400 shrink-0" />
+                              <span>Responsável: <strong className="text-slate-700 font-black uppercase tracking-tight">{comp.solicitante}</strong></span>
                             </p>
-                            <p className="text-[9px] font-bold text-slate-550 flex items-center gap-1.5">
-                              <Building size={11} className="text-slate-400 shrink-0" />
-                              <span>Atuação: <strong className="text-slate-700 font-extrabold uppercase">{comp.sector || 'Geral'}</strong></span>
+                            <p className="text-[9.5px] font-bold text-slate-500 flex items-center gap-1.5">
+                              <Building size={12} className="text-slate-400 shrink-0" />
+                              <span>Atuação: <strong className="text-slate-700 font-black uppercase tracking-tight">{comp.sector || 'Geral'}</strong></span>
                             </p>
                           </div>
                         </div>
 
                         {/* Rodapé e Ações do Card */}
-                        <div className="pt-4 border-t border-slate-50 flex gap-2">
+                        <div className="pt-4 border-t border-slate-100/60 flex gap-2 shrink-0">
                           {!isActive ? (
                             <button
                               type="button"
                               onClick={() => setSelectedCompanyId(comp.id)}
-                              className="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-200 cursor-pointer border-0"
+                              className="flex-1 h-8 bg-slate-900 hover:bg-slate-800 text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-200 cursor-pointer border-0 active:scale-95 hover:-translate-y-0.5 flex items-center justify-center"
                             >
                               Selecionar
                             </button>
                           ) : (
-                            <div className="flex-1 py-2.5 bg-[#533af6]/5 border border-[#533af6]/10 text-[#533af6] rounded-full text-[9px] font-black uppercase tracking-widest text-center select-none flex items-center justify-center gap-1">
-                              <Check size={11} className="stroke-[2.5]" /> Ativa
+                            <div className="flex-1 h-8 bg-[#533af6]/5 border border-[#533af6]/15 text-[#533af6] rounded-full text-[10px] font-black uppercase tracking-widest text-center select-none flex items-center justify-center gap-1">
+                              <Check size={12} className="stroke-[2.5]" /> Ativa
                             </div>
                           )}
                           
                           <button
                             type="button"
                             onClick={(e) => handleEditCompany(comp, e)}
-                            className="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-650 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border border-slate-200/50 cursor-pointer"
+                            className="px-4 h-8 bg-slate-50 hover:bg-slate-100 text-slate-650 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200/50 cursor-pointer active:scale-95 hover:-translate-y-0.5 flex items-center justify-center"
                             title="Editar configurações"
                           >
                             Editar
@@ -4557,7 +4582,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                             <button
                               type="button"
                               onClick={(e) => handleDeleteCompany(comp.id, e)}
-                              className="p-2.5 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-full transition-all border border-slate-200/50 cursor-pointer"
+                              className="w-8 h-8 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-full transition-all border border-slate-200/50 cursor-pointer flex items-center justify-center active:scale-95 hover:-translate-y-0.5 shrink-0"
                               title="Excluir empresa"
                             >
                               <Trash2 size={13} />
@@ -7370,7 +7395,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                     }
                     setIsRegisteringCompany(false);
                   }}
-                  className="absolute inset-0 bg-slate-950/50 backdrop-blur-[4px] cursor-pointer"
+                  className="absolute inset-0 bg-slate-900/60 backdrop-blur-md cursor-pointer"
                 />
 
                 {/* Painel lateral (Drawer) */}
@@ -7379,19 +7404,19 @@ Equipe de Recrutamento & Seleção - Colaborh
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
                   transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none h-full shadow-2xl flex flex-col border-l border-slate-100/80 z-10"
+                  className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10 animate-none"
                 >
                   {/* Cabeçalho do Drawer */}
-                  <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
+                  <div className="flex justify-between items-center mb-6 mt-2 shrink-0 text-left">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 shadow-sm border border-primary-100/20">
+                      <div className="w-10 h-10 bg-primary-50 rounded-full flex items-center justify-center text-primary-600 shadow-sm border border-primary-100/20">
                         <Building size={18} />
                       </div>
-                      <div className="text-left">
-                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight leading-none">
+                      <div>
+                        <h3 className="text-md font-black text-slate-900 uppercase tracking-tight">
                           {editingCompanyId ? 'Editar Empresa' : 'Cadastrar Empresa'}
-                        </h4>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
+                        </h3>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                           {editingCompanyId ? 'Atualize as informações corporativas' : 'Insira os dados da nova conta'}
                         </p>
                       </div>
@@ -7405,14 +7430,14 @@ Equipe de Recrutamento & Seleção - Colaborh
                         }
                         setIsRegisteringCompany(false);
                       }}
-                      className="w-9 h-9 rounded-full bg-white text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 flex items-center justify-center hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer"
+                      className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer outline-none"
                     >
-                      <CloseIcon size={16} />
+                      <CloseIcon size={14} />
                     </button>
                   </div>
 
                   {/* Corpo do Drawer (Rolável) */}
-                  <div className="flex-1 overflow-y-auto p-6 space-y-6 text-left font-sans bg-slate-50/20 no-scrollbar">
+                  <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 text-left font-sans mb-6 pr-1">
                     {/* Logo Upload */}
                     <div className="flex items-center gap-4 bg-white p-4 rounded-[10px] border border-slate-100 shadow-sm text-left">
                       <div className="w-16 h-16 rounded-[10px] bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center text-slate-450 relative shrink-0">
@@ -7504,7 +7529,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                             handleDeleteCompany(editingCompanyId, e);
                             setIsRegisteringCompany(false);
                           }}
-                          className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-full font-black text-[9.5px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all border border-red-200/40 cursor-pointer active:scale-95 shrink-0"
+                          className="w-full h-8 bg-red-50 hover:bg-red-100 text-red-600 rounded-full font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all border border-red-200/40 cursor-pointer active:scale-95 shrink-0 hover:-translate-y-0.5"
                         >
                           <Trash2 size={12} /> Excluir Empresa Parceira
                         </button>
@@ -7513,7 +7538,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   </div>
 
                   {/* Rodapé do Drawer */}
-                  <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3 shrink-0">
+                  <div className="border-t border-slate-100 pt-4 flex items-center justify-end gap-3 shrink-0">
                     <button 
                       type="button"
                       onClick={() => {
@@ -7524,14 +7549,14 @@ Equipe de Recrutamento & Seleção - Colaborh
                         }
                         setIsRegisteringCompany(false);
                       }}
-                      className="px-6 py-3 bg-white text-slate-500 font-extrabold text-[10px] uppercase tracking-widest rounded-full hover:bg-slate-100 transition-all border border-slate-200/50 cursor-pointer"
+                      className="px-5 h-8 bg-white text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-full hover:bg-slate-50 transition-all border border-slate-200/50 cursor-pointer active:scale-95"
                     >
                       Cancelar
                     </button>
                     <button 
                       type="button"
                       onClick={handleRegisterCompany}
-                      className="px-8 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-xl shadow-[#533af6]/10 hover:-translate-y-0.5 transition-all border-0 cursor-pointer"
+                      className="px-6 h-8 bg-[#533af6] hover:bg-[#4128df] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all border-0 cursor-pointer active:scale-95 flex items-center justify-center"
                     >
                       {editingCompanyId ? 'Salvar Alterações' : 'Salvar Empresa'}
                     </button>

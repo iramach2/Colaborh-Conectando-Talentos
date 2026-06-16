@@ -51,6 +51,8 @@ interface MyVacanciesTabProps {
   handleOpenNotes: (applicant: any) => void;
   handleDeleteJob: (jobId: string, jobTitle: string) => void;
   handleOpenChat: (applicant: any) => void;
+  jobSearch: string;
+  setJobSearch: (val: string) => void;
 }
 
 export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
@@ -77,9 +79,10 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
   handleRequestCustomTest,
   handleOpenNotes,
   handleDeleteJob,
-  handleOpenChat
+  handleOpenChat,
+  jobSearch: searchTerm,
+  setJobSearch: setSearchTerm
 }) => {
-  const [searchTerm, setSearchTerm] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
 
   const kanbanContainerRef = React.useRef<HTMLDivElement>(null);
@@ -219,37 +222,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
   if (selectedJob === null) {
     return (
       <div className="space-y-4">
-        {/* Barra de Pesquisa de Vagas */}
-        {jobs.length > 0 && (
-          <div className="flex justify-end">
-            <div className={`relative w-full sm:w-72 rounded-full border transition-all duration-300 ${
-              isFocused || searchTerm 
-                ? 'bg-white border-slate-200 shadow-sm' 
-                : 'bg-[#e8eaed] border-transparent hover:bg-[#dfe1e5]'
-            }`}>
-              <input
-                type="text"
-                placeholder="Pesquisar vagas..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                className={`w-full bg-transparent border-0 outline-none text-xs font-bold text-slate-700 placeholder:text-slate-400/80 py-2 transition-all duration-300 ${
-                  isFocused || searchTerm ? 'pl-8 pr-3' : 'pl-4 pr-8'
-                }`}
-              />
-              <motion.span 
-                className="absolute top-1/2 -translate-y-1/2 text-slate-400 flex items-center justify-center pointer-events-none"
-                animate={{
-                  left: isFocused || searchTerm ? '12px' : 'calc(100% - 28px)'
-                }}
-                transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-              >
-                <Search size={14} className="stroke-[2.5]" />
-              </motion.span>
-            </div>
-          </div>
-        )}
+
 
         <motion.div 
           key="minhas-vagas-grid"
