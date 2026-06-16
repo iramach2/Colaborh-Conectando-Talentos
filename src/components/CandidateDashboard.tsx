@@ -3831,7 +3831,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         </header>
 
           {/* Main Content */}
-          <main className="flex-1 px-6 pt-6 pb-28 lg:py-10 lg:pl-28 lg:pr-12 relative z-10">
+          <main className="flex-1 px-6 pt-3 pb-28 lg:pt-5 lg:pb-10 lg:pl-28 lg:pr-12 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
             <>

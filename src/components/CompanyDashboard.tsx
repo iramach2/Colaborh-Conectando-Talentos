@@ -3897,7 +3897,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
         </header>
 
-        <main className="flex-1 p-6 lg:py-10 lg:pl-28 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-6 pt-3 lg:pt-5 lg:pb-10 lg:pl-28 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
           <div className="w-full">
           <AnimatePresence mode="wait">
             {activeTab === 'Dashboard' && (
