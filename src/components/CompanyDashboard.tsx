@@ -3864,9 +3864,9 @@ Equipe de Recrutamento & Seleção - Colaborh
                         <button
                           key={tab.id}
                           onClick={() => setResultsSubTab(tab.id as any)}
-                          className={`flex items-center justify-center gap-2 w-52 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent ${
+                          className={`flex items-center justify-center gap-2 w-52 py-4 border-b-2 font-medium text-[12px] uppercase tracking-wider transition-all border-transparent ${
                             resultsSubTab === tab.id 
-                              ? 'text-slate-900 font-extrabold' 
+                              ? 'text-slate-900 font-medium' 
                               : 'text-slate-400 hover:text-slate-600'
                           }`}
                         >
@@ -4231,9 +4231,9 @@ Equipe de Recrutamento & Seleção - Colaborh
                                 <button
                                   key={tab.id}
                                   onClick={() => setJobSubTab(tab.id as any)}
-                                  className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
+                                  className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-medium text-[12px] uppercase tracking-wider transition-all border-transparent relative z-10 ${
                                     isActive 
-                                      ? 'text-slate-900 font-extrabold' 
+                                      ? 'text-slate-900 font-medium' 
                                       : 'text-slate-400 hover:text-slate-600'
                                   }`}
                                 >
@@ -4418,9 +4418,9 @@ Equipe de Recrutamento & Seleção - Colaborh
                               <button
                                 key={tab.id}
                                 onClick={() => setTalentSubTab(tab.id as any)}
-                                className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
+                                className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-medium text-[12px] uppercase tracking-wider transition-all border-transparent relative z-10 ${
                                   isActive 
-                                    ? 'text-slate-900 font-extrabold' 
+                                    ? 'text-slate-900 font-medium' 
                                     : 'text-slate-400 hover:text-slate-655'
                                 }`}
                               >

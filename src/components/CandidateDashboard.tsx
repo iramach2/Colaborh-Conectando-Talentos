@@ -4216,7 +4216,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 <button
                   type="button"
                   onClick={() => setActiveVacancySubTab('todas')}
-                  className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
+                  className={`pb-3 px-2 font-medium text-[12px] uppercase tracking-wider border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
                     activeVacancySubTab === 'todas'
                       ? 'border-[#533af6] text-[#533af6]'
                       : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -4227,7 +4227,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                 <button
                   type="button"
                   onClick={() => setActiveVacancySubTab('minhas')}
-                  className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
+                  className={`pb-3 px-2 font-medium text-[12px] uppercase tracking-wider border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
                     activeVacancySubTab === 'minhas'
                       ? 'border-[#533af6] text-[#533af6]'
                       : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -6097,10 +6097,10 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <button
                         type="button"
                         onClick={() => setActiveTestSubTab('pending')}
-                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
+                        className={`pb-3 px-2 font-medium text-[12px] uppercase tracking-wider border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
                           activeTestSubTab === 'pending'
                             ? 'border-[#533af6] text-[#533af6]'
-                            : 'border-transparent text-slate-400 hover:text-slate-650'
+                            : 'border-transparent text-slate-400 hover:text-slate-655'
                         }`}
                       >
                         Pendentes ({pendingTests.length})
@@ -6108,7 +6108,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                       <button
                         type="button"
                         onClick={() => setActiveTestSubTab('completed')}
-                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
+                        className={`pb-3 px-2 font-medium text-[12px] uppercase tracking-wider border-b-2 transition-all cursor-pointer bg-transparent border-0 outline-none ${
                           activeTestSubTab === 'completed'
                             ? 'border-[#533af6] text-[#533af6]'
                             : 'border-transparent text-slate-400 hover:text-slate-650'
