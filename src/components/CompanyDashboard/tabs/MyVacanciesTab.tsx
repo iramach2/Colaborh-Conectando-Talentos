@@ -286,13 +286,13 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                           </div>
                           
                           <div className="min-w-0 flex-1 text-left">
-                            <h3 
+                            <span 
                               onClick={() => handleViewApplicants(job)}
-                              className="text-[12px] font-medium text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5 cursor-pointer select-none" 
+                              className="text-[12px] font-medium text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5 cursor-pointer select-none block" 
                               title={cleanEmojiFromText(job.title)}
                             >
                               {cleanEmojiFromText(job.title)}
-                            </h3>
+                            </span>
                             <div className="flex gap-1.5 items-center">
                               <span className="px-2 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30">
                                 {cleanEmojiFromText(job.modality || 'Remoto')}
