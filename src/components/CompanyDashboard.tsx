@@ -4224,30 +4224,34 @@ Equipe de Recrutamento & Seleção - Colaborh
                           { id: 'paused', label: 'PAUSADAS', count: pausedJobsCount, icon: Clock },
                           { id: 'closed', label: 'ENCERRADAS', count: closedJobsCount, icon: XCircle }
                         ];
-                        const tabIndex = tabs.findIndex(t => t.id === jobSubTab);
 
                         return (
                           <>
-                            {tabs.map((tab) => (
-                              <button
-                                key={tab.id}
-                                onClick={() => setJobSubTab(tab.id as any)}
-                                className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
-                                  jobSubTab === tab.id 
-                                    ? 'text-slate-900 font-extrabold border-slate-900' 
-                                    : 'text-slate-400 hover:text-slate-600'
-                                }`}
-                              >
-                                <tab.icon size={14} className={jobSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
-                                <span>{tab.label} ({tab.count})</span>
-                              </button>
-                            ))}
-                            <motion.div 
-                              animate={{ x: tabIndex * 176 }}
-                              className="absolute bottom-0 left-0 h-[2px] bg-[#533af6] z-20"
-                              style={{ width: 176 }}
-                              transition={{ type: 'spring', stiffness: 120, damping: 22 }}
-                            />
+                            {tabs.map((tab) => {
+                              const isActive = jobSubTab === tab.id;
+                              return (
+                                <button
+                                  key={tab.id}
+                                  onClick={() => setJobSubTab(tab.id as any)}
+                                  className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
+                                    isActive 
+                                      ? 'text-slate-900 font-extrabold' 
+                                      : 'text-slate-400 hover:text-slate-600'
+                                  }`}
+                                >
+                                  <tab.icon size={14} className={isActive ? 'text-[#533af6]' : 'text-slate-400'} />
+                                  <span>{tab.label} ({tab.count})</span>
+                                  
+                                  {isActive && (
+                                    <motion.div 
+                                      layoutId="activeJobSubTabBorder"
+                                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#533af6] z-20"
+                                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                    />
+                                  )}
+                                </button>
+                              );
+                            })}
                           </>
                         );
                       })()}
@@ -4410,26 +4414,31 @@ Equipe de Recrutamento & Seleção - Colaborh
 
                       return (
                         <>
-                          {tabs.map((tab) => (
-                            <button
-                              key={tab.id}
-                              onClick={() => setTalentSubTab(tab.id as any)}
-                              className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
-                                talentSubTab === tab.id 
-                                  ? 'text-slate-900 font-extrabold border-slate-900' 
-                                  : 'text-slate-400 hover:text-slate-655'
-                              }`}
-                            >
-                              <tab.icon size={14} className={talentSubTab === tab.id ? 'text-[#533af6]' : 'text-slate-400'} />
-                              <span>{tab.label}{tab.id === 'saved' ? ` (${tab.count})` : ''}</span>
-                            </button>
-                          ))}
-                          <motion.div 
-                            animate={{ x: tabIndex * 176 }}
-                            className="absolute bottom-0 left-0 h-[2px] bg-[#533af6] z-20"
-                            style={{ width: 176 }}
-                            transition={{ type: 'spring', stiffness: 120, damping: 22 }}
-                          />
+                          {tabs.map((tab) => {
+                            const isActive = talentSubTab === tab.id;
+                            return (
+                              <button
+                                key={tab.id}
+                                onClick={() => setTalentSubTab(tab.id as any)}
+                                className={`flex items-center justify-center gap-2 w-44 shrink-0 py-4 border-b-2 font-bold text-xs uppercase tracking-wider transition-all border-transparent relative z-10 ${
+                                  isActive 
+                                    ? 'text-slate-900 font-extrabold' 
+                                    : 'text-slate-400 hover:text-slate-655'
+                                }`}
+                              >
+                                <tab.icon size={14} className={isActive ? 'text-[#533af6]' : 'text-slate-400'} />
+                                <span>{tab.label}{tab.id === 'saved' ? ` (${tab.count})` : ''}</span>
+                                
+                                {isActive && (
+                                  <motion.div 
+                                    layoutId="activeTalentSubTabBorder"
+                                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#533af6] z-20"
+                                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                  />
+                                )}
+                              </button>
+                            );
+                          })}
                         </>
                       );
                     })()}
