@@ -453,34 +453,24 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
     >
       {/* Cabeçalho da triagem - Movido do header para abaixo dele */}
       <div className="w-full pb-4 pt-1 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 text-left">
-        <div className="flex items-start gap-3 w-full md:w-auto">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           {/* Botão voltar redondo antes do título */}
           <button 
             type="button"
             onClick={() => setSelectedJob(null)} 
-            className="w-10 h-10 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full flex items-center justify-center transition-all outline-none cursor-pointer border-0 shrink-0 mt-0.5"
+            className="w-10 h-10 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full flex items-center justify-center transition-all outline-none cursor-pointer border-0 shrink-0"
             title="Voltar para Vagas"
           >
             <ChevronLeft size={18} className="stroke-[3]" />
           </button>
 
-          <div className="space-y-1 min-w-0 flex-1">
-            {/* Informações da vaga em caixa alta */}
-            <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1 select-none">
-              {(() => {
-                const locationText = [selectedJob.city, selectedJob.state].filter(Boolean).join(', ');
-                const modalityText = selectedJob.modality;
-                const contractText = selectedJob.contractType || selectedJob.contract_type;
-                return [locationText, modalityText, contractText].filter(Boolean).join(' • ');
-              })()}
-            </div>
-            
+          <div className="min-w-0 flex-1">
             {/* Título e Badge com linha roxa inferior */}
-            <div className="relative pb-2.5 inline-flex items-end gap-3 min-w-[200px]">
-              <h3 className="text-lg font-black text-slate-900 tracking-tight uppercase leading-none select-none pl-1">
+            <div className="relative pb-2 inline-flex items-center gap-3 min-w-[200px]">
+              <h3 className="text-[12px] font-medium text-slate-900 uppercase leading-none select-none pl-1">
                 {cleanEmojiFromText(selectedJob.title)}
               </h3>
-              <span className="text-[8px] font-black bg-[#533af6]/10 text-[#533af6] px-2.5 py-1 rounded-full uppercase tracking-wider select-none leading-none mb-0.5 font-bold">
+              <span className="text-[8px] font-black bg-[#533af6]/10 text-[#533af6] px-2.5 py-1 rounded-full uppercase tracking-wider select-none leading-none font-bold">
                 {jobApplicants.length} {jobApplicants.length === 1 ? 'candidato' : 'candidatos'}
               </span>
               {/* Linha roxa decorativa embaixo do título */}
