@@ -5111,7 +5111,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                  className="relative w-full max-w-sm bg-white rounded-[5px] shadow-2xl p-6 overflow-hidden flex flex-col z-10 text-left border border-slate-100"
+                  className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 overflow-hidden flex flex-col z-10 text-left border border-slate-100"
                 >
                   <div className="flex items-start gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
@@ -5347,7 +5347,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
                   transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                  className="relative w-full max-w-4xl bg-white rounded-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
+                  className="relative w-full max-w-4xl bg-white rounded-l-[24px] rounded-r-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
                 >
                   {/* Cabeçalho de visualização */}
                   <div className="p-6 flex justify-between items-center border-b border-slate-100 shrink-0 text-left">
@@ -6373,7 +6373,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ opacity: 0, scale: 0.95, y: 30 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                  className="relative w-full max-w-4xl bg-white rounded-[5px] shadow-2xl overflow-hidden flex flex-col h-[85vh] border border-slate-100"
+                  className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[85vh] border border-slate-100"
                 >
                   {/* Modal Header */}
                   <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -6537,7 +6537,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ opacity: 0, scale: 0.95, y: 30 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                  className="relative w-full max-w-4xl bg-white rounded-[5px] shadow-2xl overflow-hidden flex flex-col h-[85vh] border border-slate-100"
+                  className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[85vh] border border-slate-100"
                 >
                   {/* Modal Header */}
                   <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -6904,7 +6904,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ opacity: 0, scale: 0.95, y: 30 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                  className="relative w-full max-w-4xl bg-white rounded-[5px] shadow-2xl overflow-hidden flex flex-col h-[85vh] border border-slate-100"
+                  className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[85vh] border border-slate-100"
                 >
                   {/* Modal Header */}
                   <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -7252,7 +7252,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                   initial={{ opacity: 0, scale: 0.95, y: 30 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                  className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border border-slate-100"
+                  className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border border-slate-100"
                 >
                   {/* Modal Header */}
                   <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -8044,8 +8044,8 @@ Equipe de Recrutamento & Seleção - Colaborh
                   {/* Conteúdo do Drawer */}
                   <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/20 no-scrollbar">
                     {/* Informações Resumidas do Candidato */}
-                    <div className="bg-slate-50 p-4 rounded-[5px] border border-slate-150/60">
-                      <h5 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Resumo da Candidatura</h5>
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-150/60">
+                      <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2.5">Resumo da Candidatura</h5>
                       <div className="space-y-1.5 text-[10px] font-bold text-slate-650 uppercase tracking-wider">
                         <p>Vaga: <span className="text-slate-800 font-extrabold">{selectedJob?.title}</span></p>
                         <p>Etapa Atual: <span className="text-[#8959f5] font-black">{activeApplicantForTests.status || activeApplicantForTests.normalizedStatus}</span></p>
@@ -8068,18 +8068,18 @@ Equipe de Recrutamento & Seleção - Colaborh
                           if (!showDisc) return null;
 
                           return (
-                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-[5px] p-4 transition-all shadow-2xs">
+                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-xl p-4 transition-all shadow-2xs">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
                                   <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">DISC</h6>
-                                  <p className="text-[9px] font-semibold text-slate-400 mt-1">Avaliação de perfil comportamental (Dominância, Influência, Estabilidade, Conformidade)</p>
+                                  <p className="text-[10px] font-semibold text-slate-500 mt-1">Avaliação de perfil comportamental (Dominância, Influência, Estabilidade, Conformidade)</p>
                                 </div>
-                                <span className={`px-2 py-0.5 rounded-[3px] text-[8px] font-black uppercase tracking-wider shrink-0 select-none ${
+                                <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider shrink-0 select-none ${
                                   discStatus === 'COMPLETED'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                                     : discStatus === 'PENDING'
                                     ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                                    : 'bg-slate-50 text-slate-400 border border-slate-150'
+                                    : 'bg-slate-50 text-slate-500 border border-slate-150'
                                 }`}>
                                   {discStatus === 'COMPLETED' ? 'Concluído' : discStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
                                 </span>
@@ -8092,13 +8092,13 @@ Equipe de Recrutamento & Seleção - Colaborh
                                     onClick={() => {
                                       setSelectedDiscResult({ applicantName: fullApp.candidate_name, completedAt: discDate || fullApp.created_at, D, I, S, C });
                                     }}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100/70 text-rose-700 font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border border-rose-150/40"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100/70 text-rose-700 font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border border-rose-150/40"
                                   >
                                     <span>Ver Perfil DISC</span>
                                     <ChevronRight size={10} className="shrink-0" />
                                   </button>
                                 ) : discStatus === 'PENDING' ? (
-                                  <div className="flex items-center gap-1 text-[8.5px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-[5px] border border-amber-100/50">
+                                  <div className="flex items-center gap-1 text-[10px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-100/50">
                                     <Clock size={10} className="animate-spin text-amber-500" /> Aguardando Candidato
                                   </div>
                                 ) : (
@@ -8115,7 +8115,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                         discStatus: 'PENDING'
                                       });
                                     }}
-                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
+                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
                                   >
                                     Solicitar Teste
                                   </button>
@@ -8132,18 +8132,18 @@ Equipe de Recrutamento & Seleção - Colaborh
                           if (!showQuestions) return null;
 
                           return (
-                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-[5px] p-4 transition-all shadow-2xs">
+                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-xl p-4 transition-all shadow-2xs">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
                                   <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">Mapeamento de Perfil</h6>
-                                  <p className="text-[9px] font-semibold text-slate-400 mt-1">Perguntas estruturadas sobre expectativas e experiências</p>
+                                  <p className="text-[10px] font-semibold text-slate-500 mt-1">Perguntas estruturadas sobre expectativas e experiências</p>
                                 </div>
-                                <span className={`px-2 py-0.5 rounded-[3px] text-[8px] font-black uppercase tracking-wider shrink-0 select-none ${
+                                <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider shrink-0 select-none ${
                                   questionsStatus === 'COMPLETED'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                                     : questionsStatus === 'PENDING'
                                     ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                                    : 'bg-slate-50 text-slate-400 border border-slate-150'
+                                    : 'bg-slate-50 text-slate-500 border border-slate-150'
                                 }`}>
                                   {questionsStatus === 'COMPLETED' ? 'Concluído' : questionsStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
                                 </span>
@@ -8158,13 +8158,13 @@ Equipe de Recrutamento & Seleção - Colaborh
                                       setActiveCategoryTab('EXPERIENCE');
                                       setIsQuestionsModalOpen(true);
                                     }}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100/70 text-indigo-700 font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border border-indigo-150/40"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100/70 text-indigo-700 font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border border-indigo-150/40"
                                   >
                                     <span>Ver Respostas</span>
                                     <ChevronRight size={10} className="shrink-0" />
                                   </button>
                                 ) : questionsStatus === 'PENDING' ? (
-                                  <div className="flex items-center gap-1 text-[8.5px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-[5px] border border-amber-100/50">
+                                  <div className="flex items-center gap-1 text-[10px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-100/50">
                                     <Clock size={10} className="animate-spin text-amber-500" /> Aguardando Candidato
                                   </div>
                                 ) : (
@@ -8181,7 +8181,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                         questionsStatus: 'PENDING'
                                       });
                                     }}
-                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
+                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
                                   >
                                     Solicitar Teste
                                   </button>
@@ -8198,18 +8198,18 @@ Equipe de Recrutamento & Seleção - Colaborh
                           if (!showMbti) return null;
 
                           return (
-                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-[5px] p-4 transition-all shadow-2xs">
+                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-xl p-4 transition-all shadow-2xs">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
                                   <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">MBTI</h6>
-                                  <p className="text-[9px] font-semibold text-slate-400 mt-1">Indicador de tipos de personalidade com 16 perfis possíveis</p>
+                                  <p className="text-[10px] font-semibold text-slate-500 mt-1">Indicador de tipos de personalidade com 16 perfis possíveis</p>
                                 </div>
-                                <span className={`px-2 py-0.5 rounded-[3px] text-[8px] font-black uppercase tracking-wider shrink-0 select-none ${
+                                <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider shrink-0 select-none ${
                                   mbtiStatus === 'COMPLETED'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                                     : mbtiStatus === 'PENDING'
                                     ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                                    : 'bg-slate-50 text-slate-400 border border-slate-150'
+                                    : 'bg-slate-50 text-slate-500 border border-slate-150'
                                 }`}>
                                   {mbtiStatus === 'COMPLETED' ? 'Concluído' : mbtiStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
                                 </span>
@@ -8224,13 +8224,13 @@ Equipe de Recrutamento & Seleção - Colaborh
                                       setActiveMbtiTab('PERFIL');
                                       setIsMbtiModalOpen(true);
                                     }}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 hover:bg-violet-100/70 text-violet-700 font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border border-violet-150/40"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 hover:bg-violet-100/70 text-violet-700 font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border border-violet-150/40"
                                   >
                                     <span>Ver Perfil: {mbtiResponses?.type || 'MBTI'}</span>
                                     <ChevronRight size={10} className="shrink-0" />
                                   </button>
                                 ) : mbtiStatus === 'PENDING' ? (
-                                  <div className="flex items-center gap-1 text-[8.5px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-[5px] border border-amber-100/50">
+                                  <div className="flex items-center gap-1 text-[10px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-100/50">
                                     <Clock size={10} className="animate-spin text-amber-500" /> Aguardando Candidato
                                   </div>
                                 ) : (
@@ -8247,7 +8247,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                         mbtiStatus: 'PENDING'
                                       });
                                     }}
-                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
+                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
                                   >
                                     Solicitar Teste
                                   </button>
@@ -8264,18 +8264,18 @@ Equipe de Recrutamento & Seleção - Colaborh
                           if (!showTemperamentos) return null;
 
                           return (
-                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-[5px] p-4 transition-all shadow-2xs">
+                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-xl p-4 transition-all shadow-2xs">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
                                   <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">Temperamentos</h6>
-                                  <p className="text-[9px] font-semibold text-slate-400 mt-1">Identificação de temperamentos (Sanguíneo, Colérico, Melancólico, Fleumático)</p>
+                                  <p className="text-[10px] font-semibold text-slate-500 mt-1">Identificação de temperamentos (Sanguíneo, Colérico, Melancólico, Fleumático)</p>
                                 </div>
-                                <span className={`px-2 py-0.5 rounded-[3px] text-[8px] font-black uppercase tracking-wider shrink-0 select-none ${
+                                <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider shrink-0 select-none ${
                                   temperamentosStatus === 'COMPLETED'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                                     : temperamentosStatus === 'PENDING'
                                     ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                                    : 'bg-slate-50 text-slate-400 border border-slate-150'
+                                    : 'bg-slate-50 text-slate-500 border border-slate-150'
                                 }`}>
                                   {temperamentosStatus === 'COMPLETED' ? 'Concluído' : temperamentosStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
                                 </span>
@@ -8290,13 +8290,13 @@ Equipe de Recrutamento & Seleção - Colaborh
                                       setActiveTemperamentosTab('PERFIL');
                                       setIsTemperamentosModalOpen(true);
                                     }}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 hover:bg-sky-100/70 text-sky-700 font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border border-sky-150/40"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 hover:bg-sky-100/70 text-sky-700 font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border border-sky-150/40"
                                   >
                                     <span>Ver Perfil: {temperamentosResponses?.type || 'TEMP'}</span>
                                     <ChevronRight size={10} className="shrink-0" />
                                   </button>
                                 ) : temperamentosStatus === 'PENDING' ? (
-                                  <div className="flex items-center gap-1 text-[8.5px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-[5px] border border-amber-100/50">
+                                  <div className="flex items-center gap-1 text-[10px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-100/50">
                                     <Clock size={10} className="animate-spin text-amber-500" /> Aguardando Candidato
                                   </div>
                                 ) : (
@@ -8313,7 +8313,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                         temperamentosStatus: 'PENDING'
                                       });
                                     }}
-                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
+                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
                                   >
                                     Solicitar Teste
                                   </button>
@@ -8339,18 +8339,18 @@ Equipe de Recrutamento & Seleção - Colaborh
                           if (!showCustomTest) return null;
 
                           return (
-                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-[5px] p-4 transition-all shadow-2xs">
+                            <div className="bg-white hover:bg-slate-50/50 border border-slate-200/80 rounded-xl p-4 transition-all shadow-2xs">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
                                   <h6 className="font-extrabold text-slate-800 text-xs uppercase tracking-tight">Questionário Customizado</h6>
-                                  <p className="text-[9px] font-semibold text-slate-400 mt-1">Perguntas customizadas criadas para esta vaga</p>
+                                  <p className="text-[10px] font-semibold text-slate-500 mt-1">Perguntas customizadas criadas para esta vaga</p>
                                 </div>
-                                <span className={`px-2 py-0.5 rounded-[3px] text-[8px] font-black uppercase tracking-wider shrink-0 select-none ${
+                                <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider shrink-0 select-none ${
                                   customTestStatus === 'COMPLETED'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                                     : customTestStatus === 'PENDING'
                                     ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                                    : 'bg-slate-50 text-slate-400 border border-slate-150'
+                                    : 'bg-slate-50 text-slate-500 border border-slate-150'
                                 }`}>
                                   {customTestStatus === 'COMPLETED' ? 'Concluído' : customTestStatus === 'PENDING' ? 'Pendente' : 'Não Solicitado'}
                                 </span>
@@ -8364,13 +8364,13 @@ Equipe de Recrutamento & Seleção - Colaborh
                                       setSelectedApplicantForCustomTest({ ...activeApplicantForTests, completedAt: customTestDate || fullApp.created_at });
                                       setIsCustomTestModalOpen(true);
                                     }}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100/70 text-emerald-700 font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border border-emerald-150/40"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100/70 text-emerald-700 font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border border-emerald-150/40"
                                   >
                                     <span>Ver Respostas</span>
                                     <ChevronRight size={10} className="shrink-0" />
                                   </button>
                                 ) : customTestStatus === 'PENDING' ? (
-                                  <div className="flex items-center gap-1 text-[8.5px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-[5px] border border-amber-100/50">
+                                  <div className="flex items-center gap-1 text-[10px] text-amber-600 font-black uppercase tracking-wider bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-100/50">
                                     <Clock size={10} className="animate-spin text-amber-500" /> Aguardando Candidato
                                   </div>
                                 ) : (
@@ -8384,7 +8384,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                                       setApplicantForRequestCustom(fullApp);
                                       setIsSelectCustomTemplateModalOpen(true);
                                     }}
-                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[9px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
+                                    className="px-3.5 py-1.5 bg-[#8959f5] hover:bg-[#7846e3] text-white font-extrabold rounded-full uppercase text-[10px] transition-all cursor-pointer border-0 shadow-sm active:scale-95"
                                   >
                                     Solicitar Questionário
                                   </button>

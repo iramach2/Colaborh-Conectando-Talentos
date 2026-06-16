@@ -139,7 +139,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600 !important;
 }
 
-/* Cards do painel do candidato arredondados para 20px */
+/* Cards do painel do candidato arredondados para 16px (escala média do Design System) */
 section.bg-white,
 aside.bg-white,
 div.bg-white.shadow-sleek:not(.fixed):not(.rounded-r-none),
@@ -147,7 +147,7 @@ div.bg-white.shadow-sm:not(.fixed):not(.rounded-r-none),
 div.bg-white.border.border-slate-100:not(.fixed):not(.rounded-r-none),
 div.bg-white.rounded-\[10px\]:not(.fixed):not(.rounded-r-none),
 div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
-  border-radius: 20px !important;
+  border-radius: 16px !important;
 }
 
 /* Responsividade do Zoom no Preview de Currículo */
