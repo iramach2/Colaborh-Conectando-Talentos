@@ -4196,7 +4196,7 @@ Equipe de Recrutamento & Seleção - Colaborh
               <div className="space-y-6 w-full text-left">
                 {/* Título da Página + Botão Criar Vaga */}
                 {selectedJob === null && (
-                  <div className="mb-6 flex items-center justify-between">
+                  <div className="mb-2 flex items-center justify-between">
                     <div>
                       <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                         Minhas Vagas
@@ -4323,7 +4323,7 @@ Equipe de Recrutamento & Seleção - Colaborh
             {activeTab === 'Banco de Talentos' && (
               <div className="space-y-6 w-full text-left">
                 {/* Título da Página + Busca por IA */}
-                <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="mb-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
                     <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                       Banco de Talentos
