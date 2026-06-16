@@ -256,7 +256,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
 
             if (filteredJobs.length === 0) {
               return (
-                <div className="bg-white/80 backdrop-blur-md border border-white/50 p-20 rounded-[24px] text-center shadow-[0_4px_20px_rgba(83,58,246,0.02)] select-none">
+                <div className="bg-white/80 backdrop-blur-md border border-white/50 p-20 rounded-2xl text-center shadow-[0_4px_20px_rgba(83,58,246,0.02)] select-none">
                   <div className="w-16 h-16 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/50 shadow-xs">
                     <Briefcase size={28} className="stroke-[2]" />
                   </div>
@@ -275,7 +275,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                 {filteredJobs.map((job, i) => (
                   <div 
                     key={job.id || i} 
-                    className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-[24px] shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[240px]"
+                    className="bg-white/80 backdrop-blur-md border border-white/50 p-6 rounded-2xl shadow-[0_4px_20px_rgba(83,58,246,0.02)] hover:border-primary-200 hover:-translate-y-1.5 hover:shadow-[0_20px_25px_-5px_rgba(124,58,237,0.12)] transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-[240px]"
                   >
                     <div className="flex flex-col h-full justify-between">
                       {/* Top: Ícone iniciais + Título da Vaga */}
@@ -374,7 +374,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
             );
           })()
         ) : (
-          <div className="bg-white/80 backdrop-blur-md border border-white/50 p-20 rounded-[24px] text-center shadow-[0_4px_20px_rgba(83,58,246,0.02)] select-none">
+          <div className="bg-white/80 backdrop-blur-md border border-white/50 p-20 rounded-2xl text-center shadow-[0_4px_20px_rgba(83,58,246,0.02)] select-none">
             <div className="w-16 h-16 bg-[#533af6]/10 text-[#533af6] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/50 shadow-xs">
               <Briefcase size={28} className="stroke-[2]" />
             </div>
@@ -502,7 +502,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
 
       {/* Kanban columns */}
       {isFetchingApplicants ? (
-        <div className="text-center py-20 bg-white rounded-[5px] border border-slate-100">
+        <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
           <Activity className="animate-spin mx-auto text-[#533af6] mb-4" />
           <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Carregando candidatos e triagem...</p>
         </div>
@@ -539,11 +539,11 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                         handleUpdateApplicantStatus(appId, colName);
                       }
                     }}
-                    className="bg-white border border-slate-200/50 shadow-sm pb-4 rounded-[10px] flex flex-col min-w-[280px] max-w-[320px] max-h-[75vh] shrink-0 overflow-hidden"
+                    className="bg-white border border-slate-200/50 shadow-sm pb-4 rounded-2xl flex flex-col min-w-[280px] max-w-[320px] max-h-[75vh] shrink-0 overflow-hidden"
                  >
                    {/* Column Header */}
                    <div 
-                     className="flex items-center justify-between mb-3 shrink-0 px-4 py-3 bg-[#e8e6fa] rounded-t-[10px]"
+                     className="flex items-center justify-between mb-3 shrink-0 px-4 py-3 bg-[#e8e6fa] rounded-t-2xl"
                    >
                      <span className="text-[10px] font-black uppercase tracking-widest text-[#7b39eb]">{colName}</span>
                      <span className="text-[9px] bg-[#7b39eb] text-white px-2 py-0.5 rounded-full font-black">
@@ -568,7 +568,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                               e.dataTransfer.setData('text/plain', app.id);
                             }}
                             onClick={() => setSelectedResumeApplicant(info)}
-                            className="bg-white p-4 rounded-[10px] border border-slate-100 hover:border-primary-200/60 shadow-[0_4px_16px_rgba(83,58,246,0.06)] hover:shadow-[0_10px_24px_rgba(83,58,246,0.12)] hover:-translate-y-0.5 transition-all cursor-grab active:cursor-grabbing text-left space-y-3 relative group overflow-hidden"
+                            className="bg-white p-4 rounded-xl border border-slate-100 hover:border-primary-200/60 shadow-[0_4px_16px_rgba(83,58,246,0.06)] hover:shadow-[0_10px_24px_rgba(83,58,246,0.12)] hover:-translate-y-0.5 transition-all cursor-grab active:cursor-grabbing text-left space-y-3 relative group overflow-hidden"
                           >
                             {/* Porcentagem do Match IA no canto superior direito */}
                             <div 

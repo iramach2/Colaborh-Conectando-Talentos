@@ -110,7 +110,7 @@ export const TalentBankTab = ({
                 key={talent.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-[24px] border border-slate-100 hover:border-primary-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.03)] p-6 hover:shadow-[0_16px_36px_rgba(83,58,246,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out relative group text-left flex flex-col justify-between h-full"
+                className="bg-white rounded-2xl border border-slate-100 hover:border-primary-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.03)] p-6 hover:shadow-[0_16px_36px_rgba(83,58,246,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out relative group text-left flex flex-col justify-between h-full"
               >
                 {/* Botão de Salvar (Favoritar) no canto superior direito */}
                 <button
@@ -171,8 +171,8 @@ export const TalentBankTab = ({
 
                   {/* Resumo Profissional estilo chat bubble */}
                   {talent.summary ? (
-                    <div className="bg-[#533af6]/4 p-3.5 rounded-[18px] border border-[#533af6]/10 text-left relative mb-4">
-                      <h5 className="text-[8.5px] font-black text-[#533af6] uppercase tracking-wider mb-1">
+                    <div className="bg-[#533af6]/4 p-3.5 rounded-xl border border-[#533af6]/10 text-left relative mb-4">
+                      <h5 className="text-[10px] font-black text-[#533af6] uppercase tracking-wider mb-1">
                         Resumo Profissional
                       </h5>
                       <p className="text-[10.5px] font-medium text-slate-600 leading-relaxed italic text-justify line-clamp-2">
@@ -263,7 +263,7 @@ export const TalentBankTab = ({
             );
           })
         ) : (
-          <div className="col-span-full py-32 bg-white rounded-[10px] shadow-sleek border border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-10">
+          <div className="col-span-full py-32 bg-white rounded-2xl shadow-sleek border border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-10">
              {talentSubTab === 'saved' ? (
                <>
                  <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 overflow-hidden relative border border-slate-100/50">
