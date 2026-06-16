@@ -291,7 +291,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                             <div className="min-w-0 flex-1 text-left">
                               <span 
                                 onClick={() => handleViewApplicants(job)}
-                                className="text-[12px] font-medium text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase truncate mb-0.5 cursor-pointer select-none block" 
+                                className="text-[12px] font-[650] text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase truncate mb-0.5 cursor-pointer select-none block" 
                                 title={cleanEmojiFromText(job.title)}
                               >
                                 {cleanEmojiFromText(job.title)}
@@ -390,10 +390,10 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                       {/* Bottom: Botões de Ações */}
                       <div className="space-y-3 pt-2.5 border-t border-slate-100/60">
                         {/* Botões de Ações */}
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-center">
                           <button 
                             onClick={() => handleViewApplicants(job)}
-                            className="flex-1 py-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-lg border-0 text-[12px] font-medium uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer"
+                            className="flex-1 py-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full border-0 text-[12px] font-[650] uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer"
                             title="Ver candidatos e triagem"
                           >
                             <Eye size={12} className="stroke-[2.5]" />
@@ -401,7 +401,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                           </button>
                           <button 
                             onClick={() => handleShareJob(job)}
-                            className="p-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-lg border-0 transition-all cursor-pointer"
+                            className="w-7 h-7 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-full border-0 transition-all cursor-pointer flex items-center justify-center shrink-0"
                             title="Compartilhar vaga"
                           >
                             <Share2 size={12} className="stroke-[2.5]" />
@@ -409,7 +409,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                           <button 
                             type="button"
                             onClick={() => handleDeleteJob(job.id, job.title)}
-                            className="p-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-rose-600/20 hover:text-rose-600 rounded-lg border-0 transition-all cursor-pointer"
+                            className="w-7 h-7 bg-[#533af6]/10 text-[#533af6] hover:bg-rose-600/20 hover:text-rose-600 rounded-full border-0 transition-all cursor-pointer flex items-center justify-center shrink-0"
                             title="Excluir vaga"
                           >
                             <Trash2 size={12} className="stroke-[2.5]" />
