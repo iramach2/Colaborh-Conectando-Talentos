@@ -110,7 +110,7 @@ export const TalentBankTab = ({
                 key={talent.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-[10px] border border-slate-100/70 hover:border-primary-100/50 shadow-sleek p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group text-left flex flex-col justify-between h-full"
+                className="bg-white rounded-[24px] border border-slate-100 hover:border-primary-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.03)] p-6 hover:shadow-[0_16px_36px_rgba(83,58,246,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out relative group text-left flex flex-col justify-between h-full"
               >
                 {/* Botão de Salvar (Favoritar) no canto superior direito */}
                 <button
@@ -119,38 +119,38 @@ export const TalentBankTab = ({
                     e.stopPropagation();
                     handleToggleSaveTalent(talent.id);
                   }}
-                  className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-300 active:scale-90 cursor-pointer shadow-sm z-10 ${
+                  className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-300 active:scale-95 hover:scale-105 cursor-pointer shadow-xs z-10 ${
                     isSaved 
-                      ? 'bg-primary-50 border-primary-200 text-[#533af6]' 
-                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-655'
+                      ? 'bg-primary-500 border-primary-500 text-white shadow-md shadow-primary-500/20' 
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600'
                   }`}
                   title={isSaved ? "Remover dos salvos" : "Salvar candidato"}
                 >
-                  <Bookmark size={14} className={isSaved ? "fill-[#533af6]" : ""} />
+                  <Bookmark size={12} className={isSaved ? "fill-white text-white" : ""} />
                 </button>
 
                 <div>
                   {/* Cabeçalho do Candidato */}
-                  <div className="flex items-start gap-3 mb-4 pr-6">
-                    <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative">
+                  <div className="flex items-start gap-3.5 mb-4 pr-6">
+                    <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center overflow-hidden shrink-0 shadow-xs relative">
                       {talent.profile_pic ? (
                         <img src={talent.profile_pic} alt={talent.name} className="w-full h-full object-cover" />
                       ) : (
-                        <User size={24} className="text-slate-400" />
+                        <User size={22} className="text-slate-400" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight truncate leading-tight">{talent.name}</h4>
+                        <h4 className="text-[13px] font-extrabold text-slate-900 uppercase tracking-tight truncate leading-tight group-hover:text-primary-600 transition-colors duration-300">{talent.name}</h4>
                         {talent.first_job && (
-                          <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[7px] font-black uppercase tracking-widest shrink-0 select-none">
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[8px] font-black uppercase tracking-widest shrink-0 select-none">
                             1º Job
                           </span>
                         )}
                       </div>
-                      <p className="text-[9.5px] font-black text-[#533af6] uppercase tracking-wider mt-0.5">{talent.role}</p>
-                      <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-bold text-slate-450 mt-1">
-                        <span className="flex items-center gap-0.5"><MapPin size={10} className="text-slate-400 shrink-0" /> {talent.city}, {talent.state}</span>
+                      <p className="text-[10px] font-black text-[#533af6] uppercase tracking-widest mt-1">{talent.role}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 text-[10.5px] font-bold text-slate-400 mt-1.5">
+                        <span className="flex items-center gap-0.5"><MapPin size={11} className="text-slate-400 shrink-0" /> {talent.city}, {talent.state}</span>
                         <span>•</span>
                         <span>{talent.age || calculateAge(talent.birth_date)} anos</span>
                       </div>
@@ -159,23 +159,23 @@ export const TalentBankTab = ({
 
                   {/* Detalhes Rápidos de Contratação */}
                   <div className="grid grid-cols-2 gap-2 mb-4">
-                    <div className="bg-slate-50/50 p-2.5 rounded-2xl border border-slate-100/50">
-                      <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-0.5 opacity-60">Gênero</p>
-                      <p className="text-[9.5px] font-bold text-slate-750 uppercase tracking-tight truncate">{talent.gender || 'Não Inf.'}</p>
+                    <div className="bg-slate-50/60 p-3 rounded-2xl border border-slate-100/60 flex flex-col justify-between">
+                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 opacity-70">Gênero</p>
+                      <p className="text-[11px] font-extrabold text-slate-700 uppercase tracking-tight truncate">{talent.gender || 'Não Inf.'}</p>
                     </div>
-                    <div className="bg-slate-50/50 p-2.5 rounded-2xl border border-slate-100/50">
-                      <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-0.5 opacity-60">Pretensão</p>
-                      <p className="text-[9.5px] font-bold text-slate-750 uppercase tracking-tight truncate">{talent.salary || 'Não Inf.'}</p>
+                    <div className="bg-slate-50/60 p-3 rounded-2xl border border-slate-100/60 flex flex-col justify-between">
+                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 opacity-70">Pretensão</p>
+                      <p className="text-[11px] font-extrabold text-slate-700 uppercase tracking-tight truncate">{talent.salary || 'Não Inf.'}</p>
                     </div>
                   </div>
 
                   {/* Resumo Profissional estilo chat bubble */}
                   {talent.summary ? (
-                    <div className="bg-slate-50/30 p-3.5 rounded-2xl border border-slate-100/60 text-left relative mb-4">
-                      <h5 className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1">
+                    <div className="bg-[#533af6]/4 p-3.5 rounded-[18px] border border-[#533af6]/10 text-left relative mb-4">
+                      <h5 className="text-[8.5px] font-black text-[#533af6] uppercase tracking-wider mb-1">
                         Resumo Profissional
                       </h5>
-                      <p className="text-[9.5px] font-medium text-slate-550 leading-relaxed italic text-justify line-clamp-2">
+                      <p className="text-[10.5px] font-medium text-slate-600 leading-relaxed italic text-justify line-clamp-2">
                         "{talent.summary}"
                       </p>
                     </div>
@@ -183,17 +183,17 @@ export const TalentBankTab = ({
 
                   {/* Competências */}
                   {Array.isArray(talent.skills) && talent.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-4">
+                    <div className="flex flex-wrap gap-1.5 mb-4">
                       {talent.skills.slice(0, 3).map((skill, sIdx) => (
                         <span 
                           key={sIdx} 
-                          className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider bg-[#533af6]/5 text-[#533af6] border border-[#533af6]/10 select-none"
+                          className="px-2.5 py-1 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-[#533af6]/5 text-[#533af6] border border-[#533af6]/10 select-none hover:bg-[#533af6]/10 transition-colors"
                         >
                           {skill}
                         </span>
                       ))}
                       {talent.skills.length > 3 && (
-                        <span className="px-2 py-0.5 rounded-full text-[8px] font-black text-slate-400 bg-slate-50 border border-slate-100/60 select-none">
+                        <span className="px-2.5 py-1 rounded-full text-[8.5px] font-black text-slate-400 bg-slate-50 border border-slate-100 select-none">
                           +{talent.skills.length - 3}
                         </span>
                       )}
@@ -203,13 +203,13 @@ export const TalentBankTab = ({
 
                 {/* Rodapé do Card com Contatos Individuais e Ações */}
                 <div>
-                  <div className="pt-4 border-t border-slate-50 space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-[9.5px] font-medium text-slate-550 truncate">
-                      <Mail size={12} className="text-slate-400 shrink-0" />
+                  <div className="pt-4 border-t border-slate-100 space-y-2.5 mb-4">
+                    <div className="flex items-center gap-2.5 text-[10.5px] font-semibold text-slate-500 truncate hover:text-[#533af6] transition-colors duration-200">
+                      <Mail size={13} className="text-slate-400 shrink-0" />
                       <span>{talent.email}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[9.5px] font-medium text-slate-550">
-                      <Phone size={12} className="text-slate-400 shrink-0" />
+                    <div className="flex items-center gap-2.5 text-[10.5px] font-semibold text-slate-500 hover:text-[#533af6] transition-colors duration-200">
+                      <Phone size={13} className="text-slate-400 shrink-0" />
                       <span>{talent.phone}</span>
                     </div>
                   </div>
@@ -236,10 +236,10 @@ export const TalentBankTab = ({
                           }
                         });
                       }}
-                      className="flex-1 py-3 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-200 cursor-pointer border-0 outline-none shadow-sm hover:shadow-[#533af6]/10"
+                      className="flex-1 py-1.5 bg-[#533af6] hover:bg-[#4128df] text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 hover:shadow-md hover:shadow-[#533af6]/20 active:scale-95 cursor-pointer border-0 outline-none hover:-translate-y-0.5"
                       title="Visualizar Informações"
                     >
-                      Informações
+                      Ver Perfil
                     </button>
                     {(() => {
                       const cleanPhone = talent.phone ? talent.phone.replace(/\D/g, '') : '';
@@ -249,9 +249,9 @@ export const TalentBankTab = ({
                           href={whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-11 h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center transition-all duration-200 border border-emerald-600 shadow-sm cursor-pointer shrink-0 hover:shadow-emerald-100"
+                          className="w-8 h-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center transition-all duration-300 border border-emerald-600 shadow-sm cursor-pointer shrink-0 hover:-translate-y-0.5"
                         >
-                          <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
                             <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.371a9.994 9.994 0 0 0 4.779 1.205h.004c5.505 0 9.988-4.479 9.99-9.985a9.983 9.983 0 0 0-9.994-9.849zm4.987 14.111c-.273.767-1.345 1.4-1.887 1.49-.49.08-1.129.13-3.268-.744-2.734-1.12-4.5-3.88-4.637-4.06-.137-.18-1.109-1.47-1.109-2.81 0-1.34.702-1.99.953-2.25.25-.26.55-.33.733-.33h.523c.16 0 .373-.06.58.45.22.53.73 1.77.8 1.91.07.14.11.31.02.49-.09.18-.14.28-.27.44-.13.16-.28.36-.39.49-.13.13-.26.27-.11.53.15.26.66 1.09 1.42 1.76.98.87 1.8 1.14 2.06 1.27.26.13.41.11.56-.05.15-.17.65-.76.83-.98.18-.22.37-.18.62-.09s1.6.76 1.87.9.46.26.52.37c.07.11.07.65-.2 1.41z"/>
                           </svg>
                         </a>

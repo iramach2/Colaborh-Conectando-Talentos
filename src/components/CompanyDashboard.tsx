@@ -4441,14 +4441,14 @@ Equipe de Recrutamento & Seleção - Colaborh
                 exit={{ opacity: 0, scale: 0.98 }}
                 className="space-y-6 text-left font-sans w-full"
               >
-                {/* Cabeçalho da Lista de Empresas */}
-                <div className="bg-white p-6 rounded-[10px] border border-slate-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                {/* Título da Página + Botão Cadastrar Empresa */}
+                <div className="mb-6 flex items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-base font-black text-slate-900 tracking-tight leading-snug">
-                      Gestão de Empresas Parceiras
-                    </h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
-                      Visualize, selecione e cadastre contas de recrutamento no sistema
+                    <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                      Empresas Parceiras
+                    </h1>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Visualize, selecione e cadastre contas de recrutamento no sistema.
                     </p>
                   </div>
 
@@ -4459,7 +4459,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                       setCompanyForm({ razaoSocial: '', nomeFantasia: '', solicitante: '', sector: '', logo: '' });
                       setIsRegisteringCompany(true);
                     }}
-                    className="px-5 py-3 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-full font-black text-[9px] uppercase tracking-widest flex items-center gap-1.5 transition-all border-0 cursor-pointer shadow-md shadow-[#533af6]/10 active:scale-95 shrink-0"
+                    className="h-8 px-5 bg-[#533af6] hover:bg-[#4128df] text-white rounded-full font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all border-0 cursor-pointer shadow-md shadow-[#533af6]/10 active:scale-95 shrink-0 hover:-translate-y-0.5"
                   >
                     <Plus size={13} className="stroke-[2.5]" /> Cadastrar Empresa
                   </button>
