@@ -296,18 +296,9 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                               >
                                 {cleanEmojiFromText(job.title)}
                               </span>
-                              <div className="flex gap-1 items-center flex-nowrap overflow-x-auto no-scrollbar">
-                                <span className="px-1.5 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30 shrink-0">
-                                  {cleanEmojiFromText(job.modality || 'Remoto')}
-                                </span>
-                                {job.contract_type && (
-                                  <span className="px-1.5 py-0.5 bg-highlight-50 text-highlight-750 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30 shrink-0">
-                                    {cleanEmojiFromText(job.contract_type)}
-                                  </span>
-                                )}
-                                <span className="px-1.5 py-0.5 bg-[#533af6]/10 text-[#533af6] rounded-full text-[8px] font-black uppercase tracking-widest border border-[#533af6]/20 shrink-0">
-                                  {job.candidates_count || 0} {job.candidates_count === 1 ? 'Insc.' : 'Insc.'}
-                                </span>
+                              
+                              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 select-none leading-none">
+                                Publicada em {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'}
                               </div>
                             </div>
                           </div>
@@ -382,8 +373,18 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest mt-4 mb-0.5 select-none">
-                          <span>Publicada em {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'}</span>
+                        <div className="flex gap-1 items-center flex-nowrap overflow-x-auto no-scrollbar mt-3 mb-0.5">
+                          <span className="px-1.5 py-0.5 bg-primary-50 text-primary-600/90 rounded-full text-[8px] font-black uppercase tracking-widest border border-primary-100/30 shrink-0">
+                            {cleanEmojiFromText(job.modality || 'Remoto')}
+                          </span>
+                          {job.contract_type && (
+                            <span className="px-1.5 py-0.5 bg-highlight-50 text-highlight-750 rounded-full text-[8px] font-black uppercase tracking-widest border border-highlight-100/30 shrink-0">
+                              {cleanEmojiFromText(job.contract_type)}
+                            </span>
+                          )}
+                          <span className="px-1.5 py-0.5 bg-[#533af6]/10 text-[#533af6] rounded-full text-[8px] font-black uppercase tracking-widest border border-[#533af6]/20 shrink-0">
+                            {job.candidates_count || 0} {job.candidates_count === 1 ? 'Insc.' : 'Insc.'}
+                          </span>
                         </div>
                       </div>
 
