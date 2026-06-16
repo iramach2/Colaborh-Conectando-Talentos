@@ -393,7 +393,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                         <div className="flex gap-2">
                           <button 
                             onClick={() => handleViewApplicants(job)}
-                            className="flex-1 py-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-lg border-0 text-[12px] font-extrabold uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer"
+                            className="flex-1 py-1.5 bg-[#533af6]/10 text-[#533af6] hover:bg-[#533af6]/20 rounded-lg border-0 text-[12px] font-medium uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer"
                             title="Ver candidatos e triagem"
                           >
                             <Eye size={12} className="stroke-[2.5]" />
