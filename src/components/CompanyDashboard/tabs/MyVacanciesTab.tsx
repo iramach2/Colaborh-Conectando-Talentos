@@ -382,7 +382,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest mt-3 mb-1.5 select-none">
+                        <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest mt-4 mb-0.5 select-none">
                           <span>Publicada em {job.created_at ? new Date(job.created_at).toLocaleDateString('pt-BR') : 'Recentemente'}</span>
                         </div>
                       </div>
