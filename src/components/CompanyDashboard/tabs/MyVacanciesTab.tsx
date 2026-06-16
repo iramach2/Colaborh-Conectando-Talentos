@@ -291,7 +291,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
                             <div className="min-w-0 flex-1 text-left">
                               <span 
                                 onClick={() => handleViewApplicants(job)}
-                                className="text-[12px] font-medium text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase line-clamp-1 mb-0.5 cursor-pointer select-none block" 
+                                className="text-[12px] font-medium text-slate-800 tracking-tight group-hover:text-[#533af6] transition-colors uppercase truncate mb-0.5 cursor-pointer select-none block" 
                                 title={cleanEmojiFromText(job.title)}
                               >
                                 {cleanEmojiFromText(job.title)}
