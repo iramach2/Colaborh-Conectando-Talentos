@@ -1070,7 +1070,7 @@ const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpa
   const isActive = activeTab === label;
   
   return (
-    <div className="relative group/item w-full lg:h-12 flex justify-center">
+    <div className="relative group/item w-full lg:h-10 flex justify-center">
       <button
         onClick={() => setActiveTab(label)}
         className={`flex items-center transition-all duration-300 ease-in-out
@@ -1081,7 +1081,7 @@ const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpa
             : 'text-white/70 hover:bg-white/10 hover:text-white'
           }
           /* Estilo Desktop (telas lg): botão circular que expande para a direita no hover */
-          lg:absolute lg:left-2 lg:top-0 lg:w-12 lg:h-12 lg:p-0 lg:justify-center lg:rounded-full lg:space-x-0 lg:gap-0 lg:z-10
+          lg:absolute lg:left-2 lg:top-0 lg:w-10 lg:h-10 lg:p-0 lg:justify-center lg:rounded-full lg:space-x-0 lg:gap-0 lg:z-10
           ${isActive 
             ? 'lg:bg-white lg:text-[#533af6] lg:shadow-lg' 
             : 'lg:bg-transparent lg:text-white/70'
@@ -3698,9 +3698,9 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Backdrop overlay for mobile */}
 
 
-      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-6 lg:top-32 lg:w-16 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
+      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-6 lg:top-32 lg:w-14 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
 
-        <nav className="space-y-3 lg:space-y-6 w-full flex flex-col items-center justify-start">
+        <nav className="space-y-3 lg:space-y-4 w-full flex flex-col items-center justify-start">
           <SidebarItem icon={FileText} label="Meu Currículo" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Star} label="Vagas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Brain} label="Testes" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
@@ -3711,7 +3711,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10">
         {/* Novo Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo (Compacto para melhor aproveitamento de tela) */}
-        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:pl-28 lg:pr-12 py-2 flex flex-col gap-0 transition-all duration-300">
+        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:pl-24 lg:pr-12 py-2 flex flex-col gap-0 transition-all duration-300">
           {/* Linha Principal do Cabeçalho */}
           <div className="flex items-center justify-between w-full">
             {/* Lado Esquerdo: Logo (sem botão hambúrguer mobile) */}
@@ -3831,7 +3831,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
         </header>
 
           {/* Main Content */}
-          <main className="flex-1 px-6 pt-3 pb-28 lg:pt-5 lg:pb-10 lg:pl-28 lg:pr-12 relative z-10">
+          <main className="flex-1 px-6 pt-3 pb-28 lg:pt-5 lg:pb-10 lg:pl-24 lg:pr-12 relative z-10">
             <div className="w-full">
           {activeTab === 'Meu Currículo' ? (
             <>

@@ -143,7 +143,7 @@ const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpa
   const isActive = activeTab === label;
   
   return (
-    <div className="relative group/item w-full lg:h-12 flex justify-center">
+    <div className="relative group/item w-full lg:h-10 flex justify-center">
       <button
         onClick={() => setActiveTab(label)}
         className={`flex items-center transition-all duration-300 ease-in-out
@@ -154,7 +154,7 @@ const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpa
             : 'text-white/70 hover:bg-white/10 hover:text-white'
           }
           /* Estilo Desktop (telas lg): botão circular que expande para a direita no hover */
-          lg:absolute lg:left-2 lg:top-0 lg:w-12 lg:h-12 lg:p-0 lg:justify-center lg:rounded-full lg:space-x-0 lg:gap-0 lg:z-10
+          lg:absolute lg:left-2 lg:top-0 lg:w-10 lg:h-10 lg:p-0 lg:justify-center lg:rounded-full lg:space-x-0 lg:gap-0 lg:z-10
           ${isActive 
             ? 'lg:bg-white lg:text-[#533af6] lg:shadow-lg' 
             : 'lg:bg-transparent lg:text-white/70'
@@ -3588,8 +3588,8 @@ Equipe de Recrutamento & Seleção - Colaborh
       )}
 
       {/* Sidebar Desktop - MATCH CANDIDATE STYLE */}
-      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-6 lg:top-32 lg:w-16 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
-        <nav className="space-y-6 w-full flex flex-col items-center justify-start">
+      <aside className="hidden lg:flex lg:flex-col lg:bg-gradient-to-b lg:from-[#940dff] lg:to-[#533af6] lg:fixed lg:z-[100] lg:left-6 lg:top-32 lg:w-14 lg:h-fit lg:rounded-full lg:border-0 lg:shadow-[0_10px_30px_rgba(83,58,246,0.3)] lg:p-0 lg:py-2 lg:px-0">
+        <nav className="space-y-4 w-full flex flex-col items-center justify-start">
           <SidebarItem icon={BarChart3} label="Dashboard" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Briefcase} label="Minhas Vagas" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
           <SidebarItem icon={Search} label="Banco de Talentos" activeTab={activeTab} setActiveTab={handleSelectTab} isSidebarExpanded={false} />
@@ -3639,7 +3639,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       {/* Main Container */}
       <div className="flex-1 min-h-screen flex flex-col bg-transparent transition-all duration-300 relative z-10 min-w-0 max-w-full">
         {/* Cabeçalho Premium - Quadrado e Colado nas Laterais e Topo (Compacto para melhor aproveitamento de tela) */}
-        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:pl-28 lg:pr-12 py-2 flex flex-col gap-0 transition-all duration-300">
+        <header className="sticky top-0 z-40 w-full rounded-none bg-white/95 backdrop-blur-md border-b border-slate-200/50 shadow-sm px-4 lg:pl-24 lg:pr-12 py-2 flex flex-col gap-0 transition-all duration-300">
           {/* Top row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 w-full">
             {/* Lado Esquerdo: Botão Menu Mobile + Logo (sem toggle sidebar desktop) */}
@@ -3897,7 +3897,7 @@ Equipe de Recrutamento & Seleção - Colaborh
 
         </header>
 
-        <main className="flex-1 p-6 pt-3 lg:pt-5 lg:pb-10 lg:pl-28 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-6 pt-3 lg:pt-5 lg:pb-10 lg:pl-24 lg:pr-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
           <div className="w-full">
           <AnimatePresence mode="wait">
             {activeTab === 'Dashboard' && (
