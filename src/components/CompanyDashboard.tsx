@@ -3309,7 +3309,7 @@ Equipe de Recrutamento & Seleção - Colaborh
       <div className="space-y-6 text-left">
         <div className="flex justify-between items-center pb-4 border-b border-slate-200/50">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Entrevistas por Vídeo</h1>
+            <h1 className="text-lg font-black text-slate-900 tracking-tight uppercase">Entrevistas por Vídeo</h1>
             <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">Gerencie agendamentos e faça chamadas de vídeo integradas com os candidatos</p>
           </div>
         </div>
@@ -3911,7 +3911,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                 {/* Título da Página */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="text-left">
-                    <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                    <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                       Dashboard
                     </h1>
                   </div>
@@ -4198,7 +4198,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                 {selectedJob === null && (
                   <div className="mb-6 flex items-center justify-between">
                     <div>
-                      <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                      <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                         Minhas Vagas
                       </h1>
                     </div>
@@ -4325,7 +4325,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                 {/* Título da Página + Busca por IA */}
                 <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
-                    <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                    <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                       Banco de Talentos
                     </h1>
                   </div>
@@ -4477,7 +4477,7 @@ Equipe de Recrutamento & Seleção - Colaborh
                 {/* Título da Página + Botão Cadastrar Empresa */}
                 <div className="mb-6 flex items-center justify-between gap-4">
                   <div>
-                    <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                    <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                       Empresas Parceiras
                     </h1>
                   </div>

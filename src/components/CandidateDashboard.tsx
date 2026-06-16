@@ -3555,7 +3555,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+            <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
               Minhas Entrevistas
             </h1>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
@@ -3838,7 +3838,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* Título da Página + Botão de Ações */}
               <div className="mb-8 flex items-center justify-between">
                 <div className="text-left">
-                  <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                  <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                     Meu Currículo
                   </h1>
                 </div>
@@ -3995,7 +3995,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 text-left">
                 <div>
-                  <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                  <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                     Configurações
                   </h1>
                 </div>
@@ -4168,7 +4168,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
               {/* Topo da página: Título, Busca e Filtro */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 text-left">
                 <div>
-                  <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                  <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                     Vagas Disponíveis
                   </h1>
                 </div>
@@ -6087,7 +6087,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
                   <div className="space-y-6">
                     {/* Título da Página */}
                     <div className="mb-4 text-left">
-                      <h1 className="text-2xl font-black text-slate-800 uppercase tracking-wider">
+                      <h1 className="text-lg font-black text-slate-800 uppercase tracking-wider">
                         Testes Avaliativos
                       </h1>
                     </div>
