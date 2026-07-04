@@ -1,13 +1,14 @@
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Clock, Loader2, X as CloseIcon, CheckCircle2 } from 'lucide-react';
+import type { CompanyApplicant, CompanyJob, CustomQuestionItem } from '../../../types/companyDashboard';
 import { parseCandidatePhoneData, formatDate, getCustomQuestionsFromJobDescription } from '../../../utils/companyDashboardUtils';
 
 interface CustomQuestionsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  applicant: any;
-  selectedJob: any;
+  applicant: CompanyApplicant | null;
+  selectedJob: CompanyJob | null;
   onExportPDF: (elementRef: React.RefObject<HTMLDivElement>, fileName: string) => Promise<void>;
   isExportingPDF: boolean;
 }
@@ -25,8 +26,8 @@ export const CustomQuestionsModal = ({
   if (!isOpen || !applicant) return null;
 
   const parsedData = parseCandidatePhoneData(applicant.candidate_phone || '');
-  let customQuestionsList: any[] = [];
-  let responses: Record<string, string> = {};
+  let customQuestionsList: CustomQuestionItem[] = [];
+  let responses: Record<string, string | number> = {};
 
   if (parsedData.customTest) {
     if (parsedData.customTest.includes(':::')) {
@@ -82,24 +83,24 @@ export const CustomQuestionsModal = ({
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 30 }}
-        className="relative w-full max-w-3xl bg-white rounded-[5px] shadow-2xl overflow-hidden flex flex-col h-[80vh] border border-slate-100"
+        className="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col h-[80vh] border border-slate-100"
       >
         {/* Modal Header */}
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-[#fbf9ff]">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm shrink-0 border border-emerald-100" style={{ borderColor: 'rgba(16, 185, 129, 0.2)' }}>
-              <FileText size={22} className="text-emerald-600" />
+            <div className="w-12 h-12 bg-[#63e1a5]/14 rounded-2xl flex items-center justify-center text-[#40b87f] shadow-sm shrink-0 border border-[#63e1a5]/20" style={{ borderColor: 'rgba(99, 225, 165, 0.22)' }}>
+              <FileText size={22} className="text-[#40b87f]" />
             </div>
             <div>
-              <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight leading-tight">
+              <h4 className="text-sm font-semibold tracking-tight text-[#343241] leading-tight">
                 {getTitle()}
               </h4>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pb-0.5">
+                <p className="text-[12px] font-medium text-slate-400 pb-0.5">
                   Candidato: {applicant.candidate_name || applicant.name}
                 </p>
                 <span className="text-[10px] text-slate-300 font-bold">•</span>
-                <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest flex items-center gap-1">
+                <p className="text-[12px] font-medium text-[#533af6] flex items-center gap-1">
                   <Clock size={10} /> Realizado em: {formatDate(applicant.completedAt || applicant.created_at)}
                 </p>
               </div>
@@ -109,14 +110,14 @@ export const CustomQuestionsModal = ({
             <button 
               onClick={handleDownload}
               disabled={isExportingPDF}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#533af6] hover:bg-[#432ec4] text-white rounded-full font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer border-0 outline-none whitespace-nowrap"
+              className="flex h-8 items-center justify-center gap-2 rounded-xl border border-[#940dff] bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-sm transition-all hover:bg-[#8200e6] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer whitespace-nowrap"
             >
               {isExportingPDF ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
               {isExportingPDF ? 'Gerando...' : 'Baixar PDF'}
             </button>
             <button 
               onClick={onClose} 
-              className="p-2.5 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full transition-all cursor-pointer border border-slate-100 hover:scale-105 active:scale-95 shadow-sm outline-none flex items-center justify-center w-9 h-9"
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/80 bg-white text-slate-400 shadow-sm transition-all hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95 cursor-pointer"
             >
               <CloseIcon size={16} />
             </button>
@@ -124,34 +125,35 @@ export const CustomQuestionsModal = ({
         </div>
 
         {/* Modal Body (Scrollable) */}
-        <div className="flex-1 overflow-y-auto no-scrollbar p-6 sm:p-8 space-y-6 text-left font-sans bg-slate-50/30">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 text-left font-sans bg-[#fbf9ff]">
           {customQuestionsList.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-3">
+              <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 mb-3">
                 <FileText size={20} />
               </div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Perguntas não encontradas</p>
+              <p className="text-sm font-semibold text-[#343241]">Perguntas não encontradas</p>
               <p className="text-[10px] text-slate-400 mt-1 max-w-[280px]">Nenhuma pergunta customizada está associada a esta vaga no momento.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
+              <h3 className="text-xs font-semibold text-slate-400 mb-4">
                 Respostas do Candidato ({customQuestionsList.length} Perguntas)
               </h3>
               
               <div className="space-y-5">
-                {customQuestionsList.map((q: any, index: number) => {
-                  const candidateAnswer = responses[q.id] || 'Sem resposta.';
+                {customQuestionsList.map((q, index) => {
+                  const questionId = q.id || String(index);
+                  const candidateAnswer = responses[questionId] || 'Sem resposta.';
 
                   return (
                     <div 
-                      key={q.id} 
-                      className="bg-white p-5 rounded-[5px] border border-slate-100 shadow-xs space-y-3 hover:border-slate-200 transition-all text-left"
+                      key={questionId} 
+                      className="bg-white p-5 rounded-xl border border-slate-100 shadow-xs space-y-3 hover:border-slate-200 transition-all text-left"
                     >
                       <div className="flex items-start gap-3">
                         <span 
-                          className="flex items-center justify-center w-6 h-6 rounded-[5px] text-[10px] font-black shrink-0 text-white" 
-                          style={{ backgroundColor: '#10b981' }}
+                          className="flex items-center justify-center w-6 h-6 rounded-xl text-[11px] font-semibold shrink-0 text-white" 
+                          style={{ backgroundColor: '#63e1a5' }}
                         >
                           {index + 1}
                         </span>
@@ -159,10 +161,10 @@ export const CustomQuestionsModal = ({
                           <h4 className="text-xs font-bold text-slate-800 leading-normal pt-0.5">
                             {q.question}
                           </h4>
-                          <span className={`inline-block px-1.5 py-0.5 rounded-[5px] text-[7px] font-black uppercase tracking-wider mt-1 ${
+                          <span className={`inline-block px-1.5 py-0.5 rounded-xl text-[7px] font-semibold mt-1 ${
                             q.type === 'choice' 
                               ? 'bg-primary-50 text-primary-600' 
-                              : 'bg-amber-50 text-amber-600'
+                              : 'bg-[#ffc24b]/16 text-[#ffa303]'
                           }`}>
                             {q.type === 'choice' ? 'Múltipla Escolha' : 'Texto Aberto'}
                           </span>
@@ -177,29 +179,29 @@ export const CustomQuestionsModal = ({
                               return (
                                 <div 
                                   key={oIdx} 
-                                  className={`p-2.5 rounded-[5px] border text-xs font-semibold flex items-center justify-between ${
+                                  className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-between ${
                                     isSelected 
-                                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800 font-extrabold' 
-                                      : 'bg-slate-50/50 border-slate-100 text-slate-500'
+                                      ? 'bg-[#63e1a5]/14 border-[#63e1a5]/25 text-[#2f9f6b] font-extrabold' 
+                                      : 'bg-[#fbf9ff] border-slate-100 text-slate-500'
                                   }`}
                                 >
                                   <span className="flex items-center gap-2">
-                                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                                    <span className={`w-5 h-5 rounded-xl flex items-center justify-center text-[9px] font-bold ${
                                       isSelected 
-                                        ? 'bg-emerald-500 text-white' 
+                                        ? 'bg-[#63e1a5] text-white' 
                                         : 'bg-white border border-slate-200 text-slate-400'
                                     }`}>
                                       {String.fromCharCode(65 + oIdx)}
                                     </span>
                                     {opt}
                                   </span>
-                                  {isSelected && <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />}
+                                  {isSelected && <CheckCircle2 size={14} className="text-[#63e1a5] shrink-0" />}
                                 </div>
                               );
                             })}
                           </div>
                         ) : (
-                          <div className="bg-slate-50/50 p-4 rounded-[5px] border border-slate-100">
+                          <div className="bg-[#fbf9ff] p-4 rounded-xl border border-slate-100">
                             <p className="text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
                               {candidateAnswer}
                             </p>
@@ -215,8 +217,8 @@ export const CustomQuestionsModal = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-center items-center shrink-0">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider text-center">
+        <div className="p-4 border-t border-slate-100 bg-[#fbf9ff] flex justify-center items-center shrink-0">
+          <p className="text-[11px] font-medium text-slate-400 text-center">
             Questionário Customizado da Vaga
           </p>
         </div>

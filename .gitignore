@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+scratch/
+scratch_*
+test_output.txt
+test_supabase*.js
+test_supabase*.cjs
+test_supabase_output.txt

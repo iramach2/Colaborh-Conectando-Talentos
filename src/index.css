@@ -134,14 +134,14 @@ body {
   }
 }
 
-/* Títulos com peso de negrito (600) */
+/* TÃƒÂ­tulos com peso de negrito (600) */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600 !important;
 }
 
-/* Cards do painel do candidato arredondados para 16px (escala média do Design System) */
+/* Cards do painel do candidato arredondados para 16px (escala mÃƒÂ©dia do Design System) */
 section.bg-white,
-aside.bg-white,
+aside.bg-white:not(.company-mobile-sidebar),
 div.bg-white.shadow-sleek:not(.fixed):not(.rounded-r-none),
 div.bg-white.shadow-sm:not(.fixed):not(.rounded-r-none),
 div.bg-white.border.border-slate-100:not(.fixed):not(.rounded-r-none),
@@ -150,7 +150,7 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   border-radius: 16px !important;
 }
 
-/* Responsividade do Zoom no Preview de Currículo */
+/* Responsividade do Zoom no Preview de CurrÃƒÂ­culo */
 .resume-preview-container {
   --zoom-preview: 0.52;
 }
@@ -179,7 +179,7 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   zoom: var(--zoom-preview);
 }
 
-/* Efeito Aba Fusão (Orelha Integrada com Curvas Invertidas) */
+/* Efeito Aba FusÃƒÂ£o (Orelha Integrada com Curvas Invertidas) */
 .active-tab-ear {
   position: relative;
   margin-bottom: -1px !important;
@@ -215,4 +215,121 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   border-left: 1px solid rgba(255, 255, 255, 0.4);
   pointer-events: none;
   z-index: 10;
+}
+
+.company-dashboard-surface {
+  font-family: "Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif;
+  color: #343241;
+}
+
+.company-dashboard-surface h1,
+.company-dashboard-surface h2,
+.company-dashboard-surface h3,
+.company-dashboard-surface h4,
+.company-dashboard-surface h5,
+.company-dashboard-surface h6 {
+  font-family: "Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600 !important;
+  letter-spacing: -0.015em;
+}
+
+.company-dashboard-surface button,
+.company-dashboard-surface input,
+.company-dashboard-surface select,
+.company-dashboard-surface textarea {
+  font-family: "Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+.company-dashboard-surface .vacancy-field-label {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.company-dashboard-surface .vacancy-input,
+.company-dashboard-surface .vacancy-select,
+.company-dashboard-surface .vacancy-textarea {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 14px;
+  color: #343241;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 8px 22px rgba(106, 66, 220, 0.035);
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.company-dashboard-surface .vacancy-input:focus,
+.company-dashboard-surface .vacancy-select:focus,
+.company-dashboard-surface .vacancy-textarea:focus {
+  background: #ffffff;
+  border-color: rgba(148, 13, 255, 0.35);
+  box-shadow: 0 0 0 4px rgba(148, 13, 255, 0.07);
+  outline: none;
+}
+
+.company-dashboard-surface .vacancy-panel {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(106, 66, 220, 0.04);
+}
+
+.company-dashboard-surface input:not([type="checkbox"]):not([type="range"]),
+.company-dashboard-surface select,
+.company-dashboard-surface textarea {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px !important;
+  color: #343241 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 8px 22px rgba(106, 66, 220, 0.035) !important;
+}
+
+.company-dashboard-surface input:not([type="checkbox"]):not([type="range"]):focus,
+.company-dashboard-surface select:focus,
+.company-dashboard-surface textarea:focus {
+  background: #ffffff !important;
+  border-color: rgba(148, 13, 255, 0.35) !important;
+  box-shadow: 0 0 0 4px rgba(148, 13, 255, 0.07) !important;
+  outline: none !important;
+}
+
+.company-dashboard-surface label {
+  color: #64748b !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.company-dashboard-surface .bulk-select-checkbox {
+  width: 14px;
+  height: 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1.5px solid #94a3b8;
+  border-radius: 3px;
+  background-color: #ffffff;
+  cursor: pointer;
+  display: inline-grid;
+  place-content: center;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.company-dashboard-surface .bulk-select-checkbox:checked {
+  border-color: #63e1a5;
+  background-color: #63e1a5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.4 6.15L4.75 8.5L9.6 3.5' stroke='white' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 12px 12px;
+}
+
+.company-dashboard-surface .bulk-select-checkbox:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 225, 165, 0.28);
 }

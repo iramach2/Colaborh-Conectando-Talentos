@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { NOTIFICATION_COLUMNS } from '../services/queryColumns';
 
 export interface ColaborhNotification {
   id: string;
@@ -52,12 +53,7 @@ export const createNotification = async (
     job_id: jobId
   };
 
-  // 1. Always save in local storage first for synchronization and fast fallback
-  const localList = getLocalNotifications();
-  localList.unshift(newNotif);
-  saveLocalNotifications(localList);
-
-  // 2. Try Supabase insert
+  // Try Supabase first. localStorage is only a fallback when persistence fails.
   if (import.meta.env.VITE_SUPABASE_URL) {
     try {
       const { error } = await supabase
@@ -85,6 +81,10 @@ export const createNotification = async (
     }
   }
 
+  const localList = getLocalNotifications();
+  localList.unshift(newNotif);
+  saveLocalNotifications(localList);
+
   return newNotif;
 };
 
@@ -99,7 +99,7 @@ export const getNotifications = async (
     try {
       const { data, error } = await supabase
         .from('notifications')
-        .select('*')
+        .select(NOTIFICATION_COLUMNS)
         .eq('user_id', cleanUserId)
         .eq('user_type', userType)
         .order('created_at', { ascending: false });
@@ -118,6 +118,59 @@ export const getNotifications = async (
   return localList.filter(
     (n) => n.user_id === cleanUserId && n.user_type === userType
   );
+};
+
+const mergeNotifications = (lists: ColaborhNotification[][]) =>
+  Array.from(
+    new Map(lists.flat().map((notification) => [notification.id, notification])).values()
+  ).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+export const getCompanyNotifications = async (
+  userIds: string[],
+  jobIds: string[]
+): Promise<ColaborhNotification[]> => {
+  const cleanUserIds = Array.from(
+    new Set(userIds.map((id) => (id || '').trim().toLowerCase()).filter(Boolean))
+  );
+  const cleanJobIds = Array.from(
+    new Set(jobIds.map((id) => (id || '').trim()).filter(Boolean))
+  );
+
+  const lists: ColaborhNotification[][] = [];
+
+  if (cleanUserIds.length > 0) {
+    lists.push(...await Promise.all(cleanUserIds.map((userId) => getNotifications(userId, 'company'))));
+  }
+
+  if (import.meta.env.VITE_SUPABASE_URL && cleanJobIds.length > 0) {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select(NOTIFICATION_COLUMNS)
+        .eq('user_type', 'company')
+        .in('job_id', cleanJobIds)
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        lists.push(data);
+      } else {
+        console.warn('Supabase company notifications by job select error:', error);
+      }
+    } catch (e) {
+      console.warn('Supabase company notifications by job connection error:', e);
+    }
+  }
+
+  const localList = getLocalNotifications();
+  lists.push(localList.filter((n) =>
+    n.user_type === 'company' &&
+    (
+      cleanUserIds.includes((n.user_id || '').trim().toLowerCase()) ||
+      Boolean(n.job_id && cleanJobIds.includes(n.job_id))
+    )
+  ));
+
+  return mergeNotifications(lists);
 };
 
 export const markAllNotificationsAsRead = async (
@@ -172,6 +225,32 @@ export const markNotificationAsRead = async (id: string): Promise<void> => {
       }
     } catch (e) {
       console.warn('Supabase notification individual mark read connection error:', e);
+    }
+  }
+};
+
+export const markNotificationsAsReadByIds = async (ids: string[]): Promise<void> => {
+  const uniqueIds = Array.from(new Set(ids.filter(Boolean)));
+  if (uniqueIds.length === 0) return;
+
+  const localList = getLocalNotifications();
+  const updatedLocal = localList.map((n) =>
+    uniqueIds.includes(n.id) ? { ...n, read: true } : n
+  );
+  saveLocalNotifications(updatedLocal);
+
+  if (import.meta.env.VITE_SUPABASE_URL) {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .in('id', uniqueIds);
+
+      if (error) {
+        console.warn('Supabase notifications mark by ids error:', error);
+      }
+    } catch (e) {
+      console.warn('Supabase notifications mark by ids connection error:', e);
     }
   }
 };

@@ -3,10 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect, type ReactNode } from 'react';
 import { 
   Search, 
-  MapPin, 
   Briefcase, 
   Users, 
   Building2, 
@@ -17,9 +16,6 @@ import {
   CheckCircle2,
   TrendingUp,
   Globe,
-  DollarSign,
-  Clock,
-  ArrowLeft,
   Building,
   Award,
   Cpu,
@@ -33,34 +29,24 @@ import {
   Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import Login from './components/Login';
-import CandidateDashboard from './components/CandidateDashboard';
-import CompanyDashboard from './components/CompanyDashboard';
+import Loader from './components/Loader';
+import { SharedJobPage } from './components/SharedJobPage';
 import { supabase } from './lib/supabase';
+import { hydrateJobsWithWorkflow } from './services/jobWorkflowService';
+import { fetchJobById } from './services/jobService';
+import type { CompanyJob } from './types/companyDashboard';
+import { simulatorQuestions, useLandingDemoSimulator, type DemoTab } from './hooks/useLandingDemoSimulator';
 
-const simulatorQuestions = [
-  {
-    question: "Como você prefere estruturar e planejar suas tarefas diárias?",
-    options: [
-      { text: "Prefiro seguir uma lista detalhada, processos claros e regras definidas.", type: "C" },
-      { text: "Prefiro ter flexibilidade, improvisar e focar em novas ideias criativas.", type: "I" }
-    ]
-  },
-  {
-    question: "Em reuniões de equipe ou tomada de decisões, qual é sua atitude?",
-    options: [
-      { text: "Sou direto ao ponto, foco nos resultados e defendo o meu ponto de vista.", type: "D" },
-      { text: "Busco a harmonia da equipe, ouço a opinião de todos e evito conflitos.", type: "S" }
-    ]
-  },
-  {
-    question: "Como você reage quando ocorrem mudanças imprevistas em um projeto?",
-    options: [
-      { text: "Analiso friamente os novos dados, fatos e riscos para me reorganizar.", type: "C" },
-      { text: "Sinto-me entusiasmado com a novidade e gosto de mobilizar as pessoas.", type: "I" }
-    ]
-  }
-];
+const Login = lazy(() => import('./components/Login'));
+const CandidateDashboard = lazy(() => import('./components/CandidateDashboard'));
+const CompanyDashboard = lazy(() => import('./components/CompanyDashboard'));
+
+const LazyScreen = ({ children }: { children: ReactNode }) => (
+  <Suspense fallback={<Loader fullScreen message="Carregando painel..." />}>
+    {children}
+  </Suspense>
+);
+
 
 export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -71,94 +57,22 @@ export default function App() {
   const [userRole, setUserRole] = useState<'candidate' | 'company' | null>(null);
 
   const [sharedJobId, setSharedJobId] = useState<string | null>(null);
-  const [sharedJobData, setSharedJobData] = useState<any | null>(null);
+  const [sharedJobData, setSharedJobData] = useState<CompanyJob | null>(null);
   const [isLoadingSharedJob, setIsLoadingSharedJob] = useState(false);
 
-  // Estados para a nova Landing Page Interativa
-  const [demoTab, setDemoTab] = useState<'kanban' | 'ia' | 'testes'>('kanban');
-  
-  // Simulador de Mini-teste Comportamental
-  const [testStep, setTestStep] = useState(0); // 0: Começar, 1: Q1, 2: Q2, 3: Q3, 4: Resultado
-  const [testAnswers, setTestAnswers] = useState<string[]>([]);
-  
-  // Loops de animação para o Kanban no simulador
-  const [kanbanCandidates, setKanbanCandidates] = useState([
-    { id: 1, name: "Ana Silva", role: "Frontend Developer", stage: "triagem" },
-    { id: 2, name: "Carlos Rocha", role: "Product Manager", stage: "testes" },
-    { id: 3, name: "Mariana Souza", role: "UI/UX Designer", stage: "entrevista" },
-    { id: 4, name: "Lucas Lima", role: "QA Engineer", stage: "aprovado" }
-  ]);
-  
-  // Loop de busca por IA do simulador
-  const [iaSearchQuery, setIaSearchQuery] = useState("");
-  const [iaSearchStep, setIaSearchStep] = useState(0); // 0: Idle, 1: Digitando, 2: Buscando, 3: Concluído
-  const [iaResults, setIaResults] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (demoTab !== 'kanban') return;
-    const interval = setInterval(() => {
-      setKanbanCandidates(prev => {
-        const updated = [...prev];
-        const nextStages: Record<string, string> = {
-          triagem: 'testes',
-          testes: 'entrevista',
-          entrevista: 'aprovado',
-          aprovado: 'triagem'
-        };
-        const randomIndex = Math.floor(Math.random() * updated.length);
-        const cand = updated[randomIndex];
-        updated[randomIndex] = {
-          ...cand,
-          stage: nextStages[cand.stage]
-        };
-        return updated;
-      });
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [demoTab]);
-
-  useEffect(() => {
-    if (demoTab !== 'ia') return;
-    setIaSearchStep(0);
-    setIaSearchQuery("");
-    setIaResults([]);
-    
-    let isMounted = true;
-    const runSimulation = async () => {
-      await new Promise(r => setTimeout(r, 800));
-      if (!isMounted) return;
-      
-      const text = "Buscar UX Designer Senior especializado em mobile";
-      setIaSearchStep(1);
-      for (let i = 1; i <= text.length; i++) {
-        await new Promise(r => setTimeout(r, 60));
-        if (!isMounted) return;
-        setIaSearchQuery(text.substring(0, i));
-      }
-      
-      await new Promise(r => setTimeout(r, 500));
-      if (!isMounted) return;
-      setIaSearchStep(2);
-      
-      await new Promise(r => setTimeout(r, 1200));
-      if (!isMounted) return;
-      setIaSearchStep(3);
-      setIaResults([
-        { name: "Beatriz M.", match: 98, xp: "6 anos de xp", skills: "Figma, Design System, Swift" },
-        { name: "Rodrigo F.", match: 89, xp: "4 anos de xp", skills: "Figma, UX Research, Material UI" }
-      ]);
-    };
-    
-    runSimulation();
-    const interval = setInterval(() => {
-      if (isMounted) runSimulation();
-    }, 12000);
-    
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, [demoTab]);
+  const {
+    demoTab,
+    setDemoTab,
+    testStep,
+    setTestStep,
+    testAnswers,
+    setTestAnswers,
+    kanbanCandidates,
+    iaSearchQuery,
+    iaSearchStep,
+    iaResults,
+    getSimulatorResult,
+  } = useLandingDemoSimulator();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -172,19 +86,14 @@ export default function App() {
   const loadSharedJob = async (id: string) => {
     setIsLoadingSharedJob(true);
     try {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) throw error;
+      const data = await fetchJobById(id);
 
       if (data) {
         const s = (data.status || '').toLowerCase();
         const isActive = s === 'active' || s === 'ativa' || s === '';
         if (isActive) {
-          setSharedJobData(data);
+          const [hydratedJob] = await hydrateJobsWithWorkflow([data]);
+          setSharedJobData(hydratedJob || data);
         } else {
           alert('Esta vaga não está ativa no momento.');
           // Remove query param from URL without reloading
@@ -206,53 +115,6 @@ export default function App() {
     setShowLogin(true);
   };
 
-  const cleanDescription = (desc: string) => {
-    if (!desc) return '';
-    return desc.split('===ETAPAS_JSON===')[0].trim();
-  };
-
-  const getBenefitsList = (job: any) => {
-    const list: string[] = [];
-    if (job.benefits) {
-      let b = job.benefits;
-      if (typeof b === 'string') {
-        try {
-          b = JSON.parse(b);
-        } catch (e) {}
-      }
-      if (b.vt?.selected) list.push(`Vale Transporte (VT): ${b.vt.value || 'Incluso'}`);
-      if (b.va?.selected) list.push(`Vale Alimentação/Refeição (VA/VR): ${b.va.value || 'Incluso'}`);
-      if (b.healthInsurance) list.push('Plano de Saúde');
-      if (b.dentalPlan) list.push('Plano Odontológico');
-    }
-    
-    if (list.length === 0 && job.description) {
-      const lines = job.description.split('\n');
-      let inBenefits = false;
-      for (const line of lines) {
-        if (line.toLowerCase().includes('benefícios:') || line.toLowerCase().includes('beneficios:')) {
-          inBenefits = true;
-          continue;
-        }
-        if (inBenefits && line.trim().startsWith('•')) {
-          list.push(line.replace('•', '').trim());
-        }
-      }
-    }
-    return list;
-  };
-
-  const getRequirementsList = (job: any) => {
-    if (Array.isArray(job.requirements)) return job.requirements;
-    if (typeof job.requirements === 'string') {
-      try {
-        const parsed = JSON.parse(job.requirements);
-        if (Array.isArray(parsed)) return parsed;
-      } catch (e) {}
-      return job.requirements.split('\n').filter((r: string) => r.trim().length > 0);
-    }
-    return [];
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -274,284 +136,55 @@ export default function App() {
   }, []);
 
   if (isLoggedIn && userRole === 'candidate') {
-    return <CandidateDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); }} />;
+    return (
+      <LazyScreen>
+        <CandidateDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); }} />
+      </LazyScreen>
+    );
   }
 
   if (isLoggedIn && userRole === 'company') {
-    return <CompanyDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); }} />;
+    return (
+      <LazyScreen>
+        <CompanyDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); }} />
+      </LazyScreen>
+    );
   }
 
   if (showLogin) {
     return (
-      <Login 
-        onBack={() => setShowLogin(false)} 
-        initialMode={loginMode}
-        onLoginSuccess={(role) => {
-          setIsLoggedIn(true);
-          setUserRole(role);
-          setShowLogin(false);
-        }}
-      />
+      <LazyScreen>
+        <Login
+          onBack={() => setShowLogin(false)}
+          initialMode={loginMode}
+          onLoginSuccess={(role) => {
+            setIsLoggedIn(true);
+            setUserRole(role);
+            setShowLogin(false);
+          }}
+        />
+      </LazyScreen>
     );
   }
 
   if (!isLoggedIn && sharedJobId) {
-    if (isLoadingSharedJob) {
-      return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Carregando vaga...</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (!sharedJobData) {
-      return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-          <div className="bg-white p-8 rounded-[2rem] shadow-sleek text-center max-w-md border border-slate-100">
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <X size={32} />
-            </div>
-            <h3 className="text-xl font-black text-slate-900 mb-2">Vaga não encontrada</h3>
-            <p className="text-slate-500 text-sm mb-6">O link que você acessou pode ter expirado ou a vaga foi removida.</p>
-            <button 
-              onClick={() => {
-                setSharedJobId(null);
-                window.history.pushState({}, '', window.location.origin);
-              }}
-              className="px-6 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors text-xs uppercase tracking-wider"
-            >
-              Voltar ao Início
-            </button>
-          </div>
-        </div>
-      );
-    }
+    const goBackHome = () => {
+      setSharedJobId(null);
+      window.history.pushState({}, '', window.location.origin);
+    };
 
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-between selection:bg-primary-100 selection:text-primary-700">
-        {/* Navigation */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 py-3 shadow-sm h-20 flex items-center">
-          <div className="max-w-7xl mx-auto w-full px-4 sm:px-10 flex justify-between items-center">
-            <div className="flex items-center">
-              <img 
-                src="/logo.png" 
-                alt="Colaborh Logo" 
-                className="h-10 md:h-12 w-auto object-contain cursor-pointer"
-                onClick={() => {
-                  setSharedJobId(null);
-                  window.history.pushState({}, '', window.location.origin);
-                }}
-              />
-            </div>
-            <div className="flex items-center space-x-3">
-              <button 
-                onClick={() => { setLoginMode('login'); setShowLogin(true); }}
-                className="px-5 py-2.5 text-sm font-bold text-slate-900 border-2 border-slate-200 rounded-full hover:bg-slate-50 hover:border-primary-200 transition-all"
-              >
-                Entrar
-              </button>
-              <button 
-                onClick={() => { setLoginMode('register'); setShowLogin(true); }}
-                className="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white text-sm font-bold rounded-full hover:shadow-lg hover:shadow-primary-200 hover:-translate-y-0.5 transition-all"
-              >
-                Criar Conta
-              </button>
-            </div>
-          </div>
-        </nav>
-
-        {/* Content */}
-        <main className="pt-28 pb-16 flex-grow">
-          <div className="max-w-5xl mx-auto px-4 sm:px-10">
-            {/* Back Button */}
-            <button 
-              onClick={() => {
-                setSharedJobId(null);
-                window.history.pushState({}, '', window.location.origin);
-              }}
-              className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider mb-6 transition-colors"
-            >
-              <ArrowLeft size={16} /> Voltar para o Início
-            </button>
-
-            {/* Header Hero Card */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-[2.5rem] p-8 md:p-12 shadow-xl mb-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <Building size={160} strokeWidth={1} />
-              </div>
-              <div className="relative z-10">
-                <span className="px-3 py-1 bg-primary-600 text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm inline-block mb-4">
-                  {sharedJobData.modality}
-                </span>
-                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 uppercase">
-                  {sharedJobData.title}
-                </h1>
-                <p className="text-slate-300 font-semibold text-sm flex items-center gap-2">
-                  Empresa Parceira • <MapPin size={16} className="text-primary-400" /> {sharedJobData.city && sharedJobData.state ? `${sharedJobData.city}, ${sharedJobData.state}` : sharedJobData.modality || 'Remoto'}
-                </p>
-              </div>
-            </div>
-
-            {/* Grid Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Details */}
-              <div className="lg:col-span-2 space-y-8">
-                {/* Description */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                  <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">
-                    Descrição da Vaga
-                  </h2>
-                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line font-medium">
-                    {cleanDescription(sharedJobData.description)}
-                  </p>
-                </div>
-
-                {/* Requirements */}
-                {getRequirementsList(sharedJobData).length > 0 && (
-                  <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">
-                      Requisitos da Vaga
-                    </h2>
-                    <ul className="grid grid-cols-1 gap-3">
-                      {getRequirementsList(sharedJobData).map((req: string, i: number) => (
-                        <li key={i} className="text-sm text-slate-600 flex items-start gap-3 font-medium">
-                          <span className="text-primary-500 font-bold shrink-0 mt-0.5">•</span>
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              {/* Right Column - Sidebar */}
-              <div className="space-y-8">
-                {/* Summary Info Card */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest pb-2 border-b border-slate-100">
-                    Resumo
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
-                        <DollarSign size={20} />
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Remuneração</p>
-                        <p className="text-sm font-bold text-slate-700">{sharedJobData.salary || 'A combinar'}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-highlight-50 flex items-center justify-center text-highlight-500 shrink-0">
-                        <Clock size={20} />
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Idade Mínima</p>
-                        <p className="text-sm font-bold text-slate-700">{sharedJobData.min_age || sharedJobData.minAge || 18} anos</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600 shrink-0">
-                        <Building size={20} />
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Regime de Contratação</p>
-                        <p className="text-sm font-bold text-slate-700">{sharedJobData.contract_type || 'CLT'}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Apply Action Button */}
-                  <button 
-                    onClick={handleApplyClick}
-                    className="w-full py-4 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary-200 hover:shadow-xl hover:shadow-primary-300 hover:-translate-y-0.5 active:scale-95 transition-all text-center"
-                  >
-                    Candidatar-se a esta vaga
-                  </button>
-                  <p className="text-[9px] font-semibold text-slate-400 text-center uppercase tracking-widest italic">
-                    Faça login ou crie sua conta para enviar seu currículo
-                  </p>
-                </div>
-
-                {/* Benefits Card */}
-                {getBenefitsList(sharedJobData).length > 0 && (
-                  <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">
-                      Benefícios
-                    </h3>
-                    <ul className="space-y-3">
-                      {getBenefitsList(sharedJobData).map((ben: string, i: number) => (
-                        <li key={i} className="text-xs text-slate-600 flex items-center gap-2.5 font-semibold">
-                          <span className="w-2 h-2 bg-emerald-500 rounded-full shrink-0"></span>
-                          <span>{ben}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </main>
-
-        {/* Footer */}
-        <footer className="bg-slate-900 text-slate-400 py-8 border-t border-slate-800">
-          <div className="max-w-5xl mx-auto px-4 sm:px-10 text-center text-xs">
-            <p>&copy; 2026 Colabora Tecnologia Ltda. Todos os direitos reservados.</p>
-          </div>
-        </footer>
-      </div>
+      <SharedJobPage
+        isLoading={isLoadingSharedJob}
+        job={sharedJobData}
+        onBackHome={goBackHome}
+        onLogin={() => { setLoginMode('login'); setShowLogin(true); }}
+        onRegister={() => { setLoginMode('register'); setShowLogin(true); }}
+        onApply={handleApplyClick}
+      />
     );
   }
 
-  const getSimulatorResult = () => {
-    const counts = { D: 0, I: 0, S: 0, C: 0 };
-    testAnswers.forEach(ans => {
-      if (ans in counts) {
-        counts[ans as keyof typeof counts]++;
-      }
-    });
-
-    let highest: 'D' | 'I' | 'S' | 'C' = 'C';
-    let max = -1;
-    (Object.keys(counts) as Array<'D' | 'I' | 'S' | 'C'>).forEach(k => {
-      if (counts[k] > max) {
-        max = counts[k];
-        highest = k;
-      }
-    });
-
-    const profiles = {
-      D: {
-        title: "Executor Focado (Dominância)",
-        desc: "Você é focado em resultados, direto e motivado por desafios. Toma decisões rápidas e gosta de liderar processos de mudança.",
-        tips: "Ideal para posições de liderança, vendas corporativas e gestão de projetos dinâmicos."
-      },
-      I: {
-        title: "Comunicador Inspirador (Influência)",
-        desc: "Você é entusiasmado, comunicativo e voltado para relações interpessoais. Gosta de colaborar e motivar a equipe.",
-        tips: "Ideal para áreas de marketing, recursos humanos, design e relacionamento com o cliente."
-      },
-      S: {
-        title: "Planejador Diplomático (Estabilidade)",
-        desc: "Você é paciente, excelente ouvinte e valoriza a cooperação. Gosta de ritmo constante, processos organizados e ambientes previsíveis.",
-        tips: "Ideal para operações estruturadas, suporte ao cliente, consultoria e desenvolvimento contínuo."
-      },
-      C: {
-        title: "Analista Detalhista (Conformidade)",
-        desc: "Você é lógico, detalhista e focado na qualidade. Valoriza a precisão, fatos concretos, regras bem estabelecidas e segurança.",
-        tips: "Ideal para tecnologia, desenvolvimento de software, finanças, compliance e controle de qualidade."
-      }
-    };
-
-    return profiles[highest];
-  };
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-900 selection:bg-primary-100 selection:text-primary-700">
@@ -815,16 +448,16 @@ export default function App() {
 
               {/* Selector Tabs Inside Mockup */}
               <div className="flex bg-slate-900 border-b border-slate-800/60 overflow-x-auto shrink-0 no-scrollbar">
-                {[
+                {([
                   { id: 'kanban', label: 'Pipeline Kanban', icon: Layers },
                   { id: 'ia', label: 'Busca Inteligente por IA', icon: Cpu },
                   { id: 'testes', label: 'Testes de Perfil', icon: Brain }
-                ].map((tab) => {
+                ] satisfies Array<{ id: DemoTab; label: string; icon: typeof Layers }>).map((tab) => {
                   const Icon = tab.icon;
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setDemoTab(tab.id as any)}
+                      onClick={() => setDemoTab(tab.id)}
                       className={`flex items-center gap-2 px-6 py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer bg-transparent ${
                         demoTab === tab.id
                           ? 'border-primary-500 text-white bg-slate-950/30'

@@ -1,27 +1,80 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  CreditCard, 
-  Check, 
-  Zap, 
-  Building, 
-  Briefcase, 
-  Search, 
-  Brain, 
-  Plus, 
-  Minus, 
-  Loader2, 
-  ShieldCheck, 
+﻿import React, { useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import {
+  ArrowUpRight,
+  Brain,
+  Briefcase,
+  Check,
+  CreditCard,
+  Loader2,
+  Minus,
+  Plus,
+  Search,
+  ShieldCheck,
   Sparkles,
-  ArrowUpRight
+  WalletCards,
+  Zap
 } from 'lucide-react';
+import type { CompanyRecord } from '../../../services/companyService';
+import type { CompanyJob } from '../../../types/companyDashboard';
 
 interface BillingTabProps {
-  company: any;
-  companies: any[];
-  setCompanies: React.Dispatch<React.SetStateAction<any[]>>;
-  jobs: any[];
+  company: CompanyRecord | null;
+  companies: CompanyRecord[];
+  setCompanies: React.Dispatch<React.SetStateAction<CompanyRecord[]>>;
+  jobs: CompanyJob[];
 }
+
+type PlanKey = 'starter' | 'growth' | 'enterprise';
+
+const planLabels: Record<PlanKey, string> = {
+  starter: 'Starter',
+  growth: 'Growth',
+  enterprise: 'Enterprise'
+};
+
+const planBonusCredits: Record<PlanKey, number> = {
+  starter: 5,
+  growth: 30,
+  enterprise: 100
+};
+
+const planPrices: Record<PlanKey, string> = {
+  starter: 'R$ 189',
+  growth: 'R$ 449',
+  enterprise: 'Sob consulta'
+};
+
+const planDescriptions: Record<PlanKey, string> = {
+  starter: 'Para empresas pequenas que avaliam processos pontuais.',
+  growth: 'Para empresas em crescimento com processos frequentes.',
+  enterprise: 'Para operações com grande volume e acompanhamento dedicado.'
+};
+
+const planFeatures: Record<PlanKey, string[]> = {
+  starter: [
+    'Até 2 vagas ativas simultâneas',
+    'Triagem Kanban básica',
+    '5 buscas por IA no banco por mês',
+    '5 créditos de testes inclusos por mês'
+  ],
+  growth: [
+    'Até 8 vagas ativas simultâneas',
+    'Customização total de etapas no Kanban',
+    'Buscas ilimitadas com IA no banco',
+    '30 créditos de testes inclusos por mês',
+    'Suporte prioritário via WhatsApp'
+  ],
+  enterprise: [
+    'Vagas ativas ilimitadas',
+    'Todos os recursos liberados sem travas',
+    'Faturamento flexível e relatórios customizados',
+    '100 créditos de testes inclusos por mês',
+    'Gerente de contas e SLA de suporte de 4h'
+  ]
+};
+
+const currency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export const BillingTab: React.FC<BillingTabProps> = ({
   company,
@@ -29,68 +82,64 @@ export const BillingTab: React.FC<BillingTabProps> = ({
   setCompanies,
   jobs
 }) => {
-  // Estados para simulação de checkout do plano
   const [isUpgrading, setIsUpgrading] = useState(false);
-  const [upgradingTo, setUpgradingTo] = useState<string | null>(null);
+  const [upgradingTo, setUpgradingTo] = useState<PlanKey | null>(null);
   const [isProcessingUpgrade, setIsProcessingUpgrade] = useState(false);
   const [upgradeSuccess, setUpgradeSuccess] = useState(false);
 
-  // Estados para simulação de compra de créditos avulsos
   const [creditAmount, setCreditAmount] = useState(10);
   const [isBuyingCredits, setIsBuyingCredits] = useState(false);
   const [isProcessingCredits, setIsProcessingCredits] = useState(false);
   const [creditsSuccess, setCreditsSuccess] = useState(false);
 
-  // Informações da empresa ativa
-  const plan = company?.plan || 'starter';
-  const credits = company?.credits !== undefined ? company?.credits : 5;
+  const plan = (company?.plan || 'starter') as PlanKey;
+  const credits = company?.credits !== undefined ? company.credits : 5;
 
-  // Calcular vagas ativas da empresa no Supabase
-  const activeJobsCount = jobs.filter(job => 
-    job.company_name === company?.nomeFantasia && 
+  const activeJobsCount = useMemo(() => jobs.filter(job =>
+    job.company_name === company?.nomeFantasia &&
     (job.status === 'active' || job.status === 'ativa' || !job.status)
-  ).length;
+  ).length, [company?.nomeFantasia, jobs]);
 
-  // Definir limites de vagas com base no plano
   const getJobLimit = () => {
     if (plan === 'growth') return 8;
     if (plan === 'enterprise') return Infinity;
-    return 2; // starter
+    return 2;
   };
+
   const jobLimit = getJobLimit();
   const jobUsagePercent = jobLimit === Infinity ? 0 : Math.min(100, (activeJobsCount / jobLimit) * 100);
 
-  // Calcular valor dinâmico dos créditos com descontos progressivos
   const getCreditUnitPrice = (amount: number) => {
-    if (amount >= 50) return 9.00; // Desconto em lote grande
-    if (amount >= 15) return 12.00; // Desconto em lote médio
-    return 15.00; // Preço padrão
+    if (amount >= 50) return 9;
+    if (amount >= 15) return 12;
+    return 15;
   };
+
   const unitPrice = getCreditUnitPrice(creditAmount);
   const totalPrice = creditAmount * unitPrice;
-  const standardPrice = creditAmount * 15.00;
+  const standardPrice = creditAmount * 15;
   const savings = standardPrice - totalPrice;
 
-  // Processar o upgrade simulado de plano
-  const handleStartUpgrade = (planName: string) => {
+  const handleStartUpgrade = (planName: PlanKey) => {
     setUpgradingTo(planName);
     setIsUpgrading(true);
     setUpgradeSuccess(false);
   };
 
   const handleConfirmUpgrade = () => {
+    if (!company || !upgradingTo) return;
+
     setIsProcessingUpgrade(true);
     setTimeout(() => {
       setIsProcessingUpgrade(false);
       setUpgradeSuccess(true);
-      
-      // Atualizar no localStorage e no estado das empresas
+
       const updated = companies.map(c => {
         if (c.id === company.id) {
           return {
             ...c,
             plan: upgradingTo,
-            credits: c.credits + (upgradingTo === 'growth' ? 30 : 100) // Adiciona créditos bônus da assinatura
+            credits: (c.credits !== undefined ? c.credits : 5) + planBonusCredits[upgradingTo]
           };
         }
         return c;
@@ -105,19 +154,19 @@ export const BillingTab: React.FC<BillingTabProps> = ({
     }, 2000);
   };
 
-  // Processar a compra simulada de créditos
   const handleStartBuyCredits = () => {
     setIsBuyingCredits(true);
     setCreditsSuccess(false);
   };
 
   const handleConfirmBuyCredits = () => {
+    if (!company) return;
+
     setIsProcessingCredits(true);
     setTimeout(() => {
       setIsProcessingCredits(false);
       setCreditsSuccess(true);
 
-      // Atualizar saldo de créditos no localStorage e no estado das empresas
       const updated = companies.map(c => {
         if (c.id === company.id) {
           return {
@@ -136,435 +185,305 @@ export const BillingTab: React.FC<BillingTabProps> = ({
     }, 2000);
   };
 
+  const renderPlanButtonLabel = (planName: PlanKey) => {
+    if (plan === planName) return 'Plano atual';
+    if (planName === 'enterprise') return 'Falar com consultor';
+    return `Migrar para ${planLabels[planName]}`;
+  };
+
   return (
-    <div className="space-y-8 text-left max-w-6xl mx-auto pb-10">
-      
-      {/* Banner Principal com Cartão de Crédito 3D */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        
-        {/* Card de Créditos e Faturamento */}
-        <div className="lg:col-span-1 bg-gradient-to-br from-primary-600 via-primary-700 to-highlight-700 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden flex flex-col justify-between h-64 border border-white/10 group hover:shadow-2xl transition-all duration-300">
-          {/* Decorações do Cartão */}
-          <div className="absolute top-[-20%] right-[-20%] w-48 h-48 bg-white/10 rounded-full blur-[40px] pointer-events-none group-hover:scale-110 transition-transform duration-500" />
-          <div className="absolute bottom-[-15%] left-[-15%] w-32 h-32 bg-highlight-500/30 rounded-full blur-[30px] pointer-events-none" />
-          
-          <div className="flex justify-between items-start relative z-10">
-            <div className="space-y-0.5">
-              <p className="text-[9px] font-black uppercase tracking-widest text-primary-200">Faturamento Colaborh</p>
-              <h3 className="text-base font-black truncate max-w-[180px]">{company?.nomeFantasia}</h3>
+    <div className="company-dashboard-surface space-y-6 pb-10 text-left">
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="rounded-2xl border border-[#940dff]/18 bg-[#940dff] p-5 text-white shadow-[0_12px_26px_rgba(148,13,255,0.2)]">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[12px] font-semibold text-white/70">Plano atual</p>
+              <h3 className="mt-1 truncate text-[20px] font-semibold tracking-tight text-white">{company?.nomeFantasia || 'Empresa Colaborh'}</h3>
             </div>
-            <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20">
-              <CreditCard size={18} className="text-white" />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/14 text-white">
+              <WalletCards size={20} />
             </div>
           </div>
 
-          <div className="relative z-10 space-y-1 my-4">
-            <p className="text-[10px] font-extrabold text-primary-100 uppercase tracking-wider">SALDO DE CRÉDITOS</p>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-4xl font-black tracking-tight">{credits}</span>
-              <span className="text-[11px] font-black text-primary-200 uppercase tracking-widest">Crédito{credits !== 1 ? 's' : ''}</span>
+          <div className="mt-8 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-white/12 p-4">
+              <p className="text-[11px] font-semibold text-white/70">Assinatura</p>
+              <p className="mt-2 text-[18px] font-semibold text-white">{planLabels[plan]}</p>
             </div>
-            <p className="text-[9px] text-primary-200/80 font-bold mt-1">Utilizados para disparar testes comportamentais</p>
+            <div className="rounded-2xl bg-white/12 p-4">
+              <p className="text-[11px] font-semibold text-white/70">Créditos</p>
+              <p className="mt-2 text-[18px] font-semibold text-white">{credits}</p>
+            </div>
           </div>
 
-          <div className="flex justify-between items-center relative z-10 pt-2 border-t border-white/10">
-            <div>
-              <p className="text-[8px] font-black text-primary-200 uppercase tracking-widest leading-none">PLANO ATUAL</p>
-              <span className="text-xs font-black uppercase tracking-wider text-white bg-white/20 px-2.5 py-0.5 rounded-full inline-block mt-1">
-                {plan === 'starter' ? 'Starter' : plan === 'growth' ? 'Growth' : 'Enterprise'}
-              </span>
-            </div>
-            <span className="text-[9px] font-black uppercase tracking-widest text-primary-200 leading-none">100% SEGURO</span>
-          </div>
+          <p className="mt-5 text-[12px] font-medium leading-relaxed text-white/72">
+            Créditos são usados para solicitar testes comportamentais e acompanhar avaliações no processo seletivo.
+          </p>
         </div>
 
-        {/* Consumo de Recursos */}
-        <div className="lg:col-span-2 bg-white rounded-[2rem] p-7 border border-slate-100 shadow-sleek flex flex-col justify-between gap-6">
-          <div>
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-1">Utilização dos Recursos</h3>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Acompanhe seus limites de acordo com o plano ativo</p>
+        <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+            <div>
+              <h3 className="text-[18px] font-semibold text-[#343241]">Uso do plano</h3>
+              <p className="mt-1 text-[12px] font-medium text-slate-400">Acompanhe limites e recursos disponíveis para a empresa ativa.</p>
+            </div>
+            <span className="inline-flex h-8 items-center rounded-xl border border-[#f3e5ff] bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff]">
+              {jobUsagePercent.toFixed(0)}% usado
+            </span>
           </div>
 
-          <div className="space-y-5">
-            {/* Vagas Ativas */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-bold text-slate-700">
-                <span className="flex items-center gap-1.5"><Briefcase size={14} className="text-slate-400" /> Vagas Ativas</span>
+          <div className="mt-5 space-y-5">
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-4 text-[12px] font-semibold text-[#343241]">
+                <span className="flex items-center gap-2"><Briefcase size={15} className="text-[#940dff]" /> Vagas ativas</span>
                 <span>{activeJobsCount} / {jobLimit === Infinity ? 'Ilimitado' : jobLimit}</span>
               </div>
-              <div className="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/50">
-                <motion.div 
+              <div className="h-3 rounded-full border border-slate-200/70 bg-[#fbf9ff] p-0.5">
+                <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${jobUsagePercent}%` }}
-                  className={`h-full rounded-full ${jobUsagePercent >= 100 ? 'bg-rose-500' : jobUsagePercent >= 75 ? 'bg-amber-500' : 'bg-primary-600'}`}
-                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  className={`h-full rounded-full ${jobUsagePercent >= 100 ? 'bg-[#ff4b8c]' : jobUsagePercent >= 75 ? 'bg-[#ffc24b]' : 'bg-[#940dff]'}`}
+                  transition={{ duration: 0.75, ease: 'easeOut' }}
                 />
               </div>
-              <div className="flex justify-between items-center text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                <span>{jobUsagePercent.toFixed(0)}% do limite utilizado</span>
-                {jobUsagePercent >= 100 && (
-                  <span className="text-rose-500 font-extrabold flex items-center gap-1">Limite Atingido! Faça Upgrade.</span>
-                )}
-              </div>
+              {jobUsagePercent >= 100 && (
+                <p className="mt-2 text-[12px] font-semibold text-[#ff4b8c]">Limite atingido. Faça upgrade para publicar mais vagas.</p>
+              )}
             </div>
 
-            {/* Testes comportamentais e buscas com IA */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 shrink-0">
-                  <Brain size={18} />
-                </div>
-                <div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Testes Disponíveis</h4>
-                  <p className="text-sm font-extrabold text-slate-800">{credits} solicitações</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f3e5ff] text-[#940dff]"><Brain size={18} /></span>
+                  <div>
+                    <p className="text-[12px] font-semibold text-[#343241]">Testes disponíveis</p>
+                    <p className="mt-1 text-[12px] font-medium text-slate-400">{credits} solicitações</p>
+                  </div>
                 </div>
               </div>
-              
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
-                  <Search size={18} />
-                </div>
-                <div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Buscas por IA no Banco</h4>
-                  <p className="text-sm font-extrabold text-slate-800">
-                    {plan === 'starter' ? '5 buscas / mês' : 'Ilimitadas'}
-                  </p>
+              <div className="rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#533af6]/10 text-[#533af6]"><Search size={18} /></span>
+                  <div>
+                    <p className="text-[12px] font-semibold text-[#343241]">Banco de talentos</p>
+                    <p className="mt-1 text-[12px] font-medium text-slate-400">{plan === 'starter' ? '5 buscas por mês' : 'Buscas ilimitadas'}</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Planos de Assinatura */}
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Planos de Recorrência Mensal</h3>
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Assine o melhor plano para escalar seu recrutamento</p>
+      <section>
+        <div className="mb-5">
+          <h3 className="text-[20px] font-semibold tracking-tight text-[#343241]">Planos</h3>
+          <p className="mt-2 text-[12px] font-medium text-slate-400">Escolha o plano que combina melhor com o volume de recrutamento da empresa.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          
-          {/* Plano Starter */}
-          <div className={`bg-white border rounded-[2.5rem] p-7 flex flex-col justify-between relative hover:shadow-lg transition-all duration-300 ${
-            plan === 'starter' ? 'border-[#533af6] ring-2 ring-[#533af6]/10' : 'border-slate-200/80 shadow-xs'
-          }`}>
-            {plan === 'starter' && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#533af6] text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-md">
-                Plano Ativo
-              </span>
-            )}
-            <div>
-              <div className="text-left mb-6">
-                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">Starter</h4>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-slate-900">R$ 189</span>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">/ mês</span>
+        <div className="grid gap-5 lg:grid-cols-3">
+          {(['starter', 'growth', 'enterprise'] as PlanKey[]).map((planName) => {
+            const isCurrent = plan === planName;
+            const isFeatured = planName === 'growth';
+
+            return (
+              <article
+                key={planName}
+                className={`relative flex min-h-[430px] flex-col rounded-2xl border bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)] transition-all hover:border-[#940dff]/20 ${
+                  isCurrent ? 'border-[#940dff]/24 ring-2 ring-[#f3e5ff]' : 'border-slate-200/70'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h4 className="text-[18px] font-semibold text-[#343241]">{planLabels[planName]}</h4>
+                    <p className="mt-2 text-[12px] font-medium leading-relaxed text-slate-400">{planDescriptions[planName]}</p>
+                  </div>
+                  {isCurrent ? (
+                    <span className="inline-flex h-8 shrink-0 items-center rounded-xl border border-[#63e1a5]/25 bg-[#63e1a5]/14 px-3 text-[12px] font-semibold text-[#2f9f6b]">Ativo</span>
+                  ) : isFeatured ? (
+                    <span className="inline-flex h-8 shrink-0 items-center gap-1 rounded-xl border border-[#ffc24b]/24 bg-[#ffc24b]/16 px-3 text-[12px] font-semibold text-[#ffa303]"><Zap size={13} /> Popular</span>
+                  ) : null}
                 </div>
-                <p className="text-[10px] text-slate-400 font-bold mt-1">Ideal para pequenas empresas avaliarem processos pontuais</p>
-              </div>
 
-              <div className="w-full h-[1px] bg-slate-100 mb-6" />
-
-              <ul className="space-y-3.5 mb-8">
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>Até <strong>2 vagas</strong> ativas simultâneas</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>Triagem Kanban básica</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>5 buscas por IA no Banco / mês</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>5 créditos de testes inclusos / mês</span>
-                </li>
-              </ul>
-            </div>
-
-            <button 
-              disabled={plan === 'starter'}
-              onClick={() => handleStartUpgrade('starter')}
-              className={`w-full py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all border outline-none ${
-                plan === 'starter' 
-                  ? 'bg-slate-100 text-slate-450 border-transparent cursor-default' 
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer active:scale-95'
-              }`}
-            >
-              {plan === 'starter' ? 'Seu Plano Atual' : 'Migrar para Starter'}
-            </button>
-          </div>
-
-          {/* Plano Growth */}
-          <div className={`bg-white border rounded-[2.5rem] p-7 flex flex-col justify-between relative hover:shadow-lg transition-all duration-300 ${
-            plan === 'growth' ? 'border-[#533af6] ring-2 ring-[#533af6]/10' : 'border-slate-200/80 shadow-md shadow-slate-100/50'
-          }`}>
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-1 bg-gradient-to-r from-primary-600 to-highlight-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-md flex items-center gap-1.5">
-              <Zap size={10} className="fill-current" /> O Mais Popular
-            </span>
-            {plan === 'growth' && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#533af6] text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-md">
-                Plano Ativo
-              </span>
-            )}
-            <div>
-              <div className="text-left mb-6">
-                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">Growth</h4>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-slate-900">R$ 449</span>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">/ mês</span>
+                <div className="mt-5 flex items-end gap-1">
+                  <span className="text-[24px] font-semibold tracking-tight text-[#343241]">{planPrices[planName]}</span>
+                  {planName !== 'enterprise' && <span className="pb-1 text-[12px] font-medium text-slate-400">/ mês</span>}
                 </div>
-                <p className="text-[10px] text-slate-400 font-bold mt-1">Perfeito para empresas em crescimento com processos frequentes</p>
-              </div>
 
-              <div className="w-full h-[1px] bg-slate-100 mb-6" />
+                <div className="my-5 h-px bg-slate-100" />
 
-              <ul className="space-y-3.5 mb-8">
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>Até <strong>8 vagas</strong> ativas simultâneas</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>Customização total de etapas no Kanban</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span><strong>Buscas Ilimitadas</strong> com IA no Banco</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span><strong>30 créditos</strong> de testes inclusos / mês</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>Suporte prioritário via WhatsApp</span>
-                </li>
-              </ul>
-            </div>
+                <ul className="space-y-3">
+                  {planFeatures[planName].map((feature) => (
+                    <li key={feature} className="flex items-start gap-2.5 text-[12px] font-medium leading-relaxed text-slate-500">
+                      <Check size={14} className="mt-0.5 shrink-0 text-[#63e1a5]" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
 
-            <button 
-              disabled={plan === 'growth'}
-              onClick={() => handleStartUpgrade('growth')}
-              className={`w-full py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all outline-none border shadow-md ${
-                plan === 'growth' 
-                  ? 'bg-slate-100 text-slate-450 border-transparent shadow-none cursor-default' 
-                  : 'bg-[#533af6] text-white border-transparent hover:bg-[#4326e5] cursor-pointer hover:shadow-lg hover:shadow-primary-600/15 active:scale-95'
-              }`}
-            >
-              {plan === 'growth' ? 'Seu Plano Atual' : 'Upgrade para Growth'}
-            </button>
-          </div>
-
-          {/* Plano Enterprise */}
-          <div className={`bg-white border rounded-[2.5rem] p-7 flex flex-col justify-between relative hover:shadow-lg transition-all duration-300 ${
-            plan === 'enterprise' ? 'border-[#533af6] ring-2 ring-[#533af6]/10' : 'border-slate-200/80 shadow-xs'
-          }`}>
-            {plan === 'enterprise' && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#533af6] text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-md">
-                Plano Ativo
-              </span>
-            )}
-            <div>
-              <div className="text-left mb-6">
-                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">Enterprise</h4>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-slate-900">Sob Consulta</span>
-                </div>
-                <p className="text-[10px] text-slate-400 font-bold mt-1">Para grandes corporações que necessitam de volume massivo</p>
-              </div>
-
-              <div className="w-full h-[1px] bg-slate-100 mb-6" />
-
-              <ul className="space-y-3.5 mb-8">
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span><strong>Vagas Ativas Ilimitadas</strong></span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>Todos os recursos liberados sem travas</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>Faturamento flexível e relatórios customizados</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span><strong>100 créditos</strong> de testes inclusos / mês</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-600 font-medium">
-                  <Check size={14} className="text-emerald-500 shrink-0 mt-0.5 stroke-[3]" />
-                  <span>Gerente de contas e SLA de suporte de 4h</span>
-                </li>
-              </ul>
-            </div>
-
-            <button 
-              disabled={plan === 'enterprise'}
-              onClick={() => handleStartUpgrade('enterprise')}
-              className={`w-full py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all border outline-none ${
-                plan === 'enterprise' 
-                  ? 'bg-slate-100 text-slate-450 border-transparent cursor-default' 
-                  : 'bg-slate-900 text-white border-transparent hover:bg-slate-800 cursor-pointer active:scale-95'
-              }`}
-            >
-              {plan === 'enterprise' ? 'Seu Plano Atual' : 'Falar com Consultor'}
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Compra de Créditos Avulsos */}
-      <div className="bg-white rounded-[2.5rem] p-7 border border-slate-100 shadow-sleek grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div className="space-y-4">
-          <div>
-            <span className="text-[8px] bg-primary-50 text-primary-700 px-2.5 py-1 rounded-full font-black uppercase tracking-widest">Add-on Corporativo</span>
-            <h3 className="text-base font-black text-slate-900 uppercase tracking-tight mt-3">Comprar Créditos de Testes Avulsos</h3>
-            <p className="text-[11px] text-slate-400 font-semibold leading-relaxed mt-1">
-              Precisa avaliar mais candidatos? Adquira créditos sob demanda. Quanto maior o lote de créditos comportamentais que você adquire, menor é o valor unitário.
-            </p>
-          </div>
-
-          {/* Slider/Contador Interativo */}
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">QUANTIDADE DE CRÉDITOS</span>
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={() => setCreditAmount(prev => Math.max(5, prev - 5))}
-                  className="w-8 h-8 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors cursor-pointer outline-none active:scale-95"
+                <button
+                  type="button"
+                  disabled={isCurrent || !company}
+                  onClick={() => handleStartUpgrade(planName)}
+                  className={`mt-auto h-8 rounded-xl px-4 text-[12px] font-semibold transition-all active:scale-95 disabled:cursor-default ${
+                    isCurrent
+                      ? 'border border-slate-200/70 bg-white text-slate-400'
+                      : isFeatured
+                        ? 'bg-[#940dff] text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] hover:bg-[#8200e6]'
+                        : 'border border-[#940dff]/16 bg-[#f3e5ff] text-[#940dff] hover:border-[#940dff]/28 hover:bg-[#940dff]/12'
+                  }`}
                 >
-                  <Minus size={14} />
+                  {renderPlanButtonLabel(planName)}
                 </button>
-                <span className="text-xl font-black text-slate-800 w-12 text-center">{creditAmount}</span>
-                <button 
-                  onClick={() => setCreditAmount(prev => Math.min(100, prev + 5))}
-                  className="w-8 h-8 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors cursor-pointer outline-none active:scale-95"
-                >
-                  <Plus size={14} />
-                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-[20px] font-semibold tracking-tight text-[#343241]">Comprar créditos</h3>
+                <p className="mt-2 max-w-2xl text-[12px] font-medium leading-relaxed text-slate-400">
+                  Adquira créditos avulsos para solicitar testes comportamentais sob demanda. Lotes maiores aplicam desconto automaticamente.
+                </p>
+              </div>
+              <span className="hidden h-8 items-center gap-1.5 rounded-xl border border-[#63e1a5]/25 bg-[#63e1a5]/14 px-3 text-[12px] font-semibold text-[#2f9f6b] sm:inline-flex">
+                <Sparkles size={13} /> Add-on
+              </span>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-4">
+              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <div>
+                  <p className="text-[12px] font-semibold text-[#343241]">Quantidade de créditos</p>
+                  <p className="mt-1 text-[12px] font-medium text-slate-400">Mínimo de 5 e máximo de 100 créditos por compra.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCreditAmount(prev => Math.max(5, prev - 5))}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-500 transition-all hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95"
+                    aria-label="Diminuir créditos"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="min-w-14 text-center text-[20px] font-semibold text-[#343241]">{creditAmount}</span>
+                  <button
+                    type="button"
+                    onClick={() => setCreditAmount(prev => Math.min(100, prev + 5))}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-500 transition-all hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95"
+                    aria-label="Aumentar créditos"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="text-right">
-              <span className="text-[9px] font-black text-slate-450 uppercase tracking-widest block">VALOR POR CRÉDITO</span>
-              <span className="text-lg font-black text-[#533af6]">R$ {unitPrice.toFixed(2)}</span>
-            </div>
+            {savings > 0 ? (
+              <div className="mt-4 rounded-2xl border border-[#63e1a5]/25 bg-[#63e1a5]/14 px-4 py-3 text-[12px] font-semibold text-[#2f9f6b]">
+                Você está economizando {currency(savings)} com desconto progressivo.
+              </div>
+            ) : (
+              <p className="mt-4 text-[12px] font-medium text-slate-400">Dica: compre 15 ou mais créditos para ativar desconto progressivo.</p>
+            )}
           </div>
 
-          {/* Benefício do desconto */}
-          {savings > 0 ? (
-            <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-black uppercase tracking-wider bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100/30">
-              <Sparkles size={12} className="fill-current" />
-              <span>Desconto em Lote! Você está economizando R$ {savings.toFixed(2)} ({((savings/standardPrice)*100).toFixed(0)}% Off)</span>
-            </div>
-          ) : (
-            <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider pl-1">
-              Dica: Adicione 15 ou mais créditos para receber desconto progressivo!
-            </div>
-          )}
-        </div>
-
-        {/* Resumo Financeiro & Ação */}
-        <div className="bg-slate-50/60 border border-slate-100 rounded-[2rem] p-6 flex flex-col justify-between h-full min-h-[200px]">
-          <div>
-            <h4 className="text-[10px] font-black text-slate-450 uppercase tracking-widest mb-3">Resumo da Aquisição</h4>
-            <div className="space-y-2.5">
-              <div className="flex justify-between text-xs text-slate-500 font-bold uppercase tracking-wide">
-                <span>{creditAmount}x Créditos Psicométricos</span>
-                <span>R$ {(creditAmount * 15.00).toFixed(2)}</span>
+          <div className="rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-5">
+            <h4 className="text-[16px] font-semibold text-[#343241]">Resumo</h4>
+            <div className="mt-4 space-y-3 text-[12px] font-medium text-slate-500">
+              <div className="flex justify-between gap-4">
+                <span>{creditAmount} créditos</span>
+                <span>{currency(standardPrice)}</span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span>Valor por crédito</span>
+                <span>{currency(unitPrice)}</span>
               </div>
               {savings > 0 && (
-                <div className="flex justify-between text-xs text-emerald-600 font-extrabold uppercase tracking-wide">
-                  <span>Desconto Progressivo</span>
-                  <span>- R$ {savings.toFixed(2)}</span>
+                <div className="flex justify-between gap-4 text-[#2f9f6b]">
+                  <span>Desconto</span>
+                  <span>- {currency(savings)}</span>
                 </div>
               )}
-              <div className="w-full h-[1px] bg-slate-200/60 my-2" />
-              <div className="flex justify-between items-baseline">
-                <span className="text-xs font-black text-slate-800 uppercase tracking-wider">TOTAL A PAGAR</span>
-                <span className="text-2xl font-black text-slate-900 tracking-tight">R$ {totalPrice.toFixed(2)}</span>
+              <div className="h-px bg-slate-200/70" />
+              <div className="flex items-baseline justify-between gap-4 text-[#343241]">
+                <span className="font-semibold">Total</span>
+                <span className="text-[22px] font-semibold">{currency(totalPrice)}</span>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleStartBuyCredits}
+              disabled={!company}
+              className="mt-5 flex h-8 w-full items-center justify-center gap-2 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Comprar créditos <ArrowUpRight size={14} />
+            </button>
           </div>
-
-          <button 
-            onClick={handleStartBuyCredits}
-            className="w-full mt-6 py-4 bg-[#533af6] hover:bg-[#4326e5] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-md hover:shadow-lg hover:shadow-primary-600/15 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 border-0"
-          >
-            <span>Adquirir Créditos</span>
-            <ArrowUpRight size={14} className="stroke-[2.5]" />
-          </button>
         </div>
-      </div>
+      </section>
 
-      {/* Modal / Overlay de Checkout Simulado */}
       <AnimatePresence>
-        {/* Checkout de Plano */}
         {isUpgrading && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <motion.div 
+          <div className="company-dashboard-surface fixed inset-0 z-[2147483647] flex items-center justify-center p-4">
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => !isProcessingUpgrade && !upgradeSuccess && setIsUpgrading(false)}
-              className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/45 backdrop-blur-sm"
             />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative w-full max-w-sm bg-white rounded-[2rem] shadow-2xl p-7 overflow-hidden border border-slate-100 flex flex-col text-center"
+              exit={{ opacity: 0, scale: 0.97, y: 12 }}
+              className="relative w-full max-w-md rounded-2xl border border-slate-200/70 bg-white p-6 text-center shadow-2xl"
             >
               {upgradeSuccess ? (
-                <div className="py-6 space-y-4">
-                  <div className="mx-auto w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 ring-8 ring-emerald-50">
+                <div className="py-6">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#63e1a5]/14 text-[#2f9f6b]">
                     <ShieldCheck size={28} />
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Assinatura Ativada!</h3>
-                  <p className="text-xs text-slate-400 font-bold leading-relaxed max-w-xs mx-auto uppercase tracking-wide">
-                    Seu plano foi alterado para **{upgradingTo?.toUpperCase()}** e os créditos bônus foram adicionados ao seu saldo. Boas contratações!
+                  <h3 className="mt-5 text-[20px] font-semibold tracking-tight text-[#343241]">Assinatura ativada</h3>
+                  <p className="mx-auto mt-2 max-w-sm text-[12px] font-medium leading-relaxed text-slate-400">
+                    Seu plano foi alterado para {upgradingTo ? planLabels[upgradingTo] : 'o novo plano'} e os créditos bônus foram adicionados ao saldo.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-5">
-                  <div className="mx-auto w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
-                    <CreditCard size={20} />
+                <div>
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f3e5ff] text-[#940dff]">
+                    <CreditCard size={22} />
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="text-base font-black text-slate-950 uppercase tracking-tight">Confirmar Assinatura</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">
-                      Você está ativando o plano **{upgradingTo?.toUpperCase()}**
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-left space-y-1.5">
-                    <div className="flex justify-between text-xs font-bold text-slate-700">
-                      <span>Valor Mensal:</span>
-                      <span>R$ {upgradingTo === 'growth' ? '449,00' : '189,00'}</span>
-                    </div>
-                    <div className="flex justify-between text-[10px] text-slate-450 font-bold uppercase tracking-wider">
-                      <span>Créditos Inclusos:</span>
-                      <span>{upgradingTo === 'growth' ? '30 créditos bônus' : '5 créditos bônus'}</span>
-                    </div>
-                  </div>
-
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center">
-                    Simulação: Não haverá cobrança real no seu cartão.
+                  <h3 className="mt-5 text-[20px] font-semibold tracking-tight text-[#343241]">Confirmar assinatura</h3>
+                  <p className="mt-2 text-[12px] font-medium text-slate-400">
+                    Você está ativando o plano {upgradingTo ? planLabels[upgradingTo] : ''}.
                   </p>
 
-                  <div className="flex gap-3 pt-2">
+                  <div className="mt-5 rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-4 text-left">
+                    <div className="flex justify-between text-[12px] font-medium text-slate-500">
+                      <span>Valor mensal</span>
+                      <span>{upgradingTo ? planPrices[upgradingTo] : '-'}</span>
+                    </div>
+                    <div className="mt-3 flex justify-between text-[12px] font-medium text-slate-500">
+                      <span>Créditos inclusos</span>
+                      <span>{upgradingTo ? `${planBonusCredits[upgradingTo]} créditos bônus` : '-'}</span>
+                    </div>
+                  </div>
+
+                  <p className="mt-4 text-[12px] font-medium text-slate-400">Simulação: não haverá cobrança real no cartão.</p>
+
+                  <div className="mt-5 flex gap-3">
                     <button
                       type="button"
                       disabled={isProcessingUpgrade}
                       onClick={() => setIsUpgrading(false)}
-                      className="flex-1 py-3.5 bg-white hover:bg-slate-50 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all border border-slate-200 cursor-pointer disabled:opacity-50"
+                      className="h-8 flex-1 rounded-xl border border-slate-200/70 bg-white px-4 text-[12px] font-semibold text-slate-500 transition-all hover:bg-slate-50 active:scale-95 disabled:opacity-50"
                     >
                       Cancelar
                     </button>
@@ -572,13 +491,9 @@ export const BillingTab: React.FC<BillingTabProps> = ({
                       type="button"
                       disabled={isProcessingUpgrade}
                       onClick={handleConfirmUpgrade}
-                      className="flex-1 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all border-0 shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      className="flex h-8 flex-1 items-center justify-center gap-2 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 disabled:opacity-50"
                     >
-                      {isProcessingUpgrade ? (
-                        <><Loader2 size={12} className="animate-spin" /> Processando...</>
-                      ) : (
-                        'Confirmar'
-                      )}
+                      {isProcessingUpgrade ? <><Loader2 size={14} className="animate-spin" /> Processando</> : 'Confirmar'}
                     </button>
                   </div>
                 </div>
@@ -587,70 +502,63 @@ export const BillingTab: React.FC<BillingTabProps> = ({
           </div>
         )}
 
-        {/* Checkout de Créditos Avulsos */}
         {isBuyingCredits && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <motion.div 
+          <div className="company-dashboard-surface fixed inset-0 z-[2147483647] flex items-center justify-center p-4">
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => !isProcessingCredits && !creditsSuccess && setIsBuyingCredits(false)}
-              className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/45 backdrop-blur-sm"
             />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative w-full max-w-sm bg-white rounded-[2rem] shadow-2xl p-7 overflow-hidden border border-slate-100 flex flex-col text-center"
+              exit={{ opacity: 0, scale: 0.97, y: 12 }}
+              className="relative w-full max-w-md rounded-2xl border border-slate-200/70 bg-white p-6 text-center shadow-2xl"
             >
               {creditsSuccess ? (
-                <div className="py-6 space-y-4">
-                  <div className="mx-auto w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 ring-8 ring-emerald-50">
+                <div className="py-6">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#63e1a5]/14 text-[#2f9f6b]">
                     <ShieldCheck size={28} />
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Compra Concluída!</h3>
-                  <p className="text-xs text-slate-400 font-bold leading-relaxed max-w-xs mx-auto uppercase tracking-wide">
-                    **{creditAmount} créditos** foram adicionados com sucesso ao saldo da empresa **{company?.nomeFantasia}**.
+                  <h3 className="mt-5 text-[20px] font-semibold tracking-tight text-[#343241]">Compra concluída</h3>
+                  <p className="mx-auto mt-2 max-w-sm text-[12px] font-medium leading-relaxed text-slate-400">
+                    {creditAmount} créditos foram adicionados ao saldo da empresa {company?.nomeFantasia}.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-5">
-                  <div className="mx-auto w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
-                    <Brain size={20} />
+                <div>
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f3e5ff] text-[#940dff]">
+                    <Brain size={22} />
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="text-base font-black text-slate-950 uppercase tracking-tight">Confirmar Créditos</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">
-                      Adquirir pacote de créditos adicionais
-                    </p>
-                  </div>
+                  <h3 className="mt-5 text-[20px] font-semibold tracking-tight text-[#343241]">Confirmar créditos</h3>
+                  <p className="mt-2 text-[12px] font-medium text-slate-400">Adquirir pacote de créditos adicionais.</p>
 
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-left space-y-1.5">
-                    <div className="flex justify-between text-xs font-bold text-slate-700">
-                      <span>Quantidade:</span>
+                  <div className="mt-5 rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-4 text-left">
+                    <div className="flex justify-between text-[12px] font-medium text-slate-500">
+                      <span>Quantidade</span>
                       <span>{creditAmount} créditos</span>
                     </div>
-                    <div className="flex justify-between text-xs font-bold text-slate-700">
-                      <span>Valor Unitário:</span>
-                      <span>R$ {unitPrice.toFixed(2)}</span>
+                    <div className="mt-3 flex justify-between text-[12px] font-medium text-slate-500">
+                      <span>Valor unitário</span>
+                      <span>{currency(unitPrice)}</span>
                     </div>
-                    <div className="w-full h-[1px] bg-slate-200/60 my-1" />
-                    <div className="flex justify-between text-xs font-black text-slate-800">
-                      <span>Valor Total:</span>
-                      <span>R$ {totalPrice.toFixed(2)}</span>
+                    <div className="my-3 h-px bg-slate-200/70" />
+                    <div className="flex justify-between text-[13px] font-semibold text-[#343241]">
+                      <span>Total</span>
+                      <span>{currency(totalPrice)}</span>
                     </div>
                   </div>
 
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center">
-                    Simulação: Não haverá cobrança real no seu cartão.
-                  </p>
+                  <p className="mt-4 text-[12px] font-medium text-slate-400">Simulação: não haverá cobrança real no cartão.</p>
 
-                  <div className="flex gap-3 pt-2">
+                  <div className="mt-5 flex gap-3">
                     <button
                       type="button"
                       disabled={isProcessingCredits}
                       onClick={() => setIsBuyingCredits(false)}
-                      className="flex-1 py-3.5 bg-white hover:bg-slate-50 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all border border-slate-200 cursor-pointer disabled:opacity-50"
+                      className="h-8 flex-1 rounded-xl border border-slate-200/70 bg-white px-4 text-[12px] font-semibold text-slate-500 transition-all hover:bg-slate-50 active:scale-95 disabled:opacity-50"
                     >
                       Cancelar
                     </button>
@@ -658,13 +566,9 @@ export const BillingTab: React.FC<BillingTabProps> = ({
                       type="button"
                       disabled={isProcessingCredits}
                       onClick={handleConfirmBuyCredits}
-                      className="flex-1 py-3.5 bg-[#533af6] hover:bg-[#4326e5] text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all border-0 shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      className="flex h-8 flex-1 items-center justify-center gap-2 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 disabled:opacity-50"
                     >
-                      {isProcessingCredits ? (
-                        <><Loader2 size={12} className="animate-spin" /> Processando...</>
-                      ) : (
-                        'Confirmar'
-                      )}
+                      {isProcessingCredits ? <><Loader2 size={14} className="animate-spin" /> Processando</> : 'Confirmar'}
                     </button>
                   </div>
                 </div>
@@ -673,7 +577,6 @@ export const BillingTab: React.FC<BillingTabProps> = ({
           </div>
         )}
       </AnimatePresence>
-
     </div>
   );
 };

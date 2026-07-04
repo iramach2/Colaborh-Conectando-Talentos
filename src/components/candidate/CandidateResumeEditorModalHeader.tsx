@@ -1,0 +1,62 @@
+import { ElementType } from 'react';
+import {
+  Award,
+  Briefcase,
+  FileText,
+  GraduationCap,
+  HeartHandshake,
+  Languages,
+  Star,
+  User,
+  X,
+} from 'lucide-react';
+
+const SECTION_CONFIG: Record<string, { title: string; description: string; icon: ElementType; color: string; soft: string }> = {
+  info: { title: 'Dados pessoais', description: 'Atualize suas informações principais.', icon: User, color: '#940dff', soft: '#f3e5ff' },
+  summary: { title: 'Resumo profissional', description: 'Conte sua trajetória de forma objetiva.', icon: FileText, color: '#940dff', soft: '#f3e5ff' },
+  experience: { title: 'Experiência profissional', description: 'Adicione empresas, cargos e atividades.', icon: Briefcase, color: '#940dff', soft: '#f3e5ff' },
+  education: { title: 'Formação acadêmica', description: 'Informe cursos, instituições e status.', icon: GraduationCap, color: '#940dff', soft: '#f3e5ff' },
+  skills: { title: 'Habilidades', description: 'Destaque suas principais competências.', icon: Star, color: '#940dff', soft: '#f3e5ff' },
+  languages: { title: 'Idiomas', description: 'Liste idiomas e níveis de fluência.', icon: Languages, color: '#940dff', soft: '#f3e5ff' },
+  achievements: { title: 'Certificações e cursos', description: 'Inclua cursos, certificados e reconhecimentos.', icon: Award, color: '#940dff', soft: '#f3e5ff' },
+  diversity: { title: 'Diversidade', description: 'Preenchimento opcional e protegido.', icon: HeartHandshake, color: '#940dff', soft: '#f3e5ff' },
+};
+
+interface CandidateResumeEditorModalHeaderProps {
+  activeAccordion: string;
+  onClose: () => void;
+}
+
+export function CandidateResumeEditorModalHeader({
+  activeAccordion,
+  onClose,
+}: CandidateResumeEditorModalHeaderProps) {
+  const section = SECTION_CONFIG[activeAccordion] || SECTION_CONFIG.info;
+  const Icon = section.icon;
+
+  return (
+    <div className="mb-5 flex shrink-0 items-start justify-between gap-4 border-b border-slate-200/70 pb-5">
+      <div className="flex min-w-0 items-start gap-3">
+        <div
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/80 shadow-sm"
+          style={{ backgroundColor: section.soft, color: section.color }}
+        >
+          <Icon size={19} />
+        </div>
+        <div className="min-w-0 pt-0.5">
+          <h2 className="text-[20px] font-semibold tracking-tight text-[#343241]">{section.title}</h2>
+          <p className="mt-1 text-[12px] font-medium text-slate-400">{section.description}</p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onClose}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-[#940dff] shadow-sm transition-all hover:bg-[#f3e5ff] active:scale-95"
+        title="Fechar"
+      >
+        <X size={17} />
+      </button>
+    </div>
+  );
+}

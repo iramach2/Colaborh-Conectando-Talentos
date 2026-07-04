@@ -1,31 +1,59 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { X as CloseIcon, ChevronUp, ChevronDown, Trash2, Check, GripVertical } from 'lucide-react';
+import { X as CloseIcon, ChevronUp, ChevronDown, Trash2, Check, GripVertical, Plus, ClipboardList } from 'lucide-react';
+import type { CompanyApplicant, CompanyJob } from '../../../types/companyDashboard';
 import { getCurrentJobStages, getCurrentJobStageTests } from '../../../utils/companyDashboardUtils';
+import type { CustomQuestionnaire } from '../../../services/customQuestionnaireService';
 
 interface ManageStagesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  job: any;
-  jobApplicants: any[];
+  job: CompanyJob | null;
+  jobApplicants: CompanyApplicant[];
+  customTemplates?: CustomQuestionnaire[];
   onAddNewStage: (stageName: string) => void;
   onReorderStages: (newStages: string[]) => void;
   onDeleteStage: (stageName: string) => void;
-  onUpdateStageTests: (jobId: string, newStageTests: Record<string, string[]>) => Promise<any>;
+  onUpdateStageTests: (jobId: string, newStageTests: Record<string, string[]>) => Promise<unknown>;
 }
+
+const availableTests = [
+  { key: 'disc', label: 'DISC', color: 'text-[#533af6] bg-[#533af6]/10 border-[#533af6]/18' },
+  { key: 'mbti', label: 'MBTI', color: 'text-[#940dff] bg-[#f3e5ff] border-[#940dff]/16' },
+  { key: 'temperamentos', label: 'Temperamentos', color: 'text-[#ffa303] bg-[#ffc24b]/16 border-[#ffc24b]/30' },
+  { key: 'perguntas', label: 'Perguntas', color: 'text-[#40b87f] bg-[#63e1a5]/14 border-[#63e1a5]/25' },
+  { key: 'customizado', label: 'Customizado', color: 'text-[#ff4b8c] bg-[#ff4b8c]/10 border-[#ff4b8c]/20' },
+];
+
+type ParsedStageTestConfig = {
+  key: string;
+  templateId?: string | null;
+  trigger: 'auto' | 'manual';
+};
+
+const parseStageTestConfig = (value: string): ParsedStageTestConfig => {
+  const [key, second, third] = value.split(':');
+  if (key === 'customizado' && third) {
+    return { key, templateId: second, trigger: third === 'manual' ? 'manual' : 'auto' };
+  }
+  return { key, templateId: null, trigger: second === 'manual' ? 'manual' : 'auto' };
+};
+
+const serializeStageTestConfig = (key: string, templateId?: string | null) => (
+  key === 'customizado' && templateId ? `${key}:${templateId}:auto` : `${key}:auto`
+);
 
 export const ManageStagesModal = ({
   isOpen,
   onClose,
   job,
   jobApplicants,
+  customTemplates = [],
   onAddNewStage,
   onReorderStages,
   onDeleteStage,
   onUpdateStageTests
 }: ManageStagesModalProps) => {
-  if (!job) return null;
-
   const [expandedStages, setExpandedStages] = React.useState<Record<string, boolean>>({});
   const [stagesOrder, setStagesOrder] = React.useState<string[]>([]);
   const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
@@ -35,6 +63,28 @@ export const ManageStagesModal = ({
       setStagesOrder(getCurrentJobStages(job));
     }
   }, [job]);
+  React.useEffect(() => {
+    if (!isOpen || !job?.id) return;
+
+    const current = getCurrentJobStageTests(job);
+    let hasManualTrigger = false;
+    const normalized = Object.entries(current).reduce<Record<string, string[]>>((acc, [stageName, tests]) => {
+      acc[stageName] = tests.map((test) => {
+        const parsed = parseStageTestConfig(test);
+        if (parsed.trigger !== 'auto') hasManualTrigger = true;
+        return serializeStageTestConfig(parsed.key, parsed.templateId);
+      });
+      return acc;
+    }, {});
+
+    if (hasManualTrigger) {
+      onUpdateStageTests(job.id, normalized).catch((error) => {
+        console.error('Error normalizing stage test triggers:', error);
+      });
+    }
+  }, [isOpen, job, onUpdateStageTests]);
+
+  if (!isOpen || !job) return null;
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
@@ -45,15 +95,13 @@ export const ManageStagesModal = ({
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === index) return;
-    
-    // Cadastro deve ser sempre o índice 0. Não permitir mover nada para antes do Cadastro e não permitir mover o Cadastro.
     if (index === 0 || draggedIndex === 0) return;
 
     const newStages = [...stagesOrder];
     const draggedItem = newStages[draggedIndex];
     newStages.splice(draggedIndex, 1);
     newStages.splice(index, 0, draggedItem);
-    
+
     setDraggedIndex(index);
     setStagesOrder(newStages);
   };
@@ -74,313 +122,354 @@ export const ManageStagesModal = ({
   const allCols = stagesOrder;
   const currentStageTests = getCurrentJobStageTests(job);
 
-  const availableTests = [
-    { key: 'disc', label: 'DISC', color: 'text-indigo-600 bg-indigo-50 border-indigo-200' },
-    { key: 'mbti', label: 'MBTI', color: 'text-purple-600 bg-purple-50 border-purple-200' },
-    { key: 'temperamentos', label: 'Temperamentos', color: 'text-amber-600 bg-amber-50 border-amber-200' },
-    { key: 'perguntas', label: 'Perguntas', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
-    { key: 'customizado', label: 'Customizado', color: 'text-rose-600 bg-rose-50 border-rose-200' },
-  ];
-
   const toggleStageTest = async (colName: string, testKey: string) => {
     const current = currentStageTests[colName] || [];
-    const existing = current.find(t => t.split(':')[0] === testKey);
-    let updated: string[];
-    if (existing) {
-      updated = current.filter(t => t.split(':')[0] !== testKey);
-    } else {
-      updated = [...current, `${testKey}:auto`];
-    }
+    const existing = current.find(t => parseStageTestConfig(t).key === testKey);
+    const updated = existing
+      ? current.filter(t => parseStageTestConfig(t).key !== testKey)
+      : [...current, serializeStageTestConfig(testKey)];
     const newStageTests = { ...currentStageTests, [colName]: updated };
     await onUpdateStageTests(job.id, newStageTests);
   };
 
-  const setStageTestTrigger = async (colName: string, testKey: string, trigger: 'auto' | 'manual') => {
+  const toggleCustomTemplateStageTest = async (colName: string, templateId: string) => {
     const current = currentStageTests[colName] || [];
-    const updated = current.map(t => {
-      if (t.split(':')[0] === testKey) {
-        return `${testKey}:${trigger}`;
-      }
-      return t;
+    const existing = current.find((test) => {
+      const parsed = parseStageTestConfig(test);
+      return parsed.key === 'customizado' && parsed.templateId === templateId;
     });
+    const withoutCustomTemplates = current.filter((test) => parseStageTestConfig(test).key !== 'customizado');
+    const updated = existing
+      ? withoutCustomTemplates
+      : [...withoutCustomTemplates, serializeStageTestConfig('customizado', templateId)];
     const newStageTests = { ...currentStageTests, [colName]: updated };
     await onUpdateStageTests(job.id, newStageTests);
+  };
+
+
+  const handleAddStage = () => {
+    const input = document.getElementById('popup-new-stage-input') as HTMLInputElement;
+    if (input?.value.trim()) {
+      onAddNewStage(input.value.trim());
+      input.value = '';
+    }
   };
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-end">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs"
+        className="absolute inset-0 bg-slate-900/35 backdrop-blur-[2px]"
       />
-      <motion.div 
+
+      <motion.div
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
-        transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-        className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl p-8 overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="relative z-10 flex h-full w-full max-w-lg flex-col overflow-hidden border-l border-white/80 bg-[#fbf9ff] shadow-[0_24px_80px_rgba(57,39,96,0.20)]"
       >
-        
-        <div className="flex justify-between items-center mb-6 mt-2 shrink-0">
-          <div>
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Gerenciar Etapas</h3>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Customize o funil de seleção desta vaga</p>
-          </div>
-          <button 
-            onClick={onClose}
-            className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-          >
-            <CloseIcon size={14} />
-          </button>
-        </div>
+        <header className="shrink-0 px-6 pb-4 pt-5 text-left">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h3 className="text-[20px] font-semibold tracking-tight text-[#343241]">ConfiguraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âµes das etapas</h3>
+              <p className="mt-0.5 truncate text-[12px] font-medium leading-tight text-slate-400">
+                {job.title || 'Vaga sem tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­tulo'}
+              </p>
+            </div>
 
-        {/* Adicionar Nova Etapa */}
-        <div className="bg-slate-50 p-4 rounded-[5px] border border-slate-100 mb-6 shrink-0 text-left">
-          <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Adicionar Nova Etapa</h4>
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Digite o nome da etapa..."
-              id="popup-new-stage-input"
-              className="flex-1 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-full outline-none focus:border-[#8959f5]/50 focus:ring-2 focus:ring-[#8959f5]/5 transition-all"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  const target = e.currentTarget;
-                  if (target.value.trim()) {
-                    onAddNewStage(target.value.trim());
-                    target.value = '';
-                  }
-                }
-              }}
-            />
             <button
               type="button"
-              onClick={() => {
-                const input = document.getElementById('popup-new-stage-input') as HTMLInputElement;
-                if (input && input.value.trim()) {
-                  onAddNewStage(input.value.trim());
-                  input.value = '';
-                }
-              }}
-              className="px-4 py-2 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-md shadow-[#8959f5]/15"
+              onClick={onClose}
+              className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl border border-white/80 bg-white text-slate-400 shadow-sm transition-all hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95"
+              title="Fechar configuraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âµes"
             >
-              Adicionar
+              <CloseIcon size={17} className="stroke-[2.4]" />
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* Lista de Etapas (Vertical e Rolável) */}
-        <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 mb-6 min-h-0 pr-1 text-left">
-          <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 select-none sticky top-0 bg-white py-1 z-10">Etapas do Processo ({allCols.length})</h4>
-          {(() => {
-            return allCols.map((colName, stageIdx) => {
-              const defaultStage = currentStagesList[0] || 'Triagem';
-              const count = jobApplicants.filter(applicant => {
-                const currentStatus = applicant.status;
-                const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !allCols.includes(currentStatus)) 
-                  ? defaultStage 
-                  : currentStatus;
-                return normalizedStatus === colName;
-              }).length;
+        <div className="flex-1 overflow-y-auto px-6 pb-6 text-left no-scrollbar">
+          <section className="rounded-2xl border border-slate-200/70 bg-white/85 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f3e5ff] text-[#940dff]">
+                <Plus size={17} className="stroke-[2.5]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-[#343241]">Adicionar etapa</h4>
+                <p className="text-[12px] font-medium text-slate-400">Crie uma nova fase para este processo seletivo.</p>
+              </div>
+            </div>
 
-              const isSpecial = false;
-              const isCadastro = stageIdx === 0 && colName === 'Cadastro';
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Nome da etapa"
+                id="popup-new-stage-input"
+                className="h-8 min-w-0 flex-1 rounded-xl border border-slate-200/80 bg-white px-3 text-[12px] font-medium text-slate-600 outline-none transition-all placeholder:text-slate-400 focus:border-[#940dff]/35 focus:ring-2 focus:ring-[#940dff]/10"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const target = e.currentTarget;
+                    if (target.value.trim()) {
+                      onAddNewStage(target.value.trim());
+                      target.value = '';
+                    }
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleAddStage}
+                className="flex h-8 items-center justify-center rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"
+              >
+                Adicionar
+              </button>
+            </div>
+          </section>
 
-              return (
-                <div 
-                  key={colName}
-                  draggable={!isCadastro}
-                  onDragStart={(e) => handleDragStart(e, stageIdx)}
-                  onDragOver={(e) => handleDragOver(e, stageIdx)}
-                  onDragEnd={handleDragEnd}
-                  className={`rounded-xl border transition-all overflow-hidden text-left ${
-                    isCadastro 
-                      ? 'border-[#8959f5]/25 bg-[#8959f5]/5' 
-                      : isSpecial
-                      ? 'bg-slate-50/50 border-slate-100 text-slate-400'
-                      : 'bg-white border-slate-100 hover:border-slate-200 text-slate-700'
-                  } ${draggedIndex === stageIdx ? 'opacity-40 border-dashed border-[#8959f5]' : ''}`}
-                >
-                  <div className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {!isCadastro && !isSpecial && (
-                        <div 
-                          className="text-slate-350 hover:text-slate-500 cursor-grab active:cursor-grabbing p-1 -ml-1 rounded transition-colors select-none"
-                          title="Segure e arraste para reordenar"
-                        >
-                          <GripVertical size={14} />
+          <section className="mt-4">
+            <div className="mb-3 flex items-center justify-between gap-3 px-1">
+              <div className="flex items-center gap-2">
+                <ClipboardList size={15} className="text-slate-400" />
+                <h4 className="text-sm font-semibold text-[#343241]">Etapas do processo</h4>
+              </div>
+              <span className="text-[12px] font-semibold text-slate-400">{allCols.length} etapas</span>
+            </div>
+
+            <div className="space-y-3">
+              {allCols.map((colName, stageIdx) => {
+                const defaultStage = currentStagesList[0] || 'Triagem';
+                const count = jobApplicants.filter(applicant => {
+                  const currentStatus = applicant.status;
+                  const normalizedStatus = (!currentStatus || currentStatus === 'Triagem' || !allCols.includes(currentStatus))
+                    ? defaultStage
+                    : currentStatus;
+                  return normalizedStatus === colName;
+                }).length;
+
+                const isSpecial = false;
+                const isCadastro = stageIdx === 0 && colName === 'Cadastro';
+                const activeTestsCount = (currentStageTests[colName] || []).length;
+
+                return (
+                  <article
+                    key={colName}
+                    draggable={!isCadastro}
+                    onDragStart={(e) => handleDragStart(e, stageIdx)}
+                    onDragOver={(e) => handleDragOver(e, stageIdx)}
+                    onDragEnd={handleDragEnd}
+                    className={`overflow-hidden rounded-2xl border bg-white/85 shadow-[0_10px_28px_rgba(15,23,42,0.035)] transition-all ${
+                      isCadastro ? 'border-[#940dff]/18' : 'border-slate-200/70 hover:border-[#940dff]/20'
+                    } ${draggedIndex === stageIdx ? 'border-dashed border-[#940dff] opacity-50' : ''}`}
+                  >
+                    <div className="flex items-center justify-between gap-3 p-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        {!isCadastro && !isSpecial && (
+                          <div
+                            className="-ml-1 rounded-lg p-1 text-slate-300 transition-colors hover:text-slate-500 cursor-grab active:cursor-grabbing"
+                            title="Segure e arraste para reordenar"
+                          >
+                            <GripVertical size={16} />
+                          </div>
+                        )}
+
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold ${
+                          isCadastro ? 'bg-[#940dff] text-white' : 'bg-[#f3e5ff] text-[#940dff]'
+                        }`}>
+                          {stageIdx + 1}
                         </div>
-                      )}
-                      <div className={`w-5 h-5 rounded-[4px] flex items-center justify-center font-black text-[10px] shrink-0 select-none ${
-                        isCadastro ? 'bg-[#8959f5] text-white' : 'bg-slate-100 text-[#8959f5]'
-                      }`}>
-                        {stageIdx + 1}
-                      </div>
-                      <span className="text-xs font-bold truncate uppercase tracking-tight select-none">{colName}</span>
-                      <span className="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black select-none">
-                        {count}
-                      </span>
-                    </div>
 
-                    {!isSpecial && !isCadastro && (
-                      <div className="flex items-center gap-1 shrink-0">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h5 className="truncate text-sm font-semibold text-[#343241]">{colName}</h5>
+                            {isCadastro && (
+                              <span className="rounded-lg bg-[#f3e5ff] px-2 py-1 text-[10px] font-semibold text-[#940dff]">
+                                ObrigatÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ria
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[12px] font-medium text-slate-400">
+                            {count} {count === 1 ? 'candidato' : 'candidatos'} nesta etapa
+                          </p>
+                        </div>
+                      </div>
+
+                      {!isSpecial && !isCadastro && (
                         <button
                           type="button"
-                          title={count > 0 ? "Não é possível excluir (contém candidatos)" : "Excluir etapa"}
+                          title={count > 0 ? 'NÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© possÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­vel excluir uma etapa com candidatos' : 'Excluir etapa'}
                           disabled={count > 0}
                           onClick={() => onDeleteStage(colName)}
-                          className={`p-1.5 rounded-full transition-colors flex items-center justify-center ${
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all ${
                             count > 0
-                              ? 'text-slate-200 cursor-not-allowed'
-                              : 'hover:bg-rose-500/10 text-rose-500 hover:text-rose-650 cursor-pointer'
+                              ? 'cursor-not-allowed bg-slate-50 text-slate-200'
+                              : 'bg-[#ff4b8c]/10 text-[#ff4b8c] hover:bg-[#ff4b8c] hover:text-white active:scale-95'
                           }`}
                         >
                           <Trash2 size={14} />
                         </button>
-                      </div>
-                    )}
-                    {isCadastro && (
-                      <span className="text-[7.5px] font-black uppercase text-[#8959f5]/60 tracking-wider bg-[#8959f5]/10 rounded-full px-2 py-0.5 select-none shrink-0">
-                        Obrigatória
-                      </span>
-                    )}
-                    {isSpecial && (
-                      <span className="text-[7.5px] font-black uppercase text-slate-400 tracking-wider bg-slate-100 rounded-md px-1.5 py-0.5 select-none">
-                        Sistema
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Botão de Toggle de Testes e Lista de Testes */}
-                  {!isSpecial && !isCadastro && (
-                    <div className="border-t border-slate-100/60 p-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => toggleStageExpanded(colName)}
-                        className={`w-full py-2 px-3 flex items-center justify-between rounded-lg transition-all cursor-pointer border text-[10px] font-black uppercase tracking-wider select-none outline-none ${
-                          expandedStages[colName]
-                            ? 'bg-[#8959f5] text-white border-[#8959f5] shadow-sm shadow-[#8959f5]/15'
-                            : 'bg-[#8959f5]/8 text-[#8959f5] border-[#8959f5]/15 hover:bg-[#8959f5]/15 hover:border-[#8959f5]/30'
-                        }`}
-                      >
-                        <span className="flex items-center gap-1.5 font-bold">
-                          Configurar Testes
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          {(() => {
-                            const activeCount = (currentStageTests[colName] || []).length;
-                            if (activeCount > 0) {
-                              return (
-                                <span className={`px-1.5 py-0.5 rounded-full text-[8.5px] font-black ${
-                                  expandedStages[colName]
-                                    ? 'bg-white text-[#8959f5]'
-                                    : 'bg-[#8959f5] text-white'
-                                }`}>
-                                  {activeCount} {activeCount === 1 ? 'ativo' : 'ativos'}
-                                </span>
-                              );
-                            }
-                            return null;
-                          })()}
-                          {expandedStages[colName] ? <ChevronUp size={12} className="stroke-[2.5]" /> : <ChevronDown size={12} className="stroke-[2.5]" />}
-                        </div>
-                      </button>
-
-                      {expandedStages[colName] && (
-                        <div className="mt-3 flex flex-col gap-2 pt-3 border-t border-slate-100/60 font-sans">
-                          {availableTests.map(test => {
-                            const matched = (currentStageTests[colName] || []).find((t) => t.split(':')[0] === test.key);
-                            const isSelected = !!matched;
-                            const trigger = isSelected ? (matched.split(':')[1] || 'auto') : 'auto';
-
-                            return (
-                              <div 
-                                key={test.key} 
-                                className={`flex items-center justify-between p-2.5 rounded-xl border transition-all ${
-                                  isSelected 
-                                    ? 'bg-slate-50 border-slate-200/60 shadow-2xs' 
-                                    : 'bg-white border-slate-100 hover:border-slate-200/50'
-                                }`}
-                              >
-                                {/* Lado Esquerdo: Checkbox + Nome do Teste */}
-                                <button
-                                  type="button"
-                                  onClick={() => toggleStageTest(colName, test.key)}
-                                  className="flex items-center gap-2.5 text-left outline-none cursor-pointer group bg-transparent border-0"
-                                >
-                                  <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
-                                    isSelected 
-                                      ? 'bg-[#7b39eb] border-[#7b39eb] text-white shadow-sm shadow-[#7b39eb]/20' 
-                                      : 'border-slate-300 bg-white group-hover:border-slate-400'
-                                  }`}>
-                                    {isSelected && <Check size={12} className="stroke-[3]" />}
-                                  </div>
-                                  <span className={`text-[10px] font-black uppercase tracking-tight ${
-                                    isSelected ? 'text-slate-800' : 'text-slate-500 group-hover:text-slate-700'
-                                  }`}>
-                                    {test.label}
-                                  </span>
-                                </button>
-
-                                {/* Lado Direito: Controle de Gatilho (Automático/Manual) Maior */}
-                                {isSelected && (
-                                  <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200/60 shadow-3xs select-none">
-                                    <button
-                                      type="button"
-                                      onClick={() => setStageTestTrigger(colName, test.key, 'auto')}
-                                      className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                                        trigger === 'auto'
-                                          ? 'bg-slate-900 text-white shadow-sm'
-                                          : 'text-slate-400 hover:text-slate-700'
-                                      }`}
-                                      title="Disparo automático ao mover candidato para esta etapa"
-                                    >
-                                      Automático
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => setStageTestTrigger(colName, test.key, 'manual')}
-                                      className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                                        trigger === 'manual'
-                                          ? 'bg-slate-900 text-white shadow-sm'
-                                          : 'text-slate-400 hover:text-slate-700'
-                                      }`}
-                                      title="Disparo manual pelo recrutador nesta etapa"
-                                    >
-                                      Manual
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
                       )}
                     </div>
-                  )}
 
-                  {isCadastro && (
-                    <div className="px-3 pb-2.5 pt-2 text-[9.5px] text-slate-400 font-medium italic border-t border-slate-100/60 font-sans">
-                      Não é possível solicitar testes na etapa inicial de Cadastro.
-                    </div>
-                  )}
-                </div>
-              );
-            });
-          })()}
-        </div>
+                    {!isSpecial && !isCadastro && (
+                      <div className="border-t border-slate-100/80 px-4 pb-4 pt-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleStageExpanded(colName)}
+                          className={`flex h-8 w-full items-center justify-between rounded-xl px-3 text-[12px] font-semibold transition-all active:scale-[0.99] ${
+                            expandedStages[colName]
+                              ? 'bg-[#940dff] text-white shadow-[0_10px_22px_rgba(148,13,255,0.18)]'
+                              : 'border border-[#940dff]/12 bg-[#f3e5ff] text-[#940dff] hover:border-[#940dff]/22'
+                          }`}
+                        >
+                          <span>Testes da etapa</span>
+                          <span className="flex items-center gap-2">
+                            {activeTestsCount > 0 && (
+                              <span className={`rounded-lg px-2 py-0.5 text-[10px] font-semibold ${
+                                expandedStages[colName] ? 'bg-white text-[#940dff]' : 'bg-white text-[#940dff]'
+                              }`}>
+                                {activeTestsCount} {activeTestsCount === 1 ? 'ativo' : 'ativos'}
+                              </span>
+                            )}
+                            {expandedStages[colName] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          </span>
+                        </button>
 
-        <div className="border-t border-slate-100 pt-4 flex justify-end shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-6 py-2 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
-          >
-            Fechar
-          </button>
+                        {expandedStages[colName] && (
+                          <div className="mt-3 space-y-2">
+                            {availableTests.map(test => {
+                              const stageTests = currentStageTests[colName] || [];
+                              const matched = stageTests.find((t) => parseStageTestConfig(t).key === test.key);
+                              const isSelected = !!matched;
+
+                              if (test.key === 'customizado') {
+                                const selectedTemplate = stageTests
+                                  .map(parseStageTestConfig)
+                                  .find((parsed) => parsed.key === 'customizado');
+
+                                return (
+                                  <div
+                                    key={test.key}
+                                    className={`rounded-2xl border p-3 transition-all ${
+                                      isSelected ? `${test.color} shadow-[0_8px_20px_rgba(15,23,42,0.035)]` : 'border-slate-200/70 bg-white text-slate-500'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between gap-3">
+                                      <div className="flex min-w-0 items-center gap-3 text-left">
+                                        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all ${
+                                          isSelected
+                                            ? 'border-[#63e1a5] bg-[#63e1a5] text-white'
+                                            : 'border-slate-300 bg-white text-transparent'
+                                        }`}>
+                                          <Check size={12} className="stroke-[3]" />
+                                        </span>
+                                        <div className="min-w-0">
+                                          <span className="block truncate text-[12px] font-semibold">{test.label}</span>
+                                          <span className="block truncate text-[11px] font-medium text-slate-400">
+                                            Selecione um questionario cadastrado
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      {selectedTemplate?.templateId && (
+                                        <span className="inline-flex h-8 shrink-0 items-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-3 text-[11px] font-semibold text-[#940dff]">
+                                          Automatico
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="mt-3 space-y-2 border-t border-slate-200/60 pt-3">
+                                      {customTemplates.length === 0 ? (
+                                        <p className="rounded-xl bg-white/80 px-3 py-2 text-[12px] font-medium text-slate-400">
+                                          Nenhum questionario customizado cadastrado ainda.
+                                        </p>
+                                      ) : customTemplates.map((template) => {
+                                        const isTemplateSelected = selectedTemplate?.templateId === template.id;
+                                        return (
+                                          <button
+                                            key={template.id}
+                                            type="button"
+                                            onClick={() => toggleCustomTemplateStageTest(colName, template.id)}
+                                            className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-left transition-all active:scale-[0.99] ${
+                                              isTemplateSelected
+                                                ? 'border-[#940dff]/22 bg-white text-[#940dff]'
+                                                : 'border-slate-200/70 bg-white/80 text-slate-500 hover:border-[#940dff]/18 hover:bg-[#f3e5ff] hover:text-[#940dff]'
+                                            }`}
+                                          >
+                                            <span className="min-w-0">
+                                              <span className="block truncate text-[12px] font-semibold">{template.title}</span>
+                                              <span className="block text-[11px] font-medium text-slate-400">
+                                                {template.questions.length} {template.questions.length === 1 ? 'pergunta' : 'perguntas'}
+                                              </span>
+                                            </span>
+                                            <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
+                                              isTemplateSelected
+                                                ? 'border-[#63e1a5] bg-[#63e1a5] text-white'
+                                                : 'border-slate-300 bg-white text-transparent'
+                                            }`}>
+                                              <Check size={12} className="stroke-[3]" />
+                                            </span>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div
+                                  key={test.key}
+                                  className={`rounded-2xl border p-3 transition-all ${
+                                    isSelected ? `${test.color} shadow-[0_8px_20px_rgba(15,23,42,0.035)]` : 'border-slate-200/70 bg-white text-slate-500'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleStageTest(colName, test.key)}
+                                      className="group flex min-w-0 items-center gap-3 text-left"
+                                    >
+                                      <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all ${
+                                        isSelected
+                                          ? 'border-[#63e1a5] bg-[#63e1a5] text-white'
+                                          : 'border-slate-300 bg-white text-transparent group-hover:border-[#940dff]/30'
+                                      }`}>
+                                        <Check size={12} className="stroke-[3]" />
+                                      </span>
+                                      <span className="truncate text-[12px] font-semibold">{test.label}</span>
+                                    </button>
+
+                                    {isSelected && (
+                                      <span
+                                        className="inline-flex h-8 shrink-0 items-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-3 text-[11px] font-semibold text-[#940dff]"
+                                        title="Disparo automatico ao mover candidato para esta etapa"
+                                      >
+                                        Automatico
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {isCadastro && (
+                      <div className="border-t border-slate-100/80 px-4 pb-4 pt-3 text-[12px] font-medium text-slate-400">
+                        A etapa inicial nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o solicita testes automaticamente.
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
         </div>
       </motion.div>
     </div>

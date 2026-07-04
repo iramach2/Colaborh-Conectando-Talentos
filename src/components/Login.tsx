@@ -2,12 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, User, Mail, Lock, Phone, Building, Loader2, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { getReadableErrorMessage } from '../utils/errorUtils';
 
 interface LoginProps {
   onBack: () => void;
   onLoginSuccess: (role: 'candidate' | 'company') => void;
   initialMode?: 'login' | 'register';
 }
+
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+const normalizePhoneDigits = (phone: string) => phone.replace(/\D/g, '');
+const PENDING_OTP_STORAGE_KEY = 'colaborh_pending_otp_signup';
+
+type PendingOtpSignup = {
+  email: string;
+  fullName: string;
+  whatsapp: string;
+  regType: 'candidate' | 'company';
+};
 
 export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }: LoginProps) {
   useEffect(() => {
@@ -43,6 +55,30 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
     confirmPassword: ''
   });
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PENDING_OTP_STORAGE_KEY);
+      if (!saved) return;
+
+      const pending = JSON.parse(saved) as PendingOtpSignup;
+      if (!pending?.email) return;
+
+      setMode('register');
+      setRegType(pending.regType || 'candidate');
+      setOtpEmail(pending.email);
+      setIsVerifyingOtp(true);
+      setFormData((prev) => ({
+        ...prev,
+        fullName: pending.fullName || prev.fullName,
+        email: pending.email,
+        whatsapp: pending.whatsapp || prev.whatsapp,
+      }));
+    } catch (error) {
+      console.warn('Nao foi possivel restaurar confirmacao de e-mail pendente:', error);
+      localStorage.removeItem(PENDING_OTP_STORAGE_KEY);
+    }
+  }, []);
+
   const toggleMode = (newMode: 'login' | 'register') => {
     setMode(newMode);
     setErrorMessage(null);
@@ -53,9 +89,63 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
     setErrorMessage(null);
   };
 
+  const persistPendingOtpSignup = (email: string, type: 'candidate' | 'company' = regType) => {
+    const payload: PendingOtpSignup = {
+      email,
+      fullName: formData.fullName,
+      whatsapp: normalizePhoneDigits(formData.whatsapp),
+      regType: type,
+    };
+    localStorage.setItem(PENDING_OTP_STORAGE_KEY, JSON.stringify(payload));
+  };
+
+  const clearPendingOtpSignup = () => {
+    localStorage.removeItem(PENDING_OTP_STORAGE_KEY);
+  };
+
+  const saveCandidateInitialProfile = async (userId?: string | null) => {
+    if (!import.meta.env.VITE_SUPABASE_URL || regType !== 'candidate') return;
+
+    const normalizedEmail = normalizeEmail(formData.email || otpEmail);
+    const normalizedPhone = normalizePhoneDigits(formData.whatsapp);
+    if (!normalizedEmail) return;
+
+    const profilePayload = {
+      user_id: userId || null,
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      name: formData.fullName,
+      role: 'Candidato',
+      skills: [],
+      city: '',
+      state: ''
+    };
+
+    const { data: existingProfile, error: lookupError } = await supabase
+      .from('talents')
+      .select('id')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+
+    if (lookupError) {
+      console.warn('Nao foi possivel verificar perfil inicial do candidato:', lookupError);
+    }
+
+    const { error: profileError } = existingProfile?.id
+      ? await supabase.from('talents').update(profilePayload).eq('id', existingProfile.id)
+      : await supabase.from('talents').insert([profilePayload]);
+
+    if (profileError) {
+      console.warn('Perfil inicial do candidato nao foi salvo:', profileError);
+    }
+  };
+
   const handleAuth = async () => {
     setErrorMessage(null);
-    if (!formData.email || !formData.password) {
+    const normalizedEmail = normalizeEmail(formData.email);
+    const normalizedPhone = normalizePhoneDigits(formData.whatsapp);
+
+    if (!normalizedEmail || !formData.password) {
       setErrorMessage('Por favor, preencha e-mail e senha.');
       return;
     }
@@ -75,8 +165,14 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
           return;
         }
 
-        if (!formData.whatsapp) {
+        if (!normalizedPhone) {
           setErrorMessage('Por favor, preencha seu celular/WhatsApp.');
+          setIsLoading(false);
+          return;
+        }
+
+        if (regType === 'candidate' && normalizedPhone.length < 10) {
+          setErrorMessage('Informe um celular/WhatsApp valido com DDD.');
           setIsLoading(false);
           return;
         }
@@ -94,80 +190,63 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
           return;
         }
 
-        // Verificar se já existe cadastro com o mesmo email ou celular na base de dados
-        if (import.meta.env.VITE_SUPABASE_URL) {
-          const { data: existingTalents, error: checkError } = await supabase
-            .from('talents')
-            .select('email, phone');
+        if (regType === 'candidate' && import.meta.env.VITE_SUPABASE_URL) {
+          const { data: conflictRows, error: conflictError } = await supabase
+            .rpc('check_candidate_registration_conflict', {
+              candidate_email: normalizedEmail,
+              candidate_phone: normalizedPhone,
+            });
 
-          if (!checkError && existingTalents) {
-            const emailDup = existingTalents.find(t => 
-              t.email && t.email.toLowerCase().trim() === formData.email.toLowerCase().trim()
-            );
-            if (emailDup) {
-              setErrorMessage('Este e-mail já está cadastrado em nosso sistema.');
-              setIsLoading(false);
-              return;
-            }
+          if (conflictError) {
+            console.warn('Nao foi possivel verificar duplicidade do cadastro:', conflictError);
+          }
 
-            const cleanInputPhone = formData.whatsapp.replace(/\D/g, '');
-            if (cleanInputPhone) {
-              const phoneDup = existingTalents.find(t => {
-                if (!t.phone) return false;
-                const cleanExistingPhone = t.phone.replace(/\D/g, '');
-                return cleanExistingPhone === cleanInputPhone;
-              });
-              if (phoneDup) {
-                setErrorMessage('Este número de celular/WhatsApp já está cadastrado.');
-                setIsLoading(false);
-                return;
-              }
-            }
+          const conflict = Array.isArray(conflictRows) ? conflictRows[0] : conflictRows;
+          if (conflict?.email_exists) {
+            setErrorMessage('Ja existe um cadastro de candidato com este e-mail. Use "Entrar" ou recupere sua senha.');
+            setIsLoading(false);
+            return;
+          }
+          if (conflict?.phone_exists) {
+            setErrorMessage('Ja existe um cadastro de candidato com este celular/WhatsApp.');
+            setIsLoading(false);
+            return;
           }
         }
 
         // 1. Sign up user
-        const { error: authError } = await supabase.auth.signUp({
-          email: formData.email,
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: normalizedEmail,
           password: formData.password,
           options: {
             data: {
               full_name: formData.fullName,
               role: regType,
               company_name: formData.companyName,
-              whatsapp: formData.whatsapp
+              whatsapp: normalizedPhone
             }
           }
         });
 
         if (authError) throw authError;
 
-        // Salvar dados básicos na tabela 'talents' para validação futura de duplicados de e-mail/celular
-        if (import.meta.env.VITE_SUPABASE_URL) {
-          await supabase.from('talents').upsert([{
-            email: formData.email,
-            phone: formData.whatsapp,
-            name: formData.fullName,
-            role: regType === 'company' ? 'Empresa' : 'Candidato',
-            skills: [],
-            city: '',
-            state: ''
-          }], { onConflict: 'email' });
-        }
+        await saveCandidateInitialProfile(authData.user?.id);
 
-        setOtpEmail(formData.email);
+        persistPendingOtpSignup(normalizedEmail, regType);
+        setOtpEmail(normalizedEmail);
         setIsVerifyingOtp(true);
         alert('Cadastro realizado! Por favor, insira o código enviado para o seu e-mail.');
       } else {
         // Login
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-          email: formData.email,
+          email: normalizedEmail,
           password: formData.password,
         });
 
         if (authError) {
           if (authError.message.includes('Email not confirmed')) {
-            setOtpEmail(formData.email);
+            persistPendingOtpSignup(normalizedEmail, regType);
+            setOtpEmail(normalizedEmail);
             setIsVerifyingOtp(true);
             throw new Error('E-mail não confirmado. Enviamos um código para você.');
           }
@@ -178,15 +257,10 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
         const role = authData.user?.user_metadata?.role || 'candidate';
         onLoginSuccess(role);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro de autenticação:', error);
-      setErrorMessage(error.message || 'Ocorreu um erro no processo.');
+      setErrorMessage(getReadableErrorMessage(error) || 'Ocorreu um erro no processo.');
       
-      // Fallback for demo if Supabase Auth is not fully configured (no tables/etc)
-      if (error.message?.includes('not found') || error.message?.includes('Database error')) {
-        console.warn('Usando fallback para demonstração...');
-        onLoginSuccess(mode === 'register' ? regType : 'candidate');
-      }
     } finally {
       setIsLoading(false);
     }
@@ -208,14 +282,43 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
 
       if (error) throw error;
 
+      await saveCandidateInitialProfile(data.user?.id);
+      clearPendingOtpSignup();
+
       alert('E-mail confirmado com sucesso!');
       
       // Get role and finish
       const role = data.user?.user_metadata?.role || regType || 'candidate';
       onLoginSuccess(role);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro na verificação:', error);
-      alert(error.message || 'Código inválido ou expirado.');
+      alert(getReadableErrorMessage(error) || 'Código inválido ou expirado.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    const email = normalizeEmail(otpEmail || formData.email);
+    if (!email) {
+      alert('Informe o e-mail para reenviar o codigo.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+
+      if (error) throw error;
+      persistPendingOtpSignup(email, regType);
+      setOtpEmail(email);
+      alert('Enviamos um novo codigo para o seu e-mail.');
+    } catch (error: unknown) {
+      console.error('Erro ao reenviar codigo:', error);
+      alert(getReadableErrorMessage(error) || 'Nao foi possivel reenviar o codigo.');
     } finally {
       setIsLoading(false);
     }
@@ -318,8 +421,20 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       {isLoading ? <Loader2 size={18} className="animate-spin" /> : 'Confirmar Código'}
                     </button>
 
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={isLoading}
+                      className="text-[10px] font-black text-primary-600 uppercase tracking-widest hover:text-primary-700 transition-colors"
+                    >
+                      Reenviar codigo
+                    </button>
+
                     <button 
-                      onClick={() => setIsVerifyingOtp(false)}
+                      onClick={() => {
+                        clearPendingOtpSignup();
+                        setIsVerifyingOtp(false);
+                      }}
                       className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-primary-600 transition-colors"
                     >
                       Voltar e corrigir e-mail
