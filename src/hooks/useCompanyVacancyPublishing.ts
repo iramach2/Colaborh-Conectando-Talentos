@@ -254,7 +254,7 @@ export const useCompanyVacancyPublishing = ({
       }
 
       const newJobId = insertedRow?.id || Date.now().toString();
-      const shareUrl = `${window.location.origin}?vaga=${newJobId}`;
+      const shareUrl = `${window.location.origin}/vaga/${newJobId}`;
       setPublishedJobLink(shareUrl);
       setHasCopiedPublishedLink(false);
       setIsRegisteringVacancy(false);

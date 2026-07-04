@@ -36,6 +36,7 @@ import { hydrateJobsWithWorkflow } from './services/jobWorkflowService';
 import { fetchJobById } from './services/jobService';
 import type { CompanyJob } from './types/companyDashboard';
 import { simulatorQuestions, useLandingDemoSimulator, type DemoTab } from './hooks/useLandingDemoSimulator';
+import { getSharedJobIdFromLocation, isLoginPath, isRegisterPath, pushAppPath } from './utils/appRoutes';
 
 const Login = lazy(() => import('./components/Login'));
 const CandidateDashboard = lazy(() => import('./components/CandidateDashboard'));
@@ -138,7 +139,7 @@ export default function App() {
   if (isLoggedIn && userRole === 'candidate') {
     return (
       <LazyScreen>
-        <CandidateDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); }} />
+        <CandidateDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); pushAppPath('/'); }} />
       </LazyScreen>
     );
   }
@@ -146,7 +147,7 @@ export default function App() {
   if (isLoggedIn && userRole === 'company') {
     return (
       <LazyScreen>
-        <CompanyDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); }} />
+        <CompanyDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); pushAppPath('/'); }} />
       </LazyScreen>
     );
   }
@@ -155,7 +156,7 @@ export default function App() {
     return (
       <LazyScreen>
         <Login
-          onBack={() => setShowLogin(false)}
+          onBack={() => { setShowLogin(false); pushAppPath('/'); }}
           initialMode={loginMode}
           onLoginSuccess={(role) => {
             setIsLoggedIn(true);
@@ -170,7 +171,7 @@ export default function App() {
   if (!isLoggedIn && sharedJobId) {
     const goBackHome = () => {
       setSharedJobId(null);
-      window.history.pushState({}, '', window.location.origin);
+      pushAppPath('/', true);
     };
 
     return (
@@ -206,7 +207,7 @@ export default function App() {
                 className="h-10 md:h-12 w-auto object-contain cursor-pointer"
                 onClick={() => {
                   setSharedJobId(null);
-                  window.history.pushState({}, '', window.location.origin);
+                  pushAppPath('/', true);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               />
@@ -252,13 +253,13 @@ export default function App() {
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-3">
               <button 
-                onClick={() => { setLoginMode('login'); setShowLogin(true); }}
+                onClick={() => { setLoginMode('login'); setShowLogin(true); pushAppPath('/login'); }}
                 className="px-5 py-2.5 text-sm font-bold text-slate-900 border-2 border-slate-200 rounded-full hover:bg-slate-50 hover:border-primary-200 transition-all cursor-pointer bg-transparent"
               >
                 Entrar
               </button>
               <button 
-                onClick={() => { setLoginMode('register'); setShowLogin(true); }}
+                onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                 className="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white text-sm font-bold rounded-full hover:shadow-lg hover:shadow-primary-200 hover:-translate-y-0.5 transition-all cursor-pointer border-0"
               >
                 Criar Conta
@@ -379,13 +380,13 @@ export default function App() {
               className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4"
             >
               <button 
-                onClick={() => { setLoginMode('register'); setShowLogin(true); }}
+                onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                 className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white font-black text-xs uppercase tracking-widest rounded-full shadow-lg shadow-primary-500/20 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer border-0"
               >
                 Sou Empresa (Começar Grátis)
               </button>
               <button 
-                onClick={() => { setLoginMode('register'); setShowLogin(true); }}
+                onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                 className="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs uppercase tracking-widest rounded-full border border-slate-700 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer bg-transparent"
               >
                 Sou Candidato (Cadastrar Currículo)
@@ -831,7 +832,7 @@ export default function App() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => { setLoginMode('register'); setShowLogin(true); }}
+                          onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                           className="flex-1 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-md active:scale-95 transition-all cursor-pointer border-0"
                         >
                           Contratar com este Perfil
@@ -893,7 +894,7 @@ export default function App() {
                   </ul>
                 </div>
                 <button
-                  onClick={() => { setLoginMode('register'); setShowLogin(true); }}
+                  onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                   className="w-full py-3.5 mt-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full transition-all cursor-pointer border-0"
                 >
                   Começar Teste Grátis
@@ -943,7 +944,7 @@ export default function App() {
                   </ul>
                 </div>
                 <button
-                  onClick={() => { setLoginMode('register'); setShowLogin(true); }}
+                  onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                   className="w-full py-3.5 mt-8 bg-primary-600 hover:bg-primary-700 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-md active:scale-95 transition-all cursor-pointer border-0"
                 >
                   Assinar Plano Growth

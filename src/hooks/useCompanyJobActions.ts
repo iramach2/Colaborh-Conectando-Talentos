@@ -21,7 +21,7 @@ export const useCompanyJobActions = ({
   showCustomConfirm,
 }: UseCompanyJobActionsParams) => {
   const handleShareJob = (job: CompanyJob) => {
-    const shareUrl = `${window.location.origin}?vaga=${job.id}`;
+    const shareUrl = `${window.location.origin}/vaga/${job.id}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
       showCustomSuccess(`Link de candidatura copiado! Vaga: "${job.title}". Divulgue para potenciais candidatos.`, 'Link Copiado');
     }).catch((err) => {

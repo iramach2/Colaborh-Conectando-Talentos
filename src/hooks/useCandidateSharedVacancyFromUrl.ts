@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { fetchJobById } from '../services/jobService';
 import { hydrateJobsWithWorkflow } from '../services/jobWorkflowService';
 import type { CompanyJob } from '../types/companyDashboard';
+import { getSharedJobIdFromLocation } from '../utils/appRoutes';
 
 interface UseCandidateSharedVacancyFromUrlParams {
   setActiveTab: (tab: string) => void;
@@ -15,8 +16,7 @@ export const useCandidateSharedVacancyFromUrl = ({
   setErrorMessage
 }: UseCandidateSharedVacancyFromUrlParams) => {
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sharedJobId = params.get('vaga') || params.get('jobId');
+    const sharedJobId = getSharedJobIdFromLocation();
     if (!sharedJobId) return;
 
     setActiveTab('Vagas');

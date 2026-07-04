@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CompanyApplicant, CompanyJob } from '../types/companyDashboard';
+import { getCompanyTabFromPath, navigateToCompanyTab } from '../utils/appRoutes';
 
 export type CompanyJobSubTab = 'active' | 'paused' | 'closed';
 
 export const useCompanyDashboardUiState = () => {
-  const [activeTab, setActiveTab] = useState('Dashboard');
+  const [activeTab, setActiveTabState] = useState(() => getCompanyTabFromPath(window.location.pathname) || 'Dashboard');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
   const [activeApplicantForTests, setActiveApplicantForTests] = useState<CompanyApplicant | null>(null);
@@ -19,6 +20,22 @@ export const useCompanyDashboardUiState = () => {
   const [jobSearch, setJobSearch] = useState('');
   const [isJobSearchFocused, setIsJobSearchFocused] = useState(false);
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
+
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    navigateToCompanyTab(tab);
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const routeTab = getCompanyTabFromPath(window.location.pathname);
+      if (routeTab) setActiveTabState(routeTab);
+    };
+
+    handlePopState();
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const handleSelectTab = (tab: string) => {
     setActiveTab(tab);

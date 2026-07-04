@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CandidateDashboardContent } from './candidate/CandidateDashboardContent';
 import { CandidateDashboardOverlays } from './candidate/CandidateDashboardOverlays';
 import { CandidateDashboardShell } from './candidate/CandidateDashboardShell';
@@ -30,6 +30,7 @@ import { cleanDescription, cleanEmojiFromText, getBenefitsList, getRequirementsL
 import { BRAZIL_STATES, DF_REGIONS } from '../utils/companyDashboardUtils';
 import { calculateCandidateAge, calculateExperienceDuration } from '../utils/candidateResumeCalculations';
 import { getReadableErrorMessage } from '../utils/errorUtils';
+import { getCandidateTabFromPath, navigateToCandidateTab } from '../utils/appRoutes';
 
 
 export default function CandidateDashboard({ onLogout }: { onLogout: () => void }) {
