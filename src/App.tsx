@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -351,7 +351,7 @@ export default function App() {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 px-3 py-1 bg-primary-950/60 border border-primary-800/40 rounded-full text-[10px] font-black uppercase tracking-widest text-primary-300"
             >
-              <Zap size={12} className="text-primary-400" /> Recrutamento Avançado para Empresas
+              <Zap size={12} className="text-primary-400" /> Plataforma completa de recrutamento e seleção
             </motion.div>
 
             <motion.h1 
@@ -360,8 +360,8 @@ export default function App() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl sm:text-6xl lg:text-[68px] font-extrabold leading-[1.05] tracking-tight text-white mb-6 uppercase"
             >
-              Contrate 4x mais rápido com <br className="hidden lg:block"/>
-              <span className="text-[#8b5cf6] bg-gradient-to-r from-primary-400 to-highlight-500 bg-clip-text text-transparent italic">Inteligência Comportamental</span>
+              Publique vagas, avalie candidatos e <br className="hidden lg:block"/>
+              <span className="text-[#8b5cf6] bg-gradient-to-r from-primary-400 to-highlight-500 bg-clip-text text-transparent italic">contrate com dados reais</span>
             </motion.h1>
 
             <motion.p 
@@ -370,7 +370,7 @@ export default function App() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-base sm:text-lg text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed font-semibold"
             >
-              A única plataforma que unifica vagas, funil de recrutamento, testes comportamentais avançados (DISC, MBTI e Temperamentos) e busca inteligente de candidatos por IA em um único lugar.
+              A Colaborh reúne vagas ilimitadas, banco de talentos, funil seletivo, testes comportamentais, questionários personalizados, entrevistas, mensagens, WhatsApp, relatórios e ações em massa em um só painel.
             </motion.p>
 
             <motion.div 
@@ -383,19 +383,19 @@ export default function App() {
                 onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                 className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white font-black text-xs uppercase tracking-widest rounded-full shadow-lg shadow-primary-500/20 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer border-0"
               >
-                Sou Empresa (Começar Grátis)
+                Começar grátis como empresa
               </button>
               <button 
                 onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                 className="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs uppercase tracking-widest rounded-full border border-slate-700 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer bg-transparent"
               >
-                Sou Candidato (Cadastrar Currículo)
+                Cadastrar currículo
               </button>
               <button 
                 onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
                 className="w-full sm:w-auto px-8 py-4 bg-transparent text-slate-300 hover:text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 hover:underline transition-all cursor-pointer border-0 outline-none"
               >
-                Ver Demonstração <ArrowUpRight size={14} />
+                Ver plataforma <ArrowUpRight size={14} />
               </button>
             </motion.div>
 
@@ -407,13 +407,13 @@ export default function App() {
               className="pt-12 flex flex-wrap justify-center items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400 border-t border-slate-900/60 max-w-4xl mx-auto"
             >
               <span className="flex items-center gap-2">
-                <Check size={14} className="text-primary-500" /> Sem Cartão de Crédito
+                <Check size={14} className="text-primary-500" /> Vagas ilimitadas no plano grátis
               </span>
               <span className="flex items-center gap-2">
-                <Check size={14} className="text-primary-500" /> 5 Créditos de Testes Grátis
+                <Check size={14} className="text-primary-500" /> Plano profissional por R$ 119,90/mês
               </span>
               <span className="flex items-center gap-2">
-                <Check size={14} className="text-primary-500" /> Setup em 2 Minutos
+                <Check size={14} className="text-primary-500" /> Sistema completo para RH
               </span>
             </motion.div>
           </div>
@@ -423,12 +423,12 @@ export default function App() {
         <section id="demo" className="py-24 bg-white border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-6 sm:px-10">
             <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Painel Interativo</h2>
+              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Sistema completo</h2>
               <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Experimente a Plataforma em Tempo Real
+                Uma operação de RH inteira dentro do mesmo painel
               </p>
               <p className="text-slate-500 font-semibold text-sm leading-relaxed">
-                Clique nas abas abaixo para ver como o dashboard simplifica, acelera e qualifica os seus processos de recrutamento.
+                Da primeira vaga ao relatório final da entrevista, a empresa acompanha tudo sem planilhas, prints, conversas perdidas ou processos espalhados.
               </p>
             </div>
 
@@ -450,9 +450,9 @@ export default function App() {
               {/* Selector Tabs Inside Mockup */}
               <div className="flex bg-slate-900 border-b border-slate-800/60 overflow-x-auto shrink-0 no-scrollbar">
                 {([
-                  { id: 'kanban', label: 'Pipeline Kanban', icon: Layers },
-                  { id: 'ia', label: 'Busca Inteligente por IA', icon: Cpu },
-                  { id: 'testes', label: 'Testes de Perfil', icon: Brain }
+                  { id: 'kanban', label: 'Funil seletivo', icon: Layers },
+                  { id: 'ia', label: 'Banco de talentos', icon: Cpu },
+                  { id: 'testes', label: 'Testes e relatórios', icon: Brain }
                 ] satisfies Array<{ id: DemoTab; label: string; icon: typeof Layers }>).map((tab) => {
                   const Icon = tab.icon;
                   return (
@@ -549,7 +549,7 @@ export default function App() {
                       <div className="space-y-3">
                         {iaSearchStep >= 2 && (
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest select-none">
-                            {iaSearchStep === 2 ? "Buscando correspondências..." : "Resultados obtidos via IA"}
+                            {iaSearchStep === 2 ? "Buscando talentos compatíveis..." : "Candidatos encontrados no banco de talentos"}
                           </p>
                         )}
                         <AnimatePresence>
@@ -636,52 +636,70 @@ export default function App() {
         <section id="features" className="py-24 bg-slate-50 border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-6 sm:px-10">
             <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Recursos Inovadores</h2>
+              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Funcionalidades do sistema</h2>
               <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Funcionalidades Feitas Para Converter
+                Tudo que sua empresa precisa para contratar melhor
               </h3>
               <p className="text-slate-500 font-semibold text-sm leading-relaxed">
-                Toda a infraestrutura que o seu setor de Recursos Humanos necessita para atrair os candidatos adequados e otimizar a tomada de decisões corporativas.
+                O fluxo foi criado para reduzir retrabalho, organizar candidatos, acelerar decisões e mostrar dados que ajudam a escolher a pessoa certa.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
-                  title: "Triagem com IA",
-                  desc: "Busque no banco de talentos usando termos livres. A Inteligência Artificial analisa o contexto dos currículos e ranqueia por afinidade.",
+                  title: "Vagas ilimitadas",
+                  desc: "Publique quantas oportunidades quiser, compartilhe links públicos e acompanhe candidaturas por status, cidade, modalidade, cargo e data.",
+                  icon: Briefcase,
+                  color: "text-[#940dff] bg-[#f3e5ff] border-[#940dff]/15"
+                },
+                {
+                  title: "Banco de talentos",
+                  desc: "Consulte perfis disponíveis, salve candidatos, filtre por dados profissionais e abra o currículo completo em poucos cliques.",
                   icon: Cpu,
-                  color: "text-indigo-600 bg-indigo-50 border-indigo-100"
+                  color: "text-[#533af6] bg-[#533af6]/10 border-[#533af6]/15"
                 },
                 {
-                  title: "Suíte de Testes DISC & MBTI",
-                  desc: "Solicite testes comportamentais completos. Veja o resultado consolidado e relatórios descritivos de forma automatizada no Kanban.",
+                  title: "Testes comportamentais",
+                  desc: "Envie DISC, MBTI, Temperamentos, mapeamentos por perguntas e questionários personalizados dentro do próprio processo.",
                   icon: Brain,
-                  color: "text-rose-600 bg-rose-50 border-rose-100"
+                  color: "text-[#ff4b8c] bg-[#ff4b8c]/10 border-[#ff4b8c]/15"
                 },
                 {
-                  title: "Pipeline Visual Kanban",
-                  desc: "Acompanhe candidaturas de forma arrastável. Mude o status do candidato com ações rápidas para organizar as etapas de triagem.",
+                  title: "Funil seletivo inteligente",
+                  desc: "Crie etapas, mova candidatos, automatize testes por fase, veja reprovados, use ações em massa e acompanhe tudo em lista limpa.",
                   icon: Layers,
-                  color: "text-violet-600 bg-violet-50 border-violet-100"
+                  color: "text-[#940dff] bg-[#f3e5ff] border-[#940dff]/15"
                 },
                 {
-                  title: "Notificações Automatizadas",
-                  desc: "Mantenha o alinhamento completo. O sistema notifica candidatos de alterações de etapa e envia lembretes de pendências automaticamente.",
+                  title: "Mensagens e WhatsApp",
+                  desc: "Converse com candidatos pelo chat, veja confirmação de leitura e acesse o WhatsApp direto quando seu plano permitir.",
                   icon: MessageSquare,
-                  color: "text-sky-600 bg-sky-50 border-sky-100"
+                  color: "text-[#63e1a5] bg-[#63e1a5]/14 border-[#63e1a5]/18"
                 },
                 {
-                  title: "Questionários Customizados",
-                  desc: "Crie questionários específicos utilizando o nosso construtor lateral (drawer), organizando perguntas de texto ou múltipla escolha.",
+                  title: "Entrevistas e vídeo",
+                  desc: "Agende entrevistas em calendário, evite conflito de horário, entre na sala de vídeo e registre o histórico do candidato.",
+                  icon: Play,
+                  color: "text-[#ffa303] bg-[#ffc24b]/16 border-[#ffc24b]/25"
+                },
+                {
+                  title: "Currículos e PDFs",
+                  desc: "Visualize perfis completos, experiências, formação, habilidades, diversidade, avaliações e baixe currículos em PDF.",
                   icon: FileText,
-                  color: "text-emerald-600 bg-emerald-50 border-emerald-100"
+                  color: "text-[#533af6] bg-[#533af6]/10 border-[#533af6]/15"
                 },
                 {
-                  title: "Gestão Multicompanhia",
-                  desc: "Cadastre diferentes marcas e empresas parceiras. Tenha isolamento de dados cadastrais e faturamento corporativo unificado.",
+                  title: "Gestão de empresas",
+                  desc: "Cadastre mais de uma empresa, alterne entre elas, controle plano, faturamento, configurações e identidade de cada marca.",
                   icon: Building,
-                  color: "text-amber-600 bg-amber-50 border-amber-100"
+                  color: "text-[#ffa303] bg-[#ffc24b]/16 border-[#ffc24b]/25"
+                },
+                {
+                  title: "Relatórios de decisão",
+                  desc: "Veja resultados de testes, notas internas, classificação por estrelas, histórico de entrevistas e dados para comparar candidatos.",
+                  icon: TrendingUp,
+                  color: "text-[#63e1a5] bg-[#63e1a5]/14 border-[#63e1a5]/18"
                 }
               ].map((feat, i) => {
                 const Icon = feat.icon;
@@ -713,12 +731,12 @@ export default function App() {
         <section id="simulator" className="py-24 bg-white border-b border-slate-200">
           <div className="max-w-5xl mx-auto px-6 sm:px-10">
             <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Teste Interativo</h2>
+              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Prévia de avaliação</h2>
               <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Simulador de Análise Comportamental
+                Mostre além do currículo
               </h3>
               <p className="text-slate-500 font-semibold text-sm leading-relaxed">
-                Responda a 3 perguntas rápidas para ter uma amostra do funcionamento do nosso mapeamento comportamental psicométrico.
+                A empresa não precisa decidir só por experiência e formação. A Colaborh ajuda a entender comportamento, motivação, comunicação e aderência ao cargo.
               </p>
             </div>
 
@@ -736,9 +754,9 @@ export default function App() {
                       <Brain size={28} className="stroke-[2.5]" />
                     </div>
                     <div className="space-y-2">
-                      <h4 className="font-extrabold text-slate-900 text-base uppercase tracking-tight">Qual é o seu estilo comportamental?</h4>
+                      <h4 className="font-extrabold text-slate-900 text-base uppercase tracking-tight">Como a Colaborh analisa candidatos?</h4>
                       <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-                        Este simulador simplificado demonstrará como calculamos a compatibilidade de cargos e os traços dominantes dos candidatos.
+                        Uma prévia simples de como respostas podem virar sinais úteis para recrutadores, líderes e gestores de RH.
                       </p>
                     </div>
                     <button
@@ -763,7 +781,7 @@ export default function App() {
                     >
                       {/* Step Indicator */}
                       <div className="flex justify-between items-center text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                        <span>Simulador Comportamental</span>
+                        <span>Simulador de perfil</span>
                         <span>Pergunta {testStep} de 3</span>
                       </div>
 
@@ -818,7 +836,7 @@ export default function App() {
                           {res.desc}
                         </p>
                         <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-[10px] text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                          <strong className="text-slate-800">Uso do Perfil:</strong> {res.tips}
+                          <strong className="text-slate-800">Como usar no processo:</strong> {res.tips}
                         </div>
                       </div>
 
@@ -835,7 +853,7 @@ export default function App() {
                           onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                           className="flex-1 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-md active:scale-95 transition-all cursor-pointer border-0"
                         >
-                          Contratar com este Perfil
+                          Começar a avaliar candidatos
                         </button>
                       </div>
                     </motion.div>
@@ -850,12 +868,12 @@ export default function App() {
         <section id="plans" className="py-24 bg-slate-50 border-b border-slate-200">
           <div className="max-w-6xl mx-auto px-6 sm:px-10">
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Nossos Planos</h2>
+              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Planos</h2>
               <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Planos de Assinatura Flexíveis
+                Comece grátis e evolua quando precisar de seleção avançada
               </h3>
               <p className="text-slate-500 font-semibold text-sm leading-relaxed">
-                Escolha o plano ideal para as necessidades de recrutamento do seu negócio e comece a testar talentos agora mesmo.
+                Publique vagas sem custo. Quando quiser testes, entrevistas, mensagens, downloads e automações, escolha o plano ideal para sua operação.
               </p>
             </div>
 
@@ -865,13 +883,13 @@ export default function App() {
                 <div className="space-y-6">
                   <div>
                     <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Gratuito</h4>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Para publicar vagas</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Publicação ilimitada</p>
                   </div>
                   <div className="flex items-baseline gap-1 select-none">
                     <span className="text-3xl font-extrabold text-slate-900">Grátis</span>
                   </div>
                   <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                    Publique quantas vagas quiser sem custo, com recursos avançados bloqueados.
+                    Ideal para começar a captar candidatos e validar suas primeiras oportunidades.
                   </p>
                   <div className="border-t border-slate-100 my-4" />
                   <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
@@ -881,11 +899,11 @@ export default function App() {
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Sem envio ou criação de testes</span>
+                      <span>Visualização de candidatos e processos básicos</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Sem entrevistas, mensagens, WhatsApp e download de currículos</span>
+                      <span>Sem testes, entrevistas, mensagens, WhatsApp e download de currículos</span>
                     </li>
                     <li className="flex items-center gap-2.5 text-slate-350 line-through decoration-slate-300">
                       <X size={14} className="text-slate-300 shrink-0" />
@@ -909,7 +927,7 @@ export default function App() {
                 <div className="space-y-6">
                   <div>
                     <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Profissional</h4>
-                    <p className="text-xs text-primary-600 font-black uppercase tracking-wider mt-0.5">Recrutamento completo</p>
+                    <p className="text-xs text-primary-600 font-black uppercase tracking-wider mt-0.5">Seleção avançada</p>
                   </div>
                   <div className="flex items-baseline gap-1 select-none">
                     <span className="text-sm font-extrabold text-slate-500">R$</span>
@@ -917,7 +935,7 @@ export default function App() {
                     <span className="text-xs font-bold text-slate-400">/mês</span>
                   </div>
                   <p className="text-xs text-slate-550 font-semibold leading-relaxed">
-                    Perfeito para empresas em crescimento constante que precisam qualificar sua equipe de RH com testes.
+                    Para empresas que já precisam avaliar candidatos com método, organizar entrevistas e acelerar decisões.
                   </p>
                   <div className="border-t border-slate-100 my-4" />
                   <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
@@ -931,7 +949,7 @@ export default function App() {
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Até 3 testes personalizados</span>
+                      <span>Até 3 questionários personalizados</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-primary-500 shrink-0" />
@@ -939,7 +957,7 @@ export default function App() {
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Suporte prioritário e chat</span>
+                      <span>Relatórios, anotações, classificação por estrelas e ações em massa</span>
                     </li>
                   </ul>
                 </div>
@@ -956,13 +974,13 @@ export default function App() {
                 <div className="space-y-6">
                   <div>
                     <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Ilimitado</h4>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Tudo ilimitado</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Escala total</p>
                   </div>
                   <div className="flex items-baseline gap-1 select-none">
                     <span className="text-3xl font-extrabold text-slate-900">R$ 249,90</span>
                   </div>
                   <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                    Para grandes corporações que necessitam de integrações de software dedicadas e alta volumetria.
+                    Para operações com grande volume de candidatos, muitas vagas e uso contínuo de avaliações.
                   </p>
                   <div className="border-t border-slate-100 my-4" />
                   <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
@@ -976,11 +994,11 @@ export default function App() {
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Integração customizada com outros softwares</span>
+                      <span>Questionários personalizados ilimitados</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Entrevistas, mensagens, WhatsApp e downloads ilimitados</span>
+                      <span>Testes, entrevistas, mensagens, WhatsApp e downloads ilimitados</span>
                     </li>
                   </ul>
                 </div>
@@ -999,26 +1017,25 @@ export default function App() {
         <section className="py-24 bg-white border-b border-slate-200">
           <div className="max-w-5xl mx-auto px-6 sm:px-10">
             <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Casos de Sucesso</h2>
+              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Por que assinar</h2>
               <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Quem Utiliza e Recomenda
+                Menos improviso, mais clareza no recrutamento
               </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
               {[
                 {
-                  quote: "Reduzimos em 70% o tempo gasto na triagem inicial de currículos. A busca inteligente do banco de talentos por IA nos traz as pessoas exatas que precisamos.",
-                  author: "Regina Vasconcelos",
-                  role: "Head de Talent Acquisition na TechFlow"
+                  quote: "A Colaborh tira o processo seletivo do improviso: vagas, candidatos, avaliações, mensagens, entrevistas e relatórios ficam no mesmo lugar.",
+                  author: "Operação organizada",
+                  role: "Processo seletivo com histórico e rastreabilidade"
                 },
                 {
-                  quote: "A facilidade de poder disparar testes DISC e MBTI diretamente pelo pipeline Kanban do processo seletivo transformou a qualidade das nossas contratações.",
-                  author: "Marcelo Albuquerque",
-                  role: "Gerente de Recursos Humanos na CreativeBox"
+                  quote: "Com testes, anotações, estrelas, reprovados e ações em massa, a empresa compara candidatos com critérios mais claros antes da contratação.",
+                  author: "Decisão com dados",
+                  role: "Menos achismo na escolha final"
                 }
-              ].map((t, i) => (
-                <div key={i} className="bg-slate-50 p-8 rounded-[10px] border border-slate-200/60 shadow-xs space-y-4 flex flex-col justify-between">
+              ].map((t, i) => (                <div key={i} className="bg-slate-50 p-8 rounded-[10px] border border-slate-200/60 shadow-xs space-y-4 flex flex-col justify-between">
                   <p className="text-xs text-slate-650 leading-relaxed font-semibold italic">
                     "{t.quote}"
                   </p>
@@ -1056,9 +1073,9 @@ export default function App() {
               <div>
                 <h4 className="text-white text-xs font-black uppercase tracking-wider mb-6">Funcionalidades</h4>
                 <ul className="space-y-4 text-xs font-semibold">
-                  <li><a href="#features" className="hover:text-primary-400 transition-colors">Triagem por IA</a></li>
-                  <li><a href="#demo" className="hover:text-primary-400 transition-colors">Pipeline Kanban</a></li>
-                  <li><a href="#simulator" className="hover:text-primary-400 transition-colors">Testes Comportamentais</a></li>
+                  <li><a href="#features" className="hover:text-primary-400 transition-colors">Vagas ilimitadas</a></li>
+                  <li><a href="#demo" className="hover:text-primary-400 transition-colors">Funil seletivo</a></li>
+                  <li><a href="#simulator" className="hover:text-primary-400 transition-colors">Testes comportamentais</a></li>
                   <li><a href="#features" className="hover:text-primary-400 transition-colors">Questionários Customizados</a></li>
                 </ul>
               </div>
