@@ -10,6 +10,7 @@ import {
   X as CloseIcon,
   type LucideIcon,
 } from 'lucide-react';
+import { navigateToCandidateTab } from '../../utils/appRoutes';
 
 interface CandidateSidebarItemProps {
   icon: LucideIcon;
@@ -90,8 +91,13 @@ export function CandidateNavigation({
   setIsSidebarExpanded,
   onLogout,
 }: CandidateNavigationProps) {
-  const selectMobileTab = (tab: string) => {
+  const selectTab = (tab: string) => {
     onSelectTab(tab);
+    navigateToCandidateTab(tab);
+  };
+
+  const selectMobileTab = (tab: string) => {
+    selectTab(tab);
     setIsMobileSidebarOpen(false);
   };
 
@@ -221,7 +227,7 @@ export function CandidateNavigation({
             <button
               key={item.label}
               type="button"
-              onClick={() => onSelectTab(item.label)}
+              onClick={() => selectTab(item.label)}
               className={`relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent transition-all duration-300 ${
                 isActive ? 'scale-105 bg-white text-[#940dff] shadow-md' : 'text-white/70 hover:text-white'
               }`}

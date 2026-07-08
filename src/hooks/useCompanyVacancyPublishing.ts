@@ -145,25 +145,7 @@ export const useCompanyVacancyPublishing = ({
 
   const handlePublish = async () => {
     if (isPublishing) return;
-
-    const activeJobsForCompany = companyJobs.filter((job) => {
-      const status = (job.status || '').toLowerCase();
-      return status === 'active' || status === 'ativa' || !status;
-    }).length;
-
-    const plan = selectedCompany?.plan || 'starter';
-    let limit = 2;
-    if (plan === 'growth') limit = 8;
-    else if (plan === 'enterprise') limit = Infinity;
-
-    if (activeJobsForCompany >= limit) {
-      const errorMsg = `Limite de vagas ativas atingido para o plano ${plan.toUpperCase()} (${limit} vaga${limit > 1 ? 's' : ''}). Faca o upgrade na aba Faturamento para publicar mais vagas.`;
-      alert(errorMsg);
-      setActiveTab('Faturamento');
-      return;
-    }
-
-    const currentStages = vacancyForm.stages;
+const currentStages = vacancyForm.stages;
     if (currentStages.length === 0) {
       const error = 'A vaga deve ter ao menos uma etapa no processo seletivo.';
       setErrorMessage(error);

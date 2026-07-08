@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { CompanyRecord } from '../../../services/companyService';
 import type { CompanyJob } from '../../../types/companyDashboard';
+import { getDefaultCreditsForPlan } from '../../../utils/companyPlans';
 
 interface BillingTabProps {
   company: CompanyRecord | null;
@@ -28,49 +29,47 @@ interface BillingTabProps {
 type PlanKey = 'starter' | 'growth' | 'enterprise';
 
 const planLabels: Record<PlanKey, string> = {
-  starter: 'Starter',
-  growth: 'Growth',
-  enterprise: 'Enterprise'
+  starter: 'Gratuito',
+  growth: 'Profissional',
+  enterprise: 'Ilimitado'
 };
 
 const planBonusCredits: Record<PlanKey, number> = {
-  starter: 5,
-  growth: 30,
-  enterprise: 100
+  starter: 0,
+  growth: 15,
+  enterprise: 999999
 };
 
 const planPrices: Record<PlanKey, string> = {
-  starter: 'R$ 189',
-  growth: 'R$ 449',
-  enterprise: 'Sob consulta'
+  starter: 'R$ 0',
+  growth: 'R$ 119,90',
+  enterprise: 'R$ 249,90'
 };
 
 const planDescriptions: Record<PlanKey, string> = {
-  starter: 'Para empresas pequenas que avaliam processos pontuais.',
-  growth: 'Para empresas em crescimento com processos frequentes.',
-  enterprise: 'Para operações com grande volume e acompanhamento dedicado.'
+  starter: 'Para publicar vagas sem recursos avançados de seleção.',
+  growth: 'Para empresas que precisam testar, conversar e entrevistar candidatos.',
+  enterprise: 'Para operações que querem todos os recursos sem limites.'
 };
 
 const planFeatures: Record<PlanKey, string[]> = {
   starter: [
-    'Até 2 vagas ativas simultâneas',
-    'Triagem Kanban básica',
-    '5 buscas por IA no banco por mês',
-    '5 créditos de testes inclusos por mês'
+    'Vagas ilimitadas',
+    'Sem envio de testes comportamentais',
+    'Sem criação de testes personalizados',
+    'Sem entrevistas, mensagens diretas, WhatsApp e download de currículos'
   ],
   growth: [
-    'Até 8 vagas ativas simultâneas',
-    'Customização total de etapas no Kanban',
-    'Buscas ilimitadas com IA no banco',
-    '30 créditos de testes inclusos por mês',
-    'Suporte prioritário via WhatsApp'
+    'Vagas ilimitadas',
+    'Até 3 testes personalizados',
+    '15 envios de testes por mês',
+    'Entrevistas, mensagens diretas, WhatsApp e download de currículos liberados'
   ],
   enterprise: [
-    'Vagas ativas ilimitadas',
-    'Todos os recursos liberados sem travas',
-    'Faturamento flexível e relatórios customizados',
-    '100 créditos de testes inclusos por mês',
-    'Gerente de contas e SLA de suporte de 4h'
+    'Vagas ilimitadas',
+    'Testes personalizados ilimitados',
+    'Envios de testes ilimitados',
+    'Todos os recursos liberados sem travas'
   ]
 };
 
@@ -93,21 +92,15 @@ export const BillingTab: React.FC<BillingTabProps> = ({
   const [creditsSuccess, setCreditsSuccess] = useState(false);
 
   const plan = (company?.plan || 'starter') as PlanKey;
-  const credits = company?.credits !== undefined ? company.credits : 5;
+  const credits = plan === 'enterprise' ? Infinity : (company?.credits !== undefined ? company.credits : getDefaultCreditsForPlan(plan));
 
   const activeJobsCount = useMemo(() => jobs.filter(job =>
     job.company_name === company?.nomeFantasia &&
     (job.status === 'active' || job.status === 'ativa' || !job.status)
   ).length, [company?.nomeFantasia, jobs]);
 
-  const getJobLimit = () => {
-    if (plan === 'growth') return 8;
-    if (plan === 'enterprise') return Infinity;
-    return 2;
-  };
-
-  const jobLimit = getJobLimit();
-  const jobUsagePercent = jobLimit === Infinity ? 0 : Math.min(100, (activeJobsCount / jobLimit) * 100);
+  const jobLimit = Infinity;
+  const jobUsagePercent = 0;
 
   const getCreditUnitPrice = (amount: number) => {
     if (amount >= 50) return 9;
@@ -139,7 +132,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
           return {
             ...c,
             plan: upgradingTo,
-            credits: (c.credits !== undefined ? c.credits : 5) + planBonusCredits[upgradingTo]
+            credits: getDefaultCreditsForPlan(upgradingTo)
           };
         }
         return c;
@@ -187,7 +180,6 @@ export const BillingTab: React.FC<BillingTabProps> = ({
 
   const renderPlanButtonLabel = (planName: PlanKey) => {
     if (plan === planName) return 'Plano atual';
-    if (planName === 'enterprise') return 'Falar com consultor';
     return `Migrar para ${planLabels[planName]}`;
   };
 
@@ -212,7 +204,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
             </div>
             <div className="rounded-2xl bg-white/12 p-4">
               <p className="text-[11px] font-semibold text-white/70">Créditos</p>
-              <p className="mt-2 text-[18px] font-semibold text-white">{credits}</p>
+              <p className="mt-2 text-[18px] font-semibold text-white">{credits === Infinity ? 'Ilimitado' : credits}</p>
             </div>
           </div>
 
@@ -236,7 +228,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
             <div>
               <div className="mb-2 flex items-center justify-between gap-4 text-[12px] font-semibold text-[#343241]">
                 <span className="flex items-center gap-2"><Briefcase size={15} className="text-[#940dff]" /> Vagas ativas</span>
-                <span>{activeJobsCount} / {jobLimit === Infinity ? 'Ilimitado' : jobLimit}</span>
+                <span>{activeJobsCount} / Ilimitado</span>
               </div>
               <div className="h-3 rounded-full border border-slate-200/70 bg-[#fbf9ff] p-0.5">
                 <motion.div
@@ -257,7 +249,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
                   <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f3e5ff] text-[#940dff]"><Brain size={18} /></span>
                   <div>
                     <p className="text-[12px] font-semibold text-[#343241]">Testes disponíveis</p>
-                    <p className="mt-1 text-[12px] font-medium text-slate-400">{credits} solicitações</p>
+                    <p className="mt-1 text-[12px] font-medium text-slate-400">{credits === Infinity ? 'Ilimitadas' : `${credits} solicitações`}</p>
                   </div>
                 </div>
               </div>
@@ -266,7 +258,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
                   <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#533af6]/10 text-[#533af6]"><Search size={18} /></span>
                   <div>
                     <p className="text-[12px] font-semibold text-[#343241]">Banco de talentos</p>
-                    <p className="mt-1 text-[12px] font-medium text-slate-400">{plan === 'starter' ? '5 buscas por mês' : 'Buscas ilimitadas'}</p>
+                    <p className="mt-1 text-[12px] font-medium text-slate-400">{plan === 'starter' ? 'Recursos avançados bloqueados' : 'Recursos avançados liberados'}</p>
                   </div>
                 </div>
               </div>
@@ -341,7 +333,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+      {false && <section className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div>
             <div className="flex items-start justify-between gap-4">
@@ -427,7 +419,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
             </button>
           </div>
         </div>
-      </section>
+      </section>}
 
       <AnimatePresence>
         {isUpgrading && (
@@ -452,7 +444,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
                   </div>
                   <h3 className="mt-5 text-[20px] font-semibold tracking-tight text-[#343241]">Assinatura ativada</h3>
                   <p className="mx-auto mt-2 max-w-sm text-[12px] font-medium leading-relaxed text-slate-400">
-                    Seu plano foi alterado para {upgradingTo ? planLabels[upgradingTo] : 'o novo plano'} e os créditos bônus foram adicionados ao saldo.
+                    Seu plano foi alterado para {upgradingTo ? planLabels[upgradingTo] : 'o novo plano'} e os limites do plano já foram aplicados.
                   </p>
                 </div>
               ) : (
@@ -471,8 +463,8 @@ export const BillingTab: React.FC<BillingTabProps> = ({
                       <span>{upgradingTo ? planPrices[upgradingTo] : '-'}</span>
                     </div>
                     <div className="mt-3 flex justify-between text-[12px] font-medium text-slate-500">
-                      <span>Créditos inclusos</span>
-                      <span>{upgradingTo ? `${planBonusCredits[upgradingTo]} créditos bônus` : '-'}</span>
+                      <span>Testes mensais</span>
+                      <span>{upgradingTo ? (upgradingTo === 'enterprise' ? 'Ilimitados' : `${getDefaultCreditsForPlan(upgradingTo)} envios`) : '-'}</span>
                     </div>
                   </div>
 
@@ -580,3 +572,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({
     </div>
   );
 };
+
+
+
+

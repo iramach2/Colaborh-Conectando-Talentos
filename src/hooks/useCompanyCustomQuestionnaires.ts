@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { colaborhConfirm } from '../utils/colaborhAlerts';
+import { getCompanyPlanLimits, getPlanUpgradeMessage } from '../utils/companyPlans';
 import {
   CustomQuestion,
   CustomQuestionnaire,
@@ -21,13 +22,14 @@ const readLocalCustomTemplates = (): CustomQuestionnaire[] => {
   }
 };
 
-export const useCompanyCustomQuestionnaires = (selectedCompanyId: string) => {
+export const useCompanyCustomQuestionnaires = (selectedCompanyId: string, selectedCompanyPlan?: string) => {
   const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>([]);
   const [customTemplates, setCustomTemplates] = useState<CustomQuestionnaire[]>(readLocalCustomTemplates);
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [isCreatingNewTemplate, setIsCreatingNewTemplate] = useState<boolean>(false);
   const [customTestTitle, setCustomTestTitle] = useState<string>('');
   const [isLoadingCustomTemplates, setIsLoadingCustomTemplates] = useState(false);
+  const planLimits = getCompanyPlanLimits(selectedCompanyPlan);
 
   useEffect(() => {
     let isMounted = true;
@@ -177,6 +179,16 @@ export const useCompanyCustomQuestionnaires = (selectedCompanyId: string) => {
       }
     }
 
+    if (!planLimits.canUseAssessments) {
+      alert(getPlanUpgradeMessage('Criação de testes personalizados'));
+      return;
+    }
+
+    if (!editingTemplateId && customTemplates.length >= planLimits.customQuestionnaires) {
+      alert(`Limite de ${planLimits.customQuestionnaires} testes personalizados atingido no plano ${planLimits.label}. Faça upgrade para o plano Ilimitado.`);
+      return;
+    }
+
     const templateId = editingTemplateId && isUuid(editingTemplateId)
       ? editingTemplateId
       : crypto.randomUUID();
@@ -239,6 +251,16 @@ export const useCompanyCustomQuestionnaires = (selectedCompanyId: string) => {
   };
 
   const handleStartNewTemplate = () => {
+    if (!planLimits.canUseAssessments) {
+      alert(getPlanUpgradeMessage('Criação de testes personalizados'));
+      return;
+    }
+
+    if (customTemplates.length >= planLimits.customQuestionnaires) {
+      alert(`Limite de ${planLimits.customQuestionnaires} testes personalizados atingido no plano ${planLimits.label}. Faça upgrade para o plano Ilimitado.`);
+      return;
+    }
+
     setEditingTemplateId(null);
     setIsCreatingNewTemplate(true);
     setCustomTestTitle('');

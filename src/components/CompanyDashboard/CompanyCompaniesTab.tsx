@@ -21,9 +21,9 @@ const getCompanyInitials = (company: CompanyRecord) => {
 };
 
 const getPlanMeta = (plan?: string | null) => {
-  if (plan === 'enterprise') return { label: 'Enterprise', className: 'border-[#ffc24b]/25 bg-[#ffc24b]/16 text-[#ffa303]' };
-  if (plan === 'growth') return { label: 'Growth', className: 'border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]' };
-  return { label: plan || 'Starter', className: 'border-slate-200/70 bg-white text-slate-500' };
+  if (plan === 'enterprise') return { label: 'Ilimitado', className: 'border-[#ffc24b]/25 bg-[#ffc24b]/16 text-[#ffa303]' };
+  if (plan === 'growth') return { label: 'Profissional', className: 'border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]' };
+  return { label: plan || 'Gratuito', className: 'border-slate-200/70 bg-white text-slate-500' };
 };
 
 export const CompanyCompaniesTab = ({

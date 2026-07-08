@@ -1,4 +1,4 @@
-import { useCompanyNotifications } from '../hooks/useCompanyNotifications';
+﻿import { useCompanyNotifications } from '../hooks/useCompanyNotifications';
 import { useCompanyChat } from '../hooks/useCompanyChat';
 import { useCompanyInterviews } from '../hooks/useCompanyInterviews';
 import { useCompanyJobs } from '../hooks/useCompanyJobs';
@@ -26,6 +26,7 @@ import { useCompanyAssessmentReportState } from '../hooks/useCompanyAssessmentRe
 import { useCompanySessionState } from '../hooks/useCompanySessionState';
 import { useCompanyAssessmentWorkspace } from '../hooks/useCompanyAssessmentWorkspace';
 import { useCompanyDashboardViewProps } from '../hooks/useCompanyDashboardViewProps';
+import { getCompanyPlanLimits, getPlanUpgradeMessage } from '../utils/companyPlans';
 import { CompanyDashboardShell } from './CompanyDashboard/CompanyDashboardShell';
 import { 
   BRAZIL_STATES, 
@@ -120,7 +121,7 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     handleDeleteCustomTemplate,
     handleStartNewTemplate,
     handleCancelTemplateEdit,
-  } = useCompanyAssessmentWorkspace(selectedCompanyId);
+  } = useCompanyAssessmentWorkspace(selectedCompanyId, selectedCompany?.plan);
 
   const {
     companyDropdownRef,
@@ -247,7 +248,7 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     openMessagesDrawer,
     handleSendMessage,
     closeChat,
-  } = useCompanyChat(selectedJob, getFullApplicantInfo);
+  } = useCompanyChat(selectedJob, getFullApplicantInfo, selectedCompany);
 
   const {
     customDialog,
@@ -404,6 +405,20 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     handleCreateInterview,
   });
 
+  const selectedCompanyPlanLimits = getCompanyPlanLimits(selectedCompany);
+  const handlePlanFeatureBlocked = (feature: string) => {
+    showCustomAlert(getPlanUpgradeMessage(feature), 'Plano gratuito');
+    setActiveTab('Faturamento');
+  };
+
+  const handleDownloadResumeWithPlanGate = () => {
+    if (!selectedCompanyPlanLimits.canDownloadResumes) {
+      handlePlanFeatureBlocked('Download de curr?culos dos candidatos');
+      return;
+    }
+    return handleDownloadResume();
+  };
+
   const { sidebarProps, headerProps, contentProps, overlayProps } = useCompanyDashboardViewProps({
     activeTab,
     setActiveTab,
@@ -458,6 +473,9 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     handleOpenNotes,
     handleDeleteJob,
     handleOpenChat,
+    canDownloadResumes: selectedCompanyPlanLimits.canDownloadResumes,
+    canUseDirectWhatsApp: selectedCompanyPlanLimits.canUseDirectWhatsApp,
+    onPlanFeatureBlocked: handlePlanFeatureBlocked,
     jobSearch,
     setJobSearch,
     isJobSearchFocused,
@@ -536,7 +554,7 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     resumeDrawerTab,
     setResumeDrawerTab,
     isExportingResume,
-    handleDownloadResume,
+    handleDownloadResume: handleDownloadResumeWithPlanGate,
     candidateInterviewsDrawerContent,
     activeVideoMeeting,
     setActiveVideoMeeting,
@@ -623,3 +641,4 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     />
   );
 }
+

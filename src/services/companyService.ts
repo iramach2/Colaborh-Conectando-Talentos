@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getDefaultCreditsForPlan } from '../utils/companyPlans';
 
 export interface CompanyRecord {
   id: string;
@@ -32,7 +33,7 @@ const toCompanyRecord = (row: CompanyRow): CompanyRecord => ({
   sector: row.industry || 'Geral',
   logo: row.logo_url || '',
   plan: row.plan || 'starter',
-  credits: row.credits ?? 5,
+  credits: row.credits ?? getDefaultCreditsForPlan(row.plan || 'starter'),
   savedTalents: row.saved_talents || [],
 });
 
@@ -50,7 +51,7 @@ const toCompanyPayload = (company: CompanyRecord, ownerUserId?: string | null) =
   industry: company.sector || 'Geral',
   logo_url: company.logo || null,
   plan: company.plan || 'starter',
-  credits: company.credits ?? 5,
+  credits: company.credits ?? getDefaultCreditsForPlan(company.plan || 'starter'),
   saved_talents: company.savedTalents || [],
 });
 
@@ -90,7 +91,7 @@ export const ensureCompanyForCurrentUser = async (): Promise<CompanyRecord | nul
     sector: 'Geral',
     logo: '',
     plan: 'starter',
-    credits: 5,
+    credits: getDefaultCreditsForPlan('starter'),
     savedTalents: [],
   };
 

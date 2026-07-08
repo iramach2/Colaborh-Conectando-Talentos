@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CompanyRecord, isSupabaseConfigured } from '../services/companyService';
+import { getDefaultCreditsForPlan } from '../utils/companyPlans';
 
 const defaultLocalCompany: CompanyRecord = {
   id: '1',
@@ -8,7 +9,7 @@ const defaultLocalCompany: CompanyRecord = {
   solicitante: 'João Silva',
   sector: 'Tecnologia',
   plan: 'starter',
-  credits: 5,
+  credits: getDefaultCreditsForPlan('starter'),
 };
 
 const loadInitialCompanies = (): CompanyRecord[] => {
@@ -22,7 +23,7 @@ const loadInitialCompanies = (): CompanyRecord[] => {
         return parsed.map((company: CompanyRecord) => ({
           ...company,
           plan: company.plan || 'starter',
-          credits: company.credits !== undefined ? company.credits : 5,
+          credits: company.credits !== undefined ? company.credits : getDefaultCreditsForPlan(company.plan || 'starter'),
         }));
       }
     } catch (error) {

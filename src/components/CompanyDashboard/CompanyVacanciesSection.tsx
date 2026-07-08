@@ -32,6 +32,9 @@ export const CompanyVacanciesSection = ({
   handleOpenNotes,
   handleDeleteJob,
   handleOpenChat,
+  canDownloadResumes,
+  canUseDirectWhatsApp,
+  onPlanFeatureBlocked,
   jobSearch,
   setJobSearch,
   isJobSearchFocused,
@@ -124,6 +127,9 @@ export const CompanyVacanciesSection = ({
         handleOpenNotes={handleOpenNotes}
         handleDeleteJob={handleDeleteJob}
         handleOpenChat={handleOpenChat}
+        canDownloadResumes={canDownloadResumes}
+        canUseDirectWhatsApp={canUseDirectWhatsApp}
+        onPlanFeatureBlocked={onPlanFeatureBlocked}
         jobSearch={jobSearch}
         setJobSearch={setJobSearch}
         onCreateVacancy={onCreateVacancy}

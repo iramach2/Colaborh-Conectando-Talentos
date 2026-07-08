@@ -24,6 +24,8 @@ interface TalentBankTabProps {
   selectedCompany?: CompanyRecord | null;
   handleToggleSaveTalent: (talentId: string) => void;
   talentSubTab: 'all' | 'saved';
+  canUseDirectWhatsApp: boolean;
+  onPlanFeatureBlocked: (feature: string) => void;
 }
 
 const getTalentInitials = (name?: string | null) => {
@@ -74,7 +76,9 @@ export const TalentBankTab = ({
   setSelectedResumeApplicant,
   selectedCompany,
   handleToggleSaveTalent,
-  talentSubTab
+  talentSubTab,
+  canUseDirectWhatsApp,
+  onPlanFeatureBlocked
 }: TalentBankTabProps) => {
   const resultLabel = filteredTalents.length === 1 ? 'talento encontrado' : 'talentos encontrados';
 
@@ -237,9 +241,15 @@ export const TalentBankTab = ({
                       </button>
                       {talent.phone && (
                         <a
-                          href={buildWhatsappUrl(talent)}
+                          href={canUseDirectWhatsApp ? buildWhatsappUrl(talent) : undefined}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(event) => {
+                            if (!canUseDirectWhatsApp) {
+                              event.preventDefault();
+                              onPlanFeatureBlocked('Contato direto por WhatsApp');
+                            }
+                          }}
                           className="flex h-8 w-10 items-center justify-center rounded-xl border border-[#63e1a5]/35 bg-[#63e1a5]/14 text-[#40b87f] transition-all hover:border-[#63e1a5]/55 hover:bg-[#63e1a5] hover:text-white"
                           title="Chamar no WhatsApp"
                         >
@@ -330,9 +340,15 @@ export const TalentBankTab = ({
 
                       {talent.phone && (
                         <a
-                          href={buildWhatsappUrl(talent)}
+                          href={canUseDirectWhatsApp ? buildWhatsappUrl(talent) : undefined}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(event) => {
+                            if (!canUseDirectWhatsApp) {
+                              event.preventDefault();
+                              onPlanFeatureBlocked('Contato direto por WhatsApp');
+                            }
+                          }}
                           className="flex h-8 w-9 items-center justify-center rounded-xl border border-white/80 bg-[#63e1a5]/14 text-[#40b87f] transition-all hover:bg-[#63e1a5] hover:text-white"
                           title="Chamar no WhatsApp"
                         >

@@ -30,6 +30,8 @@ interface CompanyTalentBankSectionProps {
   isFetchingTalents: boolean;
   setSelectedResumeApplicant: Dispatch<SetStateAction<CompanyApplicant | null>>;
   handleToggleSaveTalent: (talentId: string) => void;
+  canUseDirectWhatsApp: boolean;
+  onPlanFeatureBlocked: (feature: string) => void;
 }
 
 export const CompanyTalentBankSection = ({
@@ -44,7 +46,9 @@ export const CompanyTalentBankSection = ({
   filteredTalents,
   isFetchingTalents,
   setSelectedResumeApplicant,
-  handleToggleSaveTalent
+  handleToggleSaveTalent,
+  canUseDirectWhatsApp,
+  onPlanFeatureBlocked
 }: CompanyTalentBankSectionProps) => {
   const selectedCompany = companies.find(company => company.id === selectedCompanyId);
   const savedCount = selectedCompany?.savedTalents?.length || 0;
@@ -123,6 +127,8 @@ export const CompanyTalentBankSection = ({
         selectedCompany={selectedCompany}
         handleToggleSaveTalent={handleToggleSaveTalent}
         talentSubTab={talentSubTab}
+        canUseDirectWhatsApp={canUseDirectWhatsApp}
+        onPlanFeatureBlocked={onPlanFeatureBlocked}
       />
     </div>
   );

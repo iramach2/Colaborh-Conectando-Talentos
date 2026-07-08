@@ -34,7 +34,22 @@ import { getCandidateTabFromPath, navigateToCandidateTab } from '../utils/appRou
 
 
 export default function CandidateDashboard({ onLogout }: { onLogout: () => void }) {
-  const [activeTab, setActiveTab] = useState('Meu Currículo');
+  const [activeTab, setActiveTabState] = useState(() => getCandidateTabFromPath(window.location.pathname) || 'Meu Currículo');
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    navigateToCandidateTab(tab);
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const routeTab = getCandidateTabFromPath(window.location.pathname);
+      if (routeTab) setActiveTabState(routeTab);
+    };
+
+    handlePopState();
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   const {
     isProfileMenuOpen,
     setIsProfileMenuOpen,
@@ -600,3 +615,4 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     </>
   );
 }
+

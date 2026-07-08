@@ -147,6 +147,9 @@ export const buildCompanyContentProps = (context: CompanyDashboardViewContext): 
     handleOpenNotes: context.handleOpenNotes,
     handleDeleteJob: context.handleDeleteJob,
     handleOpenChat: context.handleOpenChat,
+    canDownloadResumes: context.canDownloadResumes,
+    canUseDirectWhatsApp: context.canUseDirectWhatsApp,
+    onPlanFeatureBlocked: context.onPlanFeatureBlocked,
     jobSearch: context.jobSearch,
     setJobSearch: context.setJobSearch,
     isJobSearchFocused: context.isJobSearchFocused,
@@ -175,6 +178,8 @@ export const buildCompanyContentProps = (context: CompanyDashboardViewContext): 
     isFetchingTalents: context.isFetchingTalents,
     setSelectedResumeApplicant: context.setSelectedResumeApplicant,
     handleToggleSaveTalent: context.handleToggleSaveTalent,
+    canUseDirectWhatsApp: context.canUseDirectWhatsApp,
+    onPlanFeatureBlocked: context.onPlanFeatureBlocked,
   },
   companiesPanel: {
     companies: context.companies,

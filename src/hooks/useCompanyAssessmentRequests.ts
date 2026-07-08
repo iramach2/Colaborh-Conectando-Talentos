@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+﻿import { useCallback } from 'react';
 import {
   getCustomQuestionsFromJobDescription,
   serializeCandidatePhoneWithAssessment,
@@ -261,7 +261,7 @@ export const useCompanyAssessmentRequests = ({
       console.error('Erro ao solicitar questionario customizado:', err);
       alert('Erro ao solicitar questionario customizado.');
     }
-  }, [closeCustomTemplateRequest, updateApplicantCandidatePhone]);
+  }, [closeCustomTemplateRequest, updateApplicantCandidatePhone, validateAndDeductCredit]);
 
   return {
     handleRequestDiscTest,
@@ -272,3 +272,4 @@ export const useCompanyAssessmentRequests = ({
     handleConfirmRequestCustomTest,
   };
 };
+

@@ -34,6 +34,9 @@ interface MyVacanciesTabProps {
   handleOpenNotes: (applicant: CompanyApplication) => void;
   handleDeleteJob: (jobId: string, jobTitle: string) => void;
   handleOpenChat: (applicant: CompanyApplication) => void;
+  canDownloadResumes?: boolean;
+  canUseDirectWhatsApp?: boolean;
+  onPlanFeatureBlocked?: (feature: string) => void;
   jobSearch: string;
   setJobSearch: (val: string) => void;
   onCreateVacancy?: () => void;
@@ -64,6 +67,9 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
   handleOpenNotes,
   handleDeleteJob,
   handleOpenChat,
+  canDownloadResumes = true,
+  canUseDirectWhatsApp = true,
+  onPlanFeatureBlocked,
   jobSearch: searchTerm,
   setJobSearch: setSearchTerm,
   onCreateVacancy,

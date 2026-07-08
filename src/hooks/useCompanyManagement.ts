@@ -4,6 +4,7 @@ import {
   deleteCompany as deleteCompanyRecord,
   saveCompany as saveCompanyRecord,
 } from '../services/companyService';
+import { getDefaultCreditsForPlan } from '../utils/companyPlans';
 
 export type CompanyForm = {
   razaoSocial: string;
@@ -119,7 +120,7 @@ export const useCompanyManagement = <TOrg extends ManagedCompany>({
       sector: companyForm.sector || 'Geral',
       logo: companyForm.logo,
       plan: 'starter' as const,
-      credits: 5,
+      credits: getDefaultCreditsForPlan('starter'),
     } as TOrg;
 
     try {

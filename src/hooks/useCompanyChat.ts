@@ -6,7 +6,8 @@ import {
   markMessagesAsRead,
   sendMessage,
 } from '../services/messageService';
-import type { CompanyApplicant, CompanyApplication, CompanyJob } from '../types/companyDashboard';
+import type { CompanyApplicant, CompanyApplication, CompanyJob, CompanyLike } from '../types/companyDashboard';
+import { getCompanyPlanLimits, getPlanUpgradeMessage } from '../utils/companyPlans';
 
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) return error.message;
@@ -26,7 +27,8 @@ const getErrorMessage = (error: unknown) => {
 
 export const useCompanyChat = (
   selectedJob: CompanyJob | null | undefined,
-  getFullApplicantInfo: (applicant: CompanyApplication) => CompanyApplicant
+  getFullApplicantInfo: (applicant: CompanyApplication) => CompanyApplicant,
+  selectedCompany?: CompanyLike | null
 ) => {
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [selectedApplicantForChat, setSelectedApplicantForChat] = useState<CompanyApplicant | null>(null);
@@ -34,6 +36,14 @@ export const useCompanyChat = (
   const [newMessageText, setNewMessageText] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [isFetchingChat, setIsFetchingChat] = useState(false);
+
+  const canUseDirectMessages = useCallback(() => {
+    const limits = getCompanyPlanLimits(selectedCompany);
+    if (limits.canUseDirectMessages) return true;
+
+    alert(getPlanUpgradeMessage('Mensagens diretas para candidatos'));
+    return false;
+  }, [selectedCompany]);
 
   const loadChatMessages = useCallback(async (applicationId: string) => {
     if (!applicationId) return;
@@ -64,19 +74,23 @@ export const useCompanyChat = (
   }, [getFullApplicantInfo, loadChatMessages]);
 
   const handleOpenChat = useCallback(async (applicant: CompanyApplication) => {
+    if (!canUseDirectMessages()) return;
     await loadApplicantChat(applicant, true);
-  }, [loadApplicantChat]);
+  }, [canUseDirectMessages, loadApplicantChat]);
 
   const handleLoadProfileChat = useCallback(async (applicant: CompanyApplicant) => {
+    const limits = getCompanyPlanLimits(selectedCompany);
+    if (!limits.canUseDirectMessages) return;
     await loadApplicantChat(applicant, false);
-  }, [loadApplicantChat]);
+  }, [loadApplicantChat, selectedCompany]);
 
   const openMessagesDrawer = useCallback(() => {
+    if (!canUseDirectMessages()) return;
     setIsChatDrawerOpen(true);
     setSelectedApplicantForChat(null);
     setChatMessages([]);
     setNewMessageText('');
-  }, []);
+  }, [canUseDirectMessages]);
 
   const closeChat = useCallback(() => {
     setIsChatDrawerOpen(false);
@@ -85,6 +99,7 @@ export const useCompanyChat = (
 
   const handleSendMessage = useCallback(async () => {
     if (!newMessageText.trim() || !selectedApplicantForChat?.id) return;
+    if (!canUseDirectMessages()) return;
 
     setIsSendingMessage(true);
     try {
@@ -110,7 +125,7 @@ export const useCompanyChat = (
     } finally {
       setIsSendingMessage(false);
     }
-  }, [newMessageText, selectedApplicantForChat, selectedJob?.id, selectedJob?.title]);
+  }, [canUseDirectMessages, newMessageText, selectedApplicantForChat, selectedJob?.id, selectedJob?.title]);
 
   useEffect(() => {
     if (!isChatDrawerOpen || !selectedApplicantForChat?.id) return;

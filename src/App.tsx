@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -370,7 +370,7 @@ export default function App() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-base sm:text-lg text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed font-semibold"
             >
-              A única plataforma que unifica o Kanban de triagem visual, testes comportamentais avançados (DISC, MBTI e Temperamentos) e busca inteligente de candidatos por IA em um único lugar.
+              A única plataforma que unifica vagas, funil de recrutamento, testes comportamentais avançados (DISC, MBTI e Temperamentos) e busca inteligente de candidatos por IA em um único lugar.
             </motion.p>
 
             <motion.div 
@@ -860,32 +860,32 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-              {/* Plan: Starter */}
+              {/* Plan: Gratuito */}
               <div className="bg-white p-8 rounded-[10px] border border-slate-200 flex flex-col justify-between text-left hover:shadow-md transition-shadow">
                 <div className="space-y-6">
                   <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Starter</h4>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Para pequenos times</p>
+                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Gratuito</h4>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Para publicar vagas</p>
                   </div>
                   <div className="flex items-baseline gap-1 select-none">
                     <span className="text-3xl font-extrabold text-slate-900">Grátis</span>
                   </div>
                   <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                    Comece a experimentar a plataforma com todas as funcionalidades inclusas sem custos recorrentes.
+                    Publique quantas vagas quiser sem custo, com recursos avançados bloqueados.
                   </p>
                   <div className="border-t border-slate-100 my-4" />
                   <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>5 créditos de testes comportamentais</span>
+                      <span>Vagas ilimitadas</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Limite de até 2 vagas ativas</span>
+                      <span>Sem envio ou criação de testes</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Kanban de triagem visual</span>
+                      <span>Sem entrevistas, mensagens, WhatsApp e download de currículos</span>
                     </li>
                     <li className="flex items-center gap-2.5 text-slate-350 line-through decoration-slate-300">
                       <X size={14} className="text-slate-300 shrink-0" />
@@ -897,23 +897,23 @@ export default function App() {
                   onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                   className="w-full py-3.5 mt-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full transition-all cursor-pointer border-0"
                 >
-                  Começar Teste Grátis
+                  Começar grátis
                 </button>
               </div>
 
-              {/* Plan: Growth (Recommended) */}
+              {/* Plan: Profissional (Recommended) */}
               <div className="bg-white p-8 rounded-[10px] border-2 border-primary-500 flex flex-col justify-between text-left relative shadow-lg shadow-primary-500/5">
                 <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary-500 text-white rounded-full text-[8.5px] font-black uppercase tracking-widest shadow-sm">
                   Mais Recomendado
                 </span>
                 <div className="space-y-6">
                   <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Growth</h4>
-                    <p className="text-xs text-primary-600 font-black uppercase tracking-wider mt-0.5">Recrutamento acelerado</p>
+                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Profissional</h4>
+                    <p className="text-xs text-primary-600 font-black uppercase tracking-wider mt-0.5">Recrutamento completo</p>
                   </div>
                   <div className="flex items-baseline gap-1 select-none">
                     <span className="text-sm font-extrabold text-slate-500">R$</span>
-                    <span className="text-4xl font-black text-slate-900">149</span>
+                    <span className="text-4xl font-black text-slate-900">119,90</span>
                     <span className="text-xs font-bold text-slate-400">/mês</span>
                   </div>
                   <p className="text-xs text-slate-550 font-semibold leading-relaxed">
@@ -923,19 +923,19 @@ export default function App() {
                   <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-primary-500 shrink-0" />
-                      <span className="text-slate-900 font-extrabold">30 créditos de testes por mês</span>
+                      <span className="text-slate-900 font-extrabold">15 envios de testes por mês</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Limite de até 8 vagas ativas</span>
+                      <span>Vagas ilimitadas</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Busca inteligente com IA</span>
+                      <span>Até 3 testes personalizados</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Banco de talentos completo</span>
+                      <span>Entrevistas, mensagens, WhatsApp e downloads liberados</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-primary-500 shrink-0" />
@@ -947,19 +947,19 @@ export default function App() {
                   onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
                   className="w-full py-3.5 mt-8 bg-primary-600 hover:bg-primary-700 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-md active:scale-95 transition-all cursor-pointer border-0"
                 >
-                  Assinar Plano Growth
+                  Assinar Profissional
                 </button>
               </div>
 
-              {/* Plan: Enterprise */}
+              {/* Plan: Ilimitado */}
               <div className="bg-white p-8 rounded-[10px] border border-slate-200 flex flex-col justify-between text-left hover:shadow-md transition-shadow">
                 <div className="space-y-6">
                   <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Enterprise</h4>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Demanda customizada</p>
+                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Ilimitado</h4>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Tudo ilimitado</p>
                   </div>
                   <div className="flex items-baseline gap-1 select-none">
-                    <span className="text-3xl font-extrabold text-slate-900">Personalizado</span>
+                    <span className="text-3xl font-extrabold text-slate-900">R$ 249,90</span>
                   </div>
                   <p className="text-xs text-slate-500 font-semibold leading-relaxed">
                     Para grandes corporações que necessitam de integrações de software dedicadas e alta volumetria.
@@ -968,7 +968,7 @@ export default function App() {
                   <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Vagas ativas ilimitadas</span>
+                      <span>Vagas ilimitadas</span>
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
@@ -980,7 +980,7 @@ export default function App() {
                     </li>
                     <li className="flex items-center gap-2.5">
                       <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Gerente de contas dedicado</span>
+                      <span>Entrevistas, mensagens, WhatsApp e downloads ilimitados</span>
                     </li>
                   </ul>
                 </div>
@@ -1092,3 +1092,5 @@ export default function App() {
     </div>
   );
 }
+
+

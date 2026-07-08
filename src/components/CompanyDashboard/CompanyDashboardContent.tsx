@@ -115,6 +115,8 @@ export type CompanyDashboardTalentBankProps = {
   isFetchingTalents: boolean;
   setSelectedResumeApplicant: React.Dispatch<React.SetStateAction<CompanyApplicant | null>>;
   handleToggleSaveTalent: (talentId: string) => void;
+  canUseDirectWhatsApp: boolean;
+  onPlanFeatureBlocked: (feature: string) => void;
 };
 
 export type CompanyJobSubTab = 'active' | 'paused' | 'closed';
@@ -148,6 +150,9 @@ export type CompanyDashboardVacanciesProps = {
   handleOpenNotes: (applicant: CompanyApplication) => void;
   handleDeleteJob: (jobId: string, jobTitle: string) => void | Promise<void>;
   handleOpenChat: (applicant: CompanyApplication) => void;
+  canDownloadResumes: boolean;
+  canUseDirectWhatsApp: boolean;
+  onPlanFeatureBlocked: (feature: string) => void;
   jobSearch: string;
   setJobSearch: React.Dispatch<React.SetStateAction<string>>;
   isJobSearchFocused: boolean;
@@ -221,6 +226,9 @@ export const CompanyDashboardContent = ({
     handleOpenNotes,
     handleDeleteJob,
     handleOpenChat,
+    canDownloadResumes,
+    canUseDirectWhatsApp: canUseVacancyDirectWhatsApp,
+    onPlanFeatureBlocked,
     jobSearch,
     setJobSearch,
     isJobSearchFocused,
@@ -249,6 +257,8 @@ export const CompanyDashboardContent = ({
     filteredTalents,
     isFetchingTalents,
     handleToggleSaveTalent,
+    canUseDirectWhatsApp: canUseTalentDirectWhatsApp,
+    onPlanFeatureBlocked: onTalentPlanFeatureBlocked,
   } = talentBank;
 
   const {
@@ -340,6 +350,9 @@ export const CompanyDashboardContent = ({
               handleOpenNotes={handleOpenNotes}
               handleDeleteJob={handleDeleteJob}
               handleOpenChat={handleOpenChat}
+              canDownloadResumes={canDownloadResumes}
+              canUseDirectWhatsApp={canUseVacancyDirectWhatsApp}
+              onPlanFeatureBlocked={onPlanFeatureBlocked}
               jobSearch={jobSearch}
               setJobSearch={setJobSearch}
               isJobSearchFocused={isJobSearchFocused}
@@ -391,6 +404,8 @@ export const CompanyDashboardContent = ({
               isFetchingTalents={isFetchingTalents}
               setSelectedResumeApplicant={setSelectedResumeApplicant}
               handleToggleSaveTalent={handleToggleSaveTalent}
+              canUseDirectWhatsApp={canUseTalentDirectWhatsApp}
+              onPlanFeatureBlocked={onTalentPlanFeatureBlocked}
             />
           )}
 

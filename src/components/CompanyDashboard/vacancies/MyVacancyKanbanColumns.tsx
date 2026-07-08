@@ -40,6 +40,9 @@ interface MyVacancyKanbanColumnsProps {
   handleRequestTemperamentosTest: (applicant: CompanyApplicant) => void;
   handleRequestQuestions: (applicant: CompanyApplicant) => void;
   handleRequestCustomTest: (applicant: CompanyApplicant) => void;
+  canDownloadResumes?: boolean;
+  canUseDirectWhatsApp?: boolean;
+  onPlanFeatureBlocked?: (feature: string) => void;
 }
 
 const matchesSearch = (app: CompanyApplicant, query: string) => {
@@ -187,7 +190,10 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
   handleRequestMbtiTest,
   handleRequestTemperamentosTest,
   handleRequestQuestions,
-  handleRequestCustomTest
+  handleRequestCustomTest,
+  canDownloadResumes = true,
+  canUseDirectWhatsApp = true,
+  onPlanFeatureBlocked
 }) => {
   const defaultStage = stages[0] || 'Triagem';
   const [activeStage, setActiveStage] = React.useState(defaultStage);
@@ -280,6 +286,11 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
   };
 
   const handleBulkDownloadResumes = async () => {
+    if (!canDownloadResumes) {
+      onPlanFeatureBlocked?.('Download de curr?culos dos candidatos');
+      return;
+    }
+
     for (const app of selectedApplicants) {
       await downloadCandidateResumePdf(getFullApplicantInfo(app));
     }
@@ -515,9 +526,15 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                       </button>
                     )}
                     <a
-                      href={buildWhatsappUrl(parsedData.phone)}
+                      href={canUseDirectWhatsApp ? buildWhatsappUrl(parsedData.phone) : undefined}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(event) => {
+                        if (!canUseDirectWhatsApp) {
+                          event.preventDefault();
+                          onPlanFeatureBlocked?.('Contato direto por WhatsApp');
+                        }
+                      }}
                       className="flex h-8 w-10 items-center justify-center rounded-xl border border-[#63e1a5]/35 bg-[#63e1a5]/14 text-[#40b87f] transition-all hover:border-[#63e1a5]/55 hover:bg-[#63e1a5] hover:text-white"
                       title="Chamar no WhatsApp"
                     >
@@ -627,9 +644,15 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                     </button>
                     )}
                     <a
-                      href={buildWhatsappUrl(parsedData.phone)}
+                      href={canUseDirectWhatsApp ? buildWhatsappUrl(parsedData.phone) : undefined}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(event) => {
+                        if (!canUseDirectWhatsApp) {
+                          event.preventDefault();
+                          onPlanFeatureBlocked?.('Contato direto por WhatsApp');
+                        }
+                      }}
                       className="h-8 w-10 rounded-xl bg-[#63e1a5]/14 hover:bg-[#63e1a5] text-[#40b87f] hover:text-white flex items-center justify-center transition-all border border-[#63e1a5]/35 hover:border-[#63e1a5]/55"
                       title="Chamar no WhatsApp"
                     >

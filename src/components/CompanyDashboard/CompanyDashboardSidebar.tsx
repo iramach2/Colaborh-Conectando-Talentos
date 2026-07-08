@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import {
   Award,
   BarChart3,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { CompanyRecord } from '../../services/companyService';
 import { SidebarItem } from './CompanyDashboardLayout';
+import { navigateToCompanyTab } from '../../utils/appRoutes';
 
 export interface CompanyDashboardSidebarProps {
   activeTab: string;
@@ -253,3 +254,4 @@ export const CompanyDashboardSidebar = ({
     </>
   );
 };
+

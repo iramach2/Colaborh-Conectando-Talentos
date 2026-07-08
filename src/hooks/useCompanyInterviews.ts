@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { createNotification } from '../utils/notificationUtils';
 import { INTERVIEW_COLUMNS } from '../services/queryColumns';
+import { getCompanyPlanLimits, getPlanUpgradeMessage } from '../utils/companyPlans';
 import type { CompanyApplicant, CompanyApplication, CompanyInterview, CompanyLike } from '../types/companyDashboard';
 
 export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled';
@@ -48,6 +49,12 @@ export const useCompanyInterviews = (
     notes: string
   ) => {
     try {
+      const limits = getCompanyPlanLimits(selectedCompany);
+      if (!limits.canUseInterviews) {
+        alert(getPlanUpgradeMessage('Sistema de entrevistas'));
+        return null;
+      }
+
       const roomName = `colaborh-interview-${Math.random().toString(36).substring(2, 11)}`;
       const companyName = selectedCompany?.nomeFantasia || 'Empresa Colaborh';
 
@@ -101,7 +108,7 @@ export const useCompanyInterviews = (
     getFullApplicantInfo,
     jobApplicants,
     loadInterviews,
-    selectedCompany?.nomeFantasia,
+    selectedCompany,
     updateApplicantStatus,
   ]);
 
@@ -156,3 +163,4 @@ export const useCompanyInterviews = (
     handleUpdateInterviewStatus,
   };
 };
+

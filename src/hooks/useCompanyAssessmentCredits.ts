@@ -1,7 +1,9 @@
 import { type Dispatch, type SetStateAction, useCallback } from 'react';
+import { getCompanyPlanLimits, getDefaultCreditsForPlan, getPlanUpgradeMessage } from '../utils/companyPlans';
 
 type CompanyWithCredits = {
   id: string;
+  plan?: string;
   credits?: number;
 };
 
@@ -22,10 +24,24 @@ export const useCompanyAssessmentCredits = <TOrg extends CompanyWithCredits>({
     const selectedCompany = companies.find((company) => company.id === selectedCompanyId);
     if (!selectedCompany) return false;
 
-    const currentCredits = selectedCompany.credits !== undefined ? selectedCompany.credits : 5;
+    const limits = getCompanyPlanLimits(selectedCompany);
+
+    if (!limits.canUseAssessments) {
+      alert(getPlanUpgradeMessage('Envio de testes para candidatos'));
+      setActiveTab('Faturamento');
+      return false;
+    }
+
+    if (limits.unlimitedAssessmentCredits) {
+      return true;
+    }
+
+    const currentCredits = selectedCompany.credits !== undefined
+      ? selectedCompany.credits
+      : getDefaultCreditsForPlan(selectedCompany.plan);
 
     if (currentCredits <= 0) {
-      alert('Saldo de creditos insuficiente para solicitar este teste comportamental! Adquira mais creditos na aba Faturamento.');
+      alert('Limite mensal de 15 testes atingido para o plano Profissional. Faça upgrade para o plano Ilimitado ou aguarde a renovação mensal.');
       setActiveTab('Faturamento');
       return false;
     }
