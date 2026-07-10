@@ -418,7 +418,7 @@ export default function App() {
                     </div>
                     <div className="space-y-3">
                       {[
-                        ['An?lise de currículo', '42 candidatos', '#940dff'],
+                        ['Análise de currículo', '42 candidatos', '#940dff'],
                         ['Teste comportamental', '18 candidatos', '#ff4b8c'],
                         ['Entrevista', '9 candidatos', '#63e1a5']
                       ].map(([stage, count, color]) => (
@@ -456,7 +456,7 @@ export default function App() {
                 { title: 'Funil seletivo', desc: 'Etapas em abas, candidatos em lista e ações rápidas sem bagunça.', icon: Layers, color: 'text-[#940dff] bg-[#f3e5ff]' },
                 { title: 'Ações em massa', desc: 'Mude etapa, envie testes, baixe PDFs e reprove selecionados.', icon: CheckCircle2, color: 'text-[#63e1a5] bg-[#63e1a5]/14' },
                 { title: 'Testes comportamentais', desc: 'DISC, MBTI, Temperamentos e mapeamentos personalizados.', icon: Brain, color: 'text-[#ff4b8c] bg-[#ff4b8c]/10' },
-                { title: 'Entrevistas', desc: 'Calend?rio, hor?rios livres, sala de v?deo e histórico por candidato.', icon: Play, color: 'text-[#ffa303] bg-[#ffc24b]/16' },
+                { title: 'Entrevistas', desc: 'Calendário, horários livres, sala de vídeo e histórico por candidato.', icon: Play, color: 'text-[#ffa303] bg-[#ffc24b]/16' },
                 { title: 'Mensagens', desc: 'Chat com recibo de leitura e central de conversas da empresa.', icon: MessageSquare, color: 'text-[#533af6] bg-[#533af6]/10' },
                 { title: 'Relatórios', desc: 'Resultados, estrelas, notas, entrevistas e dados para decisóo.', icon: TrendingUp, color: 'text-[#63e1a5] bg-[#63e1a5]/14' }
               ].map((item) => {
@@ -479,13 +479,13 @@ export default function App() {
               <div className="rounded-3xl border border-slate-200/70 bg-white/85 p-8 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
                 <p className="text-[12px] font-semibold text-[#940dff]">Fluxo inteligente</p>
                 <h2 className="mt-3 text-[32px] font-semibold leading-tight tracking-tight text-[#343241]">Da vaga publicada ao candidato contratado.</h2>
-                <p className="mt-4 text-[14px] font-medium leading-7 text-slate-500">Um processo seletivo precisa de m?todo. A Colaborh organiza cada etapa para sua empresa enxergar quem avan?ou, quem precisa responder teste, quem foi entrevistado e quem foi reprovado.</p>
+                <p className="mt-4 text-[14px] font-medium leading-7 text-slate-500">Um processo seletivo precisa de método. A Colaborh organiza cada etapa para sua empresa enxergar quem avançou, quem precisa responder teste, quem foi entrevistado e quem foi reprovado.</p>
                 <button onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }} className="mt-8 h-10 rounded-xl bg-[#940dff] px-5 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95">Criar conta grátis</button>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 {[
-                  ['1', 'Publique a vaga', 'Cadastre cargo, sal?rio, benef?cios, requisitos, etapas e link p?blico.'],
+                  ['1', 'Publique a vaga', 'Cadastre cargo, salário, benefícios, requisitos, etapas e link público.'],
                   ['2', 'Receba candidaturas', 'Candidatos aparecem no funil com currículo, contato, localização e histórico.'],
                   ['3', 'Avalie com testes', 'Envie avaliações manualmente ou automaticamente por etapa do processo.'],
                   ['4', 'Decida com contexto', 'Compare relatórios, notas, entrevistas, mensagens e classificação por estrelas.']
@@ -505,16 +505,16 @@ export default function App() {
           <div className="mx-auto max-w-7xl px-6 sm:px-10">
             <div className="mb-10 max-w-2xl">
               <p className="text-[12px] font-semibold text-[#940dff]">Avaliações e relatórios</p>
-              <h2 className="mt-3 text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[44px]">N?o escolha candidatos só pelo currículo.</h2>
+              <h2 className="mt-3 text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[44px]">Não escolha candidatos só pelo currículo.</h2>
               <p className="mt-4 text-[14px] font-medium leading-7 text-slate-500">Use testes e questionários para enxergar comportamento, comunicação, perfil profissional e aderência ao cargo.</p>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-4">
               {[
-                ['DISC 5.0', 'Mapeia tend?ncias de domin?ncia, influ?ncia, estabilidade e conformidade.', '#63e1a5', Brain],
-                ['MBTI', 'Categoriza perfis psicol?gicos e estilos de tomada de decisóo.', '#533af6', Award],
+                ['DISC 5.0', 'Mapeia tendências de dominância, influência, estabilidade e conformidade.', '#63e1a5', Brain],
+                ['MBTI', 'Categoriza perfis psicológicos e estilos de tomada de decisão.', '#533af6', Award],
                 ['Temperamentos', 'Identifica perfil emocional e estilo de reação em ambiente profissional.', '#ff4b8c', Zap],
-                ['Questionários', 'Crie perguntas abertas ou de m?ltipla escolha com resposta correta.', '#ffa303', FileText]
+                ['Questionários', 'Crie perguntas abertas ou de múltipla escolha com resposta correta.', '#ffa303', FileText]
               ].map(([title, desc, color, icon]) => {
                 const Icon = icon as typeof Brain;
                 return (
@@ -556,7 +556,7 @@ export default function App() {
             <div className="rounded-3xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_20px_60px_rgba(52,50,65,0.08)]">
               {demoTab === 'kanban' && (
                 <div className="grid gap-3 md:grid-cols-4">
-                  {['An?lise de currículo', 'Testes', 'Entrevistas', 'Finalistas'].map((stage, index) => (
+                  {['Análise de currículo', 'Testes', 'Entrevistas', 'Finalistas'].map((stage, index) => (
                     <div key={stage} className="rounded-2xl bg-[#fbf9ff] p-4">
                       <div className="mb-4 flex h-[38px] items-center justify-between border-b border-slate-200/80 text-[12px] font-semibold text-[#343241]">
                         <span>{stage}</span><span className="text-slate-400">{index + 1}</span>
@@ -577,7 +577,7 @@ export default function App() {
               {demoTab === 'ia' && (
                 <div className="mx-auto max-w-3xl space-y-4 py-4">
                   <div className="flex h-12 items-center gap-3 rounded-2xl border border-slate-200/80 bg-[#fbf9ff] px-4 text-[13px] font-medium text-slate-500"><Search size={17} className="text-[#940dff]" />{iaSearchQuery || 'Buscar talentos por cargo, habilidade ou cidade...'}</div>
-                  <p className="text-[12px] font-semibold text-slate-400">{iaSearchStep === 2 ? 'Buscando talentos compat?veis...' : 'Candidatos encontrados no banco de talentos'}</p>
+                  <p className="text-[12px] font-semibold text-slate-400">{iaSearchStep === 2 ? 'Buscando talentos compatíveis...' : 'Candidatos encontrados no banco de talentos'}</p>
                   {iaResults.map((item) => (
                     <div key={item.name} className="flex items-center justify-between rounded-2xl border border-slate-200/70 bg-white p-4">
                       <div><p className="text-[13px] font-semibold text-[#343241]">{item.name}</p><p className="mt-1 text-[11px] font-medium text-slate-400">{item.xp} ? {item.skills}</p></div>
@@ -592,7 +592,7 @@ export default function App() {
                   {[
                     ['Perfil comportamental', 'DISC, MBTI e Temperamentos em relatórios claros.'],
                     ['Notas internas', 'Anote percepções e classifique candidatos com estrelas.'],
-                    ['Hist?rico completo', 'Mensagens, entrevistas, testes e decisóes por candidato.']
+                    ['Histórico completo', 'Mensagens, entrevistas, testes e decisões por candidato.']
                   ].map(([title, desc]) => (
                     <div key={title} className="rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-5">
                       <p className="text-[16px] font-semibold tracking-tight text-[#343241]">{title}</p>
@@ -640,10 +640,10 @@ export default function App() {
             <div className="rounded-[32px] border border-[#940dff]/16 bg-white/85 p-8 shadow-[0_24px_70px_rgba(148,13,255,0.12)] sm:p-12">
               <p className="text-[12px] font-semibold text-[#940dff]">Pronto para testar?</p>
               <h2 className="mx-auto mt-3 max-w-3xl text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[48px]">Crie sua conta e publique sua primeira vaga hoje.</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-[14px] font-medium leading-7 text-slate-500">Você come?a gratuitamente, sem precisar ativar os recursos pagos. Quando sua operação crescer, os planos avançados liberam toda a inteligência da plataforma.</p>
+              <p className="mx-auto mt-4 max-w-2xl text-[14px] font-medium leading-7 text-slate-500">Você começa gratuitamente, sem precisar ativar os recursos pagos. Quando sua operação crescer, os planos avançados liberam toda a inteligência da plataforma.</p>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <button onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }} className="h-11 rounded-xl bg-[#940dff] px-6 text-[13px] font-semibold text-white shadow-[0_14px_30px_rgba(148,13,255,0.26)] transition-all hover:bg-[#8200e6] active:scale-95">Começar grátis</button>
-                <button onClick={() => { setLoginMode('login'); setShowLogin(true); pushAppPath('/login'); }} className="h-11 rounded-xl border border-slate-200/80 bg-white px-6 text-[13px] font-semibold text-slate-500 transition-all hover:text-[#940dff]">J? tenho conta</button>
+                <button onClick={() => { setLoginMode('login'); setShowLogin(true); pushAppPath('/login'); }} className="h-11 rounded-xl border border-slate-200/80 bg-white px-6 text-[13px] font-semibold text-slate-500 transition-all hover:text-[#940dff]">Já tenho conta</button>
               </div>
             </div>
           </div>
