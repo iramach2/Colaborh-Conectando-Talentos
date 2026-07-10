@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { lazy, Suspense, useState, useEffect, type ReactNode } from 'react';
+import { lazy, Suspense, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { 
   Search, 
   Briefcase, 
@@ -117,29 +117,67 @@ export default function App() {
   };
 
 
+  const handleLogout = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Erro ao encerrar sessão:', error);
+    } finally {
+      if (typeof window !== 'undefined') {
+        for (const storage of [window.localStorage, window.sessionStorage]) {
+          Object.keys(storage)
+            .filter((key) => key.startsWith('sb-') || key.toLowerCase().includes('supabase'))
+            .forEach((key) => storage.removeItem(key));
+        }
+      }
+
+      setIsLoggedIn(false);
+      setUserRole(null);
+      setShowLogin(false);
+      setSharedJobId(null);
+      setSharedJobData(null);
+      pushAppPath('/', true);
+    }
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
 
-    // Check session on load
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setIsLoggedIn(true);
         setUserRole(session.user.user_metadata?.role || 'candidate');
+      } else {
+        setIsLoggedIn(false);
+        setUserRole(null);
       }
     };
     checkSession();
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setIsLoggedIn(true);
+        setUserRole(session.user.user_metadata?.role || 'candidate');
+      } else {
+        setIsLoggedIn(false);
+        setUserRole(null);
+      }
+    });
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (isLoggedIn && userRole === 'candidate') {
     return (
       <LazyScreen>
-        <CandidateDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); pushAppPath('/'); }} />
+        <CandidateDashboard onLogout={handleLogout} />
       </LazyScreen>
     );
   }
@@ -147,7 +185,7 @@ export default function App() {
   if (isLoggedIn && userRole === 'company') {
     return (
       <LazyScreen>
-        <CompanyDashboard onLogout={() => { setIsLoggedIn(false); setUserRole(null); pushAppPath('/'); }} />
+        <CompanyDashboard onLogout={handleLogout} />
       </LazyScreen>
     );
   }
