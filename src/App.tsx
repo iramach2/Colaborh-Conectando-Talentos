@@ -339,387 +339,133 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <main className="pt-20">
-        {/* Hero Section */}
-        <section className="relative py-20 lg:py-32 overflow-hidden flex flex-col items-center bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white w-full border-b border-slate-800">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary-900/20 via-transparent to-transparent pointer-events-none" />
-          
-          <div className="max-w-6xl mx-auto px-6 sm:px-10 text-center relative z-10 space-y-8">
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-3 py-1 bg-primary-950/60 border border-primary-800/40 rounded-full text-[10px] font-black uppercase tracking-widest text-primary-300"
-            >
-              <Zap size={12} className="text-primary-400" /> Plataforma completa de recrutamento e seleção
-            </motion.div>
-
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-6xl lg:text-[68px] font-extrabold leading-[1.05] tracking-tight text-white mb-6 uppercase"
-            >
-              Publique vagas, avalie candidatos e <br className="hidden lg:block"/>
-              <span className="text-[#8b5cf6] bg-gradient-to-r from-primary-400 to-highlight-500 bg-clip-text text-transparent italic">contrate com dados reais</span>
-            </motion.h1>
-
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-base sm:text-lg text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed font-semibold"
-            >
-              A Colaborh reúne vagas ilimitadas, banco de talentos, funil seletivo, testes comportamentais, questionários personalizados, entrevistas, mensagens, WhatsApp, relatórios e ações em massa em um só painel.
-            </motion.p>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4"
-            >
-              <button 
-                onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
-                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white font-black text-xs uppercase tracking-widest rounded-full shadow-lg shadow-primary-500/20 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer border-0"
-              >
-                Começar grátis como empresa
-              </button>
-              <button 
-                onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
-                className="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs uppercase tracking-widest rounded-full border border-slate-700 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer bg-transparent"
-              >
-                Cadastrar currículo
-              </button>
-              <button 
-                onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto px-8 py-4 bg-transparent text-slate-300 hover:text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 hover:underline transition-all cursor-pointer border-0 outline-none"
-              >
-                Ver plataforma <ArrowUpRight size={14} />
-              </button>
-            </motion.div>
-
-            {/* Quick Badges */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="pt-12 flex flex-wrap justify-center items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400 border-t border-slate-900/60 max-w-4xl mx-auto"
-            >
-              <span className="flex items-center gap-2">
-                <Check size={14} className="text-primary-500" /> Vagas ilimitadas no plano grátis
-              </span>
-              <span className="flex items-center gap-2">
-                <Check size={14} className="text-primary-500" /> Plano profissional por R$ 119,90/mês
-              </span>
-              <span className="flex items-center gap-2">
-                <Check size={14} className="text-primary-500" /> Sistema completo para RH
-              </span>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Demo Section (Interactive Showcase) */}
-        <section id="demo" className="py-24 bg-white border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-6 sm:px-10">
-            <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Sistema completo</h2>
-              <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Uma operação de RH inteira dentro do mesmo painel
-              </p>
-              <p className="text-slate-500 font-semibold text-sm leading-relaxed">
-                Da primeira vaga ao relatório final da entrevista, a empresa acompanha tudo sem planilhas, prints, conversas perdidas ou processos espalhados.
-              </p>
-            </div>
-
-            {/* Browser Mockup Wrapper */}
-            <div className="bg-slate-950 rounded-[10px] border border-slate-800 shadow-2xl overflow-hidden flex flex-col w-full max-w-5xl mx-auto">
-              {/* Browser Top Bar */}
-              <div className="bg-slate-900 px-6 py-4 flex items-center justify-between border-b border-slate-800/80">
-                <div className="flex gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-rose-500" />
-                  <span className="w-3 h-3 rounded-full bg-amber-500" />
-                  <span className="w-3 h-3 rounded-full bg-emerald-500" />
-                </div>
-                <div className="bg-slate-950/80 px-8 py-1 rounded-md text-[10px] text-slate-500 font-mono select-none">
-                  app.colaborh.com/dashboard
-                </div>
-                <div className="w-12" />
+      <main className="company-dashboard-surface bg-[#fbf9ff] pt-20 text-[#343241]">
+        <section className="relative overflow-hidden border-b border-[#940dff]/10 bg-[#fbf9ff]">
+          <div className="absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_50%_0%,rgba(148,13,255,0.18),transparent_55%)]" />
+          <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:py-24">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-8">
+              <div className="inline-flex h-8 items-center gap-2 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] shadow-[0_10px_22px_rgba(148,13,255,0.08)]">
+                <Zap size={14} /> Recrutamento, seleção e avaliação em um só lugar
               </div>
 
-              {/* Selector Tabs Inside Mockup */}
-              <div className="flex bg-slate-900 border-b border-slate-800/60 overflow-x-auto shrink-0 no-scrollbar">
-                {([
-                  { id: 'kanban', label: 'Funil seletivo', icon: Layers },
-                  { id: 'ia', label: 'Banco de talentos', icon: Cpu },
-                  { id: 'testes', label: 'Testes e relatórios', icon: Brain }
-                ] satisfies Array<{ id: DemoTab; label: string; icon: typeof Layers }>).map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setDemoTab(tab.id)}
-                      className={`flex items-center gap-2 px-6 py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer bg-transparent ${
-                        demoTab === tab.id
-                          ? 'border-primary-500 text-white bg-slate-950/30'
-                          : 'border-transparent text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      <Icon size={14} className={demoTab === tab.id ? 'text-[#8b5cf6]' : 'text-slate-500'} />
-                      {tab.label}
-                    </button>
-                  );
-                })}
+              <div className="space-y-5">
+                <h1 className="max-w-3xl text-[42px] font-semibold leading-[1.03] tracking-tight text-[#343241] sm:text-[58px] lg:text-[68px]">
+                  O sistema para empresas que querem contratar com mais clareza.
+                </h1>
+                <p className="max-w-2xl text-[16px] font-medium leading-8 text-slate-500 sm:text-[18px]">
+                  Publique vagas ilimitadas, organize candidatos em etapas, envie testes, agende entrevistas, converse pelo chat, acesse WhatsApp, baixe currículos e tome decisóes com relatórios no mesmo painel.
+                </p>
               </div>
 
-              {/* Mockup Canvas */}
-              <div className="p-6 md:p-8 min-h-[420px] bg-slate-900/25 flex flex-col justify-center">
-                <AnimatePresence mode="wait">
-                  {demoTab === 'kanban' && (
-                    <motion.div
-                      key="demo-kanban"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full text-left"
-                    >
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }} className="h-11 rounded-xl bg-[#940dff] px-6 text-[13px] font-semibold text-white shadow-[0_14px_30px_rgba(148,13,255,0.26)] transition-all hover:bg-[#8200e6] active:scale-95">
+                  Começar grátis
+                </button>
+                <button onClick={() => document.getElementById('plans')?.scrollIntoView({ behavior: 'smooth' })} className="h-11 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-6 text-[13px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12">
+                  Ver planos
+                </button>
+                <button onClick={() => document.getElementById('product')?.scrollIntoView({ behavior: 'smooth' })} className="h-11 rounded-xl border border-slate-200/80 bg-white px-6 text-[13px] font-semibold text-slate-500 transition-all hover:text-[#940dff]">
+                  Conhecer recursos
+                </button>
+              </div>
+
+              <div className="grid max-w-2xl grid-cols-3 gap-3 pt-2">
+                {[
+                  ['Vagas', 'ilimitadas'],
+                  ['15 testes', 'no Profissional'],
+                  ['R$ 119,90', 'plano mensal']
+                ].map(([value, label]) => (
+                  <div key={value} className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+                    <p className="text-[18px] font-semibold text-[#343241]">{value}</p>
+                    <p className="mt-1 text-[12px] font-medium text-slate-400">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }} className="relative">
+              <div className="rounded-[28px] border border-slate-200/70 bg-white/85 p-4 shadow-[0_24px_80px_rgba(52,50,65,0.12)]">
+                <div className="rounded-2xl bg-[#fbf9ff] p-5">
+                  <div className="mb-5 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[12px] font-semibold text-[#940dff]">Dashboard da empresa</p>
+                      <h2 className="mt-1 text-[20px] font-semibold tracking-tight text-[#343241]">Visóo geral do recrutamento</h2>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="h-9 w-9 rounded-xl bg-[#940dff] shadow-[0_10px_22px_rgba(148,13,255,0.22)]" />
+                      <span className="h-9 w-9 rounded-xl bg-[#ff4b8c] shadow-[0_10px_22px_rgba(255,75,140,0.18)]" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      ['Candidaturas', '128', '#940dff'],
+                      ['Entrevistas', '24', '#63e1a5'],
+                      ['Testes enviados', '86', '#ff4b8c']
+                    ].map(([label, value, color]) => (
+                      <div key={label} className="rounded-2xl border border-slate-200/70 bg-white p-4">
+                        <p className="text-[11px] font-semibold text-slate-400">{label}</p>
+                        <p className="mt-3 text-[28px] font-semibold text-[#343241]">{value}</p>
+                        <div className="mt-3 h-1.5 rounded-full bg-slate-100"><div className="h-full w-2/3 rounded-full" style={{ backgroundColor: color }} /></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4">
+                    <div className="mb-4 flex items-center justify-between">
+                      <p className="text-[13px] font-semibold text-[#343241]">Processo seletivo</p>
+                      <span className="rounded-xl bg-[#f3e5ff] px-3 py-1 text-[11px] font-semibold text-[#940dff]">Em andamento</span>
+                    </div>
+                    <div className="space-y-3">
                       {[
-                        { id: 'triagem', label: 'Triagem', bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
-                        { id: 'testes', label: 'Testes Enviados', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-                        { id: 'entrevista', label: 'Entrevista', bg: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
-                        { id: 'aprovado', label: 'Contratado', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' }
-                      ].map((col) => {
-                        const items = kanbanCandidates.filter(c => c.stage === col.id);
-                        return (
-                          <div key={col.id} className="bg-slate-900/50 p-4 rounded-[10px] border border-slate-800/60 flex flex-col gap-3 min-h-[200px]">
-                            <div className={`px-2.5 py-1.5 rounded-[10px] border text-[9px] font-black uppercase tracking-wider ${col.bg} flex justify-between items-center`}>
-                              <span>{col.label}</span>
-                              <span className="font-extrabold">{items.length}</span>
-                            </div>
-
-                            <div className="flex flex-col gap-2 flex-grow overflow-y-auto">
-                              <AnimatePresence>
-                                {items.map((item) => (
-                                  <motion.div
-                                    key={item.id}
-                                    layoutId={`candidate-${item.id}`}
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    transition={{ type: 'spring', stiffness: 220, damping: 25 }}
-                                    className="bg-slate-950 p-3.5 rounded-[10px] border border-slate-800 hover:border-primary-500/40 shadow-sm space-y-2 select-none"
-                                  >
-                                    <div className="font-bold text-slate-100 text-xs uppercase truncate">{item.name}</div>
-                                    <div className="text-[10px] text-slate-500 font-semibold truncate">{item.role}</div>
-                                    <div className="flex gap-1.5">
-                                      <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse" />
-                                      <span className="text-[8px] font-bold text-primary-400 uppercase tracking-wide">Status: Ok</span>
-                                    </div>
-                                  </motion.div>
-                                ))}
-                              </AnimatePresence>
-                            </div>
+                        ['An?lise de currículo', '42 candidatos', '#940dff'],
+                        ['Teste comportamental', '18 candidatos', '#ff4b8c'],
+                        ['Entrevista', '9 candidatos', '#63e1a5']
+                      ].map(([stage, count, color]) => (
+                        <div key={stage} className="flex items-center gap-3 rounded-2xl bg-[#fbf9ff] p-3">
+                          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[12px] font-semibold text-[#343241]">{stage}</p>
+                            <p className="text-[11px] font-medium text-slate-400">{count}</p>
                           </div>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-
-                  {demoTab === 'ia' && (
-                    <motion.div
-                      key="demo-ia"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="w-full max-w-2xl mx-auto space-y-6 text-left"
-                    >
-                      {/* Search Bar Visual */}
-                      <div className="bg-slate-950 p-4 rounded-[10px] border border-slate-800 flex items-center gap-3">
-                        <Cpu size={16} className="text-primary-500" />
-                        <div className="text-xs font-mono font-bold text-slate-100 flex-grow select-none">
-                          {iaSearchQuery}
-                          {iaSearchStep === 1 && <span className="w-1.5 h-4 ml-0.5 bg-primary-500 inline-block animate-pulse" />}
+                          <ChevronRight size={16} className="text-slate-300" />
                         </div>
-                        {iaSearchStep === 2 && (
-                          <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin shrink-0" />
-                        )}
-                      </div>
-
-                      {/* Search Results Visual */}
-                      <div className="space-y-3">
-                        {iaSearchStep >= 2 && (
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest select-none">
-                            {iaSearchStep === 2 ? "Buscando talentos compatíveis..." : "Candidatos encontrados no banco de talentos"}
-                          </p>
-                        )}
-                        <AnimatePresence>
-                          {iaResults.map((cand, idx) => (
-                            <motion.div
-                              key={idx}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className="bg-slate-950 p-5 rounded-[10px] border border-slate-800 flex justify-between items-center gap-4 hover:border-primary-500/25 transition-all"
-                            >
-                              <div className="space-y-1.5">
-                                <h4 className="font-extrabold text-slate-100 text-xs uppercase tracking-tight">{cand.name}</h4>
-                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{cand.xp} • {cand.skills}</p>
-                              </div>
-                              <span className="px-3 py-1.5 bg-primary-950 text-primary-400 border border-primary-800/40 rounded-full text-[10px] font-black tracking-wider uppercase shrink-0">
-                                Match {cand.match}%
-                              </span>
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {demoTab === 'testes' && (
-                    <motion.div
-                      key="demo-testes"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="w-full max-w-xl mx-auto bg-slate-950 p-6 rounded-[10px] border border-slate-800 flex flex-col md:flex-row gap-6 text-left"
-                    >
-                      {/* Left Block */}
-                      <div className="flex-1 space-y-4">
-                        <div>
-                          <span className="px-2 py-0.5 bg-primary-950 text-primary-400 border border-primary-800/40 rounded-md text-[8px] font-black uppercase tracking-wider inline-block">
-                            Candidato Analisado
-                          </span>
-                          <h4 className="font-extrabold text-slate-100 text-sm uppercase tracking-tight mt-1">Felipe de Souza</h4>
-                          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Desenvolvedor Backend Pleno</p>
-                        </div>
-                        <div className="p-3 bg-slate-900 rounded-[10px] border border-slate-800/60 text-[10px] font-bold text-slate-300 leading-relaxed">
-                          <strong>Perfil MBTI:</strong> INTJ (Arquiteto)<br/>
-                          <strong>DISC Principal:</strong> Conformidade (C)<br/>
-                          <strong>Temperamento:</strong> Melancólico Analítico
-                        </div>
-                      </div>
-
-                      {/* Right Block (DISC Bars) */}
-                      <div className="flex-1 flex flex-col justify-center space-y-3">
-                        <h5 className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Gráfico DISC da IA</h5>
-                        {[
-                          { dim: 'D', val: 85, color: '#f43f5e', label: 'Dominância (D)' },
-                          { dim: 'I', val: 40, color: '#eab308', label: 'Influência (I)' },
-                          { dim: 'S', val: 50, color: '#0ea5e9', label: 'Estabilidade (S)' },
-                          { dim: 'C', val: 90, color: '#8b5cf6', label: 'Conformidade (C)' }
-                        ].map((bar) => (
-                          <div key={bar.dim} className="space-y-1">
-                            <div className="flex justify-between text-[9px] font-bold text-slate-400">
-                              <span>{bar.label}</span>
-                              <span>{bar.val}%</span>
-                            </div>
-                            <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
-                              <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${bar.val}%` }}
-                                transition={{ duration: 1, ease: 'easeOut' }}
-                                className="h-full rounded-full"
-                                style={{ backgroundColor: bar.color }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* Features Highlights Grid */}
-        <section id="features" className="py-24 bg-slate-50 border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-6 sm:px-10">
-            <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Funcionalidades do sistema</h2>
-              <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Tudo que sua empresa precisa para contratar melhor
-              </h3>
-              <p className="text-slate-500 font-semibold text-sm leading-relaxed">
-                O fluxo foi criado para reduzir retrabalho, organizar candidatos, acelerar decisões e mostrar dados que ajudam a escolher a pessoa certa.
-              </p>
+        <section id="product" className="border-b border-slate-200/70 bg-white py-20">
+          <div className="mx-auto max-w-7xl px-6 sm:px-10">
+            <div className="mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-2xl">
+                <p className="text-[12px] font-semibold text-[#940dff]">Produto completo</p>
+                <h2 className="mt-3 text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[44px]">Tudo que criamos para tirar seu RH do improviso.</h2>
+              </div>
+              <p className="max-w-md text-[14px] font-medium leading-7 text-slate-500">A Colaborh cobre o fluxo completo: atrair, organizar, avaliar, entrevistar, conversar, comparar e decidir.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {[
-                {
-                  title: "Vagas ilimitadas",
-                  desc: "Publique quantas oportunidades quiser, compartilhe links públicos e acompanhe candidaturas por status, cidade, modalidade, cargo e data.",
-                  icon: Briefcase,
-                  color: "text-[#940dff] bg-[#f3e5ff] border-[#940dff]/15"
-                },
-                {
-                  title: "Banco de talentos",
-                  desc: "Consulte perfis disponíveis, salve candidatos, filtre por dados profissionais e abra o currículo completo em poucos cliques.",
-                  icon: Cpu,
-                  color: "text-[#533af6] bg-[#533af6]/10 border-[#533af6]/15"
-                },
-                {
-                  title: "Testes comportamentais",
-                  desc: "Envie DISC, MBTI, Temperamentos, mapeamentos por perguntas e questionários personalizados dentro do próprio processo.",
-                  icon: Brain,
-                  color: "text-[#ff4b8c] bg-[#ff4b8c]/10 border-[#ff4b8c]/15"
-                },
-                {
-                  title: "Funil seletivo inteligente",
-                  desc: "Crie etapas, mova candidatos, automatize testes por fase, veja reprovados, use ações em massa e acompanhe tudo em lista limpa.",
-                  icon: Layers,
-                  color: "text-[#940dff] bg-[#f3e5ff] border-[#940dff]/15"
-                },
-                {
-                  title: "Mensagens e WhatsApp",
-                  desc: "Converse com candidatos pelo chat, veja confirmação de leitura e acesse o WhatsApp direto quando seu plano permitir.",
-                  icon: MessageSquare,
-                  color: "text-[#63e1a5] bg-[#63e1a5]/14 border-[#63e1a5]/18"
-                },
-                {
-                  title: "Entrevistas e vídeo",
-                  desc: "Agende entrevistas em calendário, evite conflito de horário, entre na sala de vídeo e registre o histórico do candidato.",
-                  icon: Play,
-                  color: "text-[#ffa303] bg-[#ffc24b]/16 border-[#ffc24b]/25"
-                },
-                {
-                  title: "Currículos e PDFs",
-                  desc: "Visualize perfis completos, experiências, formação, habilidades, diversidade, avaliações e baixe currículos em PDF.",
-                  icon: FileText,
-                  color: "text-[#533af6] bg-[#533af6]/10 border-[#533af6]/15"
-                },
-                {
-                  title: "Gestão de empresas",
-                  desc: "Cadastre mais de uma empresa, alterne entre elas, controle plano, faturamento, configurações e identidade de cada marca.",
-                  icon: Building,
-                  color: "text-[#ffa303] bg-[#ffc24b]/16 border-[#ffc24b]/25"
-                },
-                {
-                  title: "Relatórios de decisão",
-                  desc: "Veja resultados de testes, notas internas, classificação por estrelas, histórico de entrevistas e dados para comparar candidatos.",
-                  icon: TrendingUp,
-                  color: "text-[#63e1a5] bg-[#63e1a5]/14 border-[#63e1a5]/18"
-                }
-              ].map((feat, i) => {
-                const Icon = feat.icon;
+                { title: 'Publicação de vagas', desc: 'Crie vagas ilimitadas, links compartilháveis e etapas do processo.', icon: Briefcase, color: 'text-[#940dff] bg-[#f3e5ff]' },
+                { title: 'Banco de talentos', desc: 'Encontre candidatos, salve perfis e acesse currículos completos.', icon: Search, color: 'text-[#533af6] bg-[#533af6]/10' },
+                { title: 'Funil seletivo', desc: 'Etapas em abas, candidatos em lista e ações rápidas sem bagunça.', icon: Layers, color: 'text-[#940dff] bg-[#f3e5ff]' },
+                { title: 'Ações em massa', desc: 'Mude etapa, envie testes, baixe PDFs e reprove selecionados.', icon: CheckCircle2, color: 'text-[#63e1a5] bg-[#63e1a5]/14' },
+                { title: 'Testes comportamentais', desc: 'DISC, MBTI, Temperamentos e mapeamentos personalizados.', icon: Brain, color: 'text-[#ff4b8c] bg-[#ff4b8c]/10' },
+                { title: 'Entrevistas', desc: 'Calend?rio, hor?rios livres, sala de v?deo e histórico por candidato.', icon: Play, color: 'text-[#ffa303] bg-[#ffc24b]/16' },
+                { title: 'Mensagens', desc: 'Chat com recibo de leitura e central de conversas da empresa.', icon: MessageSquare, color: 'text-[#533af6] bg-[#533af6]/10' },
+                { title: 'Relatórios', desc: 'Resultados, estrelas, notas, entrevistas e dados para decisóo.', icon: TrendingUp, color: 'text-[#63e1a5] bg-[#63e1a5]/14' }
+              ].map((item) => {
+                const Icon = item.icon;
                 return (
-                  <motion.div
-                    key={i}
-                    whileHover={{ y: -6 }}
-                    className="bg-white p-8 rounded-[10px] border border-slate-200/60 shadow-xs flex flex-col gap-6 text-left hover:border-primary-500/30 hover:shadow-md transition-all group"
-                  >
-                    <div className={`w-12 h-12 rounded-[10px] flex items-center justify-center border shrink-0 ${feat.color}`}>
-                      <Icon size={22} className="stroke-[2]" />
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-tight group-hover:text-primary-600 transition-colors">
-                        {feat.title}
-                      </h4>
-                      <p className="text-xs text-slate-550 leading-relaxed font-semibold">
-                        {feat.desc}
-                      </p>
-                    </div>
+                  <motion.div key={item.title} whileHover={{ y: -4 }} className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+                    <div className={'mb-5 flex h-12 w-12 items-center justify-center rounded-2xl ' + item.color}><Icon size={22} /></div>
+                    <h3 className="text-[16px] font-semibold tracking-tight text-[#343241]">{item.title}</h3>
+                    <p className="mt-3 text-[12px] font-medium leading-6 text-slate-500">{item.desc}</p>
                   </motion.div>
                 );
               })}
@@ -727,381 +473,193 @@ export default function App() {
           </div>
         </section>
 
-        {/* Interactive Simulator Section */}
-        <section id="simulator" className="py-24 bg-white border-b border-slate-200">
-          <div className="max-w-5xl mx-auto px-6 sm:px-10">
-            <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Prévia de avaliação</h2>
-              <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Mostre além do currículo
-              </h3>
-              <p className="text-slate-500 font-semibold text-sm leading-relaxed">
-                A empresa não precisa decidir só por experiência e formação. A Colaborh ajuda a entender comportamento, motivação, comunicação e aderência ao cargo.
-              </p>
+        <section className="bg-[#fbf9ff] py-20">
+          <div className="mx-auto max-w-7xl px-6 sm:px-10">
+            <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+              <div className="rounded-3xl border border-slate-200/70 bg-white/85 p-8 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+                <p className="text-[12px] font-semibold text-[#940dff]">Fluxo inteligente</p>
+                <h2 className="mt-3 text-[32px] font-semibold leading-tight tracking-tight text-[#343241]">Da vaga publicada ao candidato contratado.</h2>
+                <p className="mt-4 text-[14px] font-medium leading-7 text-slate-500">Um processo seletivo precisa de m?todo. A Colaborh organiza cada etapa para sua empresa enxergar quem avan?ou, quem precisa responder teste, quem foi entrevistado e quem foi reprovado.</p>
+                <button onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }} className="mt-8 h-10 rounded-xl bg-[#940dff] px-5 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95">Criar conta grátis</button>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  ['1', 'Publique a vaga', 'Cadastre cargo, sal?rio, benef?cios, requisitos, etapas e link p?blico.'],
+                  ['2', 'Receba candidaturas', 'Candidatos aparecem no funil com currículo, contato, localização e histórico.'],
+                  ['3', 'Avalie com testes', 'Envie avaliações manualmente ou automaticamente por etapa do processo.'],
+                  ['4', 'Decida com contexto', 'Compare relatórios, notas, entrevistas, mensagens e classificação por estrelas.']
+                ].map(([step, title, desc]) => (
+                  <div key={step} className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+                    <div className="mb-5 flex h-9 w-9 items-center justify-center rounded-xl bg-[#f3e5ff] text-[13px] font-semibold text-[#940dff]">{step}</div>
+                    <h3 className="text-[16px] font-semibold tracking-tight text-[#343241]">{title}</h3>
+                    <p className="mt-3 text-[12px] font-medium leading-6 text-slate-500">{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-slate-200/70 bg-white py-20">
+          <div className="mx-auto max-w-7xl px-6 sm:px-10">
+            <div className="mb-10 max-w-2xl">
+              <p className="text-[12px] font-semibold text-[#940dff]">Avaliações e relatórios</p>
+              <h2 className="mt-3 text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[44px]">N?o escolha candidatos só pelo currículo.</h2>
+              <p className="mt-4 text-[14px] font-medium leading-7 text-slate-500">Use testes e questionários para enxergar comportamento, comunicação, perfil profissional e aderência ao cargo.</p>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 p-8 md:p-12 rounded-[10px] shadow-sm max-w-2xl mx-auto text-left">
-              <AnimatePresence mode="wait">
-                {testStep === 0 && (
-                  <motion.div
-                    key="step-start"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    className="text-center space-y-6"
-                  >
-                    <div className="w-16 h-16 bg-primary-50 text-primary-600 border border-primary-100 rounded-full flex items-center justify-center mx-auto shadow-sm">
-                      <Brain size={28} className="stroke-[2.5]" />
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="font-extrabold text-slate-900 text-base uppercase tracking-tight">Como a Colaborh analisa candidatos?</h4>
-                      <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-                        Uma prévia simples de como respostas podem virar sinais úteis para recrutadores, líderes e gestores de RH.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setTestStep(1); setTestAnswers([]); }}
-                      className="px-8 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-md active:scale-95 transition-all cursor-pointer border-0"
-                    >
-                      Iniciar Simulador
-                    </button>
-                  </motion.div>
-                )}
+            <div className="grid gap-4 lg:grid-cols-4">
+              {[
+                ['DISC 5.0', 'Mapeia tend?ncias de domin?ncia, influ?ncia, estabilidade e conformidade.', '#63e1a5', Brain],
+                ['MBTI', 'Categoriza perfis psicol?gicos e estilos de tomada de decisóo.', '#533af6', Award],
+                ['Temperamentos', 'Identifica perfil emocional e estilo de reação em ambiente profissional.', '#ff4b8c', Zap],
+                ['Questionários', 'Crie perguntas abertas ou de m?ltipla escolha com resposta correta.', '#ffa303', FileText]
+              ].map(([title, desc, color, icon]) => {
+                const Icon = icon as typeof Brain;
+                return (
+                  <div key={String(title)} className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-[0_8px_18px_rgba(15,23,42,0.08)]" style={{ color: String(color) }}><Icon size={22} /></div>
+                    <h3 className="text-[16px] font-semibold tracking-tight text-[#343241]">{title}</h3>
+                    <p className="mt-3 text-[12px] font-medium leading-6 text-slate-500">{desc}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-                {testStep >= 1 && testStep <= 3 && (() => {
-                  const q = simulatorQuestions[testStep - 1];
+        <section id="demo" className="bg-[#fbf9ff] py-20">
+          <div className="mx-auto max-w-7xl px-6 sm:px-10">
+            <div className="mb-8 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+              <div>
+                <p className="text-[12px] font-semibold text-[#940dff]">Produto em ação</p>
+                <h2 className="mt-3 text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[44px]">Veja o que a empresa ganha no dia a dia.</h2>
+              </div>
+              <div className="flex overflow-x-auto border-b border-slate-200/80">
+                {[
+                  { id: 'kanban' as DemoTab, label: 'Funil seletivo' },
+                  { id: 'ia' as DemoTab, label: 'Banco de talentos' },
+                  { id: 'testes' as DemoTab, label: 'Relatórios' }
+                ].map((tab) => {
+                  const active = demoTab === tab.id;
                   return (
-                    <motion.div
-                      key={`step-${testStep}`}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      {/* Step Indicator */}
-                      <div className="flex justify-between items-center text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                        <span>Simulador de perfil</span>
-                        <span>Pergunta {testStep} de 3</span>
+                    <button key={tab.id} onClick={() => setDemoTab(tab.id)} className={(active ? 'text-[#940dff]' : 'text-slate-500 hover:text-[#940dff]') + ' relative h-[38px] min-w-[150px] bg-transparent px-4 py-2 text-[12px] font-semibold transition-colors'}>
+                      {tab.label}
+                      {active && <motion.span layoutId="landing-product-tab" className="absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-[#940dff]" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_20px_60px_rgba(52,50,65,0.08)]">
+              {demoTab === 'kanban' && (
+                <div className="grid gap-3 md:grid-cols-4">
+                  {['An?lise de currículo', 'Testes', 'Entrevistas', 'Finalistas'].map((stage, index) => (
+                    <div key={stage} className="rounded-2xl bg-[#fbf9ff] p-4">
+                      <div className="mb-4 flex h-[38px] items-center justify-between border-b border-slate-200/80 text-[12px] font-semibold text-[#343241]">
+                        <span>{stage}</span><span className="text-slate-400">{index + 1}</span>
                       </div>
-
-                      {/* Question Text */}
-                      <h4 className="font-extrabold text-slate-800 text-sm leading-relaxed uppercase tracking-tight pl-1">
-                        {q.question}
-                      </h4>
-
-                      {/* Options List */}
-                      <div className="flex flex-col gap-3">
-                        {q.options.map((opt, oIdx) => (
-                          <button
-                            key={oIdx}
-                            type="button"
-                            onClick={() => {
-                              const newAns = [...testAnswers, opt.type];
-                              setTestAnswers(newAns);
-                              setTestStep(prev => prev + 1);
-                            }}
-                            className="p-5 bg-white hover:bg-primary-50 text-left border border-slate-200 hover:border-primary-300 rounded-[10px] text-xs font-bold text-slate-700 transition-all cursor-pointer active:scale-[0.99] select-none"
-                          >
-                            {opt.text}
-                          </button>
+                      <div className="space-y-3">
+                        {kanbanCandidates.slice(0, index === 0 ? 2 : 1).map((candidate) => (
+                          <div key={candidate.id + stage} className="rounded-2xl border border-slate-200/70 bg-white p-4">
+                            <p className="truncate text-[12px] font-semibold text-[#343241]">{candidate.name}</p>
+                            <p className="mt-1 truncate text-[11px] font-medium text-slate-400">{candidate.role}</p>
+                          </div>
                         ))}
                       </div>
-                    </motion.div>
-                  );
-                })()}
+                    </div>
+                  ))}
+                </div>
+              )}
 
-                {testStep === 4 && (() => {
-                  const res = getSimulatorResult();
-                  return (
-                    <motion.div
-                      key="step-result"
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full flex items-center justify-center shrink-0 shadow-sm">
-                          <Check size={18} className="stroke-[2.5]" />
-                        </div>
-                        <div>
-                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Resultado da Prévia</span>
-                          <h4 className="font-extrabold text-slate-900 text-sm uppercase tracking-tight">{res.title}</h4>
-                        </div>
-                      </div>
+              {demoTab === 'ia' && (
+                <div className="mx-auto max-w-3xl space-y-4 py-4">
+                  <div className="flex h-12 items-center gap-3 rounded-2xl border border-slate-200/80 bg-[#fbf9ff] px-4 text-[13px] font-medium text-slate-500"><Search size={17} className="text-[#940dff]" />{iaSearchQuery || 'Buscar talentos por cargo, habilidade ou cidade...'}</div>
+                  <p className="text-[12px] font-semibold text-slate-400">{iaSearchStep === 2 ? 'Buscando talentos compat?veis...' : 'Candidatos encontrados no banco de talentos'}</p>
+                  {iaResults.map((item) => (
+                    <div key={item.name} className="flex items-center justify-between rounded-2xl border border-slate-200/70 bg-white p-4">
+                      <div><p className="text-[13px] font-semibold text-[#343241]">{item.name}</p><p className="mt-1 text-[11px] font-medium text-slate-400">{item.xp} ? {item.skills}</p></div>
+                      <span className="rounded-xl bg-[#f3e5ff] px-3 py-1 text-[12px] font-semibold text-[#940dff]">{item.match}% match</span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-                      <div className="p-5 bg-white border border-slate-200/80 rounded-[10px] space-y-4">
-                        <p className="text-xs text-slate-650 leading-relaxed font-semibold font-sans">
-                          {res.desc}
-                        </p>
-                        <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-[10px] text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                          <strong className="text-slate-800">Como usar no processo:</strong> {res.tips}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => setTestStep(0)}
-                          className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full transition-all cursor-pointer border-0"
-                        >
-                          Refazer Teste
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
-                          className="flex-1 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-md active:scale-95 transition-all cursor-pointer border-0"
-                        >
-                          Começar a avaliar candidatos
-                        </button>
-                      </div>
-                    </motion.div>
-                  );
-                })()}
-              </AnimatePresence>
+              {demoTab === 'testes' && (
+                <div className="grid gap-4 lg:grid-cols-3">
+                  {[
+                    ['Perfil comportamental', 'DISC, MBTI e Temperamentos em relatórios claros.'],
+                    ['Notas internas', 'Anote percepções e classifique candidatos com estrelas.'],
+                    ['Hist?rico completo', 'Mensagens, entrevistas, testes e decisóes por candidato.']
+                  ].map(([title, desc]) => (
+                    <div key={title} className="rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-5">
+                      <p className="text-[16px] font-semibold tracking-tight text-[#343241]">{title}</p>
+                      <p className="mt-3 text-[12px] font-medium leading-6 text-slate-500">{desc}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* Pricing/Plans Section */}
-        <section id="plans" className="py-24 bg-slate-50 border-b border-slate-200">
-          <div className="max-w-6xl mx-auto px-6 sm:px-10">
-            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Planos</h2>
-              <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Comece grátis e evolua quando precisar de seleção avançada
-              </h3>
-              <p className="text-slate-500 font-semibold text-sm leading-relaxed">
-                Publique vagas sem custo. Quando quiser testes, entrevistas, mensagens, downloads e automações, escolha o plano ideal para sua operação.
-              </p>
+        <section id="plans" className="border-y border-slate-200/70 bg-white py-20">
+          <div className="mx-auto max-w-7xl px-6 sm:px-10">
+            <div className="mx-auto mb-12 max-w-3xl text-center">
+              <p className="text-[12px] font-semibold text-[#940dff]">Planos comerciais</p>
+              <h2 className="mt-3 text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[44px]">Comece grátis. Assine quando quiser seleção avançada.</h2>
+              <p className="mt-4 text-[14px] font-medium leading-7 text-slate-500">O plano gratuito serve para publicar vagas. Os planos pagos liberam testes, entrevistas, mensagens, WhatsApp, downloads e recursos avançados.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-              {/* Plan: Gratuito */}
-              <div className="bg-white p-8 rounded-[10px] border border-slate-200 flex flex-col justify-between text-left hover:shadow-md transition-shadow">
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Gratuito</h4>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Publicação ilimitada</p>
-                  </div>
-                  <div className="flex items-baseline gap-1 select-none">
-                    <span className="text-3xl font-extrabold text-slate-900">Grátis</span>
-                  </div>
-                  <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                    Ideal para começar a captar candidatos e validar suas primeiras oportunidades.
-                  </p>
-                  <div className="border-t border-slate-100 my-4" />
-                  <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Vagas ilimitadas</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Visualização de candidatos e processos básicos</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Sem testes, entrevistas, mensagens, WhatsApp e download de currículos</span>
-                    </li>
-                    <li className="flex items-center gap-2.5 text-slate-350 line-through decoration-slate-300">
-                      <X size={14} className="text-slate-300 shrink-0" />
-                      <span>Busca com Inteligência Artificial</span>
-                    </li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
-                  className="w-full py-3.5 mt-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full transition-all cursor-pointer border-0"
-                >
-                  Começar grátis
-                </button>
-              </div>
-
-              {/* Plan: Profissional (Recommended) */}
-              <div className="bg-white p-8 rounded-[10px] border-2 border-primary-500 flex flex-col justify-between text-left relative shadow-lg shadow-primary-500/5">
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary-500 text-white rounded-full text-[8.5px] font-black uppercase tracking-widest shadow-sm">
-                  Mais Recomendado
-                </span>
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Profissional</h4>
-                    <p className="text-xs text-primary-600 font-black uppercase tracking-wider mt-0.5">Seleção avançada</p>
-                  </div>
-                  <div className="flex items-baseline gap-1 select-none">
-                    <span className="text-sm font-extrabold text-slate-500">R$</span>
-                    <span className="text-4xl font-black text-slate-900">119,90</span>
-                    <span className="text-xs font-bold text-slate-400">/mês</span>
-                  </div>
-                  <p className="text-xs text-slate-550 font-semibold leading-relaxed">
-                    Para empresas que já precisam avaliar candidatos com método, organizar entrevistas e acelerar decisões.
-                  </p>
-                  <div className="border-t border-slate-100 my-4" />
-                  <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-primary-500 shrink-0" />
-                      <span className="text-slate-900 font-extrabold">15 envios de testes por mês</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Vagas ilimitadas</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Até 3 questionários personalizados</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Entrevistas, mensagens, WhatsApp e downloads liberados</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-primary-500 shrink-0" />
-                      <span>Relatórios, anotações, classificação por estrelas e ações em massa</span>
-                    </li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
-                  className="w-full py-3.5 mt-8 bg-primary-600 hover:bg-primary-700 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-md active:scale-95 transition-all cursor-pointer border-0"
-                >
-                  Assinar Profissional
-                </button>
-              </div>
-
-              {/* Plan: Ilimitado */}
-              <div className="bg-white p-8 rounded-[10px] border border-slate-200 flex flex-col justify-between text-left hover:shadow-md transition-shadow">
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider">Ilimitado</h4>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">Escala total</p>
-                  </div>
-                  <div className="flex items-baseline gap-1 select-none">
-                    <span className="text-3xl font-extrabold text-slate-900">R$ 249,90</span>
-                  </div>
-                  <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                    Para operações com grande volume de candidatos, muitas vagas e uso contínuo de avaliações.
-                  </p>
-                  <div className="border-t border-slate-100 my-4" />
-                  <ul className="space-y-3.5 text-xs text-slate-650 font-bold">
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Vagas ilimitadas</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Créditos de testes ilimitados</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Questionários personalizados ilimitados</span>
-                    </li>
-                    <li className="flex items-center gap-2.5">
-                      <Check size={14} className="text-emerald-500 shrink-0" />
-                      <span>Testes, entrevistas, mensagens, WhatsApp e downloads ilimitados</span>
-                    </li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => alert("Entre em contato com nosso time comercial em comercial@colaborh.com")}
-                  className="w-full py-3.5 mt-8 bg-slate-900 hover:bg-slate-800 text-white font-black text-[10px] uppercase tracking-widest rounded-full transition-all cursor-pointer border-0"
-                >
-                  Falar Com Consultor
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials (Social Proof) */}
-        <section className="py-24 bg-white border-b border-slate-200">
-          <div className="max-w-5xl mx-auto px-6 sm:px-10">
-            <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-xs font-black text-primary-600 uppercase tracking-widest">Por que assinar</h2>
-              <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Menos improviso, mais clareza no recrutamento
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+            <div className="grid gap-5 lg:grid-cols-3">
               {[
-                {
-                  quote: "A Colaborh tira o processo seletivo do improviso: vagas, candidatos, avaliações, mensagens, entrevistas e relatórios ficam no mesmo lugar.",
-                  author: "Operação organizada",
-                  role: "Processo seletivo com histórico e rastreabilidade"
-                },
-                {
-                  quote: "Com testes, anotações, estrelas, reprovados e ações em massa, a empresa compara candidatos com critérios mais claros antes da contratação.",
-                  author: "Decisão com dados",
-                  role: "Menos achismo na escolha final"
-                }
-              ].map((t, i) => (                <div key={i} className="bg-slate-50 p-8 rounded-[10px] border border-slate-200/60 shadow-xs space-y-4 flex flex-col justify-between">
-                  <p className="text-xs text-slate-650 leading-relaxed font-semibold italic">
-                    "{t.quote}"
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center font-black text-xs text-primary-700">
-                      {t.author.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <h5 className="font-extrabold text-slate-900 text-xs uppercase tracking-tight">{t.author}</h5>
-                      <p className="text-[10px] text-slate-400 font-semibold">{t.role}</p>
-                    </div>
-                  </div>
+                { name: 'Gratuito', price: 'R$ 0', desc: 'Para publicar vagas e começar a captar candidatos.', cta: 'Começar grátis', highlight: false, items: ['Vagas ilimitadas', 'Visualização básica de candidatos', 'Sem testes, entrevistas, mensagens e downloads'] },
+                { name: 'Profissional', price: 'R$ 119,90/mês', desc: 'Para empresas que precisam avaliar e entrevistar melhor.', cta: 'Assinar Profissional', highlight: true, items: ['Vagas ilimitadas', '15 envios de testes por mês', '3 questionários personalizados', 'Entrevistas, mensagens, WhatsApp e PDFs'] },
+                { name: 'Ilimitado', price: 'R$ 249,90/mês', desc: 'Para operações com grande volume e uso contínuo.', cta: 'Falar com consultor', highlight: false, items: ['Tudo do Profissional', 'Testes ilimitados', 'Questionários ilimitados', 'Recursos avançados sem limite'] }
+              ].map((plan) => (
+                <div key={plan.name} className={(plan.highlight ? 'border-[#940dff]/40 shadow-[0_18px_50px_rgba(148,13,255,0.14)]' : 'border-slate-200/70 shadow-[0_10px_28px_rgba(15,23,42,0.035)]') + ' relative rounded-3xl border bg-white p-6'}>
+                  {plan.highlight && <span className="absolute -top-3 left-6 rounded-xl bg-[#940dff] px-3 py-1 text-[11px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)]">Mais recomendado</span>}
+                  <p className="text-[18px] font-semibold text-[#343241]">{plan.name}</p>
+                  <p className="mt-4 text-[30px] font-semibold tracking-tight text-[#343241]">{plan.price}</p>
+                  <p className="mt-3 min-h-12 text-[12px] font-medium leading-6 text-slate-500">{plan.desc}</p>
+                  <div className="my-5 h-px bg-slate-200/80" />
+                  <ul className="space-y-3">
+                    {plan.items.map((item) => <li key={item} className="flex gap-2 text-[12px] font-medium text-slate-500"><Check size={15} className="mt-0.5 shrink-0 text-[#63e1a5]" />{item}</li>)}
+                  </ul>
+                  <button onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }} className={(plan.highlight ? 'bg-[#940dff] text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] hover:bg-[#8200e6]' : 'border border-[#940dff]/16 bg-[#f3e5ff] text-[#940dff] hover:border-[#940dff]/28 hover:bg-[#940dff]/12') + ' mt-7 h-10 w-full rounded-xl px-4 text-[12px] font-semibold transition-all active:scale-95'}>{plan.cta}</button>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900 text-left">
-          <div className="max-w-7xl mx-auto px-6 sm:px-10">
-            <div className="grid md:grid-cols-4 gap-12 mb-12">
-              <div className="col-span-1 md:col-span-1 space-y-6">
-                <div>
-                  <img 
-                    src="/logo.png" 
-                    alt="Colaborh Logo" 
-                    className="h-10 w-auto object-contain brightness-0 invert"
-                  />
-                </div>
-                <p className="text-xs leading-relaxed text-slate-400 font-semibold">
-                  Conectando talentos e empresas através de dados inteligentes de perfil e comportamento. O futuro da contratação corporativa.
-                </p>
-              </div>
-              <div>
-                <h4 className="text-white text-xs font-black uppercase tracking-wider mb-6">Funcionalidades</h4>
-                <ul className="space-y-4 text-xs font-semibold">
-                  <li><a href="#features" className="hover:text-primary-400 transition-colors">Vagas ilimitadas</a></li>
-                  <li><a href="#demo" className="hover:text-primary-400 transition-colors">Funil seletivo</a></li>
-                  <li><a href="#simulator" className="hover:text-primary-400 transition-colors">Testes comportamentais</a></li>
-                  <li><a href="#features" className="hover:text-primary-400 transition-colors">Questionários Customizados</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-white text-xs font-black uppercase tracking-wider mb-6">Empresa</h4>
-                <ul className="space-y-4 text-xs font-semibold">
-                  <li><a href="#plans" className="hover:text-primary-400 transition-colors">Planos de Assinatura</a></li>
-                  <li><a href="#" className="hover:text-primary-400 transition-colors">Termos de Serviço</a></li>
-                  <li><a href="#" className="hover:text-primary-400 transition-colors">Política de Privacidade</a></li>
-                  <li><a href="#" className="hover:text-primary-400 transition-colors">Contato Comercial</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-white text-xs font-black uppercase tracking-wider mb-6">Sobre o Portal</h4>
-                <p className="text-xs leading-relaxed font-semibold">
-                  Desenvolvido com foco em alta performance e experiência corporativa. © 2026 Colabora Tecnologia Ltda.
-                </p>
+        <section className="bg-[#fbf9ff] py-20">
+          <div className="mx-auto max-w-5xl px-6 text-center sm:px-10">
+            <div className="rounded-[32px] border border-[#940dff]/16 bg-white/85 p-8 shadow-[0_24px_70px_rgba(148,13,255,0.12)] sm:p-12">
+              <p className="text-[12px] font-semibold text-[#940dff]">Pronto para testar?</p>
+              <h2 className="mx-auto mt-3 max-w-3xl text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[48px]">Crie sua conta e publique sua primeira vaga hoje.</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-[14px] font-medium leading-7 text-slate-500">Você come?a gratuitamente, sem precisar ativar os recursos pagos. Quando sua operação crescer, os planos avançados liberam toda a inteligência da plataforma.</p>
+              <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <button onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }} className="h-11 rounded-xl bg-[#940dff] px-6 text-[13px] font-semibold text-white shadow-[0_14px_30px_rgba(148,13,255,0.26)] transition-all hover:bg-[#8200e6] active:scale-95">Começar grátis</button>
+                <button onClick={() => { setLoginMode('login'); setShowLogin(true); pushAppPath('/login'); }} className="h-11 rounded-xl border border-slate-200/80 bg-white px-6 text-[13px] font-semibold text-slate-500 transition-all hover:text-[#940dff]">J? tenho conta</button>
               </div>
             </div>
-            <div className="pt-8 border-t border-slate-900 text-xs flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-center md:text-left">
-              <p>&copy; 2026 Colabora Tecnologia Ltda. Todos os direitos reservados.</p>
-              <div className="flex space-x-6">
-                <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
-                <a href="#" className="hover:text-white transition-colors">Instagram</a>
-                <a href="#" className="hover:text-white transition-colors">Twitter</a>
-              </div>
+          </div>
+        </section>
+
+        <footer className="border-t border-slate-200/70 bg-white py-10 text-left">
+          <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 px-6 sm:px-10 md:flex-row md:items-center">
+            <div className="space-y-3">
+              <img src="/logo.png" alt="Colaborh Logo" className="h-9 w-auto object-contain" />
+              <p className="max-w-md text-[12px] font-medium leading-6 text-slate-500">Recrutamento e seleção com vagas, candidatos, testes, entrevistas, mensagens e relatórios no mesmo sistema.</p>
+            </div>
+            <div className="flex flex-wrap gap-5 text-[12px] font-semibold text-slate-500">
+              <a href="#product" className="hover:text-[#940dff]">Funcionalidades</a>
+              <a href="#demo" className="hover:text-[#940dff]">Produto</a>
+              <a href="#plans" className="hover:text-[#940dff]">Planos</a>
+              <button onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }} className="text-[#940dff]">Criar conta</button>
             </div>
           </div>
         </footer>
