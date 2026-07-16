@@ -36,7 +36,7 @@ import { hydrateJobsWithWorkflow } from './services/jobWorkflowService';
 import { fetchJobById } from './services/jobService';
 import type { CompanyJob } from './types/companyDashboard';
 import { simulatorQuestions, useLandingDemoSimulator, type DemoTab } from './hooks/useLandingDemoSimulator';
-import { getSharedJobIdFromLocation, isLoginPath, isRegisterPath, pushAppPath } from './utils/appRoutes';
+import { getSharedJobIdFromLocation, isLoginPath, isRegisterPath, isResetPasswordPath, pushAppPath } from './utils/appRoutes';
 
 const Login = lazy(() => import('./components/Login'));
 const CandidateDashboard = lazy(() => import('./components/CandidateDashboard'));
@@ -53,7 +53,7 @@ export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [loginMode, setLoginMode] = useState<'login' | 'register'>('login');
+  const [loginMode, setLoginMode] = useState<'login' | 'register' | 'forgot' | 'reset-password'>('login');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<'candidate' | 'company' | null>(null);
 
@@ -82,6 +82,31 @@ export default function App() {
       setSharedJobId(id);
       loadSharedJob(id);
     }
+  }, []);
+
+  useEffect(() => {
+    const syncAuthRoute = () => {
+      if (isResetPasswordPath()) {
+        setLoginMode('reset-password');
+        setShowLogin(true);
+        return;
+      }
+
+      if (isLoginPath()) {
+        setLoginMode('login');
+        setShowLogin(true);
+        return;
+      }
+
+      if (isRegisterPath()) {
+        setLoginMode('register');
+        setShowLogin(true);
+      }
+    };
+
+    syncAuthRoute();
+    window.addEventListener('popstate', syncAuthRoute);
+    return () => window.removeEventListener('popstate', syncAuthRoute);
   }, []);
 
   const loadSharedJob = async (id: string) => {
@@ -173,6 +198,22 @@ export default function App() {
       subscription.unsubscribe();
     };
   }, []);
+
+  if (showLogin && loginMode === 'reset-password') {
+    return (
+      <LazyScreen>
+        <Login
+          onBack={() => { setShowLogin(false); pushAppPath('/'); }}
+          initialMode={loginMode}
+          onLoginSuccess={(role) => {
+            setIsLoggedIn(true);
+            setUserRole(role);
+            setShowLogin(false);
+          }}
+        />
+      </LazyScreen>
+    );
+  }
 
   if (isLoggedIn && userRole === 'candidate') {
     return (

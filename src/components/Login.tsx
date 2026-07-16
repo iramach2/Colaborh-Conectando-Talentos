@@ -4,10 +4,12 @@ import { ArrowLeft, User, Mail, Lock, Phone, Building, Loader2, Eye, EyeOff, Che
 import { supabase } from '../lib/supabase';
 import { getReadableErrorMessage } from '../utils/errorUtils';
 
+type AuthMode = 'login' | 'register' | 'forgot' | 'reset-password';
+
 interface LoginProps {
   onBack: () => void;
   onLoginSuccess: (role: 'candidate' | 'company') => void;
-  initialMode?: 'login' | 'register';
+  initialMode?: AuthMode;
 }
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
@@ -36,7 +38,8 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
     };
   }, []);
 
-  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [passwordRecoveryMessage, setPasswordRecoveryMessage] = useState<string | null>(null);
   const [regType, setRegType] = useState<'candidate' | 'company'>('candidate');
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -56,6 +59,8 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
   });
 
   useEffect(() => {
+    if (initialMode === 'reset-password') return;
+
     try {
       const saved = localStorage.getItem(PENDING_OTP_STORAGE_KEY);
       if (!saved) return;
@@ -79,9 +84,10 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
     }
   }, []);
 
-  const toggleMode = (newMode: 'login' | 'register') => {
+  const toggleMode = (newMode: AuthMode) => {
     setMode(newMode);
     setErrorMessage(null);
+    setPasswordRecoveryMessage(null);
   };
 
   const toggleRegType = (newType: 'candidate' | 'company') => {
@@ -323,6 +329,62 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
       setIsLoading(false);
     }
   };
+  const handlePasswordResetRequest = async () => {
+    setErrorMessage(null);
+    setPasswordRecoveryMessage(null);
+
+    const email = normalizeEmail(formData.email);
+    if (!email) {
+      setErrorMessage('Informe seu e-mail para receber o link de recuperacao.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const redirectTo = `${window.location.origin}/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+
+      if (error) throw error;
+      setPasswordRecoveryMessage('Enviamos um link de recuperacao para o seu e-mail. Abra o link para criar uma nova senha.');
+    } catch (error: unknown) {
+      console.error('Erro ao solicitar recuperacao de senha:', error);
+      setErrorMessage(getReadableErrorMessage(error) || 'Nao foi possivel enviar o e-mail de recuperacao.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordUpdate = async () => {
+    setErrorMessage(null);
+    setPasswordRecoveryMessage(null);
+
+    if (!formData.password || formData.password.length < 6) {
+      setErrorMessage('A nova senha deve conter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage('As senhas nao coincidem. Verifique e tente novamente.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: formData.password });
+      if (error) throw error;
+
+      await supabase.auth.signOut();
+      setFormData((prev) => ({ ...prev, password: '', confirmPassword: '' }));
+      setPasswordRecoveryMessage('Senha atualizada com sucesso. Faca login usando sua nova senha.');
+      setMode('login');
+      window.history.replaceState({}, '', '/login');
+    } catch (error: unknown) {
+      console.error('Erro ao atualizar senha:', error);
+      setErrorMessage(getReadableErrorMessage(error) || 'Nao foi possivel atualizar sua senha. Abra novamente o link recebido por e-mail.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f3f0ff] relative overflow-hidden flex flex-col">
@@ -376,7 +438,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
               >
                 <div className="text-center mb-6">
                   <h1 className="text-2xl font-extrabold text-slate-900 mb-2 md:whitespace-nowrap">
-                    {isVerifyingOtp ? 'Confirme seu E-mail' : mode === 'login' ? 'Entrar' : 'Criar Conta'}
+                    {isVerifyingOtp ? 'Confirme seu E-mail' : mode === 'forgot' ? 'Recuperar senha' : mode === 'reset-password' ? 'Criar nova senha' : mode === 'login' ? 'Entrar' : 'Criar Conta'}
                   </h1>
                   <div className="w-12 h-1 rounded-full bg-highlight-500 mx-auto" />
                 </div>
@@ -389,6 +451,18 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                   >
                     <p className="text-xs font-bold text-red-600">
                       {errorMessage}
+                    </p>
+                  </motion.div>
+                )}
+
+                {passwordRecoveryMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 rounded-r-xl border-l-4 border-[#63e1a5] bg-[#63e1a5]/12 p-4"
+                  >
+                    <p className="text-xs font-bold text-[#149b68]">
+                      {passwordRecoveryMessage}
                     </p>
                   </motion.div>
                 )}
@@ -438,6 +512,102 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-primary-600 transition-colors"
                     >
                       Voltar e corrigir e-mail
+                    </button>
+                  </div>
+                ) : mode === 'forgot' ? (
+                  <div className="mx-auto max-w-[420px] space-y-6 text-center">
+                    <p className="text-sm font-medium leading-7 text-slate-500">
+                      Digite o e-mail cadastrado para receber o link de recuperação de senha.
+                    </p>
+
+                    <div className="space-y-1 text-left">
+                      <label className="pl-4 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">E-mail</label>
+                      <div className="relative">
+                        <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                        <input
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          className="w-full rounded-xl border border-transparent bg-slate-50 py-3 pl-12 pr-5 text-sm font-medium text-slate-900 outline-none transition-all focus:border-primary-400 focus:bg-white focus:ring-4 focus:ring-primary-50"
+                          placeholder="exemplo@email.com"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handlePasswordResetRequest}
+                      disabled={isLoading}
+                      className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary-600 to-highlight-500 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-highlight-500/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-highlight-500/30"
+                    >
+                      {isLoading ? <Loader2 className="animate-spin" size={18} /> : 'Enviar link de recuperação'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleMode('login')}
+                      className="text-[10px] font-black uppercase tracking-widest text-slate-400 transition-colors hover:text-primary-600"
+                    >
+                      Voltar para o login
+                    </button>
+                  </div>
+                ) : mode === 'reset-password' ? (
+                  <div className="mx-auto max-w-[420px] space-y-6 text-center">
+                    <p className="text-sm font-medium leading-7 text-slate-500">
+                      Crie uma nova senha para acessar sua conta Colaborh.
+                    </p>
+
+                    <div className="space-y-4 text-left">
+                      <div className="space-y-1">
+                        <label className="pl-4 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">Nova senha</label>
+                        <div className="relative">
+                          <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            className="w-full rounded-xl border border-transparent bg-slate-50 py-3 pl-12 pr-12 text-sm font-medium text-slate-900 outline-none transition-all focus:border-primary-400 focus:bg-white focus:ring-4 focus:ring-primary-50"
+                            placeholder="Digite a nova senha"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-primary-500"
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="pl-4 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">Confirmar senha</label>
+                        <div className="relative">
+                          <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                          <input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            className="w-full rounded-xl border border-transparent bg-slate-50 py-3 pl-12 pr-12 text-sm font-medium text-slate-900 outline-none transition-all focus:border-primary-400 focus:bg-white focus:ring-4 focus:ring-primary-50"
+                            placeholder="Repita a nova senha"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-primary-500"
+                          >
+                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handlePasswordUpdate}
+                      disabled={isLoading}
+                      className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary-600 to-highlight-500 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-highlight-500/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-highlight-500/30"
+                    >
+                      {isLoading ? <Loader2 className="animate-spin" size={18} /> : 'Salvar nova senha'}
                     </button>
                   </div>
                 ) : (
@@ -581,7 +751,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
 
                   {mode === 'login' && (
                     <div className="text-center">
-                      <button type="button" className="text-xs font-bold text-slate-500 hover:text-primary-600 transition-colors border-b-2 border-slate-200 border-dashed pb-0.5">
+                      <button type="button" onClick={() => toggleMode('forgot')} className="text-xs font-bold text-slate-500 hover:text-primary-600 transition-colors border-b-2 border-slate-200 border-dashed pb-0.5">
                         Esqueceu sua senha?
                       </button>
                     </div>

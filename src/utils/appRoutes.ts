@@ -87,3 +87,4 @@ export const getSharedJobIdFromLocation = () => {
 
 export const isLoginPath = () => typeof window !== 'undefined' && normalizePath(window.location.pathname) === '/login';
 export const isRegisterPath = () => typeof window !== 'undefined' && normalizePath(window.location.pathname) === '/cadastro';
+export const isResetPasswordPath = () => typeof window !== 'undefined' && normalizePath(window.location.pathname) === '/reset-password';
