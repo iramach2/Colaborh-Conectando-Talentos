@@ -228,21 +228,22 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-900 selection:bg-primary-100 selection:text-primary-700">
       {/* Navigation */}
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-white/85 backdrop-blur-md border-b border-slate-200/80 py-3 shadow-sm' 
-            : 'bg-white py-4 border-b border-slate-200'
-        } h-20 flex items-center`}
+      <nav
+        className={[
+          'fixed left-0 right-0 top-0 z-50 flex h-16 items-center border-b transition-all duration-300',
+          isScrolled
+            ? 'border-slate-200/80 bg-white/90 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-xl'
+            : 'border-slate-200/70 bg-white/92 backdrop-blur-md'
+        ].join(' ')}
       >
-        <div className="max-w-7xl mx-auto w-full px-6 sm:px-10">
-          <div className="flex justify-between items-center">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 lg:px-10">
+          <div className="flex items-center justify-between gap-4">
             {/* Logo */}
             <div className="flex items-center">
-              <img 
-                src="/logo.png" 
-                alt="Colaborh Logo" 
-                className="h-10 md:h-12 w-auto object-contain cursor-pointer"
+              <img
+                src="/logo.png"
+                alt="Colaborh Logo"
+                className="h-8 w-auto cursor-pointer object-contain md:h-9"
                 onClick={() => {
                   setSharedJobId(null);
                   pushAppPath('/', true);
@@ -252,53 +253,53 @@ export default function App() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8 lg:space-x-10">
-              <button 
+            <div className="hidden h-10 items-center gap-1 rounded-xl border border-slate-200/70 bg-[#fbf9ff]/80 p-1 shadow-[0_10px_24px_rgba(15,23,42,0.035)] md:flex">
+              <button
                 onClick={() => {
                   setSharedJobId(null);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="text-[15px] font-bold text-primary-600 border-b-2 border-primary-500 pb-1 cursor-pointer bg-transparent border-0 outline-none"
+                className="h-8 rounded-lg bg-[#f3e5ff] px-3 text-[12px] font-semibold text-[#940dff] transition-colors"
               >
                 Início
               </button>
-              <button 
+              <button
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-[15px] font-semibold text-slate-600 hover:text-primary-600 transition-colors cursor-pointer bg-transparent border-0 outline-none"
+                className="h-8 rounded-lg px-3 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-[#f3e5ff] hover:text-[#940dff]"
               >
                 Funcionalidades
               </button>
-              <button 
+              <button
                 onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-[15px] font-semibold text-slate-600 hover:text-primary-600 transition-colors cursor-pointer bg-transparent border-0 outline-none"
+                className="h-8 rounded-lg px-3 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-[#f3e5ff] hover:text-[#940dff]"
               >
                 Demonstração
               </button>
-              <button 
+              <button
                 onClick={() => document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-[15px] font-semibold text-slate-600 hover:text-primary-600 transition-colors cursor-pointer bg-transparent border-0 outline-none"
+                className="h-8 rounded-lg px-3 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-[#f3e5ff] hover:text-[#940dff]"
               >
                 Simulador
               </button>
-              <button 
+              <button
                 onClick={() => document.getElementById('plans')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-[15px] font-semibold text-slate-600 hover:text-primary-600 transition-colors cursor-pointer bg-transparent border-0 outline-none"
+                className="h-8 rounded-lg px-3 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-[#f3e5ff] hover:text-[#940dff]"
               >
                 Planos
               </button>
             </div>
 
             {/* Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-3">
-              <button 
+            <div className="hidden items-center gap-3 md:flex">
+              <button
                 onClick={() => { setLoginMode('login'); setShowLogin(true); pushAppPath('/login'); }}
-                className="px-5 py-2.5 text-sm font-bold text-slate-900 border-2 border-slate-200 rounded-full hover:bg-slate-50 hover:border-primary-200 transition-all cursor-pointer bg-transparent"
+                className="h-10 rounded-xl border border-slate-200/80 bg-white px-4 text-[13px] font-semibold text-slate-600 transition-all hover:border-[#940dff]/20 hover:bg-[#fbf9ff] hover:text-[#940dff]"
               >
                 Entrar
               </button>
-              <button 
+              <button
                 onClick={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
-                className="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white text-sm font-bold rounded-full hover:shadow-lg hover:shadow-primary-200 hover:-translate-y-0.5 transition-all cursor-pointer border-0"
+                className="h-10 rounded-xl bg-[#940dff] px-5 text-[13px] font-semibold text-white shadow-[0_14px_30px_rgba(148,13,255,0.26)] transition-all hover:bg-[#8200e6] active:scale-95"
               >
                 Criar Conta
               </button>
@@ -306,12 +307,12 @@ export default function App() {
 
             {/* Mobile Menu Toggle */}
             <div className="md:hidden">
-              <button 
+              <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-slate-600 hover:text-primary-600 transition-colors cursor-pointer bg-transparent border-0"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-500 shadow-[0_8px_20px_rgba(15,23,42,0.06)] transition-colors hover:text-[#940dff]"
                 aria-label="Abrir menu"
               >
-                {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
             </div>
           </div>
@@ -321,53 +322,54 @@ export default function App() {
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
+          <motion.div
+            initial={{ opacity: 0, y: -14 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-white pt-24 px-6 md:hidden flex flex-col justify-start"
+            exit={{ opacity: 0, y: -14 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-x-3 top-[76px] z-40 rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-[0_24px_60px_rgba(52,50,65,0.16)] backdrop-blur-xl md:hidden"
           >
-            <div className="flex flex-col space-y-6 text-center">
-              <button 
-                onClick={() => { setShowLogin(false); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
-                className="text-xl font-bold text-primary-600 bg-transparent border-0"
+            <div className="grid gap-2">
+              <button
+                onClick={() => { setShowLogin(false); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="h-11 rounded-xl bg-[#f3e5ff] px-4 text-left text-[14px] font-semibold text-[#940dff]"
               >
                 Início
               </button>
-              <button 
-                onClick={() => { setIsMobileMenuOpen(false); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }} 
-                className="text-xl font-bold text-slate-900 bg-transparent border-0"
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="h-11 rounded-xl px-4 text-left text-[14px] font-semibold text-slate-600 transition-colors hover:bg-[#f3e5ff] hover:text-[#940dff]"
               >
                 Funcionalidades
               </button>
-              <button 
-                onClick={() => { setIsMobileMenuOpen(false); document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' }); }} 
-                className="text-xl font-bold text-slate-900 bg-transparent border-0"
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="h-11 rounded-xl px-4 text-left text-[14px] font-semibold text-slate-600 transition-colors hover:bg-[#f3e5ff] hover:text-[#940dff]"
               >
                 Demonstração
               </button>
-              <button 
-                onClick={() => { setIsMobileMenuOpen(false); document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' }); }} 
-                className="text-xl font-bold text-slate-900 bg-transparent border-0"
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="h-11 rounded-xl px-4 text-left text-[14px] font-semibold text-slate-600 transition-colors hover:bg-[#f3e5ff] hover:text-[#940dff]"
               >
                 Simulador
               </button>
-              <button 
-                onClick={() => { setIsMobileMenuOpen(false); document.getElementById('plans')?.scrollIntoView({ behavior: 'smooth' }); }} 
-                className="text-xl font-bold text-slate-900 bg-transparent border-0"
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); document.getElementById('plans')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="h-11 rounded-xl px-4 text-left text-[14px] font-semibold text-slate-600 transition-colors hover:bg-[#f3e5ff] hover:text-[#940dff]"
               >
                 Planos
               </button>
-              <div className="pt-6 flex flex-col space-y-4">
-                <button 
-                  onClick={() => { setLoginMode('login'); setShowLogin(true); setIsMobileMenuOpen(false); }}
-                  className="w-full py-3.5 text-lg font-bold border-2 border-slate-200 rounded-full text-slate-900 cursor-pointer bg-transparent"
+              <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
+                <button
+                  onClick={() => { setLoginMode('login'); setShowLogin(true); setIsMobileMenuOpen(false); pushAppPath('/login'); }}
+                  className="h-10 rounded-xl border border-slate-200/80 bg-white text-[13px] font-semibold text-slate-600"
                 >
                   Entrar
                 </button>
-                <button 
-                  onClick={() => { setLoginMode('register'); setShowLogin(true); setIsMobileMenuOpen(false); }}
-                  className="w-full py-3.5 text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-full shadow-lg shadow-primary-200 cursor-pointer border-0"
+                <button
+                  onClick={() => { setLoginMode('register'); setShowLogin(true); setIsMobileMenuOpen(false); pushAppPath('/cadastro'); }}
+                  className="h-10 rounded-xl bg-[#940dff] text-[13px] font-semibold text-white shadow-[0_14px_30px_rgba(148,13,255,0.24)]"
                 >
                   Criar Conta
                 </button>
@@ -377,7 +379,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <main className="company-dashboard-surface bg-[#fbf9ff] pt-20 text-[#343241]">
+      <main className="company-dashboard-surface bg-[#fbf9ff] pt-16 text-[#343241]">
         <section className="relative overflow-hidden border-b border-[#940dff]/10 bg-[#fbf9ff]">
           <div className="absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_50%_0%,rgba(148,13,255,0.18),transparent_55%)]" />
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:py-24">
