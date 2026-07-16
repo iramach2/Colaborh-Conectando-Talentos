@@ -15,7 +15,7 @@ import {
   WalletCards,
   Zap
 } from 'lucide-react';
-import type { CompanyRecord } from '../../../services/companyService';
+import { isSupabaseConfigured, saveCompany, type CompanyRecord } from '../../../services/companyService';
 import type { CompanyJob } from '../../../types/companyDashboard';
 import { getDefaultCreditsForPlan } from '../../../utils/companyPlans';
 
@@ -119,32 +119,41 @@ export const BillingTab: React.FC<BillingTabProps> = ({
     setUpgradeSuccess(false);
   };
 
-  const handleConfirmUpgrade = () => {
+  const persistCompaniesFallback = (updatedCompanies: CompanyRecord[]) => {
+    if (!isSupabaseConfigured()) {
+      localStorage.setItem('colaborh_companies', JSON.stringify(updatedCompanies));
+    }
+  };
+
+  const handleConfirmUpgrade = async () => {
     if (!company || !upgradingTo) return;
 
     setIsProcessingUpgrade(true);
-    setTimeout(() => {
-      setIsProcessingUpgrade(false);
-      setUpgradeSuccess(true);
 
-      const updated = companies.map(c => {
-        if (c.id === company.id) {
-          return {
-            ...c,
-            plan: upgradingTo,
-            credits: getDefaultCreditsForPlan(upgradingTo)
-          };
-        }
-        return c;
-      });
+    try {
+      const companyWithNewPlan: CompanyRecord = {
+        ...company,
+        plan: upgradingTo,
+        credits: getDefaultCreditsForPlan(upgradingTo)
+      };
+
+      const savedCompany = await saveCompany(companyWithNewPlan);
+      const updated = companies.map(c => (c.id === company.id ? savedCompany : c));
       setCompanies(updated);
+      persistCompaniesFallback(updated);
+      setUpgradeSuccess(true);
 
       setTimeout(() => {
         setIsUpgrading(false);
         setUpgradeSuccess(false);
         setUpgradingTo(null);
       }, 2500);
-    }, 2000);
+    } catch (error) {
+      console.error('Erro ao alterar plano:', error);
+      alert('Nao foi possivel alterar o plano. Tente novamente em alguns instantes.');
+    } finally {
+      setIsProcessingUpgrade(false);
+    }
   };
 
   const handleStartBuyCredits = () => {
@@ -152,30 +161,33 @@ export const BillingTab: React.FC<BillingTabProps> = ({
     setCreditsSuccess(false);
   };
 
-  const handleConfirmBuyCredits = () => {
+  const handleConfirmBuyCredits = async () => {
     if (!company) return;
 
     setIsProcessingCredits(true);
-    setTimeout(() => {
-      setIsProcessingCredits(false);
-      setCreditsSuccess(true);
 
-      const updated = companies.map(c => {
-        if (c.id === company.id) {
-          return {
-            ...c,
-            credits: (c.credits !== undefined ? c.credits : 5) + creditAmount
-          };
-        }
-        return c;
-      });
+    try {
+      const companyWithCredits: CompanyRecord = {
+        ...company,
+        credits: (company.credits !== undefined ? company.credits : getDefaultCreditsForPlan(company.plan || 'starter')) + creditAmount
+      };
+
+      const savedCompany = await saveCompany(companyWithCredits);
+      const updated = companies.map(c => (c.id === company.id ? savedCompany : c));
       setCompanies(updated);
+      persistCompaniesFallback(updated);
+      setCreditsSuccess(true);
 
       setTimeout(() => {
         setIsBuyingCredits(false);
         setCreditsSuccess(false);
       }, 2500);
-    }, 2000);
+    } catch (error) {
+      console.error('Erro ao comprar creditos:', error);
+      alert('Nao foi possivel adicionar os creditos. Tente novamente em alguns instantes.');
+    } finally {
+      setIsProcessingCredits(false);
+    }
   };
 
   const renderPlanButtonLabel = (planName: PlanKey) => {
