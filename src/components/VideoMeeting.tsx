@@ -396,6 +396,10 @@ export const VideoMeeting = ({ interviewId, enableAiReport = false, roomName, us
           }
         });
 
+        if (interviewId) {
+          startSpeechRecognition();
+        }
+
         setLoading(false);
       } catch (error) {
         console.error('Erro ao iniciar sala propria:', error);
@@ -422,7 +426,7 @@ export const VideoMeeting = ({ interviewId, enableAiReport = false, roomName, us
         channelRef.current = null;
       }
     };
-  }, [handleSignal, roomName, sendSignal, stopSpeechRecognition]);
+  }, [handleSignal, interviewId, roomName, sendSignal, startSpeechRecognition, stopSpeechRecognition]);
 
   const toggleMic = () => {
     const audioTracks = localStreamRef.current?.getAudioTracks() || [];
@@ -515,7 +519,7 @@ export const VideoMeeting = ({ interviewId, enableAiReport = false, roomName, us
             className={`flex h-9 items-center gap-2 rounded-xl px-3 text-[12px] font-semibold transition-all active:scale-95 ${isTranscriptionEnabled ? 'bg-[#63e1a5]/16 text-[#63e1a5]' : 'bg-white/10 text-slate-300 hover:bg-white/15'}`}
           >
             <Bot size={14} />
-            <span className="hidden sm:inline">{isTranscriptionEnabled ? 'Transcricao ativa' : 'Transcrever'}</span>
+            <span className="hidden sm:inline">{isTranscriptionEnabled ? 'Minha fala sendo transcrita' : 'Transcrever minha fala'}</span>
           </button>
           <button
             type="button"
@@ -531,7 +535,7 @@ export const VideoMeeting = ({ interviewId, enableAiReport = false, roomName, us
 
       {transcriptLines.length > 0 && (
         <div className="border-b border-white/10 bg-[#111827]/95 px-4 py-2 text-left text-[12px] font-medium text-slate-300 sm:px-6">
-          <span className="font-semibold text-[#63e1a5]">Transcricao:</span> {transcriptLines[transcriptLines.length - 1]?.speaker}: {transcriptLines[transcriptLines.length - 1]?.text}
+          <span className="font-semibold text-[#63e1a5]">Transcricao compartilhada:</span> {transcriptLines[transcriptLines.length - 1]?.speaker}: {transcriptLines[transcriptLines.length - 1]?.text}
         </div>
       )}
 
