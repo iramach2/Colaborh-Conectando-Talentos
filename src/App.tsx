@@ -391,7 +391,7 @@ export default function App() {
                   O sistema para empresas que querem contratar com mais clareza.
                 </h1>
                 <p className="max-w-2xl text-[16px] font-medium leading-8 text-slate-500 sm:text-[18px]">
-                  Publique vagas ilimitadas, organize candidatos em etapas, envie testes, agende entrevistas, converse pelo chat, acesse WhatsApp, baixe currículos e tome decisóes com relatórios no mesmo painel.
+                  Publique vagas ilimitadas, organize candidatos em etapas, envie testes, agende entrevistas, converse pelo chat, acesse WhatsApp, baixe currículos e tome decisões com relatórios no mesmo painel.
                 </p>
               </div>
 
@@ -427,7 +427,7 @@ export default function App() {
                   <div className="mb-5 flex items-center justify-between gap-3">
                     <div>
                       <p className="text-[12px] font-semibold text-[#940dff]">Dashboard da empresa</p>
-                      <h2 className="mt-1 text-[20px] font-semibold tracking-tight text-[#343241]">Visóo geral do recrutamento</h2>
+                      <h2 className="mt-1 text-[20px] font-semibold tracking-tight text-[#343241]">Visão geral do recrutamento</h2>
                     </div>
                     <div className="flex gap-2">
                       <span className="h-9 w-9 rounded-xl bg-[#940dff] shadow-[0_10px_22px_rgba(148,13,255,0.22)]" />
@@ -496,7 +496,7 @@ export default function App() {
                 { title: 'Testes comportamentais', desc: 'DISC, MBTI, Temperamentos e mapeamentos personalizados.', icon: Brain, color: 'text-[#ff4b8c] bg-[#ff4b8c]/10' },
                 { title: 'Entrevistas', desc: 'Calendário, horários livres, sala de vídeo e histórico por candidato.', icon: Play, color: 'text-[#ffa303] bg-[#ffc24b]/16' },
                 { title: 'Mensagens', desc: 'Chat com recibo de leitura e central de conversas da empresa.', icon: MessageSquare, color: 'text-[#533af6] bg-[#533af6]/10' },
-                { title: 'Relatórios', desc: 'Resultados, estrelas, notas, entrevistas e dados para decisóo.', icon: TrendingUp, color: 'text-[#63e1a5] bg-[#63e1a5]/14' }
+                { title: 'Relatórios', desc: 'Resultados, estrelas, notas, entrevistas e dados para decisão.', icon: TrendingUp, color: 'text-[#63e1a5] bg-[#63e1a5]/14' }
               ].map((item) => {
                 const Icon = item.icon;
                 return (
@@ -618,7 +618,7 @@ export default function App() {
                   <p className="text-[12px] font-semibold text-slate-400">{iaSearchStep === 2 ? 'Buscando talentos compatíveis...' : 'Candidatos encontrados no banco de talentos'}</p>
                   {iaResults.map((item) => (
                     <div key={item.name} className="flex items-center justify-between rounded-2xl border border-slate-200/70 bg-white p-4">
-                      <div><p className="text-[13px] font-semibold text-[#343241]">{item.name}</p><p className="mt-1 text-[11px] font-medium text-slate-400">{item.xp} ? {item.skills}</p></div>
+                      <div><p className="text-[13px] font-semibold text-[#343241]">{item.name}</p><p className="mt-1 text-[11px] font-medium text-slate-400">{item.xp} - {item.skills}</p></div>
                       <span className="rounded-xl bg-[#f3e5ff] px-3 py-1 text-[12px] font-semibold text-[#940dff]">{item.match}% match</span>
                     </div>
                   ))}
