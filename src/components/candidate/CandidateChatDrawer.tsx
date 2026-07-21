@@ -1,4 +1,5 @@
-import { Activity, ChevronLeft, MessageSquare, X } from 'lucide-react';
+import { ArrowLeft, Check, CheckCheck, Loader2, MessageSquare, Search, Send, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { ChatMessage } from '../../services/messageService';
 import type { CandidateConversation } from '../../types/candidate';
@@ -17,6 +18,31 @@ interface CandidateChatDrawerProps {
   onSendMessage: () => void;
 }
 
+const formatMessageTime = (date?: string | null) => {
+  if (!date) return '';
+  return new Date(date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+};
+
+const formatConversationTime = (date?: string | null) => {
+  if (!date) return '';
+  const value = new Date(date);
+  const today = new Date();
+  const sameDay = value.toDateString() === today.toDateString();
+  if (sameDay) return value.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return value.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+};
+
+const getConversationTitle = (conversation: CandidateConversation) => conversation.job?.title || 'Vaga';
+const getConversationCompany = (conversation: CandidateConversation) => conversation.job?.company_name || 'Empresa';
+
+const getCompanyInitials = (name: string) => name
+  .split(' ')
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((part) => part[0])
+  .join('')
+  .toUpperCase() || 'EM';
+
 export function CandidateChatDrawer({
   isOpen,
   conversations,
@@ -30,150 +56,181 @@ export function CandidateChatDrawer({
   onMessageTextChange,
   onSendMessage,
 }: CandidateChatDrawerProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredConversations = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return conversations;
+
+    return conversations.filter((conversation) => (
+      `${getConversationTitle(conversation)} ${getConversationCompany(conversation)}`.toLowerCase().includes(query)
+    ));
+  }, [conversations, searchQuery]);
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[120] flex justify-end">
+        <div className="fixed inset-0 z-[150] flex justify-end">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-950/28 backdrop-blur-[2px]"
           />
-          <motion.div
+
+          <motion.aside
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="relative w-full max-w-md bg-white rounded-l-[24px] rounded-r-none shadow-2xl overflow-hidden flex flex-col h-full border-l border-slate-100/85 z-10"
+            transition={{ type: 'spring', damping: 32, stiffness: 310 }}
+            className="company-dashboard-surface relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden border-l border-slate-200/70 bg-[#fbf9ff] text-left shadow-[0_24px_70px_rgba(15,23,42,0.16)]"
           >
             {!selectedConversation ? (
               <>
-                <div className="px-8 pt-8 pb-6 flex justify-between items-center shrink-0">
-                  <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
-                      <MessageSquare size={16} className="text-[#533af6] animate-bounce" />
-                      Minhas Conversas
-                    </h3>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                      Mensagens com recrutadores
-                    </p>
-                  </div>
-                  <button
-                    onClick={onClose}
-                    className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#533af6] transition-colors cursor-pointer"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-
-                <div className="flex-1 p-6 overflow-y-auto space-y-3 bg-slate-50/20">
-                  {conversations.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center space-y-3">
-                      <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
-                        <MessageSquare size={26} />
+                <header className="shrink-0 px-6 pb-4 pt-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#533af6]/18 bg-[#533af6]/10 text-[#533af6]">
+                        <MessageSquare size={19} />
                       </div>
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-wider text-slate-700">Nenhuma conversa ativa</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1.5 leading-relaxed">
-                          Suas conversas aparecerao aqui quando uma empresa iniciar o contato com voce.
-                        </p>
+                      <div className="min-w-0">
+                        <h2 className="text-[20px] font-semibold tracking-tight text-[#343241]">Mensagens</h2>
+                        <p className="mt-1 text-[12px] font-medium text-slate-400">Escolha uma conversa para continuar.</p>
                       </div>
                     </div>
-                  ) : (
-                    conversations.map((conversation) => (
-                      <div
-                        key={conversation.id}
-                        onClick={() => onOpenConversation(conversation)}
-                        className="bg-white p-4 rounded-[16px] border border-slate-150/70 hover:border-indigo-200 hover:bg-indigo-50/10 shadow-3xs hover:shadow-2xs transition-all cursor-pointer flex items-center justify-between gap-4 text-left relative overflow-hidden group border-l-4 border-l-indigo-500"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <h5 className="text-xs font-black text-slate-800 uppercase tracking-tight truncate leading-tight group-hover:text-[#533af6] transition-colors">
-                            {conversation.job?.title}
-                          </h5>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 truncate">
-                            {conversation.job?.company_name || 'Empresa'}
-                          </p>
-                          {conversation.lastMessage && (
-                            <p className="text-[10px] text-slate-500 truncate mt-2 font-medium">
-                              {conversation.lastMessage.sender_type === 'company' ? 'Empresa: ' : 'Voce: '}
-                              {conversation.lastMessage.content || conversation.lastMessage.message}
-                            </p>
-                          )}
-                        </div>
 
-                        <div className="flex flex-col items-end shrink-0 gap-2">
-                          {conversation.lastMessage && (
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
-                              {new Date(conversation.lastMessage.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          )}
-                          {conversation.unreadCount > 0 && (
-                            <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm">
-                              {conversation.unreadCount}
-                            </span>
-                          )}
-                        </div>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-400 shadow-sm transition-all hover:border-[#533af6]/20 hover:text-[#533af6] active:scale-95"
+                      aria-label="Fechar mensagens"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+
+                  <div className="relative mt-5">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(event) => setSearchQuery(event.target.value)}
+                      placeholder="Buscar conversa..."
+                      className="h-9 w-full rounded-[999px] border border-slate-200/70 bg-white px-4 pr-10 text-[12px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-400 focus:border-[#533af6]/35 focus:ring-2 focus:ring-[#533af6]/10"
+                    />
+                    <Search size={14} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#533af6]" />
+                  </div>
+                </header>
+
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
+                  {filteredConversations.length === 0 ? (
+                    <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200/80 bg-white/80 p-8 text-center">
+                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#533af6]/10 text-[#533af6]">
+                        <MessageSquare size={22} />
                       </div>
-                    ))
+                      <p className="text-[14px] font-semibold text-[#343241]">Nenhuma conversa ativa</p>
+                      <p className="mt-2 text-[12px] font-medium leading-5 text-slate-400">Suas conversas aparecerao aqui quando uma empresa iniciar o contato com voce.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+                      <div className="divide-y divide-slate-100/90">
+                        {filteredConversations.map((conversation) => {
+                          const title = getConversationTitle(conversation);
+                          const company = getConversationCompany(conversation);
+                          const preview = conversation.lastMessage?.content || conversation.lastMessage?.message || '';
+
+                          return (
+                            <button
+                              key={conversation.id}
+                              type="button"
+                              onClick={() => onOpenConversation(conversation)}
+                              className="flex w-full items-center gap-3 bg-white px-4 py-3 text-left transition-all hover:bg-[#fbf9ff]"
+                            >
+                              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#533af6]/18 bg-[#533af6]/10 text-[12px] font-semibold text-[#533af6]">
+                                {getCompanyInitials(company)}
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <span className="flex items-center justify-between gap-2">
+                                  <span className="truncate text-[12px] font-semibold text-[#343241]">{title}</span>
+                                  <span className="shrink-0 text-[10px] font-medium text-slate-400">{formatConversationTime(conversation.lastMessage?.created_at)}</span>
+                                </span>
+                                <span className="mt-0.5 block truncate text-[11px] font-medium text-slate-400">{company}</span>
+                                {preview && (
+                                  <span className="mt-1 flex items-center justify-between gap-2">
+                                    <span className="truncate text-[12px] font-medium text-slate-500">
+                                      {conversation.lastMessage?.sender_type === 'company' ? 'Empresa: ' : 'Voce: '}
+                                      {preview}
+                                    </span>
+                                    {conversation.unreadCount > 0 && (
+                                      <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#533af6] px-1.5 text-[10px] font-semibold text-white">
+                                        {conversation.unreadCount}
+                                      </span>
+                                    )}
+                                  </span>
+                                )}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
                 </div>
               </>
             ) : (
               <>
-                <div className="px-8 pt-8 pb-6 flex justify-between items-center shrink-0">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <button
-                      onClick={onBackToConversations}
-                      className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-500 hover:text-[#533af6] transition-colors cursor-pointer shrink-0"
-                    >
-                      <ChevronLeft size={14} />
-                    </button>
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight truncate max-w-[200px]">
-                        {selectedConversation.job?.title}
-                      </h3>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate max-w-[200px]">
-                        {selectedConversation.job?.company_name || 'Empresa'}
-                      </p>
+                <header className="shrink-0 border-b border-slate-200/70 bg-white/70 px-5 py-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={onBackToConversations}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-400 shadow-sm transition-all hover:border-[#533af6]/20 hover:text-[#533af6] active:scale-95"
+                        aria-label="Voltar para conversas"
+                      >
+                        <ArrowLeft size={15} />
+                      </button>
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#533af6]/18 bg-[#533af6]/10 text-[12px] font-semibold text-[#533af6]">
+                        {getCompanyInitials(getConversationCompany(selectedConversation))}
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="truncate text-[14px] font-semibold text-[#343241]">{getConversationTitle(selectedConversation)}</h3>
+                        <p className="mt-0.5 truncate text-[12px] font-medium text-slate-400">{getConversationCompany(selectedConversation)}</p>
+                      </div>
                     </div>
-                  </div>
-                  <button
-                    onClick={onClose}
-                    className="w-8 h-8 rounded-full border border-slate-100 hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#533af6] transition-colors cursor-pointer"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
 
-                <div className="flex-1 p-6 flex flex-col space-y-4 overflow-y-auto bg-slate-50/30">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-400 shadow-sm transition-all hover:border-[#533af6]/20 hover:text-[#533af6] active:scale-95"
+                      aria-label="Fechar mensagens"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                </header>
+
+                <div className="min-h-0 flex-1 overflow-y-auto p-5">
                   {messages.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-                      <Activity className="animate-spin text-[#533af6] mb-2" size={20} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Carregando mensagens...</span>
+                    <div className="flex h-full min-h-[360px] flex-col items-center justify-center text-slate-400">
+                      <Loader2 className="mb-3 animate-spin text-[#533af6]" size={22} />
+                      <span className="text-[12px] font-semibold">Carregando mensagens...</span>
                     </div>
                   ) : (
-                    <div className="space-y-3 flex flex-col">
-                      {messages.map((message, idx) => {
+                    <div className="flex flex-col gap-3">
+                      {messages.map((message, index) => {
                         const isCandidate = message.sender_type === 'candidate';
 
                         return (
-                          <div
-                            key={message.id || idx}
-                            className={`flex flex-col max-w-[80%] ${isCandidate ? 'self-end items-end' : 'self-start items-start'}`}
-                          >
-                            <div
-                              className={`px-4 py-3 rounded-[18px] text-xs font-semibold ${
-                                isCandidate
-                                  ? 'bg-[#533af6] text-white rounded-tr-none'
-                                  : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none shadow-3xs'
-                              }`}
-                            >
+                          <div key={message.id || index} className={`flex max-w-[82%] flex-col ${isCandidate ? 'self-end items-end' : 'self-start items-start'}`}>
+                            <div className={`flex min-h-8 items-center rounded-xl px-4 py-1.5 text-[12px] font-medium leading-relaxed shadow-sm ${isCandidate ? 'rounded-br-md bg-[#533af6] text-white' : 'rounded-bl-md border border-slate-200 bg-white text-slate-500'}`}>
                               <p className="whitespace-pre-wrap break-words">{message.content || message.message}</p>
                             </div>
-                            <span className="text-[7.5px] font-bold text-slate-400 uppercase tracking-widest mt-1 px-1">
-                              {new Date(message.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            <span className="mt-1 flex items-center gap-1 px-1 text-[10px] font-medium text-slate-400">
+                              {formatMessageTime(message.created_at)}
+                              {isCandidate ? (
+                                message.read ? <CheckCheck size={13} className="text-[#63e1a5]" aria-label="Mensagem lida" /> : <Check size={13} className="text-slate-300" aria-label="Mensagem enviada" />
+                              ) : null}
                             </span>
                           </div>
                         );
@@ -182,32 +239,35 @@ export function CandidateChatDrawer({
                   )}
                 </div>
 
-                <div className="p-4 border-t border-slate-100 bg-white flex items-center gap-2 shrink-0">
-                  <input
-                    type="text"
-                    value={newMessageText}
-                    onChange={(event) => onMessageTextChange(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' && !isSendingMessage) {
-                        onSendMessage();
-                      }
-                    }}
-                    placeholder="Digite sua resposta..."
-                    className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white transition-all"
-                    disabled={isSendingMessage}
-                  />
-                  <button
-                    type="button"
-                    onClick={onSendMessage}
-                    disabled={isSendingMessage || !newMessageText.trim()}
-                    className="px-4 py-2.5 bg-[#533af6] hover:bg-[#4326e5] text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-md hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 shrink-0"
-                  >
-                    {isSendingMessage ? 'Enviando...' : 'Enviar'}
-                  </button>
+                <div className="shrink-0 border-t border-slate-200/70 bg-white/90 p-4">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={newMessageText}
+                      onChange={(event) => onMessageTextChange(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' && !isSendingMessage && newMessageText.trim()) onSendMessage();
+                      }}
+                      placeholder="Digite sua mensagem..."
+                      disabled={isSendingMessage}
+                      className="h-8 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-[12px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-300 focus:border-[#533af6]/50 focus:ring-4 focus:ring-[#533af6]/10 sm:h-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={onSendMessage}
+                      disabled={isSendingMessage || !newMessageText.trim()}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#533af6] bg-[#533af6] text-white shadow-md shadow-[#533af6]/15 transition-all hover:bg-[#4326e5] disabled:cursor-not-allowed disabled:opacity-50 sm:h-10 sm:w-10"
+                      aria-label={isSendingMessage ? 'Enviando mensagem' : 'Enviar mensagem'}
+                      title={isSendingMessage ? 'Enviando...' : 'Enviar'}
+                    >
+                      <span className="sr-only">{isSendingMessage ? 'Enviando...' : 'Enviar'}</span>
+                      {isSendingMessage ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} className="stroke-[2.4]" />}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
-          </motion.div>
+          </motion.aside>
         </div>
       )}
     </AnimatePresence>

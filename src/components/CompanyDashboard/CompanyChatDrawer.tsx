@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Check, CheckCheck, Loader2, MessageSquare, Search, X as CloseIcon } from 'lucide-react';
+import { ArrowLeft, Check, CheckCheck, Loader2, MessageSquare, Search, Send, X as CloseIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { fetchMessagesForApplications, type ChatMessage } from '../../services/messageService';
 import type { CompanyApplicant } from '../../types/companyDashboard';
@@ -354,10 +354,12 @@ export function CompanyChatDrawer({
                       type="button"
                       onClick={onSendMessage}
                       disabled={isSendingMessage || !newMessageText.trim()}
-                      className="flex h-8 items-center justify-center gap-2 rounded-xl border border-[#533af6] bg-[#533af6] px-5 text-[12px] font-semibold text-white shadow-md shadow-[#533af6]/15 transition-all hover:bg-[#4326e5] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#533af6] bg-[#533af6] text-white shadow-md shadow-[#533af6]/15 transition-all hover:bg-[#4326e5] disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-label={isSendingMessage ? 'Enviando mensagem' : 'Enviar mensagem'}
+                      title={isSendingMessage ? 'Enviando...' : 'Enviar'}
                     >
-                      {isSendingMessage ? <Loader2 size={14} className="animate-spin" /> : null}
-                      {isSendingMessage ? 'Enviando...' : 'Enviar'}
+                      <span className="sr-only">{isSendingMessage ? 'Enviando...' : 'Enviar'}</span>
+                      {isSendingMessage ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} className="stroke-[2.4]" />}
                     </button>
                   </div>
                 </div>

@@ -15,6 +15,7 @@ interface LoginProps {
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 const normalizePhoneDigits = (phone: string) => phone.replace(/\D/g, '');
 const PENDING_OTP_STORAGE_KEY = 'colaborh_pending_otp_signup';
+const COMPANY_SIGNUP_DISABLED_MESSAGE = 'Cadastro de empresa temporariamente indisponivel. Neste momento apenas candidatos podem criar conta.';
 
 type PendingOtpSignup = {
   email: string;
@@ -68,6 +69,11 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
       const pending = JSON.parse(saved) as PendingOtpSignup;
       if (!pending?.email) return;
 
+      if (pending.regType === 'company') {
+        localStorage.removeItem(PENDING_OTP_STORAGE_KEY);
+        return;
+      }
+
       setMode('register');
       setRegType(pending.regType || 'candidate');
       setOtpEmail(pending.email);
@@ -93,6 +99,12 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
   const toggleRegType = (newType: 'candidate' | 'company') => {
     setRegType(newType);
     setErrorMessage(null);
+  };
+
+  const handleUnavailableCompanySignup = () => {
+    setRegType('candidate');
+    setPasswordRecoveryMessage(null);
+    setErrorMessage(COMPANY_SIGNUP_DISABLED_MESSAGE);
   };
 
   const persistPendingOtpSignup = (email: string, type: 'candidate' | 'company' = regType) => {
@@ -153,6 +165,12 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
 
     if (!normalizedEmail || !formData.password) {
       setErrorMessage('Por favor, preencha e-mail e senha.');
+      return;
+    }
+
+    if (mode === 'register' && regType === 'company') {
+      setRegType('candidate');
+      setErrorMessage(COMPANY_SIGNUP_DISABLED_MESSAGE);
       return;
     }
 
@@ -613,19 +631,27 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                 ) : (
                   <>
                     {mode === 'register' && (
-                  <div className="flex bg-slate-100 p-1 rounded-full mb-6 max-w-[300px] mx-auto">
-                    <button 
-                      onClick={() => toggleRegType('candidate')}
-                      className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${regType === 'candidate' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500'}`}
-                    >
-                      Candidato
-                    </button>
-                    <button 
-                      onClick={() => toggleRegType('company')}
-                      className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${regType === 'company' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500'}`}
-                    >
-                      Empresa
-                    </button>
+                  <div className="mb-6">
+                    <div className="flex bg-slate-100 p-1 rounded-full max-w-[300px] mx-auto">
+                      <button 
+                        type="button"
+                        onClick={() => toggleRegType('candidate')}
+                        className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${regType === 'candidate' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500'}`}
+                      >
+                        Candidato
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={handleUnavailableCompanySignup}
+                        className="flex-1 py-2 text-xs font-bold rounded-full transition-all text-slate-400 cursor-not-allowed opacity-70"
+                        title={COMPANY_SIGNUP_DISABLED_MESSAGE}
+                      >
+                        Empresa
+                      </button>
+                    </div>
+                    <p className="mt-2 text-center text-[10px] font-semibold text-slate-400">
+                      Cadastro de empresa indisponivel no momento.
+                    </p>
                   </div>
                 )}
 
