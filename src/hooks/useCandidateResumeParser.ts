@@ -57,6 +57,7 @@ const ai = {
           fileName: inlineData.fileName,
           mimeType: inlineData.mimeType,
           data: inlineData.data,
+          text: inlineData.mimeType === 'text/plain' ? atob(inlineData.data) : undefined,
         }),
       });
 
@@ -277,7 +278,7 @@ export const useCandidateResumeParser = ({
       Extraia telefone, e-mail, estado (sigla UF), cidade, nome completo, data de nascimento, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos. Para experiencias, retorne startDate e endDate no formato YYYY-MM-DD, usando o primeiro dia do mes quando houver apenas mes/ano. Para formacoes/cursos, retorne gradYear com o ano de conclusao ou previsao de conclusao.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-3.1-flash-lite',
         contents: [{ parts: [{ inlineData: { data: base64Data, mimeType: file.type, fileName: file.name } }, { text: prompt }] }],
         config: {
           responseMimeType: 'application/json',

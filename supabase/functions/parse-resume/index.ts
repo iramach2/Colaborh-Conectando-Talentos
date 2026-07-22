@@ -33,6 +33,7 @@ type ParseResumeRequest = {
   fileName?: string;
   mimeType?: string;
   data?: string;
+  text?: string;
 };
 
 const resumeSchema = {
@@ -167,8 +168,9 @@ Deno.serve(async (req) => {
 
   const mimeType = payload.mimeType || '';
   const data = payload.data || '';
+  const extractedText = typeof payload.text === 'string' ? payload.text.trim() : '';
 
-  if (!data || !mimeType) {
+  if ((!data && !extractedText) || !mimeType) {
     return jsonResponse(req, { error: 'Missing file data or MIME type' }, 400);
   }
 
@@ -189,7 +191,11 @@ Deno.serve(async (req) => {
     return jsonResponse(req, { error: 'File is too large for resume parsing' }, 413);
   }
 
-  const model = Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash';
+  if (extractedText.length > 80_000) {
+    return jsonResponse(req, { error: 'Resume text is too large for parsing' }, 413);
+  }
+
+  const model = Deno.env.get('GEMINI_MODEL') || 'gemini-3.1-flash-lite';
   const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const prompt = [
@@ -202,6 +208,7 @@ Deno.serve(async (req) => {
     'Para experiencias, retorne startDate e endDate no formato YYYY-MM-DD. Se o curriculo tiver apenas mes/ano, use o primeiro dia do mes. Se for trabalho atual, current deve ser true e endDate vazio.',
     'Para formacoes e cursos, retorne gradYear com o ano de conclusao ou previsao de conclusao. Se houver periodo completo, tambem preencha period e endDate.',
     'Se um campo nao estiver presente, retorne string vazia, false para booleanos ou lista vazia.',
+    'Responda somente o JSON final, sem explicacoes e sem repetir o texto do curriculo.',
   ].join(' ');
 
   const geminiResponse = await fetch(geminiUrl, {
@@ -210,18 +217,25 @@ Deno.serve(async (req) => {
     body: JSON.stringify({
       contents: [
         {
-          parts: [
-            { text: prompt },
-            {
-              inline_data: {
-                mime_type: mimeType,
-                data,
-              },
-            },
-          ],
+          parts: extractedText
+            ? [
+                { text: prompt },
+                { text: 'Texto extraido do curriculo:\n\n' + extractedText },
+              ]
+            : [
+                { text: prompt },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data,
+                  },
+                },
+              ],
         },
       ],
       generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 4096,
         response_mime_type: 'application/json',
         response_schema: resumeSchema,
       },
