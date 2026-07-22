@@ -6,6 +6,7 @@ import type {
   CandidateLanguage,
   CandidateResumeData,
 } from '../../types/candidate';
+import { formatExperienceDurationWithPeriod } from '../../utils/candidateResumeCalculations';
 
 interface ResumeA4PreviewProps {
   resumeData: CandidateResumeData;
@@ -123,7 +124,7 @@ export const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }:
                     <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', textTransform: 'uppercase', margin: '0 0 4px 0' }}>{exp.role}</h4>
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
                       <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>{exp.company}</span>
-                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>{calculateDuration(exp.startDate || '', exp.endDate, Boolean(exp.current))}</span>
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>{formatExperienceDurationWithPeriod(exp.startDate, exp.endDate, Boolean(exp.current)) || calculateDuration(exp.startDate || '', exp.endDate, Boolean(exp.current))}</span>
                     </div>
                     <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, whiteSpace: 'pre-line', textAlign: 'left' }}>
                       {exp.description}

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { CompanyCandidateResumeTestsTab } from './CompanyCandidateResumeTestsTab';
 import { parseRecruitmentNote } from '../../hooks/useCompanyApplicantNotes';
 import { calculateAge, parseCandidatePhoneData } from '../../utils/companyDashboardUtils';
+import { formatExperienceDurationWithPeriod } from '../../utils/candidateResumeCalculations';
 import type { ChatMessage } from '../../services/messageService';
 import type { CompanyApplicant, DiscReportResult, MbtiReportResult, TemperamentosReportResult } from '../../types/companyDashboard';
 
@@ -75,6 +76,8 @@ const getEducationHeadline = (applicant: CompanyApplicant) => {
 
 type ProfileExperience = { duration?: string; startDate?: string; endDate?: string | null; current?: boolean };
 const formatExperienceDuration = (experience: ProfileExperience) => {
+  const durationWithPeriod = formatExperienceDurationWithPeriod(experience.startDate, experience.endDate, Boolean(experience.current));
+  if (durationWithPeriod) return durationWithPeriod;
   if (experience.duration?.trim()) return experience.duration;
   if (!experience.startDate) return 'Período não informado';
   const startDate = new Date(experience.startDate);

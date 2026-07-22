@@ -34,6 +34,9 @@ export type TalentExperience = {
   role?: string;
   company?: string;
   duration?: string;
+  startDate?: string;
+  endDate?: string | null;
+  current?: boolean;
   description?: string;
 };
 

@@ -3,6 +3,7 @@ import { User } from 'lucide-react';
 import type { TalentEducation, TalentExperience } from '../../hooks/useCompanyTalentBank';
 import type { CompanyApplicant } from '../../types/companyDashboard';
 import { calculateAge, parseCandidatePhoneData } from '../../utils/companyDashboardUtils';
+import { formatExperienceDurationWithPeriod } from '../../utils/candidateResumeCalculations';
 
 interface CompanyHiddenResumePrintProps {
   applicant: CompanyApplicant | null;
@@ -100,7 +101,7 @@ export function CompanyResumeA4Document({ applicant }: { applicant: CompanyAppli
                     <h4 style={{ fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', margin: '0 0 4px 0' }}>{exp.role}</h4>
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
                       <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{exp.company}</span>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{exp.duration || 'N/A'}</span>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#000000' }}>{formatExperienceDurationWithPeriod(exp.startDate, exp.endDate, Boolean(exp.current)) || exp.duration || 'N/A'}</span>
                     </div>
                     <p style={{ fontSize: '12px', lineHeight: 1.6, color: '#475569', margin: 0, whiteSpace: 'pre-line', textAlign: 'justify' }}>
                       {exp.description}
