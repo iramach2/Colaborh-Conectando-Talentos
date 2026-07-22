@@ -95,19 +95,67 @@ const normalizeBoolean = (value: unknown) => {
   return false;
 };
 
+const monthMap: Record<string, string> = {
+  jan: '01', janeiro: '01',
+  fev: '02', fevereiro: '02',
+  mar: '03', marco: '03',
+  abr: '04', abril: '04',
+  mai: '05', maio: '05',
+  jun: '06', junho: '06',
+  jul: '07', julho: '07',
+  ago: '08', agosto: '08',
+  set: '09', setembro: '09',
+  out: '10', outubro: '10',
+  nov: '11', novembro: '11',
+  dez: '12', dezembro: '12',
+};
+
+const stripAccents = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
 const normalizeDate = (value: unknown) => {
   const raw = firstString(value);
   if (!raw) return '';
   if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
 
-  const brDate = raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+  const trimmed = stripAccents(raw.trim().toLowerCase());
+  if (['atual', 'presente', 'hoje', 'current'].includes(trimmed)) return '';
+
+  const brDate = trimmed.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
   if (brDate) {
     const [, day, month, year] = brDate;
     const normalizedYear = year.length === 2 ? '19' + year : year;
     return normalizedYear.padStart(4, '0') + '-' + month.padStart(2, '0') + '-' + day.padStart(2, '0');
   }
 
-  return raw;
+  const monthYear = trimmed.match(/^([a-z]{3,9})[\s\/.-]+(\d{2,4})$/);
+  if (monthYear) {
+    const [, monthName, year] = monthYear;
+    const month = monthMap[monthName.slice(0, 3)] || monthMap[monthName];
+    if (month) {
+      const normalizedYear = year.length === 2 ? '20' + year : year;
+      return normalizedYear.padStart(4, '0') + '-' + month + '-01';
+    }
+  }
+
+  const numericMonthYear = trimmed.match(/^(\d{1,2})[\/.-](\d{2,4})$/);
+  if (numericMonthYear) {
+    const [, month, year] = numericMonthYear;
+    const normalizedYear = year.length === 2 ? '20' + year : year;
+    return normalizedYear.padStart(4, '0') + '-' + month.padStart(2, '0') + '-01';
+  }
+
+  const yearOnly = trimmed.match(/^(19|20)\d{2}$/);
+  if (yearOnly) return trimmed + '-01-01';
+
+  return '';
+};
+
+const extractYear = (...values: unknown[]) => {
+  const raw = firstString(...values);
+  const normalizedDate = normalizeDate(raw);
+  if (normalizedDate) return normalizedDate.slice(0, 4);
+  const matches = raw.match(/(19|20)\d{2}/g);
+  return matches?.at(-1) || raw;
 };
 
 const normalizeLanguageLevel = (value: unknown) => {
@@ -129,9 +177,12 @@ const normalizeAchievementType = (value: unknown) => {
 const normalizeExperience = (value: unknown): CandidateExperience | null => {
   if (!isRecord(value)) return null;
 
-  const startDate = firstString(value.startDate, value.start, value.inicio);
-  const endDate = firstString(value.endDate, value.end, value.fim);
-  const duration = firstString(value.duration, value.periodo) || [startDate, endDate].filter(Boolean).join(' - ');
+  const rawStartDate = firstString(value.startDate, value.start, value.inicio);
+  const rawEndDate = firstString(value.endDate, value.end, value.fim);
+  const startDate = normalizeDate(rawStartDate);
+  const endDate = normalizeDate(rawEndDate);
+  const current = normalizeBoolean(value.current) || ['atual', 'presente', 'hoje', 'current'].includes(stripAccents(rawEndDate.trim().toLowerCase()));
+  const duration = firstString(value.duration, value.periodo) || [rawStartDate || startDate, current ? 'Atual' : (rawEndDate || endDate)].filter(Boolean).join(' - ');
 
   return {
     id: crypto.randomUUID(),
@@ -140,7 +191,7 @@ const normalizeExperience = (value: unknown): CandidateExperience | null => {
     duration,
     startDate,
     endDate,
-    current: normalizeBoolean(value.current),
+    current,
     description: firstString(value.description, value.descricao, value.activities, value.atividades),
   };
 };
@@ -153,7 +204,7 @@ const normalizeEducation = (value: unknown): CandidateEducation | null => {
     course: firstString(value.course, value.curso),
     institution: firstString(value.institution, value.instituicao, value.school),
     status: firstString(value.status, value.situacao),
-    gradYear: firstString(value.gradYear, value.year, value.ano),
+    gradYear: extractYear(value.gradYear, value.year, value.ano, value.endDate, value.end, value.fim, value.conclusao, value.previsaoConclusao, value.periodo),
   };
 };
 
@@ -223,7 +274,7 @@ export const useCandidateResumeParser = ({
       const prompt = `Extraia os dados deste curriculo para o formato JSON solicitado.
       Certifique-se de que o resumo tenha pelo menos 300 caracteres.
       Traduza status de educacao para: 'Completo', 'Incompleto' ou 'Cursando'.
-      Extraia telefone, e-mail, estado (sigla UF), cidade, nome completo, data de nascimento, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos.`;
+      Extraia telefone, e-mail, estado (sigla UF), cidade, nome completo, data de nascimento, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos. Para experiencias, retorne startDate e endDate no formato YYYY-MM-DD, usando o primeiro dia do mes quando houver apenas mes/ano. Para formacoes/cursos, retorne gradYear com o ano de conclusao ou previsao de conclusao.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',

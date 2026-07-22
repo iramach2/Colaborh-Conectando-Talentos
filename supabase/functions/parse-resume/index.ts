@@ -72,6 +72,8 @@ const resumeSchema = {
           course: { type: 'STRING' },
           status: { type: 'STRING', enum: ['Incompleto', 'Completo', 'Cursando'] },
           gradYear: { type: 'STRING' },
+          endDate: { type: 'STRING' },
+          period: { type: 'STRING' },
         },
       },
     },
@@ -197,6 +199,8 @@ Deno.serve(async (req) => {
     "Para idiomas, traduza o nivel para: 'Básico', 'Intermediário', 'Avançado' ou 'Fluente'.",
     "Para cursos, certificados e reconhecimentos, use achievements com type: 'Curso', 'Certificado', 'Reconhecimento' ou 'Trabalho Voluntário'.",
     'Extraia nome completo, e-mail, telefone, estado como sigla UF, cidade, data de nascimento no formato YYYY-MM-DD, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos.',
+    'Para experiencias, retorne startDate e endDate no formato YYYY-MM-DD. Se o curriculo tiver apenas mes/ano, use o primeiro dia do mes. Se for trabalho atual, current deve ser true e endDate vazio.',
+    'Para formacoes e cursos, retorne gradYear com o ano de conclusao ou previsao de conclusao. Se houver periodo completo, tambem preencha period e endDate.',
     'Se um campo nao estiver presente, retorne string vazia, false para booleanos ou lista vazia.',
   ].join(' ');
 
