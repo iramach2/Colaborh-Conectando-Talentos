@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
     return jsonResponse(req, { error: 'File is too large for resume parsing' }, 413);
   }
 
-  const model = Deno.env.get('GEMINI_MODEL') || 'gemini-2.0-flash';
+  const model = Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash';
   const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const prompt = [

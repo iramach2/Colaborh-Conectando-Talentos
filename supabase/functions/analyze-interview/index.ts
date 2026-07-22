@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const model = Deno.env.get('GEMINI_MODEL') || 'gemini-2.0-flash';
+    const model = Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash';
 
     const prompt = `Voce e um especialista senior em recrutamento e selecao. Analise a transcricao de uma entrevista de video e gere um relatorio objetivo para a empresa.\n\nContexto:\n- Candidato: ${candidateName || 'Nao informado'}\n- Vaga: ${jobTitle || 'Nao informada'}\n- Empresa: ${companyName || 'Nao informada'}\n\nTranscricao:\n${transcriptText}\n\nRegras:\n- Nao invente informacoes que nao estejam na transcricao.\n- Se a transcricao estiver incompleta, sinalize isso.\n- Foque em evidencias observaveis.\n- Responda em JSON valido.`;
 
