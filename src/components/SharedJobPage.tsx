@@ -1,4 +1,21 @@
-import { ArrowLeft, Building, Clock, DollarSign, MapPin, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  Briefcase,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  MapPin,
+  ShieldCheck,
+  Sparkles,
+  UserPlus,
+  Users,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
+import type { ReactNode } from 'react';
+import Loader from './Loader';
 import type { CompanyJob } from '../types/companyDashboard';
 import { cleanDescription, getBenefitsList, getRequirementsList } from '../utils/candidateVacancyText';
 
@@ -11,6 +28,50 @@ type SharedJobPageProps = {
   onApply: () => void;
 };
 
+const formatDate = (value?: string | null) => {
+  if (!value) return 'Data não informada';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Data não informada';
+  return date.toLocaleDateString('pt-BR');
+};
+
+const getLocation = (job: CompanyJob) => {
+  if (job.modality === 'Home Office') return 'Home Office';
+  if (job.city && job.state) return `${job.city}, ${job.state}`;
+  if (job.city) return job.city;
+  if (job.state) return job.state;
+  return job.modality || 'Local não informado';
+};
+
+const getSalary = (job: CompanyJob) => {
+  if (job.salary) return job.salary;
+  if (job.salary_min || job.salary_max) return `${job.salary_min || 'R$ 0,00'} até ${job.salary_max || 'A combinar'}`;
+  return 'A combinar';
+};
+
+const getPositions = (job: CompanyJob) => {
+  const value = Number(job.positions || 1);
+  if (!Number.isFinite(value) || value <= 1) return '1 vaga';
+  return `${value} vagas`;
+};
+
+const InfoCard = ({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) => (
+  <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#f3e5ff] text-[#940dff]">
+      <Icon size={18} />
+    </div>
+    <p className="text-[11px] font-semibold text-slate-400">{label}</p>
+    <p className="mt-1 text-[13px] font-semibold text-[#343241]">{value}</p>
+  </div>
+);
+
+const Section = ({ title, children }: { title: string; children: ReactNode }) => (
+  <section className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)] sm:p-6">
+    <h2 className="text-[18px] font-semibold tracking-tight text-[#343241]">{title}</h2>
+    <div className="mt-4 text-[13px] font-medium leading-7 text-slate-500">{children}</div>
+  </section>
+);
+
 export function SharedJobPage({
   isLoading,
   job,
@@ -21,30 +82,27 @@ export function SharedJobPage({
 }: SharedJobPageProps) {
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Carregando vaga...</p>
-        </div>
+      <div className="company-dashboard-surface flex min-h-screen items-center justify-center bg-[#fbf9ff]">
+        <Loader message="Carregando vaga..." />
       </div>
     );
   }
 
   if (!job) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-[2rem] shadow-sleek text-center max-w-md border border-slate-100">
-          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <X size={32} />
+      <div className="company-dashboard-surface flex min-h-screen flex-col items-center justify-center bg-[#fbf9ff] p-4">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200/70 bg-white/85 p-8 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#ff4b8c]/18 bg-[#ff4b8c]/10 text-[#ff4b8c]">
+            <X size={28} />
           </div>
-          <h3 className="text-xl font-black text-slate-900 mb-2">Vaga nao encontrada</h3>
-          <p className="text-slate-500 text-sm mb-6">O link que voce acessou pode ter expirado ou a vaga foi removida.</p>
+          <h1 className="text-[20px] font-semibold tracking-tight text-[#343241]">Vaga não encontrada</h1>
+          <p className="mt-3 text-[13px] font-medium leading-6 text-slate-500">O link pode ter expirado, a vaga pode ter sido removida ou não está mais ativa.</p>
           <button
             type="button"
             onClick={onBackHome}
-            className="px-6 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors text-xs uppercase tracking-wider"
+            className="mt-6 h-10 rounded-full bg-[#940dff] px-5 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"
           >
-            Voltar ao Inicio
+            Voltar ao início
           </button>
         </div>
       </div>
@@ -53,168 +111,166 @@ export function SharedJobPage({
 
   const requirements = getRequirementsList(job);
   const benefits = getBenefitsList(job);
+  const description = cleanDescription(job.description || '');
+  const location = getLocation(job);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between selection:bg-primary-100 selection:text-primary-700">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 py-3 shadow-sm h-20 flex items-center">
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-10 flex justify-between items-center">
-          <div className="flex items-center">
-            <img
-              src="/logo.png"
-              alt="Colaborh Logo"
-              className="h-10 md:h-12 w-auto object-contain cursor-pointer"
-              onClick={onBackHome}
-            />
-          </div>
-          <div className="flex items-center space-x-3">
+    <div className="company-dashboard-surface min-h-screen bg-[#fbf9ff] text-[#343241] selection:bg-[#f3e5ff] selection:text-[#940dff]">
+      <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/88 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-8 lg:px-10">
+          <button type="button" onClick={onBackHome} className="flex items-center gap-3">
+            <img src="/logo.png" alt="Colaborh" className="h-8 w-auto object-contain" />
+          </button>
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onLogin}
-              className="px-5 py-2.5 text-sm font-bold text-slate-900 border-2 border-slate-200 rounded-full hover:bg-slate-50 hover:border-primary-200 transition-all"
+              className="h-9 rounded-full border border-slate-200/80 bg-white px-4 text-[12px] font-semibold text-slate-500 transition-all hover:border-[#940dff]/20 hover:text-[#940dff]"
             >
               Entrar
             </button>
             <button
               type="button"
               onClick={onRegister}
-              className="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white text-sm font-bold rounded-full hover:shadow-lg hover:shadow-primary-200 hover:-translate-y-0.5 transition-all"
+              className="hidden h-9 rounded-full bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 sm:inline-flex sm:items-center"
             >
-              Criar Conta
+              Criar conta
             </button>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <main className="pt-28 pb-16 flex-grow">
-        <div className="max-w-5xl mx-auto px-4 sm:px-10">
-          <button
-            type="button"
-            onClick={onBackHome}
-            className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider mb-6 transition-colors"
-          >
-            <ArrowLeft size={16} /> Voltar para o Inicio
-          </button>
+      <main>
+        <section className="border-b border-slate-200/70 bg-[#fbf9ff]">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[1fr_360px] lg:px-10 lg:py-12">
+            <div>
+              <button
+                type="button"
+                onClick={onBackHome}
+                className="mb-6 inline-flex h-8 items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 text-[12px] font-semibold text-slate-500 transition-all hover:text-[#940dff]"
+              >
+                <ArrowLeft size={14} /> Voltar
+              </button>
 
-          <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-[2.5rem] p-8 md:p-12 shadow-xl mb-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-              <Building size={160} strokeWidth={1} />
-            </div>
-            <div className="relative z-10">
-              <span className="px-3 py-1 bg-primary-600 text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm inline-block mb-4">
-                {job.modality}
-              </span>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 uppercase">
-                {job.title}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex h-8 items-center rounded-full border border-[#940dff]/18 bg-[#f3e5ff] px-3 text-[12px] font-semibold text-[#940dff]">
+                  {job.modality || 'Modalidade não informada'}
+                </span>
+                {job.is_urgent && (
+                  <span className="inline-flex h-8 items-center rounded-full border border-[#ff4b8c]/18 bg-[#ff4b8c]/10 px-3 text-[12px] font-semibold text-[#ff4b8c]">
+                    Urgente
+                  </span>
+                )}
+              </div>
+
+              <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[46px]">
+                {job.title || 'Vaga disponível'}
               </h1>
-              <p className="text-slate-300 font-semibold text-sm flex items-center gap-2">
-                Empresa Parceira <span aria-hidden="true">•</span>
-                <MapPin size={16} className="text-primary-400" />
-                {job.city && job.state ? `${job.city}, ${job.state}` : job.modality || 'Remoto'}
+              <p className="mt-3 flex flex-wrap items-center gap-2 text-[14px] font-medium text-slate-500">
+                <Building2 size={16} className="text-[#940dff]" />
+                {job.company_name || 'Empresa parceira'}
+                <span className="text-slate-300">•</span>
+                <MapPin size={16} className="text-[#940dff]" />
+                {location}
               </p>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <InfoCard icon={DollarSign} label="Remuneração" value={getSalary(job)} />
+                <InfoCard icon={Briefcase} label="Contratação" value={job.contract_type || 'Não informado'} />
+                <InfoCard icon={Clock} label="Escala" value={job.work_schedule || 'Não informado'} />
+                <InfoCard icon={Users} label="Posições" value={getPositions(job)} />
+              </div>
             </div>
+
+            <aside className="h-fit rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_18px_50px_rgba(52,50,65,0.08)]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f3e5ff] text-[#940dff]">
+                <UserPlus size={22} />
+              </div>
+              <h2 className="mt-5 text-[20px] font-semibold tracking-tight text-[#343241]">Candidate-se a esta vaga</h2>
+              <p className="mt-2 text-[13px] font-medium leading-6 text-slate-500">Crie sua conta de candidato ou entre para enviar seu currículo para esta oportunidade.</p>
+              <button
+                type="button"
+                onClick={onApply}
+                className="mt-5 h-10 w-full rounded-full bg-[#940dff] px-5 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"
+              >
+                Candidatar-se
+              </button>
+              <button
+                type="button"
+                onClick={onLogin}
+                className="mt-3 h-10 w-full rounded-full border border-[#940dff]/16 bg-[#f3e5ff] px-5 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
+              >
+                Já tenho conta
+              </button>
+              <div className="mt-5 space-y-3 border-t border-slate-200/70 pt-5">
+                <p className="flex items-center gap-2 text-[12px] font-medium text-slate-500"><CalendarDays size={15} className="text-[#940dff]" /> Publicada em {formatDate(job.created_at)}</p>
+                <p className="flex items-center gap-2 text-[12px] font-medium text-slate-500"><ShieldCheck size={15} className="text-[#63e1a5]" /> Link oficial da Colaborh</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section className="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-8 lg:grid-cols-[1fr_360px] lg:px-10 lg:py-10">
+          <div className="space-y-5">
+            <Section title="Descrição da vaga">
+              {description ? (
+                <p className="whitespace-pre-line">{description}</p>
+              ) : (
+                <p>Esta empresa ainda não adicionou uma descrição detalhada para a oportunidade.</p>
+              )}
+            </Section>
+
+            {job.responsibilities && (
+              <Section title="Responsabilidades">
+                <p className="whitespace-pre-line">{job.responsibilities}</p>
+              </Section>
+            )}
+
+            {requirements.length > 0 && (
+              <Section title="Requisitos">
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {requirements.map((requirement, index) => (
+                    <li key={`${requirement}-${index}`} className="flex items-start gap-2">
+                      <CheckCircle2 size={16} className="mt-1 shrink-0 text-[#63e1a5]" />
+                      <span>{requirement}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">
-                  Descricao da Vaga
-                </h2>
-                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line font-medium">
-                  {cleanDescription(job.description || '')}
-                </p>
+          <div className="space-y-5">
+            <Section title="Resumo">
+              <div className="space-y-4">
+                <p><span className="font-semibold text-[#343241]">Cargo:</span> {job.role || job.title || 'Não informado'}</p>
+                <p><span className="font-semibold text-[#343241]">Local:</span> {location}</p>
+                <p><span className="font-semibold text-[#343241]">Idade mínima:</span> {job.min_age || job.minAge || 18} anos</p>
+                <p><span className="font-semibold text-[#343241]">Primeiro emprego:</span> {job.is_first_job ? 'Sim' : 'Não'}</p>
+                <p><span className="font-semibold text-[#343241]">Vaga PcD:</span> {job.is_pcd ? `Sim${job.pcd_details ? ` - ${job.pcd_details}` : ''}` : 'Não'}</p>
               </div>
+            </Section>
 
-              {requirements.length > 0 && (
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                  <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">
-                    Requisitos da Vaga
-                  </h2>
-                  <ul className="grid grid-cols-1 gap-3">
-                    {requirements.map((requirement, index) => (
-                      <li key={index} className="text-sm text-slate-600 flex items-start gap-3 font-medium">
-                        <span className="text-primary-500 font-bold shrink-0 mt-0.5">•</span>
-                        <span>{requirement}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-8">
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
-                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest pb-2 border-b border-slate-100">
-                  Resumo
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
-                      <DollarSign size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Remuneracao</p>
-                      <p className="text-sm font-bold text-slate-700">{job.salary || 'A combinar'}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-highlight-50 flex items-center justify-center text-highlight-500 shrink-0">
-                      <Clock size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Idade Minima</p>
-                      <p className="text-sm font-bold text-slate-700">{job.min_age || job.minAge || 18} anos</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600 shrink-0">
-                      <Building size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Regime de Contratacao</p>
-                      <p className="text-sm font-bold text-slate-700">{job.contract_type || 'CLT'}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={onApply}
-                  className="w-full py-4 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary-200 hover:shadow-xl hover:shadow-primary-300 hover:-translate-y-0.5 active:scale-95 transition-all text-center"
-                >
-                  Candidatar-se a esta vaga
-                </button>
-                <p className="text-[9px] font-semibold text-slate-400 text-center uppercase tracking-widest italic">
-                  Faca login ou crie sua conta para enviar seu curriculo
-                </p>
-              </div>
-
-              {benefits.length > 0 && (
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">
-                    Beneficios
-                  </h3>
-                  <ul className="space-y-3">
-                    {benefits.map((benefit, index) => (
-                      <li key={index} className="text-xs text-slate-600 flex items-center gap-2.5 font-semibold">
-                        <span className="w-2 h-2 bg-emerald-500 rounded-full shrink-0" />
-                        <span>{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+            {benefits.length > 0 && (
+              <Section title="Benefícios">
+                <ul className="space-y-3">
+                  {benefits.map((benefit, index) => (
+                    <li key={`${benefit}-${index}`} className="flex items-start gap-2">
+                      <Sparkles size={15} className="mt-1 shrink-0 text-[#ffa303]" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            )}
           </div>
-        </div>
+        </section>
       </main>
 
-      <footer className="bg-slate-900 text-slate-400 py-8 border-t border-slate-800">
-        <div className="max-w-5xl mx-auto px-4 sm:px-10 text-center text-xs">
-          <p>&copy; 2026 Colabora Tecnologia Ltda. Todos os direitos reservados.</p>
+      <footer className="border-t border-slate-200/70 bg-white py-8">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 px-4 text-[12px] font-medium text-slate-400 sm:px-8 md:flex-row md:items-center lg:px-10">
+          <p>© 2026 Colaborh. Todos os direitos reservados.</p>
+          <button type="button" onClick={onBackHome} className="font-semibold text-[#940dff]">Conhecer a plataforma</button>
         </div>
       </footer>
     </div>

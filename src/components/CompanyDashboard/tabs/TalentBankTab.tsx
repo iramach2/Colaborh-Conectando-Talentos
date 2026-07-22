@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import {
-  Activity,
   Bookmark,
   Briefcase,
   DollarSign,
@@ -16,6 +15,7 @@ import type { CompanyRecord } from '../../../services/companyService';
 import type { TalentProfile } from '../../../hooks/useCompanyTalentBank';
 import type { CompanyApplicant } from '../../../types/companyDashboard';
 import { calculateAge } from '../../../utils/companyDashboardUtils';
+import { LoadingAnimation } from '../../Loader';
 
 interface TalentBankTabProps {
   filteredTalents: TalentProfile[];
@@ -121,10 +121,8 @@ export const TalentBankTab = ({
       </div>
 
       {isFetchingTalents ? (
-        <div className="rounded-2xl border border-slate-200/70 bg-white/85 px-6 py-20 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-          <Activity className="mx-auto mb-4 animate-spin text-[#940dff]" />
-          <h3 className="text-lg font-semibold tracking-tight text-[#343241]">Carregando talentos</h3>
-          <p className="mt-1 text-sm font-medium text-slate-400">Buscando perfis cadastrados.</p>
+        <div className="rounded-2xl border border-slate-200/70 bg-white/85 px-6 py-16 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+          <LoadingAnimation message="Buscando perfis cadastrados." />
         </div>
       ) : filteredTalents.length > 0 ? (
         <div className="w-full overflow-visible text-left">

@@ -2,7 +2,6 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import {
-  Activity,
   Briefcase,
   CalendarDays,
   Copy,
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react';
 import { cleanEmojiFromText } from '../../../utils/companyDashboardUtils';
 import type { CompanyJob } from '../../../types/companyDashboard';
+import { LoadingAnimation } from '../../Loader';
 
 type JobSubTab = 'active' | 'paused' | 'closed';
 
@@ -165,9 +165,8 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
         className="w-full flex flex-col gap-6"
       >
         {isFetchingJobs ? (
-          <div className="text-center py-20">
-            <Activity className="animate-spin mx-auto text-[#533af6] mb-4" />
-            <p className="text-slate-400 font-semibold text-[12px]">Carregando suas vagas...</p>
+          <div className="py-16 text-center">
+            <LoadingAnimation message="Carregando suas vagas..." />
           </div>
         ) : jobs.length > 0 ? (
           filteredJobs.length === 0 ? (

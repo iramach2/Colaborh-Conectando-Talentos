@@ -1,5 +1,6 @@
-import { FileText, Loader2, MessageSquare, Trash2 } from 'lucide-react';
+import { FileText, MessageSquare, Trash2 } from 'lucide-react';
 import type { CustomQuestionnaire } from '../../../services/customQuestionnaireService';
+import { LoadingAnimation } from '../../Loader';
 
 interface CompanyCustomAssessmentsLibraryProps {
   customTemplates: CustomQuestionnaire[];
@@ -19,9 +20,7 @@ export const CompanyCustomAssessmentsLibrary = ({
   <div className="space-y-3">
     {isLoadingCustomTemplates ? (
       <div className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200/80 bg-white/85 p-10 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-        <Loader2 size={24} className="mb-4 animate-spin text-[#940dff]" />
-        <p className="text-[13px] font-semibold text-[#343241]">Carregando question?rios</p>
-        <p className="mt-1 text-[12px] font-medium text-slate-400">Buscando sua biblioteca de testes.</p>
+        <LoadingAnimation message="Buscando sua biblioteca de testes." />
       </div>
     ) : customTemplates.length === 0 ? (
       <div className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200/80 bg-white/85 p-10 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">

@@ -1,4 +1,5 @@
-import { Loader2, type LucideIcon } from 'lucide-react';
+import { type LucideIcon } from 'lucide-react';
+import { LoadingAnimation } from '../Loader';
 
 interface SidebarItemProps {
   icon: LucideIcon;
@@ -10,16 +11,13 @@ interface SidebarItemProps {
 
 export const DashboardSectionFallback = () => (
   <div className="w-full min-h-[320px] flex items-center justify-center">
-    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
-      <Loader2 size={16} className="animate-spin text-[#533af6]" />
-      Carregando modulo...
-    </div>
+    <LoadingAnimation message="Carregando modulo..." compact />
   </div>
 );
 
 export const OverlayFallback = () => (
   <div className="fixed inset-0 z-[9999] bg-white/70 backdrop-blur-sm flex items-center justify-center">
-    <Loader2 size={24} className="animate-spin text-[#533af6]" />
+    <LoadingAnimation message="" compact />
   </div>
 );
 

@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { LoadingAnimation } from '../Loader';
 import type { CompanyApplication, CompanyJob } from '../../types/companyDashboard';
 import { getCurrentJobStages } from '../../utils/companyDashboardUtils';
 import { cleanEmojiFromText } from '../../utils/candidateVacancyText';
@@ -223,9 +224,8 @@ function AllVacanciesList({
 >) {
   if (isFetchingVacancies) {
     return (
-      <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-14 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-        <Loader2 className="mx-auto mb-4 animate-spin text-[#940dff]" size={30} />
-        <p className="text-[12px] font-semibold text-slate-400">Buscando melhores oportunidades...</p>
+      <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-12 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+        <LoadingAnimation message="Buscando melhores oportunidades..." />
       </div>
     );
   }

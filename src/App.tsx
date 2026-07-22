@@ -76,12 +76,21 @@ export default function App() {
   } = useLandingDemoSimulator();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('vaga') || params.get('jobId');
-    if (id) {
-      setSharedJobId(id);
-      loadSharedJob(id);
-    }
+    const syncSharedJobRoute = () => {
+      const id = getSharedJobIdFromLocation();
+      if (id) {
+        setSharedJobId(id);
+        loadSharedJob(id);
+        return;
+      }
+
+      setSharedJobId(null);
+      setSharedJobData(null);
+    };
+
+    syncSharedJobRoute();
+    window.addEventListener('popstate', syncSharedJobRoute);
+    return () => window.removeEventListener('popstate', syncSharedJobRoute);
   }, []);
 
   useEffect(() => {
@@ -116,7 +125,7 @@ export default function App() {
 
       if (data) {
         const s = (data.status || '').toLowerCase();
-        const isActive = s === 'active' || s === 'ativa' || s === '';
+        const isActive = ['', 'active', 'ativa', 'published', 'publicada', 'open', 'aberta'].includes(s);
         if (isActive) {
           const [hydratedJob] = await hydrateJobsWithWorkflow([data]);
           setSharedJobData(hydratedJob || data);
@@ -137,6 +146,17 @@ export default function App() {
   };
 
   const handleApplyClick = () => {
+    if (isLoggedIn && userRole === 'candidate' && sharedJobId) {
+      setSharedJobId(null);
+      pushAppPath(`/candidato/vagas?vaga=${encodeURIComponent(sharedJobId)}`);
+      return;
+    }
+
+    if (isLoggedIn && userRole === 'company') {
+      alert('Para se candidatar, entre com uma conta de candidato.');
+      return;
+    }
+
     setLoginMode('register');
     setShowLogin(true);
   };
@@ -215,22 +235,6 @@ export default function App() {
     );
   }
 
-  if (isLoggedIn && userRole === 'candidate') {
-    return (
-      <LazyScreen>
-        <CandidateDashboard onLogout={handleLogout} />
-      </LazyScreen>
-    );
-  }
-
-  if (isLoggedIn && userRole === 'company') {
-    return (
-      <LazyScreen>
-        <CompanyDashboard onLogout={handleLogout} />
-      </LazyScreen>
-    );
-  }
-
   if (showLogin) {
     return (
       <LazyScreen>
@@ -247,7 +251,7 @@ export default function App() {
     );
   }
 
-  if (!isLoggedIn && sharedJobId) {
+  if (sharedJobId) {
     const goBackHome = () => {
       setSharedJobId(null);
       pushAppPath('/', true);
@@ -262,6 +266,22 @@ export default function App() {
         onRegister={() => { setLoginMode('register'); setShowLogin(true); }}
         onApply={handleApplyClick}
       />
+    );
+  }
+
+  if (isLoggedIn && userRole === 'candidate') {
+    return (
+      <LazyScreen>
+        <CandidateDashboard onLogout={handleLogout} />
+      </LazyScreen>
+    );
+  }
+
+  if (isLoggedIn && userRole === 'company') {
+    return (
+      <LazyScreen>
+        <CompanyDashboard onLogout={handleLogout} />
+      </LazyScreen>
     );
   }
 
@@ -748,5 +768,7 @@ export default function App() {
     </div>
   );
 }
+
+
 
 

@@ -1,5 +1,6 @@
-import { CalendarDays, Clock, Loader2, Video } from 'lucide-react';
+import { CalendarDays, Clock, Video } from 'lucide-react';
 import { motion } from 'motion/react';
+import { LoadingAnimation } from '../Loader';
 import type { CompanyInterview } from '../../types/companyDashboard';
 
 interface CandidateInterviewsTabProps {
@@ -50,9 +51,8 @@ export function CandidateInterviewsTab({
       className="space-y-6 text-left"
     >
       {isFetchingInterviews ? (
-        <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-14 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-          <Loader2 className="mx-auto mb-4 animate-spin text-[#940dff]" size={30} />
-          <p className="text-[12px] font-semibold text-slate-400">Carregando suas entrevistas...</p>
+        <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-12 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+          <LoadingAnimation message="Carregando suas entrevistas..." />
         </div>
       ) : interviews.length === 0 ? (
         <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-14 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">

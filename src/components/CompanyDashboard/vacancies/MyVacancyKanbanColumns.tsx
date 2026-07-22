@@ -2,7 +2,6 @@ import React from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { createPortal } from 'react-dom';
 import {
-  Activity,
   Brain,
   CalendarDays,
   ChevronDown,
@@ -20,6 +19,7 @@ import {
   calculateAiMatchScore,
   parseCandidatePhoneData,
 } from '../../../utils/companyDashboardUtils';
+import { LoadingAnimation } from '../../Loader';
 import type { CompanyApplicant, CompanyApplication, CompanyJob } from '../../../types/companyDashboard';
 
 interface MyVacancyKanbanColumnsProps {
@@ -306,9 +306,8 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
 
   if (isFetchingApplicants) {
     return (
-      <div className="bg-white/85 backdrop-blur-md border border-white/70 p-16 rounded-2xl text-center shadow-[0_10px_30px_rgba(106,66,220,0.04)] select-none">
-        <Activity className="animate-spin mx-auto text-[#533af6] mb-4" />
-        <p className="text-slate-400 font-semibold text-[12px]">Carregando candidatos...</p>
+      <div className="bg-white/85 backdrop-blur-md border border-white/70 p-12 rounded-2xl text-center shadow-[0_10px_30px_rgba(106,66,220,0.04)] select-none">
+        <LoadingAnimation message="Carregando candidatos..." />
       </div>
     );
   }

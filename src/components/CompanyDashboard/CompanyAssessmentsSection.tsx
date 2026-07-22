@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Loader2 } from 'lucide-react';
+import { LoadingAnimation } from '../Loader';
 import type { CustomQuestionnaire } from '../../services/customQuestionnaireService';
 import type {
   CompanyApplicant,
@@ -112,11 +112,7 @@ export const CompanyAssessmentsSection = ({
       />
       {isFetchingCompanyApps ? (
         <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-slate-200/70 bg-white/85 p-10 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f3e5ff] text-[#940dff]">
-            <Loader2 size={26} className="animate-spin" />
-          </div>
-          <p className="text-[13px] font-semibold text-[#343241]">Carregando relatórios</p>
-          <p className="mt-1 text-[12px] font-medium text-slate-400">Buscando avaliações e respostas dos candidatos.</p>
+          <LoadingAnimation message="Buscando avaliacoes e respostas dos candidatos." />
         </div>
       ) : (
         renderContent()
