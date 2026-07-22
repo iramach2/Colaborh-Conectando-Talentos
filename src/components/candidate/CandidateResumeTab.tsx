@@ -28,8 +28,8 @@ export function CandidateResumeTab({
   return (
     <section className="w-full space-y-5 pb-12">
       <div className="p-0">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 items-start gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
               <FileText size={19} />
             </div>
