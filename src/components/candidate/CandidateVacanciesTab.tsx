@@ -73,6 +73,11 @@ const formatApplicationDate = (date?: string | null) => {
   return new Date(date).toLocaleDateString('pt-BR');
 };
 
+const openPublicJobPage = (job: CompanyJob) => {
+  if (!job.id) return;
+  window.location.assign('/vaga/' + encodeURIComponent(job.id));
+};
+
 export function CandidateVacanciesTab({
   activeVacancySubTab,
   setActiveVacancySubTab,
@@ -308,7 +313,7 @@ function AllVacanciesList({
                 <div className="min-w-0">
                   <button
                     type="button"
-                    onClick={() => setSelectedJobForDetails(job)}
+                    onClick={() => openPublicJobPage(job)}
                     className="block max-w-full truncate border-0 bg-transparent p-0 text-left text-[14px] font-semibold text-[#343241] transition-colors group-hover:text-[#940dff]"
                     title={title}
                   >
@@ -340,7 +345,7 @@ function AllVacanciesList({
               <div className="flex flex-wrap justify-start gap-2 lg:justify-end">
                 <button
                   type="button"
-                  onClick={() => setSelectedJobForDetails(job)}
+                  onClick={() => openPublicJobPage(job)}
                   className="h-8 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
                 >
                   Detalhes
@@ -441,7 +446,7 @@ function MyApplicationsList({
                 {job && (
                   <button
                     type="button"
-                    onClick={() => setSelectedJobForDetails(job)}
+                    onClick={() => openPublicJobPage(job)}
                     className="h-8 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
                   >
                     Ver detalhes
