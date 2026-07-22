@@ -1,5 +1,5 @@
 import { Dispatch, RefObject, SetStateAction } from 'react';
-import { Bell, LogOut, Menu, MessageSquare, Settings } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, LogOut, Menu, MessageSquare, Settings } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 interface CandidateHeaderProps {
@@ -15,6 +15,8 @@ interface CandidateHeaderProps {
   unreadChatCount: number;
   unreadNotificationsCount: number;
   onOpenMenu: () => void;
+  isSidebarExpanded: boolean;
+  setIsSidebarExpanded: (isExpanded: boolean) => void;
   onOpenChat: () => void;
   onOpenNotifications: () => void;
   onSelectSettings: () => void;
@@ -30,6 +32,8 @@ export function CandidateHeader({
   unreadChatCount,
   unreadNotificationsCount,
   onOpenMenu,
+  isSidebarExpanded,
+  setIsSidebarExpanded,
   onOpenChat,
   onOpenNotifications,
   onSelectSettings,
@@ -48,6 +52,15 @@ export function CandidateHeader({
             <Menu size={20} />
           </button>
           <img src="/logo.png" alt="Colaborh" className="h-8 w-auto shrink-0 object-contain lg:hidden" />
+          <button
+            type="button"
+            onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white/80 text-slate-400 shadow-sm transition-all hover:border-[#940dff]/20 hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95 lg:flex"
+            title={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
+            aria-label={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
+          >
+            {isSidebarExpanded ? <ChevronLeft size={18} className="stroke-[1.8]" /> : <ChevronRight size={18} className="stroke-[1.8]" />}
+          </button>
           <div className="min-w-0 text-left">
             <h1 className="truncate text-xl font-semibold tracking-tight text-[#343241]">{activeTab}</h1>
           </div>

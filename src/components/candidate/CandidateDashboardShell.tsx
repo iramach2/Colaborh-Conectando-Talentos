@@ -71,6 +71,8 @@ export function CandidateDashboardShell({
           unreadChatCount={unreadChatCount}
           unreadNotificationsCount={unreadNotificationsCount}
           onOpenMenu={() => setIsMobileSidebarOpen(true)}
+          isSidebarExpanded={isSidebarExpanded}
+          setIsSidebarExpanded={setIsSidebarExpanded}
           onOpenChat={onOpenChat}
           onOpenNotifications={onOpenNotifications}
           onSelectSettings={() => onSelectTab('Configurações')}

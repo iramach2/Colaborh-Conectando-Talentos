@@ -2,8 +2,6 @@ import {
   Brain,
   FileText,
   LogOut,
-  PanelLeftClose,
-  PanelLeftOpen,
   Settings,
   Star,
   Video,
@@ -119,14 +117,6 @@ export function CandidateNavigation({
           ) : (
             <img src="/logo-icon.png" alt="Colaborh" className="h-8 w-8 object-contain" />
           )}
-          <button
-            type="button"
-            onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-            className="absolute -right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border border-slate-100 bg-white text-slate-300 shadow-md transition-all hover:bg-[#f8f6ff] hover:text-[#940dff]"
-            title={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
-          >
-            {isSidebarExpanded ? <PanelLeftClose size={15} /> : <PanelLeftOpen size={15} />}
-          </button>
         </div>
 
         <nav className={`flex flex-1 flex-col gap-2 py-5 ${isSidebarExpanded ? 'px-3' : 'px-2'}`}>
