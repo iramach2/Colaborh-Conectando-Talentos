@@ -14,6 +14,76 @@ interface UseCandidateJobApplicationParams {
   onSuccess: (message: string, title?: string) => void;
 }
 
+const hasText = (value: unknown) => typeof value === 'string' && value.trim().length > 0;
+
+const getResumeApplicationBlockers = (resumeData: CandidateResumeData) => {
+  const blockers: string[] = [];
+
+  const personalFields = [
+    ['Nome completo', resumeData.fullName],
+    ['E-mail', resumeData.email],
+    ['Telefone', resumeData.phone],
+    ['Pretensão salarial', resumeData.salary],
+    ['Estado', resumeData.state],
+    ['Cidade', resumeData.city],
+    ['Gênero', resumeData.gender],
+    ['Data de nascimento', resumeData.birthDate],
+  ] as const;
+
+  personalFields.forEach(([label, value]) => {
+    if (!hasText(value)) blockers.push(label);
+  });
+
+  if (!hasText(resumeData.summary) || resumeData.summary.trim().length < 50) {
+    blockers.push('Resumo profissional');
+  }
+
+  if (!resumeData.skills?.some(hasText)) {
+    blockers.push('Habilidades');
+  }
+
+  const hasCompleteExperience = resumeData.experiences?.some((experience) => (
+    hasText(experience.role) &&
+    hasText(experience.company) &&
+    hasText(experience.startDate) &&
+    (experience.current || hasText(experience.endDate)) &&
+    hasText(experience.description)
+  ));
+
+  if (!resumeData.isFirstJob && !hasCompleteExperience) {
+    blockers.push('Experiência profissional ou marque Primeiro emprego');
+  }
+
+  const hasCompleteEducation = resumeData.educations?.some((education) => (
+    hasText(education.institution) &&
+    hasText(education.course) &&
+    hasText(education.status) &&
+    hasText(education.gradYear)
+  ));
+
+  if (!hasCompleteEducation) {
+    blockers.push('Formação acadêmica');
+  }
+
+  const hasCompleteLanguage = resumeData.languages?.some((language) => (
+    hasText(language.language) && hasText(language.level)
+  ));
+
+  if (!hasCompleteLanguage) {
+    blockers.push('Idiomas');
+  }
+
+  const hasCompleteAchievement = resumeData.achievements?.some((achievement) => (
+    hasText(achievement.type) && hasText(achievement.title)
+  ));
+
+  if (!hasCompleteAchievement) {
+    blockers.push('Certificações ou cursos');
+  }
+
+  return blockers;
+};
+
 export const useCandidateJobApplication = ({
   resumeData,
   appliedJobIds,
@@ -26,12 +96,17 @@ export const useCandidateJobApplication = ({
   const [isApplying, setIsApplying] = useState<string | null>(null);
 
   const handleApply = async (vacancy: CompanyJob) => {
-    const age = calculateAge(resumeData.birthDate);
+    const resumeBlockers = getResumeApplicationBlockers(resumeData);
 
-    if (!resumeData.birthDate) {
-      onError('Por favor, preencha sua data de nascimento no curriculo primeiro.', 5000);
+    if (resumeBlockers.length > 0) {
+      onError(
+        'Complete seu currículo antes de se candidatar. Pendências: ' + resumeBlockers.join(', ') + '. A seção Diversidade é opcional.',
+        9000
+      );
       return;
     }
+
+    const age = calculateAge(resumeData.birthDate);
 
     const rawMinAgeRequired = vacancy.min_age !== undefined ? vacancy.min_age : (vacancy.minAge || 16);
     const minAgeRequired = Number(rawMinAgeRequired) || 16;

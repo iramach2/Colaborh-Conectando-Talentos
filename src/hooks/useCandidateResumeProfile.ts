@@ -47,22 +47,28 @@ export const useCandidateResumeProfile = () => {
           resumeData.birthDate?.trim() &&
           resumeData.gender?.trim() &&
           resumeData.state?.trim() &&
-          resumeData.city?.trim()
+          resumeData.city?.trim() &&
+          resumeData.salary?.trim()
         );
       case 'summary':
         return !!resumeData.summary?.trim();
       case 'experience':
         return !!(resumeData.isFirstJob || (resumeData.experiences && resumeData.experiences.length > 0));
       case 'education':
-        return !!(resumeData.educations && resumeData.educations.length > 0);
+        return !!(resumeData.educations && resumeData.educations.some((education) => (
+          education.institution?.trim() &&
+          education.course?.trim() &&
+          education.status?.trim() &&
+          education.gradYear?.trim()
+        )));
       case 'skills':
-        return !!(resumeData.skills && resumeData.skills.length > 0);
+        return !!(resumeData.skills && resumeData.skills.some((skill) => skill.trim()));
       case 'languages':
-        return !!(resumeData.languages && resumeData.languages.length > 0);
+        return !!(resumeData.languages && resumeData.languages.some((language) => language.language?.trim() && language.level?.trim()));
       case 'achievements':
-        return !!(resumeData.achievements && resumeData.achievements.length > 0);
+        return !!(resumeData.achievements && resumeData.achievements.some((achievement) => achievement.type?.trim() && achievement.title?.trim()));
       case 'diversity':
-        return !!(resumeData.diversity && resumeData.diversity.consent);
+        return true;
       default:
         return false;
     }
