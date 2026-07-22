@@ -15,7 +15,7 @@ interface ResumeA4PreviewProps {
 
 export const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }: ResumeA4PreviewProps) => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif', textRendering: 'geometricPrecision', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'visible', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif', textRendering: 'geometricPrecision', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}>
       {/* Header Zone */}
       <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
         {/* Circular Photo */}

@@ -11,7 +11,7 @@ interface CompanyHiddenResumePrintProps {
 
 export function CompanyResumeA4Document({ applicant }: { applicant: CompanyApplicant }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', boxSizing: 'border-box' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '297mm', width: '210mm', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'visible', boxSizing: 'border-box' }}>
       <div style={{ backgroundImage: 'linear-gradient(90deg, #5b36ff 0%, #8b6aff 100%)', backgroundColor: '#7044ff', width: '100%', height: '160px', position: 'relative', display: 'flex', items: 'center', boxSizing: 'border-box' }}>
         <div style={{ position: 'absolute', left: '50px', top: '75px', zIndex: 100 }}>
           <div style={{ width: '170px', height: '170px', borderRadius: '50%', border: '6px solid #FFFFFF', overflow: 'hidden', backgroundColor: '#e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>

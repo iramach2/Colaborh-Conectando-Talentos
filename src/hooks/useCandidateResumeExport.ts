@@ -35,14 +35,22 @@ export const useCandidateResumeExport = ({
       element.style.opacity = '1';
       element.style.visibility = 'visible';
       element.style.background = 'white';
+      element.style.height = 'auto';
+      element.style.minHeight = '297mm';
+      element.style.overflow = 'visible';
+
+      const captureWidth = element.scrollWidth || element.offsetWidth;
+      const captureHeight = element.scrollHeight || element.offsetHeight;
 
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: 210 * 3.78,
-        windowHeight: 297 * 3.78,
+        width: captureWidth,
+        height: captureHeight,
+        windowWidth: captureWidth,
+        windowHeight: captureHeight,
         onclone: (clonedDoc) => {
           const style = clonedDoc.createElement('style');
           style.innerHTML = `
@@ -106,8 +114,21 @@ export const useCandidateResumeExport = ({
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+      let heightLeft = pdfHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight, undefined, 'FAST');
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight, undefined, 'FAST');
+        heightLeft -= pageHeight;
+      }
+
       pdf.save(`Curriculo_${(candidateName || 'Candidato').replace(/\s+/g, '_').toUpperCase()}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
