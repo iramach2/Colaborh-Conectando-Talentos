@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}" > .env
           echo "VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}" >> .env
-          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "VITE_RESUME_PARSE_ENDPOINT=https://ukxqctjmvrpejgjijtxe.supabase.co/functions/v1/parse-resume" >> .env
 
       - name: Build Application
         run: npm run build
