@@ -208,29 +208,7 @@ export function CandidateNavigation({
         </div>
       </aside>
 
-      <div className="fixed bottom-6 left-1/2 z-50 flex h-14 w-[92%] max-w-[420px] -translate-x-1/2 items-center justify-between rounded-full border border-white/15 p-1.5 shadow-[0_10px_30px_rgba(83,58,246,0.25)] backdrop-blur-md lg:hidden" style={{ background: 'linear-gradient(to bottom, rgba(144, 18, 252, 0.75), rgba(87, 58, 247, 0.75))' }}>
-        {navigationItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.label;
 
-          return (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => selectTab(item.label)}
-              className={`relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent transition-all duration-300 ${
-                isActive ? 'scale-105 bg-white text-[#940dff] shadow-md' : 'text-white/70 hover:text-white'
-              }`}
-              title={item.label}
-            >
-              <Icon size={20} className="stroke-[2.2]" />
-              {item.label === 'Testes' && pendingTestsCount > 0 && (
-                <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full border border-white bg-[#ff4b8c]" />
-              )}
-            </button>
-          );
-        })}
-      </div>
     </>
   );
 }
