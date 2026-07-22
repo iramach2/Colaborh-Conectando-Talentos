@@ -1,15 +1,38 @@
 import { GoogleGenAI, Type } from 'npm:@google/genai';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': Deno.env.get('ALLOWED_ORIGIN') || '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+const defaultAllowedOrigins = [
+  'https://colaborh.com.br',
+  'https://www.colaborh.com.br',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
+const getAllowedOrigins = () => {
+  const configuredOrigins = Deno.env.get('ALLOWED_ORIGIN')
+    ?.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  return configuredOrigins?.length ? configuredOrigins : defaultAllowedOrigins;
+};
+const getCorsHeaders = (req: Request) => {
+  const allowedOrigins = getAllowedOrigins();
+  const requestOrigin = req.headers.get('Origin') || '';
+  const allowOrigin = allowedOrigins.includes('*')
+    ? '*'
+    : allowedOrigins.includes(requestOrigin)
+      ? requestOrigin
+      : allowedOrigins[0];
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
 };
 
-const jsonResponse = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
+const jsonResponse = (req: Request, body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
   headers: {
-    ...corsHeaders,
+    ...getCorsHeaders(req),
     'Content-Type': 'application/json',
   },
 });
@@ -21,24 +44,24 @@ const parseJsonFromText = (text: string) => {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: getCorsHeaders(req) });
   }
 
   if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+    return jsonResponse(req, { error: 'Method not allowed' }, 405);
   }
 
   try {
     const apiKey = Deno.env.get('GEMINI_API_KEY');
     if (!apiKey) {
-      return jsonResponse({ error: 'GEMINI_API_KEY is not configured' }, 500);
+      return jsonResponse(req, { error: 'GEMINI_API_KEY is not configured' }, 500);
     }
 
     const { transcript, candidateName, jobTitle, companyName } = await req.json();
     const transcriptText = String(transcript || '').trim();
 
     if (transcriptText.length < 20) {
-      return jsonResponse({ error: 'Transcript is too short to analyze' }, 400);
+      return jsonResponse(req, { error: 'Transcript is too short to analyze' }, 400);
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -71,9 +94,9 @@ Deno.serve(async (req) => {
     const text = result.text || '';
     const report = parseJsonFromText(text);
 
-    return jsonResponse({ report });
+    return jsonResponse(req, { report });
   } catch (error) {
     console.error('Interview analysis failed', error);
-    return jsonResponse({ error: error instanceof Error ? error.message : 'Interview analysis failed' }, 500);
+    return jsonResponse(req, { error: error instanceof Error ? error.message : 'Interview analysis failed' }, 500);
   }
 });

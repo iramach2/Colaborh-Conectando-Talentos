@@ -1,9 +1,32 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': Deno.env.get('ALLOWED_ORIGIN') || '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+const defaultAllowedOrigins = [
+  'https://colaborh.com.br',
+  'https://www.colaborh.com.br',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
+const getAllowedOrigins = () => {
+  const configuredOrigins = Deno.env.get('ALLOWED_ORIGIN')
+    ?.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  return configuredOrigins?.length ? configuredOrigins : defaultAllowedOrigins;
+};
+const getCorsHeaders = (req: Request) => {
+  const allowedOrigins = getAllowedOrigins();
+  const requestOrigin = req.headers.get('Origin') || '';
+  const allowOrigin = allowedOrigins.includes('*')
+    ? '*'
+    : allowedOrigins.includes(requestOrigin)
+      ? requestOrigin
+      : allowedOrigins[0];
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
 };
 
 type ParseResumeRequest = {
@@ -50,11 +73,11 @@ const resumeSchema = {
   },
 };
 
-const jsonResponse = (body: unknown, status = 200) =>
+const jsonResponse = (req: Request, body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: {
-      ...corsHeaders,
+      ...getCorsHeaders(req),
       'Content-Type': 'application/json',
     },
   });
@@ -70,11 +93,11 @@ const summarizeGeminiError = (detail: string) => {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: getCorsHeaders(req) });
   }
 
   if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+    return jsonResponse(req, { error: 'Method not allowed' }, 405);
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -82,11 +105,11 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get('Authorization');
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    return jsonResponse({ error: 'Supabase auth environment is not configured' }, 500);
+    return jsonResponse(req, { error: 'Supabase auth environment is not configured' }, 500);
   }
 
   if (!authHeader) {
-    return jsonResponse({ error: 'Authentication required' }, 401);
+    return jsonResponse(req, { error: 'Authentication required' }, 401);
   }
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -99,26 +122,26 @@ Deno.serve(async (req) => {
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
-    return jsonResponse({ error: 'Invalid authentication token' }, 401);
+    return jsonResponse(req, { error: 'Invalid authentication token' }, 401);
   }
 
   const apiKey = Deno.env.get('GEMINI_API_KEY');
   if (!apiKey) {
-    return jsonResponse({ error: 'GEMINI_API_KEY is not configured' }, 500);
+    return jsonResponse(req, { error: 'GEMINI_API_KEY is not configured' }, 500);
   }
 
   let payload: ParseResumeRequest;
   try {
     payload = await req.json();
   } catch {
-    return jsonResponse({ error: 'Invalid JSON body' }, 400);
+    return jsonResponse(req, { error: 'Invalid JSON body' }, 400);
   }
 
   const mimeType = payload.mimeType || '';
   const data = payload.data || '';
 
   if (!data || !mimeType) {
-    return jsonResponse({ error: 'Missing file data or MIME type' }, 400);
+    return jsonResponse(req, { error: 'Missing file data or MIME type' }, 400);
   }
 
   const allowedMimeTypes = new Set([
@@ -131,11 +154,11 @@ Deno.serve(async (req) => {
   ]);
 
   if (!allowedMimeTypes.has(mimeType)) {
-    return jsonResponse({ error: 'Unsupported file type' }, 415);
+    return jsonResponse(req, { error: 'Unsupported file type' }, 415);
   }
 
   if (data.length > 10 * 1024 * 1024) {
-    return jsonResponse({ error: 'File is too large for resume parsing' }, 413);
+    return jsonResponse(req, { error: 'File is too large for resume parsing' }, 413);
   }
 
   const model = Deno.env.get('GEMINI_MODEL') || 'gemini-2.0-flash';
@@ -181,7 +204,7 @@ Deno.serve(async (req) => {
       fileName: payload.fileName || 'unknown',
       detail: summarizeGeminiError(detail),
     });
-    return jsonResponse({
+    return jsonResponse(req, {
       error: 'Gemini request failed',
       detail: summarizeGeminiError(detail),
     }, 502);
@@ -191,12 +214,12 @@ Deno.serve(async (req) => {
   const text = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!text) {
-    return jsonResponse({ error: 'Gemini returned an empty response' }, 502);
+    return jsonResponse(req, { error: 'Gemini returned an empty response' }, 502);
   }
 
   try {
-    return jsonResponse(JSON.parse(text));
+    return jsonResponse(req, JSON.parse(text));
   } catch {
-    return jsonResponse({ error: 'Gemini returned invalid JSON', detail: text }, 502);
+    return jsonResponse(req, { error: 'Gemini returned invalid JSON', detail: text }, 502);
   }
 });
