@@ -51,7 +51,6 @@ export function CandidateHeader({
           >
             <Menu size={20} />
           </button>
-          <img src="/logo.png" alt="Colaborh" className="h-8 w-auto shrink-0 object-contain lg:hidden" />
           <button
             type="button"
             onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
@@ -97,7 +96,7 @@ export function CandidateHeader({
 
           <div className="hidden h-6 w-px bg-slate-200 md:block" />
 
-          <div className="relative" ref={profileMenuRef}>
+          <div className="relative hidden lg:block" ref={profileMenuRef}>
             <button
               type="button"
               onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}

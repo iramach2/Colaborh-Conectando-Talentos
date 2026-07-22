@@ -156,11 +156,10 @@ export function CandidateNavigation({
         </div>
       </aside>
 
-      <aside className={`fixed z-[100] flex h-full w-64 flex-col border-r border-slate-200 bg-white p-6 shadow-2xl transition-all duration-300 lg:hidden ${
+      <aside className={`fixed z-[100] flex h-full w-64 flex-col rounded-l-none rounded-r-3xl border-r border-slate-200 bg-white p-6 shadow-2xl transition-all duration-300 lg:hidden ${
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="mb-8 flex w-full items-center justify-between">
-          <img src="/logo.png" alt="Colaborh" className="h-9 w-auto" />
+        <div className="mb-8 flex w-full items-center justify-end">
           <button
             type="button"
             onClick={() => setIsMobileSidebarOpen(false)}
