@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import type { CandidateEducation, CandidateExperience, CandidateResumeData } from '../types/candidate';
+import type { CandidateAchievement, CandidateEducation, CandidateExperience, CandidateLanguage, CandidateResumeData } from '../types/candidate';
 
 const Type = {
   OBJECT: 'object',
@@ -85,6 +85,47 @@ const firstArray = (...values: unknown[]) => {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
+const normalizeBoolean = (value: unknown) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value === 1;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    return ['sim', 's', 'true', '1', 'pcd', 'pessoa com deficiencia', 'pessoa com deficiência'].includes(normalized);
+  }
+  return false;
+};
+
+const normalizeDate = (value: unknown) => {
+  const raw = firstString(value);
+  if (!raw) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  const brDate = raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+  if (brDate) {
+    const [, day, month, year] = brDate;
+    const normalizedYear = year.length === 2 ? '19' + year : year;
+    return normalizedYear.padStart(4, '0') + '-' + month.padStart(2, '0') + '-' + day.padStart(2, '0');
+  }
+
+  return raw;
+};
+
+const normalizeLanguageLevel = (value: unknown) => {
+  const level = firstString(value).toLowerCase();
+  if (level.includes('flu')) return 'Fluente';
+  if (level.includes('avan')) return 'Avançado';
+  if (level.includes('inter')) return 'Intermediário';
+  return 'Básico';
+};
+
+const normalizeAchievementType = (value: unknown) => {
+  const type = firstString(value).toLowerCase();
+  if (type.includes('cert')) return 'Certificado';
+  if (type.includes('recon')) return 'Reconhecimento';
+  if (type.includes('volunt')) return 'Trabalho Voluntário';
+  return 'Curso';
+};
+
 const normalizeExperience = (value: unknown): CandidateExperience | null => {
   if (!isRecord(value)) return null;
 
@@ -99,7 +140,7 @@ const normalizeExperience = (value: unknown): CandidateExperience | null => {
     duration,
     startDate,
     endDate,
-    current: Boolean(value.current),
+    current: normalizeBoolean(value.current),
     description: firstString(value.description, value.descricao, value.activities, value.atividades),
   };
 };
@@ -113,6 +154,41 @@ const normalizeEducation = (value: unknown): CandidateEducation | null => {
     institution: firstString(value.institution, value.instituicao, value.school),
     status: firstString(value.status, value.situacao),
     gradYear: firstString(value.gradYear, value.year, value.ano),
+  };
+};
+
+const normalizeLanguage = (value: unknown): CandidateLanguage | null => {
+  if (typeof value === 'string') {
+    const language = value.trim();
+    return language ? { id: crypto.randomUUID(), language, level: 'Básico' } : null;
+  }
+  if (!isRecord(value)) return null;
+
+  const language = firstString(value.language, value.idioma, value.name, value.nome);
+  if (!language) return null;
+
+  return {
+    id: crypto.randomUUID(),
+    language,
+    level: normalizeLanguageLevel(value.level ?? value.nivel ?? value.proficiency),
+  };
+};
+
+const normalizeAchievement = (value: unknown): CandidateAchievement | null => {
+  if (typeof value === 'string') {
+    const title = value.trim();
+    return title ? { id: crypto.randomUUID(), type: 'Curso', title, description: '' } : null;
+  }
+  if (!isRecord(value)) return null;
+
+  const title = firstString(value.title, value.titulo, value.course, value.curso, value.name, value.nome);
+  if (!title) return null;
+
+  return {
+    id: crypto.randomUUID(),
+    type: normalizeAchievementType(value.type ?? value.tipo),
+    title,
+    description: firstString(value.description, value.descricao, value.institution, value.instituicao, value.issuer, value.emissor),
   };
 };
 
@@ -147,7 +223,7 @@ export const useCandidateResumeParser = ({
       const prompt = `Extraia os dados deste curriculo para o formato JSON solicitado.
       Certifique-se de que o resumo tenha pelo menos 300 caracteres.
       Traduza status de educacao para: 'Completo', 'Incompleto' ou 'Cursando'.
-      Extraia apenas o telefone, estado (sigla UF), cidade, nome completo, resumo, habilidades (lista de strings), experiencias e formacoes.`;
+      Extraia telefone, e-mail, estado (sigla UF), cidade, nome completo, data de nascimento, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -196,13 +272,20 @@ export const useCandidateResumeParser = ({
 
       const parsed = JSON.parse(response.text) as Record<string, unknown>;
       const fullName = firstString(parsed.fullName, parsed.name, parsed.nome, parsed.nomeCompleto);
+      const email = firstString(parsed.email, parsed.eMail, parsed.mail);
       const phone = firstString(parsed.phone, parsed.telefone, parsed.whatsapp, parsed.mobile);
       const state = firstString(parsed.state, parsed.uf, parsed.estado).toUpperCase();
       const city = firstString(parsed.city, parsed.cidade);
+      const birthDate = normalizeDate(parsed.birthDate ?? parsed.birth_date ?? parsed.dataNascimento ?? parsed.nascimento);
+      const gender = firstString(parsed.gender, parsed.genero, parsed.sexo);
+      const salary = firstString(parsed.salary, parsed.salario, parsed.pretensaoSalarial, parsed.pretensao_salarial);
+      const isPcd = normalizeBoolean(parsed.isPcd ?? parsed.is_pcd ?? parsed.pcd);
       const summary = firstString(parsed.summary, parsed.resumo, parsed.profile, parsed.perfil);
       const skills = firstArray(parsed.skills, parsed.habilidades, parsed.competencias);
       const experiences = firstArray(parsed.experiences, parsed.experiencias, parsed.experience);
       const educations = firstArray(parsed.educations, parsed.formacoes, parsed.education, parsed.educacao);
+      const languages = firstArray(parsed.languages, parsed.idiomas);
+      const achievements = firstArray(parsed.achievements, parsed.certificacoes, parsed.certifications, parsed.cursos, parsed.conquistas);
       const normalizedSkills = skills.filter((skill): skill is string => typeof skill === 'string' && skill.trim().length > 0);
       const normalizedExperiences = experiences
         .map(normalizeExperience)
@@ -210,15 +293,28 @@ export const useCandidateResumeParser = ({
       const normalizedEducations = educations
         .map(normalizeEducation)
         .filter((education): education is CandidateEducation => Boolean(education));
+      const normalizedLanguages = languages
+        .map(normalizeLanguage)
+        .filter((language): language is CandidateLanguage => Boolean(language));
+      const normalizedAchievements = achievements
+        .map(normalizeAchievement)
+        .filter((achievement): achievement is CandidateAchievement => Boolean(achievement));
       const hasExtractedData = Boolean(
         fullName ||
+        email ||
         phone ||
         state ||
         city ||
+        birthDate ||
+        gender ||
+        salary ||
+        isPcd ||
         summary ||
         normalizedSkills.length ||
         normalizedExperiences.length ||
-        normalizedEducations.length
+        normalizedEducations.length ||
+        normalizedLanguages.length ||
+        normalizedAchievements.length
       );
 
       if (!hasExtractedData) {
@@ -228,14 +324,21 @@ export const useCandidateResumeParser = ({
       onParsed((prev) => ({
         ...prev,
         fullName: (fullName || prev.fullName).toUpperCase(),
+        email: email || prev.email,
         phone: phone || prev.phone,
         state: brazilStates.includes(state) ? state : prev.state,
         city: city || prev.city,
+        birthDate: birthDate || prev.birthDate,
+        gender: gender || prev.gender,
+        salary: salary || prev.salary,
+        isPcd: isPcd || prev.isPcd,
         summary: summary || prev.summary,
         skills: normalizedSkills.length ? normalizedSkills : prev.skills,
         experiences: normalizedExperiences.length ? normalizedExperiences : prev.experiences,
         educations: normalizedEducations.length ? normalizedEducations : prev.educations,
-        isFirstJob: normalizedExperiences.length === 0 ? prev.isFirstJob : false,
+        languages: normalizedLanguages.length ? normalizedLanguages : prev.languages,
+        achievements: normalizedAchievements.length ? normalizedAchievements : prev.achievements,
+        isFirstJob: normalizedExperiences.length > 0 ? false : prev.isFirstJob,
       }));
       onSuccess('Dados extraidos com sucesso. Revise as informacoes antes de salvar.', 'Curriculo preenchido');
     } catch (error) {

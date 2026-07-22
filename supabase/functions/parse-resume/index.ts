@@ -39,9 +39,14 @@ const resumeSchema = {
   type: 'OBJECT',
   properties: {
     fullName: { type: 'STRING' },
+    email: { type: 'STRING' },
     phone: { type: 'STRING' },
     state: { type: 'STRING' },
     city: { type: 'STRING' },
+    birthDate: { type: 'STRING' },
+    gender: { type: 'STRING' },
+    salary: { type: 'STRING' },
+    isPcd: { type: 'BOOLEAN' },
     summary: { type: 'STRING' },
     skills: { type: 'ARRAY', items: { type: 'STRING' } },
     experiences: {
@@ -67,6 +72,27 @@ const resumeSchema = {
           course: { type: 'STRING' },
           status: { type: 'STRING', enum: ['Incompleto', 'Completo', 'Cursando'] },
           gradYear: { type: 'STRING' },
+        },
+      },
+    },
+    languages: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          language: { type: 'STRING' },
+          level: { type: 'STRING' },
+        },
+      },
+    },
+    achievements: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          type: { type: 'STRING' },
+          title: { type: 'STRING' },
+          description: { type: 'STRING' },
         },
       },
     },
@@ -165,11 +191,13 @@ Deno.serve(async (req) => {
   const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const prompt = [
-    'Extraia os dados deste curriculo para o formato JSON solicitado.',
+    'Extraia os dados deste curriculo para o formato JSON solicitado, preenchendo todos os campos encontrados no arquivo.',
     'O resumo deve ter pelo menos 300 caracteres quando houver informacao suficiente.',
     "Traduza status de educacao para: 'Completo', 'Incompleto' ou 'Cursando'.",
-    'Extraia apenas telefone, estado como sigla UF, cidade, nome completo, resumo, habilidades, experiencias e formacoes.',
-    'Se um campo nao estiver presente, retorne string vazia ou lista vazia.',
+    "Para idiomas, traduza o nivel para: 'Básico', 'Intermediário', 'Avançado' ou 'Fluente'.",
+    "Para cursos, certificados e reconhecimentos, use achievements com type: 'Curso', 'Certificado', 'Reconhecimento' ou 'Trabalho Voluntário'.",
+    'Extraia nome completo, e-mail, telefone, estado como sigla UF, cidade, data de nascimento no formato YYYY-MM-DD, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos.',
+    'Se um campo nao estiver presente, retorne string vazia, false para booleanos ou lista vazia.',
   ].join(' ');
 
   const geminiResponse = await fetch(geminiUrl, {
