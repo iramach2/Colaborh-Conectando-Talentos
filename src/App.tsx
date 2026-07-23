@@ -31,6 +31,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import Loader from './components/Loader';
 import { SharedJobPage } from './components/SharedJobPage';
+import { PublicJobsPage } from './components/PublicJobsPage';
 import { supabase } from './lib/supabase';
 import { hydrateJobsWithWorkflow } from './services/jobWorkflowService';
 import { fetchJobById } from './services/jobService';
@@ -162,6 +163,22 @@ export default function App() {
   };
 
 
+  const handlePublicJobApply = (job: CompanyJob) => {
+    if (isLoggedIn && userRole === 'candidate' && job.id) {
+      pushAppPath(`/candidato/vagas?vaga=${encodeURIComponent(job.id)}`);
+      return;
+    }
+
+    if (isLoggedIn && userRole === 'company') {
+      alert('Para se candidatar, entre com uma conta de candidato.');
+      return;
+    }
+
+    setLoginMode('register');
+    setShowLogin(true);
+  };
+
+  const isPublicJobsRoute = typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/vagas';
   const handleLogout = useCallback(async () => {
     try {
       await supabase.auth.signOut();
@@ -251,6 +268,16 @@ export default function App() {
     );
   }
 
+  if (isPublicJobsRoute) {
+    return (
+      <PublicJobsPage
+        onBackHome={() => pushAppPath('/', true)}
+        onLogin={() => { setLoginMode('login'); setShowLogin(true); pushAppPath('/login'); }}
+        onRegister={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
+        onApply={handlePublicJobApply}
+      />
+    );
+  }
   if (sharedJobId) {
     const goBackHome = () => {
       setSharedJobId(null);

@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'motion/react';
 import {
   Bookmark,
-  Briefcase,
   DollarSign,
   Filter,
   Mail,
@@ -126,12 +125,11 @@ export const TalentBankTab = ({
         </div>
       ) : filteredTalents.length > 0 ? (
         <div className="w-full overflow-visible text-left">
-          <div className="hidden xl:grid grid-cols-[minmax(260px,1.1fr)_minmax(130px,0.7fr)_90px_minmax(120px,0.7fr)_minmax(180px,0.9fr)_minmax(170px,0.8fr)_190px] items-center gap-3 px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+          <div className="hidden xl:grid grid-cols-[minmax(260px,1.2fr)_minmax(150px,0.8fr)_90px_minmax(130px,0.75fr)_minmax(190px,0.9fr)_190px] items-center gap-3 px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-slate-500">
             <span>Candidato</span>
             <span className="inline-flex items-center justify-center gap-1.5"><MapPin size={12} /> Local</span>
             <span className="text-center">Idade</span>
             <span className="inline-flex items-center justify-center gap-1.5"><DollarSign size={12} /> Pretensão</span>
-            <span className="inline-flex items-center justify-center gap-1.5"><Briefcase size={12} /> Habilidades</span>
             <span className="text-center">Contato</span>
             <span className="sr-only">Ações</span>
           </div>
@@ -141,7 +139,6 @@ export const TalentBankTab = ({
               const isSaved = selectedCompany?.savedTalents?.includes(talent.id) || false;
               const age = getAge(talent);
               const rowKey = talent.id || `${talent.email}-${index}`;
-              const skills = Array.isArray(talent.skills) ? talent.skills.filter(Boolean) : [];
 
               return (
                 <motion.div
@@ -192,26 +189,6 @@ export const TalentBankTab = ({
                         <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{talent.phone || 'N?o informado'}</p>
                       </div>
                     </div>
-
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {skills.length > 0 ? (
-                        <>
-                          {skills.slice(0, 2).map((skill) => (
-                            <span key={skill} className="rounded-lg border border-[#940dff]/12 bg-[#f3e5ff] px-2 py-1 text-[10px] font-semibold text-[#940dff]">
-                              {skill}
-                            </span>
-                          ))}
-                          {skills.length > 2 && (
-                            <span className="rounded-lg bg-white px-2 py-1 text-[10px] font-semibold text-slate-400">
-                              +{skills.length - 2}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-[12px] font-medium text-slate-400">N?o informadas</span>
-                      )}
-                    </div>
-
                     <p className="mt-3 truncate text-[11px] font-medium text-slate-500"><Mail size={12} className="mr-1 inline text-slate-400" />{talent.email || 'E-mail n?o informado'}</p>
 
                     <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
@@ -259,7 +236,7 @@ export const TalentBankTab = ({
                     </div>
                   </div>
 
-                  <div className="hidden gap-3 xl:grid xl:grid-cols-[minmax(260px,1.1fr)_minmax(130px,0.7fr)_90px_minmax(120px,0.7fr)_minmax(180px,0.9fr)_minmax(170px,0.8fr)_190px] xl:items-center">
+                  <div className="hidden gap-3 xl:grid xl:grid-cols-[minmax(260px,1.2fr)_minmax(150px,0.8fr)_90px_minmax(130px,0.75fr)_minmax(190px,0.9fr)_190px] xl:items-center">
                     <button
                       type="button"
                       onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
@@ -286,26 +263,6 @@ export const TalentBankTab = ({
                     <span className="truncate text-center text-[12px] font-medium text-slate-500">{getLocation(talent)}</span>
                     <span className="text-center text-[12px] font-medium text-slate-500">{age ? `${age} anos` : 'Não informada'}</span>
                     <span className="truncate text-center text-[12px] font-medium text-slate-500">{talent.salary || 'Não informada'}</span>
-
-                    <div className="flex flex-wrap justify-center gap-1.5">
-                      {skills.length > 0 ? (
-                        <>
-                          {skills.slice(0, 2).map((skill) => (
-                            <span key={skill} className="rounded-lg border border-[#940dff]/12 bg-[#f3e5ff] px-2 py-1 text-[10px] font-semibold text-[#940dff]">
-                              {skill}
-                            </span>
-                          ))}
-                          {skills.length > 2 && (
-                            <span className="rounded-lg bg-white px-2 py-1 text-[10px] font-semibold text-slate-400">
-                              +{skills.length - 2}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-[12px] font-medium text-slate-400">Não informadas</span>
-                      )}
-                    </div>
-
                     <div className="min-w-0 space-y-1 text-center">
                       <p className="truncate text-[11px] font-medium text-slate-500"><Mail size={12} className="mr-1 inline text-slate-400" />{talent.email || 'E-mail não informado'}</p>
                       <p className="truncate text-[11px] font-medium text-slate-400"><Phone size={12} className="mr-1 inline text-slate-400" />{talent.phone || 'Telefone não informado'}</p>
