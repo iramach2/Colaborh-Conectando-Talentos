@@ -24,10 +24,11 @@ export function CandidateDiscAssessmentStep({
   setDiscErrorMessage,
   handleFinishDISCTest,
 }: CandidateDiscAssessmentStepProps) {
+  const totalQuestions = perguntasDISC.length;
   const block = perguntasDISC[currentBlockIndex];
   const currentAns = discAnswers[currentBlockIndex] || { D: null, I: null, S: null, C: null };
   const isBlockValid = currentAns.D !== null && currentAns.I !== null && currentAns.S !== null && currentAns.C !== null;
-  const progressPercent = Math.round(((currentBlockIndex + 1) / 25) * 100);
+  const progressPercent = totalQuestions > 0 ? Math.round(((currentBlockIndex + 1) / totalQuestions) * 100) : 0;
 
   const handleSelectRank = (factorKey: DiscFactor, rank: number) => {
     setDiscAnswers((prev) => prev.map((ans, idx) => {
@@ -51,6 +52,14 @@ export function CandidateDiscAssessmentStep({
     }));
   };
 
+  if (!block) {
+    return (
+      <section className="mx-auto max-w-4xl rounded-2xl border border-[#ff4b8c]/20 bg-white/85 p-6 text-left shadow-[0_10px_28px_rgba(15,23,42,0.035)] md:p-7">
+        <p className="text-[14px] font-semibold text-[#ff4b8c]">Não foi possível carregar esta pergunta.</p>
+      </section>
+    );
+  }
+
   const factorsList: Array<{ key: DiscFactor; text: string }> = [
     { key: 'D', text: block.opcoes.D },
     { key: 'I', text: block.opcoes.I },
@@ -63,10 +72,13 @@ export function CandidateDiscAssessmentStep({
       <header>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <span className="inline-flex h-7 items-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-3 text-[11px] font-semibold text-[#940dff]">
-              Pergunta {currentBlockIndex + 1} de 25
+            <span className="inline-flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff]">
+              <span>Pergunta</span>
+              <strong>{currentBlockIndex + 1}</strong>
+              <span>de</span>
+              <strong>{totalQuestions}</strong>
             </span>
-            <h2 className="mt-3 text-[20px] font-semibold tracking-tight text-[#343241]">{block.pergunta}</h2>
+            <h2 className="mt-3 max-w-full break-words text-[22px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-[24px]">{block.pergunta}</h2>
           </div>
           <span className="text-[12px] font-semibold text-slate-400">{progressPercent}% concluído</span>
         </div>
@@ -135,13 +147,13 @@ export function CandidateDiscAssessmentStep({
               return;
             }
             setDiscErrorMessage(null);
-            if (currentBlockIndex < 24) setCurrentBlockIndex((prev) => prev + 1);
+            if (currentBlockIndex < totalQuestions - 1) setCurrentBlockIndex((prev) => prev + 1);
             else handleFinishDISCTest();
           }}
           disabled={!isBlockValid}
           className="h-8 rounded-xl bg-[#940dff] px-5 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
         >
-          {currentBlockIndex === 24 ? 'Finalizar teste' : 'Próxima questão'}
+          {currentBlockIndex === totalQuestions - 1 ? 'Finalizar teste' : 'Próxima questão'}
         </button>
       </footer>
     </section>

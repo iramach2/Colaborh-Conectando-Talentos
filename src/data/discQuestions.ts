@@ -1,6 +1,6 @@
 export const perguntasDISC = [
   {
-    pergunta: "Tende a agir de forma...",
+    pergunta: "No dia a dia, você tende a agir de forma mais...",
     opcoes: {
       D: "Assertiva",
       I: "Persuasiva",
@@ -9,7 +9,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Confortável com...",
+    pergunta: "Você se sente mais confortável quando pode...",
     opcoes: {
       D: "Ser decisivo",
       I: "Amizade social",
@@ -18,7 +18,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Desejo de...",
+    pergunta: "Em um ambiente de trabalho, você costuma desejar mais...",
     opcoes: {
       D: "Variedade",
       I: "Menos estrutura",
@@ -27,7 +27,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Sob estresse pode se tornar...",
+    pergunta: "Sob estresse, você pode se tornar mais...",
     opcoes: {
       D: "Ditatorial",
       I: "Sarcástico",
@@ -36,7 +36,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Característica principal...",
+    pergunta: "Qual característica principal combina mais com você?",
     opcoes: {
       D: "Franco",
       I: "Otimista",
@@ -45,34 +45,34 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Quando em conflito, esse estilo…",
+    pergunta: "Quando está em conflito, você tende a...",
     opcoes: {
-      D: "Demanda ação",
-      I: "Ataca",
-      S: "Reclama",
-      C: "Evita"
+      D: "Demandar ação",
+      I: "Atacar",
+      S: "Reclamar",
+      C: "Evitar"
     }
   },
   {
-    pergunta: "Força aparente...",
+    pergunta: "Qual força costuma aparecer mais no seu perfil?",
     opcoes: {
       D: "Solucionador de problemas",
       I: "Encorajador",
-      S: "Supporter",
+      S: "Apoiador",
       C: "Organizador"
     }
   },
   {
-    pergunta: "Com erros...",
+    pergunta: "Quando percebe erros, você tende a...",
     opcoes: {
-      D: "Informa o erro diretamente",
-      I: "Chama a pessoa e explica o erro",
-      S: "Fica calado e aceita o erro",
-      C: "Se incomoda e questiona"
+      D: "Informar o erro diretamente",
+      I: "Chamar a pessoa e explicar o erro",
+      S: "Ficar calado e aceitar o erro",
+      C: "Se incomodar e questionar"
     }
   },
   {
-    pergunta: "Sob estresse pode se tornar...",
+    pergunta: "Sob pressão, você pode parecer mais...",
     opcoes: {
       D: "Crítico",
       I: "Superficial",
@@ -81,7 +81,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Pode ser considerado...",
+    pergunta: "Em alguns momentos, você pode ser visto como...",
     opcoes: {
       D: "Impaciente",
       I: "Inoportuno",
@@ -90,7 +90,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Necessita de....",
+    pergunta: "Para trabalhar melhor, você precisa de...",
     opcoes: {
       D: "Controle",
       I: "Aprovação",
@@ -99,7 +99,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Limitação desse perfil...",
+    pergunta: "Qual limitação pode aparecer mais no seu perfil?",
     opcoes: {
       D: "Direto",
       I: "Desorganizado",
@@ -108,7 +108,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Possui medo de...",
+    pergunta: "Qual destes medos pesa mais para você?",
     opcoes: {
       D: "Perder",
       I: "Rejeição",
@@ -117,7 +117,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Mensura desempenho com...",
+    pergunta: "Você costuma medir desempenho principalmente por...",
     opcoes: {
       D: "Resultados",
       I: "Reconhecimento",
@@ -126,7 +126,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Com subalternos, costuma ser...",
+    pergunta: "Com pessoas sob sua orientação, você costuma ser mais...",
     opcoes: {
       D: "Orgulhoso",
       I: "Permissivo",
@@ -135,7 +135,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Abordagem primária...",
+    pergunta: "Sua abordagem principal costuma ser...",
     opcoes: {
       D: "Independente",
       I: "Interativo",
@@ -144,7 +144,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Outra limitação desse perfil...",
+    pergunta: "Outra limitação que pode aparecer no seu perfil é ser...",
     opcoes: {
       D: "Intenso",
       I: "Não tradicional",
@@ -153,16 +153,16 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Ponto cego...",
+    pergunta: "Qual ponto cego pode atrapalhar mais você?",
     opcoes: {
       D: "Ser responsabilizado",
       I: "Realizar compromissos",
       S: "Necessidade de mudança",
-      C: "Tomada de decisão "
+      C: "Tomada de decisão"
     }
   },
   {
-    pergunta: "Mensura desempenho com...",
+    pergunta: "Você também costuma medir desempenho com base em...",
     opcoes: {
       D: "Histórico",
       I: "Elogios",
@@ -171,7 +171,7 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Prefere tarefas....",
+    pergunta: "Você prefere tarefas mais...",
     opcoes: {
       D: "Desafiadoras",
       I: "Relacionada a pessoas",
@@ -180,48 +180,48 @@ export const perguntasDISC = [
     }
   },
   {
-    pergunta: "Com atrasos...",
+    pergunta: "Quando há atrasos, você tende a...",
     opcoes: {
-      D: "Se irrita e confronta",
-      I: "Nem liga, está distraído",
-      S: "Sabe do atraso, mas aceita",
-      C: "Reclama e analisa a situação"
+      D: "Se irritar e confrontar",
+      I: "Nem ligar, está distraído",
+      S: "Saber do atraso, mas aceitar",
+      C: "Reclamar e analisar a situação"
     }
   },
   {
-    pergunta: "Em situações extremas...",
+    pergunta: "Em situações extremas, você pode...",
     opcoes: {
-      D: "Se preocupa demais com metas",
-      I: "Fala sem pensar",
-      S: "Procrastina ao invés de fazer",
-      C: "Analisa demais"
+      D: "Se preocupar demais com metas",
+      I: "Falar sem pensar",
+      S: "Procrastinar ao invés de fazer",
+      C: "Analisar demais"
     }
   },
   {
-    pergunta: "Precisa melhorar...",
+    pergunta: "Qual ponto você sente que precisa melhorar?",
     opcoes: {
-      D: "Empatia e Paciência",
-      I: "Contole emocional",
+      D: "Empatia e paciência",
+      I: "Controle emocional",
       S: "Ser assertivo sob pressão",
       C: "Se preocupar menos sobre tudo"
     }
   },
   {
-    pergunta: "Em uma discussão...",
+    pergunta: "Em uma discussão, você tende a...",
     opcoes: {
-      D: "Busca ter a razão",
-      I: "Busca diminuir o conflito",
-      S: "Busca concordância",
-      C: "Busca comprovar sua opinião"
+      D: "Buscar ter a razão",
+      I: "Buscar diminuir o conflito",
+      S: "Buscar concordância",
+      C: "Buscar comprovar sua opinião"
     }
   },
   {
-    pergunta: "Quando vai às compras...",
+    pergunta: "Quando vai às compras, você costuma...",
     opcoes: {
-      D: "Sabe o que quer",
-      I: "Se diverte",
-      S: "Fica indeciso",
-      C: "Busca ofertas"
+      D: "Saber o que quer",
+      I: "Se divertir",
+      S: "Ficar indeciso",
+      C: "Buscar ofertas"
     }
   }
 ];

@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useState } from 'react';
+import { perguntasDISC } from '../data/discQuestions';
 import { supabase } from '../lib/supabase';
 import { markAssessmentCompleted } from '../services/assessmentService';
 import type { CandidateAssessmentDrawerKind, DiscAnswer, DiscResult } from '../types/candidate';
@@ -6,7 +7,7 @@ import type { CompanyApplication } from '../types/companyDashboard';
 import { parseCandidatePhoneData, serializeCandidatePhoneData } from '../utils/candidatePhoneData';
 
 const initialDiscAnswers = () => (
-  Array.from({ length: 25 }, () => ({ D: null, I: null, S: null, C: null }))
+  Array.from({ length: perguntasDISC.length }, () => ({ D: null, I: null, S: null, C: null }))
 );
 
 interface UseCandidateDiscAssessmentParams {
@@ -40,7 +41,7 @@ export const useCandidateDiscAssessment = ({
     );
 
     if (unanswered !== -1) {
-      setDiscErrorMessage(`Por favor, responda a todas as 25 questoes. A questao ${unanswered + 1} esta pendente.`);
+      setDiscErrorMessage(`Por favor, responda a todas as ${perguntasDISC.length} questões. A questão ${unanswered + 1} está pendente.`);
       return;
     }
 
