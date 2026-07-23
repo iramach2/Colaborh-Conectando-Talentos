@@ -21,32 +21,35 @@ export const useCandidateResumeSave = ({
 }: UseCandidateResumeSaveParams) => {
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveToSupabase = async () => {
+  const handleSaveToSupabase = async (
+    resumeDataToSave = resumeData,
+    options: { skipValidation?: boolean; silentSuccess?: boolean } = {}
+  ) => {
     if (!import.meta.env.VITE_SUPABASE_URL) {
       onError('Configura\u00e7\u00e3o do Supabase ausente. Contate o administrador.');
       return false;
     }
 
     const errors: string[] = [];
-    if (activeAccordion === 'info') {
-      if (!resumeData.fullName) errors.push('Nome Completo');
-      if (!resumeData.email) errors.push('E-mail');
-      if (!resumeData.phone) errors.push('WhatsApp / Telefone');
-      if (!resumeData.salary) errors.push('Pretensao Salarial');
-      if (!resumeData.state) errors.push('Estado');
-      if (!resumeData.city) errors.push('Cidade');
-      if (!resumeData.gender) errors.push('Genero');
-      if (!resumeData.birthDate) errors.push('Data de Nascimento');
-    } else if (activeAccordion === 'summary') {
-      if (!resumeData.summary || resumeData.summary.length < 50) {
+    if (!options.skipValidation && activeAccordion === 'info') {
+      if (!resumeDataToSave.fullName) errors.push('Nome Completo');
+      if (!resumeDataToSave.email) errors.push('E-mail');
+      if (!resumeDataToSave.phone) errors.push('WhatsApp / Telefone');
+      if (!resumeDataToSave.salary) errors.push('Pretensao Salarial');
+      if (!resumeDataToSave.state) errors.push('Estado');
+      if (!resumeDataToSave.city) errors.push('Cidade');
+      if (!resumeDataToSave.gender) errors.push('Genero');
+      if (!resumeDataToSave.birthDate) errors.push('Data de Nascimento');
+    } else if (!options.skipValidation && activeAccordion === 'summary') {
+      if (!resumeDataToSave.summary || resumeDataToSave.summary.length < 50) {
         errors.push('Resumo Profissional (minimo 50 caracteres)');
       }
-    } else if (activeAccordion === 'skills') {
-      if (resumeData.skills.length === 0) errors.push('Pelo menos uma Habilidade');
-    } else if (activeAccordion === 'education') {
-      if (resumeData.educations.length === 0) errors.push('Pelo menos uma Formacao Academica');
-    } else if (activeAccordion === 'experience') {
-      if (!resumeData.isFirstJob && resumeData.experiences.length === 0) {
+    } else if (!options.skipValidation && activeAccordion === 'skills') {
+      if (resumeDataToSave.skills.length === 0) errors.push('Pelo menos uma Habilidade');
+    } else if (!options.skipValidation && activeAccordion === 'education') {
+      if (resumeDataToSave.educations.length === 0) errors.push('Pelo menos uma Formacao Academica');
+    } else if (!options.skipValidation && activeAccordion === 'experience') {
+      if (!resumeDataToSave.isFirstJob && resumeDataToSave.experiences.length === 0) {
         errors.push('Pelo menos uma Experiencia Profissional (ou marque "Primeiro Emprego")');
       }
     }
@@ -66,33 +69,33 @@ export const useCandidateResumeSave = ({
       }
 
       const authEmail = (user.email || '').trim().toLowerCase();
-      const resumeEmail = (resumeData.email || authEmail).trim().toLowerCase();
+      const resumeEmail = (resumeDataToSave.email || authEmail).trim().toLowerCase();
       const talentToSave = {
         user_id: user.id,
-        name: resumeData.fullName,
+        name: resumeDataToSave.fullName,
         email: resumeEmail,
-        role: resumeData.experiences.length > 0 ? (resumeData.experiences[0].role || 'Candidato') : 'Candidato',
-        phone: resumeData.phone,
-        state: resumeData.state,
-        city: resumeData.city,
-        age: calculateAge(resumeData.birthDate) || 0,
-        skills: resumeData.skills,
-        experience: resumeData.experiences.length > 0 ? 'Experiente' : 'Iniciante',
-        education: resumeData.educations.length > 0 ? (resumeData.educations[0].status || 'N/A') : 'N/A',
+        role: resumeDataToSave.experiences.length > 0 ? (resumeDataToSave.experiences[0].role || 'Candidato') : 'Candidato',
+        phone: resumeDataToSave.phone,
+        state: resumeDataToSave.state,
+        city: resumeDataToSave.city,
+        age: calculateAge(resumeDataToSave.birthDate) || 0,
+        skills: resumeDataToSave.skills,
+        experience: resumeDataToSave.experiences.length > 0 ? 'Experiente' : 'Iniciante',
+        education: resumeDataToSave.educations.length > 0 ? (resumeDataToSave.educations[0].status || 'N/A') : 'N/A',
         modality: 'Hibrido',
-        salary: resumeData.salary,
-        first_job: resumeData.isFirstJob,
-        summary: resumeData.summary,
-        educations: resumeData.educations,
-        experiences: resumeData.experiences,
-        profile_pic: resumeData.profilePic,
-        birth_date: resumeData.birthDate,
-        gender: resumeData.gender,
-        is_pcd: resumeData.isPcd,
-        CID: resumeData.cid,
-        languages: resumeData.languages || [],
-        achievements: resumeData.achievements || [],
-        diversity: resumeData.diversity,
+        salary: resumeDataToSave.salary,
+        first_job: resumeDataToSave.isFirstJob,
+        summary: resumeDataToSave.summary,
+        educations: resumeDataToSave.educations,
+        experiences: resumeDataToSave.experiences,
+        profile_pic: resumeDataToSave.profilePic,
+        birth_date: resumeDataToSave.birthDate,
+        gender: resumeDataToSave.gender,
+        is_pcd: resumeDataToSave.isPcd,
+        CID: resumeDataToSave.cid,
+        languages: resumeDataToSave.languages || [],
+        achievements: resumeDataToSave.achievements || [],
+        diversity: resumeDataToSave.diversity,
       };
 
       let existingTalentId: string | null = null;
@@ -143,8 +146,10 @@ export const useCandidateResumeSave = ({
         return false;
       }
 
-      onSaved(resumeData);
-      onSuccess('Seu curr\u00edculo foi salvo com sucesso!\nSuas altera\u00e7\u00f5es foram enviadas para o banco de dados.', 'Salvo com sucesso');
+      onSaved(resumeDataToSave);
+      if (!options.silentSuccess) {
+        onSuccess('Seu curr\u00edculo foi salvo com sucesso!\nSuas altera\u00e7\u00f5es foram enviadas para o banco de dados.', 'Salvo com sucesso');
+      }
       return true;
     } catch (error: unknown) {
       console.error('Catch Error:', error);

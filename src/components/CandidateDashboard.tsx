@@ -108,18 +108,6 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   } = useCandidateInterviews(resumeData.email);
 
   const {
-    isParsing,
-    handleAIParse,
-  } = useCandidateResumeParser({
-    brazilStates: BRAZIL_STATES,
-    onParsed: setResumeData,
-    onError: (message) => {
-      setErrorMessage(message);
-      setTimeout(() => setErrorMessage(null), 6000);
-    },
-    onSuccess: showCustomSuccess,
-  });
-  const {
     showActionDropdown,
     setShowActionDropdown,
     showExpModal,
@@ -194,6 +182,21 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
       if (timeoutMs) {
         setTimeout(() => setErrorMessage(null), timeoutMs);
       }
+    },
+    onSuccess: showCustomSuccess,
+  });
+
+  const {
+    isParsing,
+    handleAIParse,
+  } = useCandidateResumeParser({
+    brazilStates: BRAZIL_STATES,
+    onParsed: setResumeData,
+    getCurrentResumeData: () => resumeData,
+    onAutoSave: (nextResumeData) => handleSaveToSupabase(nextResumeData, { skipValidation: true, silentSuccess: true }),
+    onError: (message) => {
+      setErrorMessage(message);
+      setTimeout(() => setErrorMessage(null), 6000);
     },
     onSuccess: showCustomSuccess,
   });

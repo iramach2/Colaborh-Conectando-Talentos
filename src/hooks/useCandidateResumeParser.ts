@@ -277,6 +277,8 @@ const normalizeAchievement = (value: unknown): CandidateAchievement | null => {
 interface UseCandidateResumeParserParams {
   brazilStates: string[];
   onParsed: (updater: (currentResumeData: CandidateResumeData) => CandidateResumeData) => void;
+  getCurrentResumeData?: () => CandidateResumeData;
+  onAutoSave?: (resumeData: CandidateResumeData) => Promise<boolean>;
   onError: (message: string) => void;
   onSuccess: (message: string, title?: string) => void;
 }
@@ -284,6 +286,8 @@ interface UseCandidateResumeParserParams {
 export const useCandidateResumeParser = ({
   brazilStates,
   onParsed,
+  getCurrentResumeData,
+  onAutoSave,
   onError,
   onSuccess,
 }: UseCandidateResumeParserParams) => {
@@ -408,7 +412,7 @@ export const useCandidateResumeParser = ({
         throw new Error('A IA respondeu, mas não encontrou dados suficientes no currículo.');
       }
 
-      onParsed((prev) => ({
+      const buildNextResumeData = (prev: CandidateResumeData): CandidateResumeData => ({
         ...prev,
         fullName: (fullName || prev.fullName).toUpperCase(),
         email: email || prev.email,
@@ -426,7 +430,20 @@ export const useCandidateResumeParser = ({
         languages: normalizedLanguages.length ? normalizedLanguages : prev.languages,
         achievements: normalizedAchievements.length ? normalizedAchievements : prev.achievements,
         isFirstJob: normalizedExperiences.length > 0 ? false : prev.isFirstJob,
-      }));
+      });
+
+      const nextResumeData = getCurrentResumeData ? buildNextResumeData(getCurrentResumeData()) : null;
+      onParsed(nextResumeData ? () => nextResumeData : buildNextResumeData);
+
+      if (nextResumeData && onAutoSave) {
+        const saved = await onAutoSave(nextResumeData);
+        if (!saved) {
+          return;
+        }
+        onSuccess('Dados extraídos e salvos com sucesso.', 'Currículo preenchido');
+        return;
+      }
+
       onSuccess('Dados extraídos com sucesso. Revise as informações antes de salvar.', 'Currículo preenchido');
     } catch (error) {
       console.error('Error parsing:', error);
