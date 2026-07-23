@@ -92,7 +92,7 @@ export function CompanyDiscReportModal({
                   <div className="mt-2 grid gap-1 sm:flex sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-0.5">
                     <p className="text-[12px] font-medium leading-snug text-slate-400">
                       <span className="text-slate-400">Candidato:</span>{' '}
-                      <span className="text-slate-500">{result.applicantName || 'N?o informado'}</span>
+                      <span className="text-slate-500">{result.applicantName || 'Não informado'}</span>
                     </p>
                     <span className="hidden text-[10px] font-bold text-slate-300 sm:inline">?</span>
                     <p className="flex items-center gap-1 text-[12px] font-medium leading-snug text-[#533af6]">

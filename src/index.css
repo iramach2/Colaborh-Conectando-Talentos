@@ -134,12 +134,12 @@ body {
   }
 }
 
-/* TÃƒÂ­tulos com peso de negrito (600) */
+/* Títulos com peso de negrito (600) */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600 !important;
 }
 
-/* Cards do painel do candidato arredondados para 16px (escala mÃƒÂ©dia do Design System) */
+/* Cards do painel do candidato arredondados para 16px (escala média do Design System) */
 section.bg-white,
 aside.bg-white:not(.company-mobile-sidebar),
 div.bg-white.shadow-sleek:not(.fixed):not(.rounded-r-none),
@@ -150,7 +150,7 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   border-radius: 16px !important;
 }
 
-/* Responsividade do Zoom no Preview de CurrÃƒÂ­culo */
+/* Responsividade do Zoom no Preview de Currículo */
 .resume-preview-container {
   --zoom-preview: 0.52;
 }
@@ -179,7 +179,7 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   zoom: var(--zoom-preview);
 }
 
-/* Efeito Aba FusÃƒÂ£o (Orelha Integrada com Curvas Invertidas) */
+/* Efeito Aba Fusão (Orelha Integrada com Curvas Invertidas) */
 .active-tab-ear {
   position: relative;
   margin-bottom: -1px !important;

@@ -22,7 +22,7 @@ interface CandidateDashboardContentProps {
   setActiveAccordion: (value: string) => void;
   setIsEditModalOpen: (value: boolean) => void;
   handleProfilePicSelect: (event: ChangeEvent<HTMLInputElement>) => void;
-  handleSaveToSupabase: () => Promise<void>;
+  handleSaveToSupabase: () => Promise<boolean>;
   isSaving: boolean;
   handleUpdatePassword: (event: FormEvent) => void | Promise<void>;
   newPassword: string;

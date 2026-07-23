@@ -125,7 +125,7 @@ interface CandidateDashboardOverlaysProps {
   handleRemoveLanguage: (id: string) => void;
   handleAddAchievement: (type: CandidateAchievement['type'], title: string, description: string) => void;
   handleRemoveAchievement: (id: string) => void;
-  handleSaveToSupabase: () => Promise<void>;
+  handleSaveToSupabase: () => Promise<boolean>;
   isPreviewModalOpen: boolean;
   setIsPreviewModalOpen: (value: boolean) => void;
   handleDownloadResume: () => void;

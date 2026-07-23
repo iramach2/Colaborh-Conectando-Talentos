@@ -175,9 +175,9 @@ export const ManageStagesModal = ({
         <header className="shrink-0 px-6 pb-4 pt-5 text-left">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <h3 className="text-[20px] font-semibold tracking-tight text-[#343241]">ConfiguraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âµes das etapas</h3>
+              <h3 className="text-[20px] font-semibold tracking-tight text-[#343241]">Configurações das etapas</h3>
               <p className="mt-0.5 truncate text-[12px] font-medium leading-tight text-slate-400">
-                {job.title || 'Vaga sem tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­tulo'}
+                {job.title || 'Vaga sem título'}
               </p>
             </div>
 
@@ -185,7 +185,7 @@ export const ManageStagesModal = ({
               type="button"
               onClick={onClose}
               className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl border border-white/80 bg-white text-slate-400 shadow-sm transition-all hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95"
-              title="Fechar configuraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âµes"
+              title="Fechar configurações"
             >
               <CloseIcon size={17} className="stroke-[2.4]" />
             </button>
@@ -287,7 +287,7 @@ export const ManageStagesModal = ({
                             <h5 className="truncate text-sm font-semibold text-[#343241]">{colName}</h5>
                             {isCadastro && (
                               <span className="rounded-lg bg-[#f3e5ff] px-2 py-1 text-[10px] font-semibold text-[#940dff]">
-                                ObrigatÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ria
+                                Obrigatória
                               </span>
                             )}
                           </div>
@@ -300,7 +300,7 @@ export const ManageStagesModal = ({
                       {!isSpecial && !isCadastro && (
                         <button
                           type="button"
-                          title={count > 0 ? 'NÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© possÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­vel excluir uma etapa com candidatos' : 'Excluir etapa'}
+                          title={count > 0 ? 'Não é possível excluir uma etapa com candidatos' : 'Excluir etapa'}
                           disabled={count > 0}
                           onClick={() => onDeleteStage(colName)}
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all ${
@@ -462,7 +462,7 @@ export const ManageStagesModal = ({
 
                     {isCadastro && (
                       <div className="border-t border-slate-100/80 px-4 pb-4 pt-3 text-[12px] font-medium text-slate-400">
-                        A etapa inicial nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o solicita testes automaticamente.
+                        A etapa inicial não solicita testes automaticamente.
                       </div>
                     )}
                   </article>

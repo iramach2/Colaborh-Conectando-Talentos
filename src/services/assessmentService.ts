@@ -201,13 +201,14 @@ export const markAssessmentPendingWithLegacyFallback = async (
 ) => {
   const assessmentSaved = await markAssessmentPending(applicationId, assessmentType, candidateEmail, result);
 
-  if (!assessmentSaved) {
-    const { error } = await supabase
-      .from('applications')
-      .update({ candidate_phone: legacyCandidatePhone })
-      .eq('id', applicationId);
+  const { error } = await supabase
+    .from('applications')
+    .update({ candidate_phone: legacyCandidatePhone })
+    .eq('id', applicationId);
 
-    if (error) throw error;
+  if (error && !assessmentSaved) throw error;
+  if (error) {
+    console.warn('Assessment salvo, mas nao foi possivel atualizar marcador legado da candidatura:', error);
   }
 };
 
@@ -376,12 +377,13 @@ export const markAssessmentCompletedFromLegacyWithFallback = async (
     legacyValue
   );
 
-  if (!assessmentSaved) {
-    const { error } = await supabase
-      .from('applications')
-      .update({ candidate_phone: legacyCandidatePhone })
-      .eq('id', applicationId);
+  const { error } = await supabase
+    .from('applications')
+    .update({ candidate_phone: legacyCandidatePhone })
+    .eq('id', applicationId);
 
-    if (error) throw error;
+  if (error && !assessmentSaved) throw error;
+  if (error) {
+    console.warn('Assessment importado, mas nao foi possivel atualizar marcador legado da candidatura:', error);
   }
 };

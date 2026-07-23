@@ -51,7 +51,7 @@ interface CandidateResumeEditorModalProps {
   handleRemoveLanguage: (languageId: string) => void;
   handleAddAchievement: (type: CandidateAchievement['type'], title: string, description: string) => void;
   handleRemoveAchievement: (achievementId: string) => void;
-  handleSaveToSupabase: () => Promise<void>;
+  handleSaveToSupabase: () => Promise<boolean>;
 }
 
 export function CandidateResumeEditorModal({
@@ -245,8 +245,8 @@ export function CandidateResumeEditorModal({
             <div className="mt-5 flex shrink-0 justify-end border-t border-slate-200/70 pt-4">
               <ResumePrimaryButton
                 onClick={async () => {
-                  await handleSaveToSupabase();
-                  setIsOpen(false);
+                  const saved = await handleSaveToSupabase();
+                  if (saved) setIsOpen(false);
                 }}
               >
                 <Save size={14} />

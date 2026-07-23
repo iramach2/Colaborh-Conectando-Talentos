@@ -112,7 +112,7 @@ export const CompanyCompaniesTab = ({
                   <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl border border-slate-100 bg-white/70 p-3">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Respons?vel</p>
-                      <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{company.solicitante || 'N?o informado'}</p>
+                      <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{company.solicitante || 'Não informado'}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Atua??o</p>

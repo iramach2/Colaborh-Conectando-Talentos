@@ -44,12 +44,8 @@ const parseStringRecord = (value: unknown): Record<string, string> | null => {
 };
 
 export const getDiscStatusForApp = (application: CompanyApplication): DiscStatus => {
-  const phoneVal = application.candidate_phone || '';
-  let discVal = '';
-
-  if (phoneVal.includes('===DISC===')) {
-    discVal = phoneVal.split('===DISC===')[1].split('===NOTES===')[0].split('===QUESTIONS===')[0].trim();
-  }
+  const parsed = parseCandidatePhoneData(application.candidate_phone || '');
+  const discVal = parsed.disc;
 
   if (discVal) {
     if (discVal === 'PENDING') {
@@ -72,12 +68,8 @@ export const getDiscStatusForApp = (application: CompanyApplication): DiscStatus
 };
 
 export const getQuestionsStatusForApp = (application: CompanyApplication): QuestionsStatus => {
-  const phoneVal = application.candidate_phone || '';
-  let questionsVal = '';
-
-  if (phoneVal.includes('===QUESTIONS===')) {
-    questionsVal = phoneVal.split('===QUESTIONS===')[1].split('===DISC===')[0].split('===NOTES===')[0].trim();
-  }
+  const parsed = parseCandidatePhoneData(application.candidate_phone || '');
+  const questionsVal = parsed.questions;
 
   if (questionsVal) {
     if (questionsVal === 'PENDING') {
@@ -162,8 +154,17 @@ export const getCustomTestStatusForApp = (application: CompanyApplication, vacan
   const customVal = parsed.customTest;
 
   if (customVal) {
-    if (customVal === 'PENDING') {
+    if (customVal === 'PENDING' || customVal.startsWith('PENDING:::')) {
       const job = vacancies.find((vacancy) => vacancy.id === application.job_id);
+      const parsedCustomFromPending = (() => {
+        if (!customVal.startsWith('PENDING:::')) return null;
+        try {
+          return JSON.parse(customVal.replace('PENDING:::', '').trim()) as { title?: string; questions?: unknown };
+        } catch (error) {
+          console.error('Erro ao fazer parse do JSON pendente de questionario customizado:', error);
+          return null;
+        }
+      })();
       const parsedCustomFromDesc = (() => {
         if (job?.description && job.description.includes('===CUSTOM_TEST_JSON===')) {
           try {
@@ -178,8 +179,8 @@ export const getCustomTestStatusForApp = (application: CompanyApplication, vacan
 
       return {
         status: 'PENDING',
-        title: parsedCustomFromDesc?.title || 'Questionario Customizado',
-        questions: parseCustomQuestionList(parsedCustomFromDesc?.questions),
+        title: parsedCustomFromPending?.title || parsedCustomFromDesc?.title || 'Questionario Customizado',
+        questions: parseCustomQuestionList(parsedCustomFromPending?.questions || parsedCustomFromDesc?.questions),
         answers: null,
       };
     }

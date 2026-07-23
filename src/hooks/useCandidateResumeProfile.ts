@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { CandidateResumeData } from '../types/candidate';
 
+const TALENT_PROFILE_COLUMNS = 'id, name, email, phone, state, city, gender, summary, skills, educations, experiences, profile_pic, birth_date, salary, is_pcd, CID, first_job, languages, achievements, diversity' as const;
+
 export const createEmptyResumeData = (): CandidateResumeData => ({
   fullName: '',
   email: '',
@@ -89,16 +91,37 @@ export const useCandidateResumeProfile = () => {
         phone: metadata?.whatsapp || '',
       };
 
-      if (userEmail) {
-        try {
+      try {
+        let talentProfile = null;
+
+        const userId = session.user.id;
+        if (userId) {
           const { data, error } = await supabase
             .from('talents')
-            .select('name, email, phone, state, city, gender, summary, skills, educations, experiences, profile_pic, birth_date, salary, is_pcd, CID, first_job, languages, achievements, diversity')
-            .eq('email', userEmail)
+            .select(TALENT_PROFILE_COLUMNS)
+            .eq('user_id', userId)
+            .limit(1)
             .maybeSingle();
 
-          if (data && !error) {
-            initialProfile = {
+          if (error) console.warn('Nao foi possivel buscar perfil por usuario:', error);
+          talentProfile = data;
+        }
+
+        if (!talentProfile && userEmail) {
+          const { data, error } = await supabase
+            .from('talents')
+            .select(TALENT_PROFILE_COLUMNS)
+            .eq('email', userEmail)
+            .limit(1)
+            .maybeSingle();
+
+          if (error) console.warn('Nao foi possivel buscar perfil por e-mail:', error);
+          talentProfile = data;
+        }
+
+        if (talentProfile) {
+          const data = talentProfile;
+          initialProfile = {
               ...initialProfile,
               fullName: (data.name || initialProfile.fullName || '').toUpperCase(),
               email: data.email || initialProfile.email || '',
@@ -119,11 +142,10 @@ export const useCandidateResumeProfile = () => {
               languages: Array.isArray(data.languages) ? data.languages : initialProfile.languages,
               achievements: Array.isArray(data.achievements) ? data.achievements : initialProfile.achievements,
               diversity: data.diversity ? data.diversity : initialProfile.diversity,
-            };
-          }
-        } catch (error) {
-          console.error('Error fetching talent profile:', error);
+          };
         }
+      } catch (error) {
+        console.error('Error fetching talent profile:', error);
       }
 
       setResumeData(initialProfile);
@@ -144,7 +166,7 @@ export const useCandidateResumeProfile = () => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (isResumeDirty) {
         event.preventDefault();
-        event.returnValue = 'Voce possui alteracoes nao salvas. Tem certeza que deseja sair?';
+        event.returnValue = 'Você possui alterações não salvas. Tem certeza que deseja sair?';
       }
     };
 

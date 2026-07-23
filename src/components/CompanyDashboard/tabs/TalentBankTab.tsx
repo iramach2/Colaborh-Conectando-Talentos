@@ -178,15 +178,15 @@ export const TalentBankTab = ({
                       </div>
                       <div>
                         <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Idade</p>
-                        <p className="mt-1 text-[12px] font-medium text-slate-500">{age ? age + ' anos' : 'N?o informada'}</p>
+                        <p className="mt-1 text-[12px] font-medium text-slate-500">{age ? age + ' anos' : 'Não informada'}</p>
                       </div>
                       <div>
                         <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Pretens?o</p>
-                        <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{talent.salary || 'N?o informada'}</p>
+                        <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{talent.salary || 'Não informada'}</p>
                       </div>
                       <div>
                         <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Contato</p>
-                        <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{talent.phone || 'N?o informado'}</p>
+                        <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{talent.phone || 'Não informado'}</p>
                       </div>
                     </div>
                     <p className="mt-3 truncate text-[11px] font-medium text-slate-500"><Mail size={12} className="mr-1 inline text-slate-400" />{talent.email || 'E-mail n?o informado'}</p>

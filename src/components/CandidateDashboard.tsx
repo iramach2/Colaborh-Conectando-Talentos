@@ -212,6 +212,7 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
     setAppliedJobIds,
     myApplications,
     setMyApplications,
+    reloadCandidateApplications,
   } = useCandidateApplications(resumeData.email, resumeData.fullName);
   const {
     isApplying,
@@ -255,6 +256,12 @@ export default function CandidateDashboard({ onLogout }: { onLogout: () => void 
   const [activeVacancySubTab, setActiveVacancySubTab] = useState<'todas' | 'minhas'>('todas');
   const [drawerTestResult, setDrawerTestResult] = useState<CandidateAssessmentDrawerKind>(null);
   const [activeTestSubTab, setActiveTestSubTab] = useState<'pending' | 'completed'>('pending');
+
+  useEffect(() => {
+    if (activeTab === 'Testes') {
+      reloadCandidateApplications();
+    }
+  }, [activeTab, notifications.length, reloadCandidateApplications]);
 
   const {
     discTestState,

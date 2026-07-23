@@ -25,12 +25,12 @@ export const CANDIDATE_ROUTES = [
 
 const companyAliases = new Map<string, string>([
   ['Avalia????es', COMPANY_TAB_ASSESSMENTS],
-  ['Configura????es', COMPANY_TAB_SETTINGS],
+  ['Configurações', COMPANY_TAB_SETTINGS],
 ]);
 
 const candidateAliases = new Map<string, string>([
   ['Meu Curr??culo', CANDIDATE_TAB_RESUME],
-  ['Configura????es', CANDIDATE_TAB_SETTINGS],
+  ['Configurações', CANDIDATE_TAB_SETTINGS],
 ]);
 
 const trailingSlashPattern = new RegExp('/+$');

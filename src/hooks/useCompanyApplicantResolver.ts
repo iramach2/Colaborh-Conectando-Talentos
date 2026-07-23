@@ -18,7 +18,7 @@ export const useCompanyApplicantResolver = (talents: TalentProfile[]) => {
     return {
       ...applicant,
       candidate_name: name || match?.name || applicant.candidate_name || 'Candidato Cadastrado',
-      candidate_phone: phone || match?.phone || applicant.candidate_phone || 'NÃ£o inf.',
+      candidate_phone: phone || match?.phone || applicant.candidate_phone || 'Não inf.',
       candidate_email: email || match?.email || applicant.candidate_email || '',
       city: applicant.city || match?.city || applicant.city || 'N/A',
       state: applicant.state || match?.state || applicant.state || 'N/A',
