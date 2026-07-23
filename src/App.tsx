@@ -208,8 +208,7 @@ export default function App() {
       setIsScrolled(window.scrollY > 20);
     };
 
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    const applySession = (session: Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session']) => {
       if (session?.user) {
         setIsLoggedIn(true);
         setUserRole(session.user.user_metadata?.role || 'candidate');
@@ -218,20 +217,34 @@ export default function App() {
         setUserRole(null);
       }
     };
-    checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setIsLoggedIn(true);
-        setUserRole(session.user.user_metadata?.role || 'candidate');
-      } else {
+    const authFallbackTimer = window.setTimeout(() => {
+      setIsCheckingAuth(false);
+    }, 5000);
+
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        applySession(session);
+      } catch (error) {
+        console.error('Erro ao restaurar sess?o:', error);
         setIsLoggedIn(false);
         setUserRole(null);
+      } finally {
+        window.clearTimeout(authFallbackTimer);
+        setIsCheckingAuth(false);
       }
+    };
+    void checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      applySession(session);
+      setIsCheckingAuth(false);
     });
 
     window.addEventListener('scroll', handleScroll);
     return () => {
+      window.clearTimeout(authFallbackTimer);
       window.removeEventListener('scroll', handleScroll);
       subscription.unsubscribe();
     };
