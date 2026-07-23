@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { CandidateAchievement, CandidateEducation, CandidateExperience, CandidateLanguage, CandidateResumeData } from '../types/candidate';
 
@@ -33,18 +33,18 @@ const ai = {
     generateContent: async ({ contents }: ResumeGenerateContentParams) => {
       const parseEndpoint = import.meta.env.VITE_RESUME_PARSE_ENDPOINT;
       if (!parseEndpoint) {
-        throw new Error('Leitura por IA indisponivel: configure VITE_RESUME_PARSE_ENDPOINT.');
+        throw new Error('Leitura por IA indisponível: configure VITE_RESUME_PARSE_ENDPOINT.');
       }
 
       const inlineData = contents?.[0]?.parts?.find((part) => part.inlineData)?.inlineData;
       if (!inlineData?.data || !inlineData?.mimeType) {
-        throw new Error('Arquivo invalido para leitura por IA.');
+        throw new Error('Arquivo inválido para leitura por IA.');
       }
 
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData.session?.access_token;
       if (!accessToken) {
-        throw new Error('Sessao expirada. Entre novamente para usar a leitura por IA.');
+        throw new Error('Sessão expirada. Entre novamente para usar a leitura por IA.');
       }
 
       const response = await fetch(parseEndpoint, {
@@ -95,7 +95,7 @@ const normalizeBoolean = (value: unknown) => {
   if (typeof value === 'number') return value === 1;
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase();
-    return ['sim', 's', 'true', '1', 'pcd', 'pessoa com deficiencia', 'pessoa com deficiÃªncia'].includes(normalized);
+    return ['sim', 's', 'true', '1', 'pcd', 'pessoa com deficiencia', 'pessoa com deficiência'].includes(normalized);
   }
   return false;
 };
@@ -166,16 +166,16 @@ const extractYear = (...values: unknown[]) => {
 const normalizeLanguageLevel = (value: unknown) => {
   const level = firstString(value).toLowerCase();
   if (level.includes('flu')) return 'Fluente';
-  if (level.includes('avan')) return 'AvanÃ§ado';
-  if (level.includes('inter')) return 'IntermediÃ¡rio';
-  return 'BÃ¡sico';
+  if (level.includes('avan')) return 'Avançado';
+  if (level.includes('inter')) return 'Intermediário';
+  return 'Básico';
 };
 
 const normalizeAchievementType = (value: unknown) => {
   const type = firstString(value).toLowerCase();
   if (type.includes('cert')) return 'Certificado';
   if (type.includes('recon')) return 'Reconhecimento';
-  if (type.includes('volunt')) return 'Trabalho VoluntÃ¡rio';
+  if (type.includes('volunt')) return 'Trabalho Voluntário';
   return 'Curso';
 };
 
@@ -242,7 +242,7 @@ const normalizeEducation = (value: unknown): CandidateEducation | null => {
 const normalizeLanguage = (value: unknown): CandidateLanguage | null => {
   if (typeof value === 'string') {
     const language = value.trim();
-    return language ? { id: crypto.randomUUID(), language, level: 'BÃ¡sico' } : null;
+    return language ? { id: crypto.randomUUID(), language, level: 'Básico' } : null;
   }
   if (!isRecord(value)) return null;
 
@@ -302,10 +302,10 @@ export const useCandidateResumeParser = ({
       reader.readAsDataURL(file);
       const base64Data = await base64Promise;
 
-      const prompt = `Extraia os dados deste curriculo para o formato JSON solicitado.
+      const prompt = `Extraia os dados deste currículo para o formato JSON solicitado.
       Certifique-se de que o resumo tenha pelo menos 300 caracteres.
-      Traduza status de educacao para: 'Completo', 'Incompleto' ou 'Cursando'.
-      Extraia telefone, e-mail, estado (sigla UF), cidade, nome completo, data de nascimento, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos. Para experiencias, retorne startDate e endDate no formato YYYY-MM-DD, usando o primeiro dia do mes quando houver apenas mes/ano. Para formacoes/cursos, retorne gradYear com o ano de conclusao ou previsao de conclusao.`;
+      Traduza status de educação para: 'Completo', 'Incompleto' ou 'Cursando'.
+      Extraia telefone, e-mail, estado (sigla UF), cidade, nome completo, data de nascimento, gênero, pretensão salarial, PCD, resumo, habilidades, experiências, formações, idiomas e certificações/cursos. Para experiências, retorne startDate e endDate no formato YYYY-MM-DD, usando o primeiro dia do mes quando houver apenas mes/ano. Para formações/cursos, retorne gradYear com o ano de conclusao ou previsao de conclusao.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3.1-flash-lite',
@@ -352,22 +352,27 @@ export const useCandidateResumeParser = ({
         },
       });
 
-      const parsed = JSON.parse(response.text) as Record<string, unknown>;
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(response.text) as Record<string, unknown>;
+      } catch {
+        throw new Error('invalid json');
+      }
       const fullName = firstString(parsed.fullName, parsed.name, parsed.nome, parsed.nomeCompleto);
       const email = firstString(parsed.email, parsed.eMail, parsed.mail);
       const phone = firstString(parsed.phone, parsed.telefone, parsed.whatsapp, parsed.mobile);
       const state = firstString(parsed.state, parsed.uf, parsed.estado).toUpperCase();
       const city = firstString(parsed.city, parsed.cidade);
       const birthDate = normalizeDate(parsed.birthDate ?? parsed.birth_date ?? parsed.dataNascimento ?? parsed.nascimento);
-      const gender = firstString(parsed.gender, parsed.genero, parsed.sexo);
-      const salary = firstString(parsed.salary, parsed.salario, parsed.pretensaoSalarial, parsed.pretensao_salarial);
+      const gender = firstString(parsed.gender, parsed['gênero'], parsed.sexo);
+      const salary = firstString(parsed.salary, parsed.salario, parsed['pretensãoSalarial'], parsed['pretensão_salarial']);
       const isPcd = normalizeBoolean(parsed.isPcd ?? parsed.is_pcd ?? parsed.pcd);
       const summary = firstString(parsed.summary, parsed.resumo, parsed.profile, parsed.perfil);
       const skills = firstArray(parsed.skills, parsed.habilidades, parsed.competencias);
-      const experiences = firstArray(parsed.experiences, parsed.experiencias, parsed.experience);
-      const educations = firstArray(parsed.educations, parsed.formacoes, parsed.education, parsed.educacao);
+      const experiences = firstArray(parsed.experiences, parsed['experiências'], parsed.experience);
+      const educations = firstArray(parsed.educations, parsed['formações'], parsed.education, parsed['educação']);
       const languages = firstArray(parsed.languages, parsed.idiomas);
-      const achievements = firstArray(parsed.achievements, parsed.certificacoes, parsed.certifications, parsed.cursos, parsed.conquistas);
+      const achievements = firstArray(parsed.achievements, parsed['certificações'], parsed.certifications, parsed.cursos, parsed.conquistas);
       const normalizedSkills = skills.filter((skill): skill is string => typeof skill === 'string' && skill.trim().length > 0);
       const normalizedExperiences = experiences
         .map(normalizeExperience)
@@ -400,7 +405,7 @@ export const useCandidateResumeParser = ({
       );
 
       if (!hasExtractedData) {
-        throw new Error('A IA respondeu, mas nao encontrou dados suficientes no curriculo.');
+        throw new Error('A IA respondeu, mas não encontrou dados suficientes no currículo.');
       }
 
       onParsed((prev) => ({
@@ -422,7 +427,7 @@ export const useCandidateResumeParser = ({
         achievements: normalizedAchievements.length ? normalizedAchievements : prev.achievements,
         isFirstJob: normalizedExperiences.length > 0 ? false : prev.isFirstJob,
       }));
-      onSuccess('Dados extraidos com sucesso. Revise as informacoes antes de salvar.', 'Curriculo preenchido');
+      onSuccess('Dados extraídos com sucesso. Revise as informações antes de salvar.', 'Currículo preenchido');
     } catch (error) {
       console.error('Error parsing:', error);
       const message = error instanceof Error

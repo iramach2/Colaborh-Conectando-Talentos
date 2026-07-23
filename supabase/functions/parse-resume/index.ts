@@ -1,4 +1,4 @@
-﻿import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const defaultAllowedOrigins = [
   'https://colaborh.com.br',
@@ -120,6 +120,34 @@ const summarizeGeminiError = (detail: string) => {
   }
 };
 
+const cleanJsonText = (value: string) => {
+  const trimmed = value.trim();
+  return trimmed
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+};
+
+const parseGeminiJson = (value: string) => {
+  const cleaned = cleanJsonText(value);
+  const candidates = [value.trim(), cleaned];
+  const firstObject = cleaned.indexOf('{');
+  const lastObject = cleaned.lastIndexOf('}');
+  if (firstObject >= 0 && lastObject > firstObject) {
+    candidates.push(cleaned.slice(firstObject, lastObject + 1));
+  }
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate);
+    } catch {
+      // Try the next recovery strategy.
+    }
+  }
+
+  return null;
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: getCorsHeaders(req) });
@@ -202,13 +230,13 @@ Deno.serve(async (req) => {
     'Extraia os dados deste curriculo para o formato JSON solicitado, preenchendo todos os campos encontrados no arquivo.',
     'O resumo deve ter pelo menos 300 caracteres quando houver informacao suficiente.',
     "Traduza status de educacao para: 'Completo', 'Incompleto' ou 'Cursando'.",
-    "Para idiomas, traduza o nivel para: 'BÃ¡sico', 'IntermediÃ¡rio', 'AvanÃ§ado' ou 'Fluente'.",
-    "Para cursos, certificados e reconhecimentos, use achievements com type: 'Curso', 'Certificado', 'Reconhecimento' ou 'Trabalho VoluntÃ¡rio'.",
+    "Para idiomas, traduza o nivel para: 'Básico', 'Intermediário', 'Avançado' ou 'Fluente'.",
+    "Para cursos, certificados e reconhecimentos, use achievements com type: 'Curso', 'Certificado', 'Reconhecimento' ou 'Trabalho Voluntário'.",
     'Extraia nome completo, e-mail, telefone, estado como sigla UF, cidade, data de nascimento no formato YYYY-MM-DD, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos.',
     'Para experiencias, retorne startDate e endDate no formato YYYY-MM-DD. Se o curriculo tiver apenas mes/ano, use o primeiro dia do mes. Se for trabalho atual, current deve ser true e endDate vazio.',
     'Para formacoes e cursos, retorne gradYear com o ano de conclusao ou previsao de conclusao. Se houver periodo completo, tambem preencha period e endDate.',
     'Se um campo nao estiver presente, retorne string vazia, false para booleanos ou lista vazia.',
-    'Responda somente o JSON final, sem explicacoes e sem repetir o texto do curriculo.',
+    'Responda somente o JSON final, sem markdown, sem bloco de codigo, sem comentarios, sem explicacoes e sem repetir o texto do curriculo.',
   ].join(' ');
 
   const geminiResponse = await fetch(geminiUrl, {
@@ -257,24 +285,28 @@ Deno.serve(async (req) => {
   }
 
   const geminiJson = await geminiResponse.json();
-  const text = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = geminiJson?.candidates?.[0]?.content?.parts
+    ?.map((part: { text?: string }) => part?.text)
+    .filter(Boolean)
+    .join('\n');
 
   if (!text) {
     return jsonResponse(req, { error: 'Gemini returned an empty response' }, 502);
   }
 
-  try {
-    return jsonResponse(req, JSON.parse(text));
-  } catch {
-    console.error('Gemini returned invalid JSON', {
-      mimeType,
-      fileName: payload.fileName || 'unknown',
-      preview: text.slice(0, 240),
-    });
-    return jsonResponse(req, {
-      error: 'Gemini returned invalid JSON',
-      detail: 'A resposta da IA nao veio no formato esperado.',
-    }, 502);
+  const parsedResume = parseGeminiJson(text);
+  if (parsedResume) {
+    return jsonResponse(req, parsedResume);
   }
+
+  console.error('Gemini returned invalid JSON', {
+    mimeType,
+    fileName: payload.fileName || 'unknown',
+    preview: text.slice(0, 240),
+  });
+  return jsonResponse(req, {
+    error: 'Gemini returned invalid JSON',
+    detail: 'A resposta da IA não veio no formato esperado.',
+  }, 502);
 });
 

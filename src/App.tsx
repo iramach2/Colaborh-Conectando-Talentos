@@ -56,6 +56,7 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [loginMode, setLoginMode] = useState<'login' | 'register' | 'forgot' | 'reset-password'>('login');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [userRole, setUserRole] = useState<'candidate' | 'company' | null>(null);
 
   const [sharedJobId, setSharedJobId] = useState<string | null>(null);
@@ -235,6 +236,55 @@ export default function App() {
       subscription.unsubscribe();
     };
   }, []);
+
+  if (isPublicJobsRoute) {
+    return (
+      <PublicJobsPage
+        onBackHome={() => pushAppPath('/', true)}
+        onLogin={() => { setLoginMode('login'); setShowLogin(true); pushAppPath('/login'); }}
+        onRegister={() => { setLoginMode('register'); setShowLogin(true); pushAppPath('/cadastro'); }}
+        onApply={handlePublicJobApply}
+      />
+    );
+  }
+
+  if (sharedJobId) {
+    const goBackHome = () => {
+      setSharedJobId(null);
+      pushAppPath('/', true);
+    };
+
+    return (
+      <SharedJobPage
+        isLoading={isLoadingSharedJob}
+        job={sharedJobData}
+        onBackHome={goBackHome}
+        onLogin={() => { setLoginMode('login'); setShowLogin(true); }}
+        onRegister={() => { setLoginMode('register'); setShowLogin(true); }}
+        onApply={handleApplyClick}
+      />
+    );
+  }
+
+  if (isCheckingAuth) {
+    return <Loader fullScreen message="Restaurando sessão..." />;
+  }
+
+  if (isLoggedIn && userRole === 'candidate') {
+    return (
+      <LazyScreen>
+        <CandidateDashboard onLogout={handleLogout} />
+      </LazyScreen>
+    );
+  }
+
+  if (isLoggedIn && userRole === 'company') {
+    return (
+      <LazyScreen>
+        <CompanyDashboard onLogout={handleLogout} />
+      </LazyScreen>
+    );
+  }
 
   if (showLogin && loginMode === 'reset-password') {
     return (
