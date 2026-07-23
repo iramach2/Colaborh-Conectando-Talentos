@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { CandidateAchievement, CandidateEducation, CandidateExperience, CandidateLanguage, CandidateResumeData } from '../types/candidate';
 
@@ -63,8 +63,12 @@ const ai = {
 
       if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
-        const detail = typeof errorBody?.detail === 'string' ? `: ${errorBody.detail}` : '';
-        throw new Error(`${errorBody?.error || 'Nao foi possivel processar o curriculo pelo endpoint seguro.'}${detail}`);
+        console.error('Resume parse endpoint failed', {
+          status: response.status,
+          error: errorBody?.error,
+          detail: errorBody?.detail,
+        });
+        throw new Error(getResumeParseErrorMessage(errorBody?.error, errorBody?.detail, response.status));
       }
 
       const parsedResponse = await response.json();
@@ -91,7 +95,7 @@ const normalizeBoolean = (value: unknown) => {
   if (typeof value === 'number') return value === 1;
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase();
-    return ['sim', 's', 'true', '1', 'pcd', 'pessoa com deficiencia', 'pessoa com deficiência'].includes(normalized);
+    return ['sim', 's', 'true', '1', 'pcd', 'pessoa com deficiencia', 'pessoa com deficiÃªncia'].includes(normalized);
   }
   return false;
 };
@@ -162,19 +166,45 @@ const extractYear = (...values: unknown[]) => {
 const normalizeLanguageLevel = (value: unknown) => {
   const level = firstString(value).toLowerCase();
   if (level.includes('flu')) return 'Fluente';
-  if (level.includes('avan')) return 'Avançado';
-  if (level.includes('inter')) return 'Intermediário';
-  return 'Básico';
+  if (level.includes('avan')) return 'AvanÃ§ado';
+  if (level.includes('inter')) return 'IntermediÃ¡rio';
+  return 'BÃ¡sico';
 };
 
 const normalizeAchievementType = (value: unknown) => {
   const type = firstString(value).toLowerCase();
   if (type.includes('cert')) return 'Certificado';
   if (type.includes('recon')) return 'Reconhecimento';
-  if (type.includes('volunt')) return 'Trabalho Voluntário';
+  if (type.includes('volunt')) return 'Trabalho VoluntÃ¡rio';
   return 'Curso';
 };
 
+
+const getResumeParseErrorMessage = (error?: string, detail?: string, status?: number) => {
+  const rawMessage = [error, detail].filter(Boolean).join(' ').toLowerCase();
+
+  if (status === 413 || rawMessage.includes('too large')) {
+    return 'O arquivo é muito grande para leitura por IA. Envie um currículo menor ou em PDF mais leve.';
+  }
+
+  if (rawMessage.includes('quota') || rawMessage.includes('rate limit')) {
+    return 'A leitura por IA atingiu o limite de uso no momento. Tente novamente mais tarde.';
+  }
+
+  if (rawMessage.includes('model') && (rawMessage.includes('not found') || rawMessage.includes('no longer available'))) {
+    return 'O modelo de IA configurado não está disponível. Atualize o modelo da função antes de tentar novamente.';
+  }
+
+  if (rawMessage.includes('invalid json') || rawMessage.includes('empty response')) {
+    return 'A IA não conseguiu interpretar este currículo. Tente enviar um PDF mais simples ou revisar o arquivo.';
+  }
+
+  if (rawMessage.includes('failed to fetch')) {
+    return 'Não foi possível conectar ao leitor de currículo. Verifique sua conexão e tente novamente.';
+  }
+
+  return 'Não foi possível preencher o currículo com IA agora. Tente novamente em alguns instantes.';
+};
 const normalizeExperience = (value: unknown): CandidateExperience | null => {
   if (!isRecord(value)) return null;
 
@@ -212,7 +242,7 @@ const normalizeEducation = (value: unknown): CandidateEducation | null => {
 const normalizeLanguage = (value: unknown): CandidateLanguage | null => {
   if (typeof value === 'string') {
     const language = value.trim();
-    return language ? { id: crypto.randomUUID(), language, level: 'Básico' } : null;
+    return language ? { id: crypto.randomUUID(), language, level: 'BÃ¡sico' } : null;
   }
   if (!isRecord(value)) return null;
 
@@ -395,7 +425,9 @@ export const useCandidateResumeParser = ({
       onSuccess('Dados extraidos com sucesso. Revise as informacoes antes de salvar.', 'Curriculo preenchido');
     } catch (error) {
       console.error('Error parsing:', error);
-      const message = error instanceof Error ? error.message : 'Nao foi possivel ler o curriculo com IA.';
+      const message = error instanceof Error
+        ? getResumeParseErrorMessage(error.message)
+        : 'Não foi possível ler o currículo com IA.';
       onError(message);
     } finally {
       setIsParsing(false);
@@ -407,3 +439,4 @@ export const useCandidateResumeParser = ({
     handleAIParse,
   };
 };
+

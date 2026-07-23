@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+﻿import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const defaultAllowedOrigins = [
   'https://colaborh.com.br',
@@ -114,9 +114,9 @@ const jsonResponse = (req: Request, body: unknown, status = 200) =>
 const summarizeGeminiError = (detail: string) => {
   try {
     const parsed = JSON.parse(detail);
-    return parsed?.error?.message || detail.slice(0, 500);
+    return parsed?.error?.message || detail.slice(0, 240);
   } catch {
-    return detail.slice(0, 500);
+    return detail.slice(0, 240);
   }
 };
 
@@ -202,8 +202,8 @@ Deno.serve(async (req) => {
     'Extraia os dados deste curriculo para o formato JSON solicitado, preenchendo todos os campos encontrados no arquivo.',
     'O resumo deve ter pelo menos 300 caracteres quando houver informacao suficiente.',
     "Traduza status de educacao para: 'Completo', 'Incompleto' ou 'Cursando'.",
-    "Para idiomas, traduza o nivel para: 'Básico', 'Intermediário', 'Avançado' ou 'Fluente'.",
-    "Para cursos, certificados e reconhecimentos, use achievements com type: 'Curso', 'Certificado', 'Reconhecimento' ou 'Trabalho Voluntário'.",
+    "Para idiomas, traduza o nivel para: 'BÃ¡sico', 'IntermediÃ¡rio', 'AvanÃ§ado' ou 'Fluente'.",
+    "Para cursos, certificados e reconhecimentos, use achievements com type: 'Curso', 'Certificado', 'Reconhecimento' ou 'Trabalho VoluntÃ¡rio'.",
     'Extraia nome completo, e-mail, telefone, estado como sigla UF, cidade, data de nascimento no formato YYYY-MM-DD, genero, pretensao salarial, PCD, resumo, habilidades, experiencias, formacoes, idiomas e certificacoes/cursos.',
     'Para experiencias, retorne startDate e endDate no formato YYYY-MM-DD. Se o curriculo tiver apenas mes/ano, use o primeiro dia do mes. Se for trabalho atual, current deve ser true e endDate vazio.',
     'Para formacoes e cursos, retorne gradYear com o ano de conclusao ou previsao de conclusao. Se houver periodo completo, tambem preencha period e endDate.',
@@ -266,6 +266,15 @@ Deno.serve(async (req) => {
   try {
     return jsonResponse(req, JSON.parse(text));
   } catch {
-    return jsonResponse(req, { error: 'Gemini returned invalid JSON', detail: text }, 502);
+    console.error('Gemini returned invalid JSON', {
+      mimeType,
+      fileName: payload.fileName || 'unknown',
+      preview: text.slice(0, 240),
+    });
+    return jsonResponse(req, {
+      error: 'Gemini returned invalid JSON',
+      detail: 'A resposta da IA nao veio no formato esperado.',
+    }, 502);
   }
 });
+
