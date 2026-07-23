@@ -27,13 +27,14 @@ export const CompanyDashboardShell = ({
       <CompanyDashboardSidebar
         {...sidebarProps}
         isSidebarExpanded={isSidebarExpanded}
+        setIsSidebarExpanded={setIsSidebarExpanded}
       />
 
       <div className={`relative z-10 min-h-screen min-w-0 max-w-full bg-transparent transition-[padding] duration-300 ${
         isSidebarExpanded ? 'lg:pl-52' : 'lg:pl-14'
       }`}>
         <div className="relative z-20">
-          <CompanyDashboardHeader {...headerProps} isSidebarExpanded={isSidebarExpanded} setIsSidebarExpanded={setIsSidebarExpanded} />
+          <CompanyDashboardHeader {...headerProps} />
         </div>
         <div className="min-w-0 max-w-full">
           <CompanyDashboardContent {...contentProps} />

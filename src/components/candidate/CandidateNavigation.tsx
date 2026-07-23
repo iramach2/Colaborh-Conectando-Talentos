@@ -1,5 +1,7 @@
 import {
   Brain,
+  ChevronLeft,
+  ChevronRight,
   FileText,
   LogOut,
   Settings,
@@ -135,6 +137,18 @@ export function CandidateNavigation({
         </nav>
 
         <div className={`flex flex-col gap-2 border-t border-slate-100/70 ${isSidebarExpanded ? 'p-3' : 'items-center p-2'}`}>
+          <button
+            type="button"
+            onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            className={`flex h-10 cursor-pointer items-center gap-3 rounded-xl text-slate-400 transition-all hover:bg-[#f3e5ff] hover:text-[#940dff] ${
+              isSidebarExpanded ? 'w-full justify-start px-3' : 'w-10 justify-center'
+            }`}
+            title={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
+            aria-label={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
+          >
+            {isSidebarExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+            {isSidebarExpanded && <span className="text-[12px] font-semibold">Recolher</span>}
+          </button>
           <CandidateSidebarItem
             icon={settingsItem.icon}
             label={settingsItem.label}

@@ -1,10 +1,12 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Award,
   BarChart3,
   Briefcase,
   Building,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CreditCard,
   LogOut,
   PlusCircle,
@@ -22,6 +24,7 @@ export interface CompanyDashboardSidebarProps {
   isMobileSidebarOpen: boolean;
   setIsMobileSidebarOpen: (isOpen: boolean) => void;
   isSidebarExpanded?: boolean;
+  setIsSidebarExpanded?: (isExpanded: boolean) => void;
   selectedCompany?: CompanyRecord | null;
   companies?: CompanyRecord[];
   selectedCompanyId?: string;
@@ -48,6 +51,7 @@ export const CompanyDashboardSidebar = ({
   isMobileSidebarOpen,
   setIsMobileSidebarOpen,
   isSidebarExpanded = false,
+  setIsSidebarExpanded,
   selectedCompany,
   companies = [],
   selectedCompanyId,
@@ -127,6 +131,20 @@ export const CompanyDashboardSidebar = ({
         </nav>
 
         <div className={`border-t border-slate-100/70 flex flex-col gap-2 ${isSidebarExpanded ? 'p-3' : 'p-2 items-center'}`}>
+          <button
+            type="button"
+            onClick={() => setIsSidebarExpanded?.(!isSidebarExpanded)}
+            className={`h-10 rounded-xl text-slate-400 hover:bg-[#f3e5ff] hover:text-[#940dff] transition-all flex items-center gap-3 cursor-pointer ${
+              isSidebarExpanded ? 'w-full px-3 justify-start' : 'w-10 justify-center'
+            }`}
+            title={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
+            aria-label={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
+          >
+            {isSidebarExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+            {isSidebarExpanded && (
+              <span className="text-[10px] font-black uppercase tracking-widest">Recolher</span>
+            )}
+          </button>
           <SidebarItem
             icon={settingsItem.icon}
             label={settingsItem.label}

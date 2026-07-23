@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Check, ChevronLeft, ChevronRight, Filter, Menu, MessageSquare, Plus, Search } from 'lucide-react';
+import { Bell, Check, Filter, Menu, MessageSquare, Plus, Search } from 'lucide-react';
 import type { CompanyRecord } from '../../services/companyService';
 import type { CustomQuestionnaire } from '../../services/customQuestionnaireService';
 import type { CompanyApplication, CompanyJob } from '../../types/companyDashboard';
@@ -9,8 +9,6 @@ export interface CompanyDashboardHeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   setIsMobileSidebarOpen: (isOpen: boolean) => void;
-  isSidebarExpanded?: boolean;
-  setIsSidebarExpanded?: (isExpanded: boolean) => void;
   setIsNotificationsDrawerOpen: (isOpen: boolean) => void;
   openMessagesDrawer: () => void;
   notifications: ColaborhNotification[];
@@ -48,8 +46,6 @@ export const CompanyDashboardHeader = ({
   activeTab,
   setActiveTab,
   setIsMobileSidebarOpen,
-  isSidebarExpanded = false,
-  setIsSidebarExpanded,
   setIsNotificationsDrawerOpen,
   openMessagesDrawer,
   notifications,
@@ -100,15 +96,6 @@ export const CompanyDashboardHeader = ({
             <h1 className="truncate text-[20px] font-semibold tracking-tight text-[#343241] lg:hidden">{activeTab}</h1>
           </div>
           <div className="hidden min-w-0 items-center gap-3 text-left lg:flex">
-            <button
-              type="button"
-              onClick={() => setIsSidebarExpanded?.(!isSidebarExpanded)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white/80 text-slate-400 shadow-sm transition-all hover:border-[#940dff]/20 hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95"
-              title={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
-              aria-label={isSidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
-            >
-              {isSidebarExpanded ? <ChevronLeft size={18} className="stroke-[1.8]" /> : <ChevronRight size={18} className="stroke-[1.8]" />}
-            </button>
             <h1 className="truncate text-xl font-semibold tracking-tight text-[#343241]">{activeTab}</h1>
           </div>
 
