@@ -9,6 +9,7 @@ import {
   markAssessmentPendingWithLegacyFallback,
   type AssessmentType,
 } from '../services/assessmentService';
+import { sendAssessmentEmail } from '../services/assessmentEmailService';
 import type { CustomQuestionnaire } from '../services/customQuestionnaireService';
 import type { CompanyApplication, CompanyJob } from '../types/companyDashboard';
 
@@ -46,7 +47,15 @@ const getApplicationIdentity = (application: CompanyApplication) => ({
   appId: application.id,
   currentPhone: application.candidate_phone || '',
   email: application.candidate_email || application.email || 'candidato@email.com',
+  candidateName: application.candidate_name || application.name || 'candidato',
 });
+
+const getApplicationJob = (application: CompanyApplication, selectedJob: CompanyJob | null) =>
+  selectedJob || application.job || application.jobs || null;
+
+const getJobTitle = (job: CompanyJob | null) => job?.title || job?.role || 'Vaga Selecionada';
+
+const getCompanyName = (job: CompanyJob | null) => job?.company_name || 'Colaborh';
 
 export const useCompanyAssessmentRequests = ({
   selectedJob,
@@ -67,8 +76,10 @@ export const useCompanyAssessmentRequests = ({
         return;
       }
 
-      const { appId, currentPhone, email } = getApplicationIdentity(application);
-      const jobTitle = selectedJob?.title || 'Vaga Selecionada';
+      const { appId, currentPhone, email, candidateName } = getApplicationIdentity(application);
+      const applicationJob = getApplicationJob(application, selectedJob);
+      const jobTitle = getJobTitle(applicationJob);
+      const companyName = getCompanyName(applicationJob);
 
       const foundPreviousCompletedValue = await findPreviousCompletedAssessmentLegacyValue(
         email,
@@ -108,7 +119,17 @@ export const useCompanyAssessmentRequests = ({
         config.warningContext,
       );
 
-      alert(config.successAlert(email));
+      const emailResult = await sendAssessmentEmail({
+        to: email,
+        candidateName,
+        testName: config.successTitle,
+        jobTitle,
+        companyName,
+      });
+
+      alert(emailResult.ok
+        ? config.successAlert(email)
+        : `Teste solicitado com sucesso, mas nao foi possivel enviar o e-mail para: ${email}. O candidato ainda pode responder pelo painel.`);
     } catch (err) {
       console.error(config.errorLog, err);
       alert(config.errorAlert);
@@ -194,8 +215,10 @@ export const useCompanyAssessmentRequests = ({
         return;
       }
 
-      const { appId, currentPhone, email } = getApplicationIdentity(application);
-      const jobTitle = selectedJob?.title || 'Vaga Selecionada';
+      const { appId, currentPhone, email, candidateName } = getApplicationIdentity(application);
+      const applicationJob = getApplicationJob(application, selectedJob);
+      const jobTitle = getJobTitle(applicationJob);
+      const companyName = getCompanyName(applicationJob);
       const templatePayload = template
         ? { title: template.title, questions: template.questions }
         : null;
@@ -223,7 +246,17 @@ export const useCompanyAssessmentRequests = ({
         'questionario customizado',
       );
 
-      alert(`Questionario Customizado solicitado com sucesso!\n\nE-mail de notificacao enviado para: ${email}\nO candidato ja pode responder ao questionario no painel dele.`);
+      const emailResult = await sendAssessmentEmail({
+        to: email,
+        candidateName,
+        testName: template?.title || 'Questionario Customizado',
+        jobTitle,
+        companyName,
+      });
+
+      alert(emailResult.ok
+        ? `Questionario Customizado solicitado com sucesso!\n\nE-mail de notificacao enviado para: ${email}\nO candidato ja pode responder ao questionario no painel dele.`
+        : `Questionario Customizado solicitado com sucesso, mas nao foi possivel enviar o e-mail para: ${email}. O candidato ainda pode responder pelo painel.`);
     } catch (err) {
       console.error('Erro ao solicitar questionario customizado:', err);
       alert('Erro ao solicitar questionario customizado.');
@@ -261,7 +294,7 @@ export const useCompanyAssessmentRequests = ({
       console.error('Erro ao solicitar questionario customizado:', err);
       alert('Erro ao solicitar questionario customizado.');
     }
-  }, [closeCustomTemplateRequest, updateApplicantCandidatePhone, validateAndDeductCredit]);
+  }, [closeCustomTemplateRequest, notifyCandidateAssessmentRequest, selectedJob, updateApplicantCandidatePhone]);
 
   return {
     handleRequestDiscTest,
