@@ -187,7 +187,7 @@ export function CandidateResumePersonalInfoEditor({
 
           <div>
             <ResumeFieldLabel>Acessibilidade</ResumeFieldLabel>
-            <label className="flex h-10 w-full cursor-pointer items-center justify-between rounded-xl border border-slate-200/80 bg-white px-3 text-[12px] font-semibold text-slate-500 transition-all hover:border-[#940dff]/20 hover:text-[#940dff]">
+            <label className={`${resumeInputClass} flex cursor-pointer items-center justify-between gap-3 hover:!border-[#940dff]/40`}>
               <span className="flex items-center gap-2">
                 <Accessibility size={14} /> Pessoa PCD
               </span>
