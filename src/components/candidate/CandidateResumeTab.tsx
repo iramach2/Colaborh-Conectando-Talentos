@@ -51,7 +51,7 @@ export function CandidateResumeTab({
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="rounded-2xl border border-[#940dff] bg-[#940dff] p-4 text-white shadow-[0_14px_30px_rgba(148,13,255,0.22)]">
+          <div className="rounded-2xl border border-[#940dff] bg-[#940dff] p-4 text-white">
             <p className="text-[11px] font-semibold text-white/85">Progresso</p>
             <div className="mt-2 flex items-end gap-2">
               <span className="text-2xl font-semibold text-white">{completionPercentage}%</span>
@@ -65,7 +65,7 @@ export function CandidateResumeTab({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#63e1a5] bg-[#63e1a5] p-4 text-white shadow-[0_14px_30px_rgba(99,225,165,0.22)]">
+          <div className="rounded-2xl border border-[#63e1a5] bg-[#63e1a5] p-4 text-white">
             <div className="flex items-center gap-2 text-white">
               <CheckCircle2 size={16} />
               <p className="text-[11px] font-semibold">Seções completas</p>
@@ -73,7 +73,7 @@ export function CandidateResumeTab({
             <p className="mt-2 text-2xl font-semibold text-white">{completedSections}</p>
           </div>
 
-          <div className="rounded-2xl border border-[#ffc24b] bg-[#ffc24b] p-4 text-white shadow-[0_14px_30px_rgba(255,194,75,0.24)]">
+          <div className="rounded-2xl border border-[#ffc24b] bg-[#ffc24b] p-4 text-white">
             <div className="flex items-center gap-2 text-white">
               <Clock3 size={16} />
               <p className="text-[11px] font-semibold">Pendentes</p>
