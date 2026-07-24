@@ -36,7 +36,7 @@ export function CandidateResumeSectionGrid({
                   {section.title}
                 </h3>
                 <span className={`inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-lg px-2 text-[10px] font-semibold ${
-                  isCompleted ? 'bg-[#63e1a5]/14 text-[#2f9f6b]' : 'bg-slate-50 text-slate-400'
+                  isCompleted ? 'bg-[#63e1a5] text-white' : 'bg-slate-50 text-slate-400'
                 }`}>
                   {isCompleted ? <Check size={11} className="stroke-[3]" /> : 'Pendente'}
                 </span>

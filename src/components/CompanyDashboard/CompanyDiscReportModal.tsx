@@ -87,7 +87,7 @@ export function CompanyDiscReportModal({
                 </div>
                 <div className="min-w-0 flex-1">
                   <h4 className="text-[18px] font-semibold leading-tight tracking-tight text-[#343241] sm:text-sm">
-                    Relat?rio DISC 5.0
+                    Relatório DISC 5.0
                   </h4>
                   <div className="mt-2 grid gap-1 sm:flex sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-0.5">
                     <p className="text-[12px] font-medium leading-snug text-slate-400">
@@ -113,7 +113,7 @@ export function CompanyDiscReportModal({
                 <button
                   onClick={onClose}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/80 bg-white text-slate-400 shadow-sm transition-all hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95"
-                  aria-label="Fechar relat?rio"
+                  aria-label="Fechar relatório"
                 >
                   <CloseIcon size={16} />
                 </button>

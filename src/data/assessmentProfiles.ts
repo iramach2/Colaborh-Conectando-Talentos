@@ -275,7 +275,7 @@ export const TEMPERAMENTOS_PROFILES: Record<string, {
     title: "Inovador Visionário",
     description: "Indivíduos criativos, intuitivos e visionários que adoram a liberdade e buscam pensar de maneira inovadora. Adaptam-se muito bem a novidades e exploram rotas desconhecidas com entusiasmo, embora possam apresentar dificuldades com rotinas e estabilidade rígida.",
     strengths: ["Criatividade", "Inovação", "Visão de futuro", "Adaptabilidade", "Pensamento fora da caixa"],
-    weaknesses: ["F?cil distra??o", "Dificuldade com rotinas", "Mudan?as frequentes de rumo", "Pouca toler?ncia ? repeti??o"],
+    weaknesses: ["Fácil distração", "Dificuldade com rotinas", "Mudanças frequentes de rumo", "Pouca tolerância à repetição"],
     environments: ["Criação", "Marketing", "Estratégia e Inovação", "Desenvolvimento de novos projetos"]
   },
   C: {
@@ -297,9 +297,9 @@ export const TEMPERAMENTOS_PROFILES: Record<string, {
   A: {
     name: "Executor / Dominante",
     title: "Líder Assertivo",
-    description: "Profissionais orientados a resultados, competitivos e determinados. Tomam decis?es com rapidez e assumem posi??es de lideran?a de forma natural. Podem se mostrar impacientes ou demonstrar baixa toler?ncia com ritmos mais lentos.",
+    description: "Profissionais orientados a resultados, competitivos e determinados. Tomam decisões com rapidez e assumem posições de liderança de forma natural. Podem se mostrar impacientes ou demonstrar baixa tolerância com ritmos mais lentos.",
     strengths: ["Liderança assertiva", "Foco em resultados", "Agilidade de execução", "Tomada de decisão rápida"],
-    weaknesses: ["Impaci?ncia", "Autoritarismo", "Pouca toler?ncia com lentid?o", "Risco de desconsiderar aspectos emocionais"],
+    weaknesses: ["Impaciência", "Autoritarismo", "Pouca tolerância com lentidão", "Risco de desconsiderar aspectos emocionais"],
     environments: ["Gestão executiva", "Direção comercial", "Negociação", "Operações críticas", "Áreas de alta competitividade"]
   },
   "A + O": {
@@ -312,7 +312,7 @@ export const TEMPERAMENTOS_PROFILES: Record<string, {
   },
   "C + I": {
     name: "Comunicador Criativo",
-    title: "Inspirador Din?mico",
+    title: "Inspirador Dinâmico",
     description: "A fusão perfeita da facilidade de comunicação e espírito de equipe com a criatividade visionária. Conseguem inspirar pessoas a seguirem ideias inovadoras, têm excelente empatia e trazem um dinamismo contagiante para o grupo.",
     strengths: ["Criatividade brilhante", "Inspirar e motivar pessoas", "Fácil relacionamento", "Carisma natural"],
     weaknesses: ["Dificuldade em manter o foco em tarefas repetitivas", "Falta de organização prática", "Sensibilidade às críticas"],
@@ -445,7 +445,7 @@ export const MBTI_PROFILES: Record<string, MbtiProfile> = {
     desc: "Protetores dedicados e acolhedores, sempre prontos para defender as pessoas de quem gostam. Valorizam a harmonia social.",
     caracteristicas: ["Empático", "Protetor", "Responsável", "Pacífico", "Tradicional"],
     pontosFortes: ["Apoio à equipe", "Grande senso de dever", "Excelente atenção aos outros", "Praticidade"],
-    pontosAtencao: ["Sobrecarga por n?o saber dizer n?o", "Relut?ncia a inova??es", "Guarda sentimentos para si"],
+    pontosAtencao: ["Sobrecarga por não saber dizer não", "Relutância a inovações", "Guarda sentimentos para si"],
     classColor: "text-emerald-700 bg-emerald-50 border-emerald-100",
     borderColor: "border-emerald-200",
     bgColor: "bg-emerald-500",
@@ -482,7 +482,7 @@ export const MBTI_PROFILES: Record<string, MbtiProfile> = {
     titulo: "Executor lógico",
     categoria: "Explorador",
     desc: "Experimentadores ousados e práticos, mestres em todos os tipos de ferramentas. Abordam a vida com racionalidade e curiosidade.",
-    caracteristicas: ["Pr?tico", "Adapt?vel", "Racional", "Espont?neo", "Resoluto"],
+    caracteristicas: ["Prático", "Adaptável", "Racional", "Espontâneo", "Resoluto"],
     pontosFortes: ["Excelente sob pressão", "Ótima solução prática de problemas", "Flexibilidade", "Otimismo natural"],
     pontosAtencao: ["Dificuldade em seguir rotinas rígidas", "Reservado demais", "Pode tomar riscos excessivos"],
     classColor: "text-amber-700 bg-amber-50 border-amber-100",
@@ -546,8 +546,8 @@ export const MBTI_PROFILES: Record<string, MbtiProfile> = {
     nome: "ESFP",
     titulo: "Animador sociável",
     categoria: "Explorador",
-    desc: "Animadores espont?neos, en?rgicos e entusiasmados - a vida nunca ? entediante perto deles. Adoram a intera??o social.",
-    caracteristicas: ["Soci?vel", "Espont?neo", "Alegre", "Expressivo", "Colaborativo"],
+    desc: "Animadores espontâneos, enérgicos e entusiasmados — a vida nunca é entediante perto deles. Adoram a interação social.",
+    caracteristicas: ["Sociável", "Espontâneo", "Alegre", "Expressivo", "Colaborativo"],
     pontosFortes: ["Facilidade em engajar pessoas", "Atitude positiva constante", "Excelente senso estético", "Praticidade cotidiana"],
     pontosAtencao: ["Falta de planejamento de longo prazo", "Dificuldade em lidar com críticas", "Tende a evitar conflitos sérios"],
     classColor: "text-amber-700 bg-amber-50 border-amber-100",
@@ -637,7 +637,7 @@ export const MBTI_PROFILES: Record<string, MbtiProfile> = {
 
 export const perfisDISC = {
   D: {
-    nome: "DOMIN?NCIA (Executor/Direto)",
+    nome: "DOMINÂNCIA (Executor/Direto)",
     desc: "Enfatiza a obtenção de resultados, competitividade e iniciativa. Características principais: Focado, determinado, motivado por desafios, prefere liderar e agir de forma rápida.",
     caracteristicas: ["Assertivo", "Competitivo", "Direto", "Focado em resultados", "Decidido"],
     pontosFortes: ["Foco em metas", "Liderança", "Rápido na tomada de decisão", "Independência"],
@@ -646,7 +646,7 @@ export const perfisDISC = {
     sobPressao: ["Torna-se ditatorial", "Foca excessivamente em metas e esquece das pessoas", "Pode ser ríspido ou impaciente"],
     classColor: "text-rose-600 bg-rose-50 border-rose-100",
     barColor: "bg-rose-500",
-    label: "Domin?ncia"
+    label: "Dominância"
   },
   I: {
     nome: "INFLUÊNCIA (Comunicador/Sociável)",
@@ -654,7 +654,7 @@ export const perfisDISC = {
     caracteristicas: ["Persuasivo", "Otimista", "Sociável", "Comunicativo", "Entusiasmado"],
     pontosFortes: ["Habilidade interpessoal", "Persuasão e vendas", "Clima organizacional positivo", "Criatividade"],
     pontosAtencao: ["Falta de foco e desorganização", "Dificuldade em dar feedback negativo", "Responsabilidade em cumprir prazos", "Impulsividade"],
-    motivadores: ["Reconhecimento social e elogios", "Ambientes din?micos e colaborativos", "Liberdade para expressar ideias", "Variedade de tarefas"],
+    motivadores: ["Reconhecimento social e elogios", "Ambientes dinâmicos e colaborativos", "Liberdade para expressar ideias", "Variedade de tarefas"],
     sobPressao: ["Fala excessivamente sem pensar", "Pode se tornar superficial ou desorganizado", "Evita conflitos a qualquer custo"],
     classColor: "text-indigo-600 bg-indigo-50 border-indigo-100",
     barColor: "bg-indigo-500",

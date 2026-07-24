@@ -51,34 +51,34 @@ export function CandidateResumeTab({
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.025)]">
-            <p className="text-[11px] font-semibold text-slate-400">Progresso</p>
+          <div className="rounded-2xl border border-[#940dff] bg-[#940dff] p-4 text-white shadow-[0_14px_30px_rgba(148,13,255,0.22)]">
+            <p className="text-[11px] font-semibold text-white/85">Progresso</p>
             <div className="mt-2 flex items-end gap-2">
-              <span className="text-2xl font-semibold text-[#343241]">{completionPercentage}%</span>
-              <span className="pb-1 text-[12px] font-medium text-slate-400">preenchido</span>
+              <span className="text-2xl font-semibold text-white">{completionPercentage}%</span>
+              <span className="pb-1 text-[12px] font-medium text-white/75">preenchido</span>
             </div>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/25">
               <div
-                className="h-full rounded-full bg-[#940dff] transition-all duration-500"
+                className="h-full rounded-full bg-white transition-all duration-500"
                 style={{ width: `${completionPercentage}%` }}
               />
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#63e1a5]/18 bg-[#63e1a5]/[0.08] p-4">
-            <div className="flex items-center gap-2 text-[#2f9f6b]">
+          <div className="rounded-2xl border border-[#63e1a5] bg-[#63e1a5] p-4 text-white shadow-[0_14px_30px_rgba(99,225,165,0.22)]">
+            <div className="flex items-center gap-2 text-white">
               <CheckCircle2 size={16} />
               <p className="text-[11px] font-semibold">Seções completas</p>
             </div>
-            <p className="mt-2 text-2xl font-semibold text-[#343241]">{completedSections}</p>
+            <p className="mt-2 text-2xl font-semibold text-white">{completedSections}</p>
           </div>
 
-          <div className="rounded-2xl border border-[#ffc24b]/24 bg-[#ffc24b]/[0.10] p-4">
-            <div className="flex items-center gap-2 text-[#ffa303]">
+          <div className="rounded-2xl border border-[#ffc24b] bg-[#ffc24b] p-4 text-white shadow-[0_14px_30px_rgba(255,194,75,0.24)]">
+            <div className="flex items-center gap-2 text-white">
               <Clock3 size={16} />
               <p className="text-[11px] font-semibold">Pendentes</p>
             </div>
-            <p className="mt-2 text-2xl font-semibold text-[#343241]">{pendingSections}</p>
+            <p className="mt-2 text-2xl font-semibold text-white">{pendingSections}</p>
           </div>
         </div>
       </div>
