@@ -38,7 +38,7 @@ export function CandidateResumeSkillsEditor({ skills, onChange }: CandidateResum
                 const input = event.currentTarget.previousElementSibling as HTMLInputElement;
                 addSkill(input);
               }}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 active:scale-95"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#940dff] bg-white text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-95"
               aria-label="Adicionar habilidade"
             >
               <Plus size={16} />

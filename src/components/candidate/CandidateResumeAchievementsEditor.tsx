@@ -76,7 +76,7 @@ export function CandidateResumeAchievementsEditor({
                 </div>
                 {item.description && <p className="mt-1 text-[12px] font-medium leading-relaxed text-slate-400">{item.description}</p>}
               </div>
-              <button type="button" onClick={() => onRemoveAchievement(item.id)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#ff4b8c] bg-[#ff4b8c] text-white transition-all hover:bg-[#f0387b]" aria-label="Remover certificação">
+              <button type="button" onClick={() => onRemoveAchievement(item.id)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#ff4b8c] bg-[#ff4b8c] text-white transition-all hover:bg-[#f0387b]" aria-label="Remover certificação">
                 <Trash2 size={14} />
               </button>
             </div>

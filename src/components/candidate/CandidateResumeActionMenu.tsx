@@ -1,12 +1,11 @@
 import { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import { Brain, Download, Eye, MoreHorizontal } from 'lucide-react';
+import { Brain, Download, MoreHorizontal } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 interface CandidateResumeActionMenuProps {
   showActionDropdown: boolean;
   setShowActionDropdown: Dispatch<SetStateAction<boolean>>;
   onAIParse: (file: File) => void;
-  onOpenPreview: () => void;
   onDownloadResume: () => void;
 }
 
@@ -14,7 +13,6 @@ export function CandidateResumeActionMenu({
   showActionDropdown,
   setShowActionDropdown,
   onAIParse,
-  onOpenPreview,
   onDownloadResume,
 }: CandidateResumeActionMenuProps) {
   const handleAIUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -30,7 +28,6 @@ export function CandidateResumeActionMenu({
 
   const menuActions = [
     { label: 'Preencher com IA', icon: Brain, onClick: openUpload },
-    { label: 'Visualizar currículo', icon: Eye, onClick: onOpenPreview },
     { label: 'Baixar PDF', icon: Download, onClick: onDownloadResume },
   ];
 
@@ -48,18 +45,10 @@ export function CandidateResumeActionMenu({
         <button
           type="button"
           onClick={openUpload}
-          className="flex h-8 items-center justify-center gap-2 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 active:scale-95"
+          className="flex h-8 items-center justify-center gap-2 rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-95"
         >
           <Brain size={14} />
           Preencher com IA
-        </button>
-        <button
-          type="button"
-          onClick={onOpenPreview}
-          className="flex h-8 items-center justify-center gap-2 rounded-xl border border-slate-200/80 bg-white px-4 text-[12px] font-semibold text-slate-500 shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#940dff] active:scale-95"
-        >
-          <Eye size={14} />
-          Visualizar
         </button>
         <button
           type="button"
@@ -76,7 +65,7 @@ export function CandidateResumeActionMenu({
           type="button"
           onClick={() => setShowActionDropdown(!showActionDropdown)}
           className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-500 shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#940dff]"
-          title="Mais opções"
+          title="Mais op\u00e7\u00f5es"
         >
           <MoreHorizontal size={17} />
         </button>

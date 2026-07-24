@@ -77,8 +77,8 @@ export function CandidateResumeExperienceEditor({
                   </div>
                 </div>
                 <div className="flex shrink-0 gap-2">
-                  <button type="button" onClick={() => onEditExperience(experience)} className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#ffc24b] bg-[#ffc24b] text-white" aria-label="Editar experiência"><Pencil size={14} /></button>
-                  <button type="button" onClick={() => onRemoveExperience(experience.id)} className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#ff4b8c] bg-[#ff4b8c] text-white" aria-label="Remover experiência"><Trash2 size={14} /></button>
+                  <button type="button" onClick={() => onEditExperience(experience)} className="flex h-8 w-8 items-center justify-center rounded-full border border-[#ffc24b] bg-[#ffc24b] text-white" aria-label="Editar experiência"><Pencil size={14} /></button>
+                  <button type="button" onClick={() => onRemoveExperience(experience.id)} className="flex h-8 w-8 items-center justify-center rounded-full border border-[#ff4b8c] bg-[#ff4b8c] text-white" aria-label="Remover experiência"><Trash2 size={14} /></button>
                 </div>
               </div>
             </ResumeSectionCard>

@@ -1,14 +1,14 @@
-﻿import { Check, Plus } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
 
 export const RESUME_SECTIONS = [
-  { id: 'info', title: 'Dados pessoais', desc: 'Foto de perfil, nome completo, contato, pretensão salarial e links de redes sociais.' },
-  { id: 'summary', title: 'Resumo profissional', desc: 'Uma apresentação objetiva sobre objetivos, conquistas e trajetória profissional.' },
-  { id: 'experience', title: 'Experiências', desc: 'Histórico de trabalho, cargos anteriores, períodos e responsabilidades.' },
-  { id: 'education', title: 'Formação acadêmica', desc: 'Graduações, faculdades, cursos técnicos, certificações e datas.' },
-  { id: 'skills', title: 'Habilidades', desc: 'Competências técnicas ou comportamentais e nível de domínio.' },
-  { id: 'languages', title: 'Idiomas', desc: 'Línguas estrangeiras que você fala e o nível de fluência.' },
-  { id: 'achievements', title: 'Certificações', desc: 'Cursos extracurriculares, workshops, licenças profissionais e certificados.' },
-  { id: 'diversity', title: 'Diversidade', desc: 'Informações opcionais de acessibilidade, gênero, raça ou orientação.' },
+  { id: 'info', title: 'Dados pessoais', desc: 'Foto de perfil, nome completo, contato, pretens\u00e3o salarial e links de redes sociais.' },
+  { id: 'summary', title: 'Resumo profissional', desc: 'Uma apresenta\u00e7\u00e3o objetiva sobre objetivos, conquistas e trajet\u00f3ria profissional.' },
+  { id: 'experience', title: 'Experi\u00eancias', desc: 'Hist\u00f3rico de trabalho, cargos anteriores, per\u00edodos e responsabilidades.' },
+  { id: 'education', title: 'Forma\u00e7\u00e3o acad\u00eamica', desc: 'Gradua\u00e7\u00f5es, faculdades, cursos t\u00e9cnicos, certifica\u00e7\u00f5es e datas.' },
+  { id: 'skills', title: 'Habilidades', desc: 'Compet\u00eancias t\u00e9cnicas ou comportamentais e n\u00edvel de dom\u00ednio.' },
+  { id: 'languages', title: 'Idiomas', desc: 'L\u00ednguas estrangeiras que voc\u00ea fala e o n\u00edvel de flu\u00eancia.' },
+  { id: 'achievements', title: 'Certifica\u00e7\u00f5es', desc: 'Cursos extracurriculares, workshops, licen\u00e7as profissionais e certificados.' },
+  { id: 'diversity', title: 'Diversidade', desc: 'Informa\u00e7\u00f5es opcionais de acessibilidade, g\u00eanero, ra\u00e7a ou orienta\u00e7\u00e3o.' },
 ];
 
 interface CandidateResumeSectionGridProps {
@@ -49,11 +49,11 @@ export function CandidateResumeSectionGrid({
             <button
               type="button"
               onClick={() => onOpenSection(section.id)}
-              className="mt-3 flex h-8 w-full items-center justify-center gap-1.5 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-2 text-[11px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 active:scale-[0.98] md:mt-5 md:gap-2 md:px-4 md:text-[12px]"
+              className="mt-3 flex h-8 w-full items-center justify-center gap-1.5 rounded-xl border border-[#940dff] bg-white px-2 text-[11px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98] md:mt-5 md:gap-2 md:px-4 md:text-[12px]"
               title={`Editar ${section.title}`}
             >
               <Plus size={14} />
-              Editar seção
+              {'Editar se\u00e7\u00e3o'}
             </button>
           </article>
         );
