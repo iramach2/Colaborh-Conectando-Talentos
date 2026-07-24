@@ -42,7 +42,7 @@ export function CandidateResumePersonalInfoEditor({
   const selectedCity = resumeData.city ? findMatchingBrazilianCityName(resumeData.city, cities) : '';
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <ResumeSectionCard className="!border-transparent !bg-white !p-0">
         <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
@@ -80,7 +80,7 @@ export function CandidateResumePersonalInfoEditor({
       </ResumeSectionCard>
 
       <ResumeSectionCard className="!border-transparent !bg-white !p-0">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
           <div>
             <ResumeFieldLabel>E-mail</ResumeFieldLabel>
             <input

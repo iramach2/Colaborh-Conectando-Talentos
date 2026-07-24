@@ -34,6 +34,16 @@ body {
 }
 
 
+
+/* Evita zoom autom?tico do iOS/Safari ao focar campos menores que 16px */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 @theme {
   --font-sans: "Outfit", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, RefObject } from 'react';
+import React, { ChangeEvent, RefObject, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Save } from 'lucide-react';
 import { CandidateResumeAchievementsEditor } from './CandidateResumeAchievementsEditor';
@@ -87,6 +87,28 @@ export function CandidateResumeEditorModal({
   handleRemoveAchievement,
   handleSaveToSupabase,
 }: CandidateResumeEditorModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const { body, documentElement } = document;
+    const previousBodyOverflow = body.style.overflow;
+    const previousBodyPaddingRight = body.style.paddingRight;
+    const previousDocumentOverflow = documentElement.style.overflow;
+    const scrollbarWidth = window.innerWidth - documentElement.clientWidth;
+
+    body.style.overflow = 'hidden';
+    documentElement.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = scrollbarWidth + 'px';
+    }
+
+    return () => {
+      body.style.overflow = previousBodyOverflow;
+      body.style.paddingRight = previousBodyPaddingRight;
+      documentElement.style.overflow = previousDocumentOverflow;
+    };
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -103,14 +125,16 @@ export function CandidateResumeEditorModal({
             animate={{ x: 0 }}
             exit={{ x: '105%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 300 }}
-            className="relative z-10 flex h-full w-full max-w-2xl flex-col border-l border-slate-200/70 bg-white p-5 sm:p-6"
+            className="relative z-10 flex h-full w-full max-w-2xl flex-col border-l border-slate-200/70 bg-white"
           >
-            <CandidateResumeEditorModalHeader
-              activeAccordion={activeAccordion}
-              onClose={() => setIsOpen(false)}
-            />
+            <div className="px-5 pt-5 sm:px-6 sm:pt-6">
+              <CandidateResumeEditorModalHeader
+                activeAccordion={activeAccordion}
+                onClose={() => setIsOpen(false)}
+              />
+            </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1">
+            <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeAccordion}
@@ -118,7 +142,7 @@ export function CandidateResumeEditorModal({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.18 }}
-                  className="space-y-5 pb-2"
+                  className="space-y-5 px-5 pb-2 sm:px-6"
                 >
                   <CandidateResumeEditorAddBar
                     activeAccordion={activeAccordion}
@@ -244,7 +268,7 @@ export function CandidateResumeEditorModal({
               </AnimatePresence>
             </div>
 
-            <div className="mt-5 flex shrink-0 justify-end border-t border-slate-200/70 pt-4">
+            <div className="mx-5 mt-5 flex shrink-0 justify-end border-t border-slate-200/70 pt-4 sm:mx-6">
               <ResumePrimaryButton
                 onClick={async () => {
                   const saved = await handleSaveToSupabase();
