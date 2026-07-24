@@ -1,12 +1,12 @@
 import type { ButtonHTMLAttributes, Key, ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
-export const resumeInputClass = 'h-10 w-full rounded-xl border !border-[#940dff]/12 !bg-white px-3 text-[12px] font-semibold text-[#343241] shadow-[0_8px_18px_rgba(148,13,255,0.055)] outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/35 focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
-export const resumeTextareaClass = 'w-full rounded-xl border !border-[#940dff]/12 !bg-white px-3 py-3 text-[12px] font-medium leading-relaxed text-[#343241] shadow-[0_8px_18px_rgba(148,13,255,0.055)] outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/35 focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
+export const resumeInputClass = 'h-12 w-full rounded-xl border !border-[#940dff]/18 !bg-white px-4 text-[12px] font-semibold text-[#343241] outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/40 focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
+export const resumeTextareaClass = 'w-full rounded-xl border !border-[#940dff]/18 !bg-white px-4 py-3 text-[12px] font-medium leading-relaxed text-[#343241] outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/40 focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
 export const resumeSelectClass = `${resumeInputClass} appearance-none pr-9`;
 
 export function ResumeFieldLabel({ children }: { children: ReactNode }) {
-  return <label className="mb-1.5 block text-[11px] font-semibold text-slate-400">{children}</label>;
+  return <label className="relative top-[9px] z-10 ml-4 inline-flex w-fit bg-white px-2 text-[11px] font-semibold leading-none text-slate-500">{children}</label>;
 }
 
 export function ResumeSectionCard({ children, className = '' }: { children: ReactNode; className?: string; key?: Key }) {
