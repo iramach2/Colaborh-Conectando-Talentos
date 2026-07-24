@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, Key, ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
-export const resumeInputClass = 'h-12 w-full rounded-xl border !border-[#940dff]/18 !bg-white px-4 text-[12px] font-semibold text-[#343241] outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/40 focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
+export const resumeInputClass = 'h-12 w-full rounded-xl border !border-[#940dff]/18 !bg-white px-4 text-[12px] font-semibold text-[#343241] !shadow-none outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/40 focus:!shadow-none focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
 export const resumeTextareaClass = 'w-full rounded-xl border !border-[#940dff]/18 !bg-white px-4 py-3 text-[12px] font-medium leading-relaxed text-[#343241] outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/40 focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
 export const resumeSelectClass = `${resumeInputClass} appearance-none pr-9`;
 
