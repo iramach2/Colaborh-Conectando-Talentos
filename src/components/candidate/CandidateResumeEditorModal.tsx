@@ -268,7 +268,7 @@ export function CandidateResumeEditorModal({
               </AnimatePresence>
             </div>
 
-            <div className="mx-5 mt-5 flex shrink-0 justify-end border-t border-slate-200/70 pb-[calc(env(safe-area-inset-bottom)+4.5rem)] pt-4 sm:mx-6 sm:pb-6">
+            <div className="mx-5 mt-5 flex shrink-0 justify-end border-t border-slate-200/70 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-4 sm:mx-6 sm:pb-6">
               <ResumePrimaryButton
                 onClick={async () => {
                   const saved = await handleSaveToSupabase();

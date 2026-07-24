@@ -35,6 +35,21 @@ body {
 
 
 
+
+/* Corrige largura nativa do campo de data no iOS/Safari */
+input[type="date"] {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
+
 /* Evita zoom autom?tico do iOS/Safari ao focar campos menores que 16px */
 @media (max-width: 768px) {
   input,
