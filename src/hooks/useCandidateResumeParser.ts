@@ -41,26 +41,36 @@ const ai = {
         throw new Error('Arquivo inválido para leitura por IA.');
       }
 
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) {
-        throw new Error('Sessão expirada. Entre novamente para usar a leitura por IA.');
-      }
-
-      const response = await fetch(parseEndpoint, {
+      const requestBody = JSON.stringify({
+        fileName: inlineData.fileName,
+        mimeType: inlineData.mimeType,
+        data: inlineData.data,
+        text: inlineData.mimeType === 'text/plain' ? atob(inlineData.data) : undefined,
+      });
+      const callParseEndpoint = (accessToken: string) => fetch(parseEndpoint, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fileName: inlineData.fileName,
-          mimeType: inlineData.mimeType,
-          data: inlineData.data,
-          text: inlineData.mimeType === 'text/plain' ? atob(inlineData.data) : undefined,
-        }),
+        body: requestBody,
       });
 
+      const { data: sessionData } = await supabase.auth.getSession();
+      let accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error('Sessão expirada. Entre novamente para usar a leitura por IA.');
+      }
+
+      let response = await callParseEndpoint(accessToken);
+      if (response.status === 401) {
+        const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession();
+        accessToken = refreshedData.session?.access_token;
+        if (refreshError || !accessToken) {
+          throw new Error('Sessão expirada. Entre novamente para usar a leitura por IA.');
+        }
+        response = await callParseEndpoint(accessToken);
+      }
       if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
         console.error('Resume parse endpoint failed', {
@@ -183,6 +193,10 @@ const normalizeAchievementType = (value: unknown) => {
 const getResumeParseErrorMessage = (error?: string, detail?: string, status?: number) => {
   const rawMessage = [error, detail].filter(Boolean).join(' ').toLowerCase();
 
+  if (status === 401 || rawMessage.includes('invalid authentication token') || rawMessage.includes('sessão expirada')) {
+    return 'Sua sessão expirou. Entre novamente na sua conta e tente preencher o currículo com IA.';
+  }
+
   if (status === 413 || rawMessage.includes('too large')) {
     return 'O arquivo é muito grande para leitura por IA. Envie um currículo menor ou em PDF mais leve.';
   }
@@ -197,6 +211,12 @@ const getResumeParseErrorMessage = (error?: string, detail?: string, status?: nu
 
   if (rawMessage.includes('invalid json') || rawMessage.includes('empty response')) {
     return 'A IA não conseguiu interpretar este currículo. Tente enviar um PDF mais simples ou revisar o arquivo.';
+  }
+
+  if (rawMessage.includes('after retry') || rawMessage.includes('finish_reason') || rawMessage.includes('terminou com o motivo')) {
+    return detail
+      ? `A IA não conseguiu interpretar o currículo após duas tentativas. ${detail}`
+      : 'A IA não conseguiu interpretar o currículo após duas tentativas. Tente usar outro arquivo.';
   }
 
   if (rawMessage.includes('failed to fetch')) {

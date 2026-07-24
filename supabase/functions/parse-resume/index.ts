@@ -147,7 +147,22 @@ const parseGeminiJson = (value: string) => {
 
   return null;
 };
+const getGeminiText = (response: Record<string, unknown>) => {
+  const candidates = Array.isArray(response.candidates) ? response.candidates : [];
+  const firstCandidate = candidates[0] as Record<string, unknown> | undefined;
+  const content = firstCandidate?.content as Record<string, unknown> | undefined;
+  const parts = Array.isArray(content?.parts) ? content.parts : [];
+  const text = parts
+    .map((part) => (part as { text?: string })?.text)
+    .filter((part): part is string => Boolean(part))
+    .join('\n');
 
+  return {
+    text,
+    finishReason: typeof firstCandidate?.finishReason === 'string' ? firstCandidate.finishReason : '',
+    promptFeedback: response.promptFeedback || null,
+  };
+};
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: getCorsHeaders(req) });
@@ -239,74 +254,81 @@ Deno.serve(async (req) => {
     'Responda somente o JSON final, sem markdown, sem bloco de codigo, sem comentarios, sem explicacoes e sem repetir o texto do curriculo.',
   ].join(' ');
 
-  const geminiResponse = await fetch(geminiUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: extractedText
-            ? [
-                { text: prompt },
-                { text: 'Texto extraido do curriculo:\n\n' + extractedText },
-              ]
-            : [
-                { text: prompt },
-                {
-                  inline_data: {
-                    mime_type: mimeType,
-                    data,
-                  },
-                },
-              ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 4096,
-        response_mime_type: 'application/json',
-        response_schema: resumeSchema,
-      },
-    }),
-  });
+  let lastFailure = 'A IA devolveu uma resposta vazia.';
 
-  if (!geminiResponse.ok) {
-    const detail = await geminiResponse.text();
-    console.error('Gemini request failed', {
-      status: geminiResponse.status,
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const geminiResponse = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: extractedText
+              ? [
+                  { text: prompt },
+                  { text: 'Texto extraido do curriculo:\n\n' + extractedText },
+                ]
+              : [
+                  { text: prompt },
+                  {
+                    inline_data: {
+                      mime_type: mimeType,
+                      data,
+                    },
+                  },
+                ],
+          },
+        ],
+        generationConfig: {
+          thinkingConfig: {
+            thinkingLevel: 'minimal',
+          },
+          maxOutputTokens: attempt === 1 ? 8192 : 16384,
+          response_mime_type: 'application/json',
+          response_schema: resumeSchema,
+        },
+      }),
+    });
+
+    if (!geminiResponse.ok) {
+      const detail = await geminiResponse.text();
+      const summarizedDetail = summarizeGeminiError(detail);
+      console.error('Gemini request failed', {
+        attempt,
+        status: geminiResponse.status,
+        mimeType,
+        fileName: payload.fileName || 'unknown',
+        detail: summarizedDetail,
+      });
+      return jsonResponse(req, { error: 'Gemini request failed', detail: summarizedDetail }, 502);
+    }
+
+    const geminiJson = await geminiResponse.json() as Record<string, unknown>;
+    const { text, finishReason, promptFeedback } = getGeminiText(geminiJson);
+    const parsedResume = text ? parseGeminiJson(text) : null;
+    if (parsedResume) {
+      return jsonResponse(req, parsedResume);
+    }
+
+    lastFailure = finishReason
+      ? `A resposta da IA terminou com o motivo ${finishReason}.`
+      : text
+        ? 'A resposta da IA não veio no formato JSON esperado.'
+        : 'A IA devolveu uma resposta vazia.';
+
+    console.error('Gemini resume parse attempt failed', {
+      attempt,
+      finishReason,
+      promptFeedback,
       mimeType,
       fileName: payload.fileName || 'unknown',
-      detail: summarizeGeminiError(detail),
+      preview: text.slice(0, 240),
     });
-    return jsonResponse(req, {
-      error: 'Gemini request failed',
-      detail: summarizeGeminiError(detail),
-    }, 502);
   }
 
-  const geminiJson = await geminiResponse.json();
-  const text = geminiJson?.candidates?.[0]?.content?.parts
-    ?.map((part: { text?: string }) => part?.text)
-    .filter(Boolean)
-    .join('\n');
-
-  if (!text) {
-    return jsonResponse(req, { error: 'Gemini returned an empty response' }, 502);
-  }
-
-  const parsedResume = parseGeminiJson(text);
-  if (parsedResume) {
-    return jsonResponse(req, parsedResume);
-  }
-
-  console.error('Gemini returned invalid JSON', {
-    mimeType,
-    fileName: payload.fileName || 'unknown',
-    preview: text.slice(0, 240),
-  });
   return jsonResponse(req, {
-    error: 'Gemini returned invalid JSON',
-    detail: 'A resposta da IA não veio no formato esperado.',
+    error: 'Gemini could not parse the resume after retry',
+    detail: lastFailure,
   }, 502);
 });
 
