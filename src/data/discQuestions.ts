@@ -92,7 +92,7 @@ export const perguntasDISC = [
   {
     pergunta: "Para trabalhar melhor, você precisa de...",
     opcoes: {
-      D: "Controle",
+      D: "Controle de um ambiente",
       I: "Aprovação",
       S: "Rotina",
       C: "Padrão"
@@ -119,7 +119,7 @@ export const perguntasDISC = [
   {
     pergunta: "Você costuma medir desempenho principalmente por...",
     opcoes: {
-      D: "Resultados",
+      D: "Por Resultados",
       I: "Reconhecimento",
       S: "Compatibilidade",
       C: "Precisão"
@@ -203,7 +203,7 @@ export const perguntasDISC = [
       D: "Empatia e paciência",
       I: "Controle emocional",
       S: "Ser assertivo sob pressão",
-      C: "Se preocupar menos sobre tudo"
+      C: "Se preocupar menos com tudo"
     }
   },
   {
@@ -219,9 +219,9 @@ export const perguntasDISC = [
     pergunta: "Quando vai às compras, você costuma...",
     opcoes: {
       D: "Saber o que quer",
-      I: "Se divertir",
+      I: "Se Diverte",
       S: "Ficar indeciso",
-      C: "Buscar ofertas"
+      C: "Buscar Ofertas"
     }
   }
 ];

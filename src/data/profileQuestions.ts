@@ -14,9 +14,9 @@ export const QUESTIONS_CATEGORIES = {
     questions: [
       "De que forma você acredita que pode contribuir para nossa empresa e equipe? (Qual seu diferencial para a vaga em que está se candidatando)",
       "Em experiências anteriores, o que você fez que trouxe resultados positivos para a empresa?",
-      "Você já identificou alguma melhoria em processos ou atividades no ambiente de trabalho? Explique.",
+      "Você já promoveu alguma melhoria em processos ou atividades no ambiente de trabalho? Explique.",
       "Como você costuma lidar com metas, prazos e cobranças?",
-      "O que considera essencial para gerar bons resultados no trabalho."
+      "O que considera essencial para gerar bons resultados no trabalho?"
     ]
   },
   TEAMWORK: {

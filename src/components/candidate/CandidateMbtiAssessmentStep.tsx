@@ -132,8 +132,8 @@ export function CandidateMbtiAssessmentStep({
 function MbtiOptionCard({ label, value, onSelect }: { label: string; value: number | null; onSelect: (score: number) => void }) {
   return (
     <div className="min-w-0 rounded-2xl border border-slate-200/70 bg-[#fbfaff] p-4">
-      <p className="min-h-[42px] max-w-full whitespace-normal break-words text-left text-[13px] font-semibold leading-relaxed text-slate-600">{label}</p>
-      <div className="mt-4 flex flex-col items-start gap-3 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="max-w-full whitespace-normal break-words text-left text-[13px] font-semibold leading-relaxed text-slate-600">{label}</p>
+      <div className="mt-3 flex flex-col items-start gap-3 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
         <span className="text-[11px] font-semibold text-slate-400">Sua nota</span>
         <div className="flex flex-wrap gap-2">
           {[0, 1, 2, 3].map((num) => {

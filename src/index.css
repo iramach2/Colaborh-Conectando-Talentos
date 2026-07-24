@@ -337,3 +337,11 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   outline: none;
   box-shadow: 0 0 0 3px rgba(99, 225, 165, 0.28);
 }
+
+.candidate-dashboard-surface,
+.candidate-dashboard-surface > div,
+.candidate-dashboard-surface main,
+.candidate-dashboard-surface header {
+  background-color: #ffffff !important;
+  background-image: none !important;
+}

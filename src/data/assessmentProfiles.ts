@@ -24,60 +24,60 @@ export const TEMPERAMENTOS_QUESTIONS: TemperamentosQuestion[] = [
     id: 2,
     text: "Eu gosto de...",
     options: {
-      A: "Ser piloto",
-      C: "Conversar com os passageiros",
-      O: "Planejar a viagem",
-      I: "Explorar novas rotas"
+      A: "Fazer progresso",
+      C: "Construir memórias",
+      O: "Fazer sentido",
+      I: "Tornar as pessoas confortáveis"
     }
   },
   {
     id: 3,
-    text: "Se você quiser se dar bem comigo...",
+    text: "Eu gosto de chegar...",
     options: {
-      I: "Me dê liberdade",
-      O: "Me deixe saber sua expectativa",
-      A: "Lidere, siga ou saia do caminho",
-      C: "Seja amigável, carinhoso e compreensivo"
+      A: "Na frente",
+      C: "Junto",
+      O: "Na hora",
+      I: "Em outro lugar"
     }
   },
   {
     id: 4,
-    text: "Para conseguir obter bons resultados é preciso...",
+    text: "Um ótimo dia para mim é quando...",
     options: {
-      I: "Ter incertezas",
-      O: "Controlar o essencial",
-      C: "Diversão e celebração",
-      A: "Planejar e obter recursos"
+      A: "Consigo fazer muitas coisas",
+      C: "Me divirto com meus amigos",
+      O: "Tudo segue conforme planejado",
+      I: "Desfruto de coisas novas e estimulantes"
     }
   },
   {
     id: 5,
-    text: "Eu me divirto quando...",
+    text: "Eu vejo a morte como...",
     options: {
-      A: "Estou me exercitando",
-      I: "Tenho novidades",
-      C: "Estou com outros",
-      O: "Determino as regras"
+      I: "Uma grande aventura misteriosa",
+      C: "Oportunidade para rever os falecidos",
+      O: "Um modo de receber recompensas",
+      A: "Algo que sempre chega muito cedo"
     }
   },
   {
     id: 6,
-    text: "Eu penso que...",
+    text: "Minha filosofia de vida é...",
     options: {
-      C: "Unidos venceremos, divididos perderemos",
-      A: "O ataque é melhor que a defesa",
-      I: "É bom ser manso, mas andar com um porrete",
-      O: "Um homem prevenido vale por dois"
+      A: "Há ganhadores e perdedores, e eu acredito ser um ganhador",
+      C: "Para eu ganhar, ninguém precisa perder",
+      O: "Para ganhar é preciso seguir as regras",
+      I: "Para ganhar, é necessário inventar novas regras"
     }
   },
   {
     id: 7,
-    text: "Minha preocupação é...",
+    text: "Para conseguir obter bons resultados é preciso...",
     options: {
-      I: "Gerar a ideia global",
-      C: "Fazer com que as pessoas gostem",
-      O: "Fazer com que funcione",
-      A: "Fazer com que aconteça"
+      I: "Perguntas e respostas",
+      O: "Ter todos os detalhes",
+      A: "Vantagens a meu favor",
+      C: "Que todos tenham a chance de ser ouvido"
     }
   },
   {
@@ -145,8 +145,8 @@ export const TEMPERAMENTOS_QUESTIONS: TemperamentosQuestion[] = [
     text: "Eu sempre gostei de...",
     options: {
       I: "Explorar",
-      O: "Evitar surpresas",
-      A: "Focalizar a meta",
+      O: "Evitar Surpresas",
+      A: "Focalizar na meta",
       C: "Realizar uma abordagem natural"
     }
   },
@@ -154,9 +154,9 @@ export const TEMPERAMENTOS_QUESTIONS: TemperamentosQuestion[] = [
     id: 15,
     text: "Eu gosto de mudanças se...",
     options: {
-      A: "Me der vantagem competitiva",
+      A: "Me der uma vantagem competitiva",
       C: "For divertido e compartilhável",
-      I: "Me der liberdade e variedade",
+      I: "Me der mais liberdade e variedade",
       O: "Melhorar ou me der mais controle"
     }
   },
@@ -176,7 +176,7 @@ export const TEMPERAMENTOS_QUESTIONS: TemperamentosQuestion[] = [
     options: {
       A: "Pessoas bem sucedidas",
       C: "Anciões e conselheiros",
-      O: "Autoridades no assunto",
+      O: "Autoridade no Assunto",
       I: "Lugares e ideias estranhas"
     }
   },
@@ -187,7 +187,7 @@ export const TEMPERAMENTOS_QUESTIONS: TemperamentosQuestion[] = [
       I: "Fazer o que precisa ser feito",
       O: "Fazer bem feito",
       C: "Fazer junto com o grupo",
-      A: "Simplesmente fazer"
+      A: "Simplesmente Fazer"
     }
   },
   {
@@ -275,7 +275,7 @@ export const TEMPERAMENTOS_PROFILES: Record<string, {
     title: "Inovador Visionário",
     description: "Indivíduos criativos, intuitivos e visionários que adoram a liberdade e buscam pensar de maneira inovadora. Adaptam-se muito bem a novidades e exploram rotas desconhecidas com entusiasmo, embora possam apresentar dificuldades com rotinas e estabilidade rígida.",
     strengths: ["Criatividade", "Inovação", "Visão de futuro", "Adaptabilidade", "Pensamento fora da caixa"],
-    weaknesses: ["Fácil distração", "Dificuldade com rotinas", "Mudanças frequentes de rumo", "Pouca tolerância à repetição"],
+    weaknesses: ["F?cil distra??o", "Dificuldade com rotinas", "Mudan?as frequentes de rumo", "Pouca toler?ncia ? repeti??o"],
     environments: ["Criação", "Marketing", "Estratégia e Inovação", "Desenvolvimento de novos projetos"]
   },
   C: {
@@ -297,9 +297,9 @@ export const TEMPERAMENTOS_PROFILES: Record<string, {
   A: {
     name: "Executor / Dominante",
     title: "Líder Assertivo",
-    description: "Profissionais orientados a resultados, competitivos e determinados. Tomam decisões com rapidez e assumem posições de liderança de forma natural. Podem se mostrar impacientes ou demonstrar baixa tolerância com ritmos mais lentos.",
+    description: "Profissionais orientados a resultados, competitivos e determinados. Tomam decis?es com rapidez e assumem posi??es de lideran?a de forma natural. Podem se mostrar impacientes ou demonstrar baixa toler?ncia com ritmos mais lentos.",
     strengths: ["Liderança assertiva", "Foco em resultados", "Agilidade de execução", "Tomada de decisão rápida"],
-    weaknesses: ["Impaciência", "Autoritarismo", "Pouca tolerância com lentidão", "Risco de desconsiderar aspectos emocionais"],
+    weaknesses: ["Impaci?ncia", "Autoritarismo", "Pouca toler?ncia com lentid?o", "Risco de desconsiderar aspectos emocionais"],
     environments: ["Gestão executiva", "Direção comercial", "Negociação", "Operações críticas", "Áreas de alta competitividade"]
   },
   "A + O": {
@@ -312,7 +312,7 @@ export const TEMPERAMENTOS_PROFILES: Record<string, {
   },
   "C + I": {
     name: "Comunicador Criativo",
-    title: "Inspirador Dinâmico",
+    title: "Inspirador Din?mico",
     description: "A fusão perfeita da facilidade de comunicação e espírito de equipe com a criatividade visionária. Conseguem inspirar pessoas a seguirem ideias inovadoras, têm excelente empatia e trazem um dinamismo contagiante para o grupo.",
     strengths: ["Criatividade brilhante", "Inspirar e motivar pessoas", "Fácil relacionamento", "Carisma natural"],
     weaknesses: ["Dificuldade em manter o foco em tarefas repetitivas", "Falta de organização prática", "Sensibilidade às críticas"],
@@ -348,15 +348,15 @@ export const MBTI_QUESTIONS: MbtiQuestion[] = [
   { id: 2, text: "Você é mais:", optionA: { text: "Realista", dimension: 'S' }, optionB: { text: "Filosófico", dimension: 'N' } },
   { id: 3, text: "Você se interessa mais por:", optionA: { text: "Fatos", dimension: 'S' }, optionB: { text: "Semelhanças / comparações", dimension: 'N' } },
   { id: 4, text: "Normalmente você é:", optionA: { text: "Justo", dimension: 'T' }, optionB: { text: "Sensível / interessado", dimension: 'F' } },
-  { id: 5, text: "Você normalmente:", optionA: { text: "Decide mais pela lógica", dimension: 'T' }, optionB: { text: "Decide mais pelos sentimentos", dimension: 'F' } },
-  { id: 6, text: "Você prefere:", optionA: { text: "Planejamento", dimension: 'J' }, optionB: { text: "Espontaneidade", dimension: 'P' } },
-  { id: 7, text: "Você normalmente:", optionA: { text: "Age rapidamente", dimension: 'E' }, optionB: { text: "Pensa antes de agir", dimension: 'I' } },
-  { id: 8, text: "Você valoriza mais:", optionA: { text: "Experiência", dimension: 'S' }, optionB: { text: "Imaginação", dimension: 'N' } },
-  { id: 9, text: "Você prefere pessoas:", optionA: { text: "Objetivas", dimension: 'T' }, optionB: { text: "Emocionais", dimension: 'F' } },
-  { id: 10, text: "Você prefere:", optionA: { text: "Organização", dimension: 'J' }, optionB: { text: "Flexibilidade", dimension: 'P' } },
-  { id: 11, text: "Você costuma:", optionA: { text: "Falar mais", dimension: 'E' }, optionB: { text: "Ouvir mais", dimension: 'I' } },
-  { id: 12, text: "Você confia mais em:", optionA: { text: "Experiência concreta", dimension: 'S' }, optionB: { text: "Inspiração", dimension: 'N' } },
-  { id: 13, text: "Você valoriza mais:", optionA: { text: "Justiça", dimension: 'T' }, optionB: { text: "Compaixão", dimension: 'F' } },
+  { id: 5, text: "Você tende ser mais:", optionA: { text: "Calculista", dimension: 'T' }, optionB: { text: "Empático", dimension: 'F' } },
+  { id: 6, text: "Você prefere trabalhar:", optionA: { text: "Na última hora", dimension: 'J' }, optionB: { text: "A todo tempo", dimension: 'P' } },
+  { id: 7, text: "Você tende escolher:", optionA: { text: "Cuidadosamente", dimension: 'E' }, optionB: { text: "Impulsivamente", dimension: 'I' } },
+  { id: 8, text: "Nas festas você:", optionA: { text: "Fica até tarde, com muita disposição", dimension: 'S' }, optionB: { text: "Sai cedo, com pouca disposição", dimension: 'N' } },
+  { id: 9, text: "Você é uma pessoa mais:", optionA: { text: "Sensível", dimension: 'T' }, optionB: { text: "Reflexiva", dimension: 'F' } },
+  { id: 10, text: "Você é mais inclinado a ser:", optionA: { text: "Objetivo", dimension: 'J' }, optionB: { text: "Abstrato", dimension: 'P' } },
+  { id: 11, text: "Para você é mais natural ser:", optionA: { text: "Justa com os outros", dimension: 'E' }, optionB: { text: "Agradável", dimension: 'I' } },
+  { id: 12, text: "Num primeiro contato com os outros, você é:", optionA: { text: "Impessoal e desinteressado", dimension: 'S' }, optionB: { text: "Pessoal e interessado", dimension: 'N' } },
+  { id: 13, text: "Normalmente você é:", optionA: { text: "Pontual", dimension: 'T' }, optionB: { text: "Sossegado", dimension: 'F' } },
   { id: 14, text: "Você se incomoda mais em ter coisas:", optionA: { text: "Incompletas", dimension: 'J' }, optionB: { text: "Completas", dimension: 'P' } },
   { id: 15, text: "Em seus grupos sociais você:", optionA: { text: "Mantém-se atualizado", dimension: 'E' }, optionB: { text: "Fica desatualizado", dimension: 'I' } },
   { id: 16, text: "Normalmente você se interessa mais por:", optionA: { text: "Detalhes", dimension: 'S' }, optionB: { text: "Conceitos", dimension: 'N' } },
@@ -368,46 +368,46 @@ export const MBTI_QUESTIONS: MbtiQuestion[] = [
   { id: 22, text: "Ao ligar para alguém você:", optionA: { text: "Apenas começa falando", dimension: 'E' }, optionB: { text: "Prepara o que irá dizer", dimension: 'I' } },
   { id: 23, text: "Fatos:", optionA: { text: "Falam por eles mesmos", dimension: 'S' }, optionB: { text: "Precisam ser interpretados", dimension: 'N' } },
   { id: 24, text: "Você prefere trabalhar com:", optionA: { text: "Informações práticas", dimension: 'S' }, optionB: { text: "Ideias abstratas", dimension: 'N' } },
-  { id: 25, text: "Você normalmente é:", optionA: { text: "Mais lógico", dimension: 'T' }, optionB: { text: "Mais emocional", dimension: 'F' } },
-  { id: 26, text: "Você prefere:", optionA: { text: "Estrutura", dimension: 'J' }, optionB: { text: "Liberdade", dimension: 'P' } },
-  { id: 27, text: "Você normalmente:", optionA: { text: "Conversa facilmente", dimension: 'E' }, optionB: { text: "É mais reservado", dimension: 'I' } },
-  { id: 28, text: "Você prefere:", optionA: { text: "O real", dimension: 'S' }, optionB: { text: "O possível", dimension: 'N' } },
-  { id: 29, text: "Você valoriza:", optionA: { text: "Coerência", dimension: 'T' }, optionB: { text: "Harmonia", dimension: 'F' } },
-  { id: 30, text: "Você trabalha melhor:", optionA: { text: "Rotina", dimension: 'J' }, optionB: { text: "Liberdade", dimension: 'P' } },
-  { id: 31, text: "Em grupos você:", optionA: { text: "Participa rapidamente", dimension: 'E' }, optionB: { text: "Observa antes", dimension: 'I' } },
-  { id: 32, text: "Você confia mais:", optionA: { text: "Sentidos", dimension: 'S' }, optionB: { text: "Intuição", dimension: 'N' } },
-  { id: 33, text: "Você tende a:", optionA: { text: "Criticar", dimension: 'T' }, optionB: { text: "Apoiar", dimension: 'F' } },
+  { id: 25, text: "Você é mais inclinado a ser uma pessoa:", optionA: { text: "Fria", dimension: 'T' }, optionB: { text: "Calorosa", dimension: 'F' } },
+  { id: 26, text: "Você preferiria ser:", optionA: { text: "Mais justo que misericordioso", dimension: 'J' }, optionB: { text: "Mais misericordioso que justo", dimension: 'P' } },
+  { id: 27, text: "Você se sente mais confortável:", optionA: { text: "Cumprindo um cronograma", dimension: 'E' }, optionB: { text: "Colocando-as de lado", dimension: 'I' } },
+  { id: 28, text: "Você se sente mais confortável com:", optionA: { text: "Acordos escritos", dimension: 'S' }, optionB: { text: "Acordos de palavra", dimension: 'N' } },
+  { id: 29, text: "Quando na companhia de alguém você:", optionA: { text: "Inicia as conversas", dimension: 'T' }, optionB: { text: "Espera ser abordado", dimension: 'F' } },
+  { id: 30, text: "O senso comum tradicional é:", optionA: { text: "Normalmente confiável", dimension: 'J' }, optionB: { text: "Frequentemente enganoso", dimension: 'P' } },
+  { id: 31, text: "As crianças normalmente:", optionA: { text: "Fazem-se suficientemente úteis", dimension: 'E' }, optionB: { text: "Sonham o bastante", dimension: 'I' } },
+  { id: 32, text: "Você normalmente é mais:", optionA: { text: "De caráter forte", dimension: 'S' }, optionB: { text: "Gentil e simpático", dimension: 'N' } },
+  { id: 33, text: "Você é mais:", optionA: { text: "Firme do que gentil", dimension: 'T' }, optionB: { text: "Gentil do que firme", dimension: 'F' } },
   { id: 34, text: "Você é mais tendencioso a manter as coisas:", optionA: { text: "Bem organizadas", dimension: 'J' }, optionB: { text: "Sem terminar", dimension: 'P' } },
   { id: 35, text: "Você dá mais valor ao que é:", optionA: { text: "Definitivo", dimension: 'J' }, optionB: { text: "Mutável", dimension: 'P' } },
-  { id: 36, text: "Novas interações com outros:", optionA: { text: "Estimulam e incentivam", dimension: 'E' }, optionB: { text: "Consomem suas energias", dimension: 'I' } },
-  { id: 37, text: "Frequentemente você é:", optionA: { text: "Uma pessoa prática", dimension: 'S' }, optionB: { text: "Uma pessoa abstrata", dimension: 'N' } },
+  { id: 36, text: "Novas interações com outros:", optionA: { text: "O estimula e incentiva", dimension: 'E' }, optionB: { text: "Consome suas energias", dimension: 'I' } },
+  { id: 37, text: "Frequentemente você é:", optionA: { text: "Uma pessoa do tipo prática", dimension: 'S' }, optionB: { text: "Um tipo de pessoa abstrata", dimension: 'N' } },
   { id: 38, text: "Qual dos itens se identifica mais com você:", optionA: { text: "Percepção exata e sem enganos", dimension: 'S' }, optionB: { text: "Formação de conceitos", dimension: 'N' } },
-  { id: 39, text: "O que é mais realizador:", optionA: { text: "Discutir profundamente", dimension: 'T' }, optionB: { text: "Chegar a acordo", dimension: 'F' } },
+  { id: 39, text: "O que é mais realizador:", optionA: { text: "Discutir uma questão profundamente", dimension: 'T' }, optionB: { text: "Chegar a um acordo acerca de um assunto", dimension: 'F' } },
   { id: 40, text: "O que te conduz mais:", optionA: { text: "Sua cabeça", dimension: 'T' }, optionB: { text: "Seu coração", dimension: 'F' } },
   { id: 41, text: "Você se sente mais confortável com um trabalho:", optionA: { text: "Contratado", dimension: 'J' }, optionB: { text: "Feito de forma casual", dimension: 'P' } },
   { id: 42, text: "Você prefere que as coisas sejam:", optionA: { text: "Certas e ordenadas", dimension: 'J' }, optionB: { text: "Opcionais", dimension: 'P' } },
   { id: 43, text: "Você prefere:", optionA: { text: " Muitos amigos com breves contatos", dimension: 'E' }, optionB: { text: "Poucos amigos com contato longo", dimension: 'I' } },
   { id: 44, text: "Você é mais atraído a:", optionA: { text: "Informações substanciais", dimension: 'S' }, optionB: { text: "Suposições confiáveis", dimension: 'N' } },
-  { id: 45, text: "Você normalmente:", optionA: { text: "Analisa logicamente", dimension: 'T' }, optionB: { text: "Analisa emocionalmente", dimension: 'F' } },
-  { id: 46, text: "Você prefere ambientes:", optionA: { text: "Organizados", dimension: 'J' }, optionB: { text: "Flexíveis", dimension: 'P' } },
-  { id: 47, text: "Você normalmente:", optionA: { text: "Externaliza pensamentos", dimension: 'E' }, optionB: { text: "Guarda pensamentos", dimension: 'I' } },
-  { id: 48, text: "Você gosta mais de:", optionA: { text: "Experiência prática", dimension: 'S' }, optionB: { text: "Ideias novas", dimension: 'N' } },
-  { id: 49, text: "Você valoriza mais:", optionA: { text: "Verdade", dimension: 'T' }, optionB: { text: "Relacionamentos", dimension: 'F' } },
-  { id: 50, text: "Você prefere:", optionA: { text: "Planejamento antecipado", dimension: 'J' }, optionB: { text: "Improvisação", dimension: 'P' } },
-  { id: 51, text: "Você normalmente:", optionA: { text: "Inicia conversas", dimension: 'E' }, optionB: { text: "Espera abordarem você", dimension: 'I' } },
-  { id: 52, text: "Você presta mais atenção em:", optionA: { text: "Detalhes", dimension: 'S' }, optionB: { text: "Significados", dimension: 'N' } },
-  { id: 53, text: "Você é mais:", optionA: { text: "Objetivo", dimension: 'T' }, optionB: { text: "Sensível", dimension: 'F' } },
-  { id: 54, text: "Você prefere:", optionA: { text: "Controle", dimension: 'J' }, optionB: { text: "Liberdade", dimension: 'P' } },
-  { id: 55, text: "Você normalmente:", optionA: { text: "É expansivo", dimension: 'E' }, optionB: { text: "É reservado", dimension: 'I' } },
-  { id: 56, text: "Você prefere:", optionA: { text: "O que existe", dimension: 'S' }, optionB: { text: "O que pode existir", dimension: 'N' } },
-  { id: 57, text: "Você valoriza:", optionA: { text: "Eficiência", dimension: 'T' }, optionB: { text: "Empatia", dimension: 'F' } },
-  { id: 58, text: "Você prefere:", optionA: { text: "Conclusões", dimension: 'J' }, optionB: { text: "Possibilidades", dimension: 'P' } },
-  { id: 59, text: "Você normalmente:", optionA: { text: "Compartilha rapidamente", dimension: 'E' }, optionB: { text: "Guarda para si", dimension: 'I' } },
-  { id: 60, text: "Você gosta mais de:", optionA: { text: "Fatos reais", dimension: 'S' }, optionB: { text: "Ideias inovadoras", dimension: 'N' } },
+  { id: 45, text: "Você se interessa mais em:", optionA: { text: "Produção", dimension: 'T' }, optionB: { text: "Pesquisas", dimension: 'F' } },
+  { id: 46, text: "Você se sente mais confortável quando está sendo:", optionA: { text: "Objetivo", dimension: 'J' }, optionB: { text: "Pessoal", dimension: 'P' } },
+  { id: 47, text: "Você se avalia como uma pessoa que é mais:", optionA: { text: "Indisposta", dimension: 'E' }, optionB: { text: "Dedicada, esforçada.", dimension: 'I' } },
+  { id: 48, text: "Você fica mais confortável com uma:", optionA: { text: "Opinião final", dimension: 'S' }, optionB: { text: "Opinião incerta", dimension: 'N' } },
+  { id: 49, text: "Você fica mais confortável:", optionA: { text: "Após uma decisão", dimension: 'T' }, optionB: { text: "Antes de uma decisão", dimension: 'F' } },
+  { id: 50, text: "Você:", optionA: { text: "Fala fácil e longamente com desconhecidos", dimension: 'J' }, optionB: { text: "Não tem muito que dizer a desconhecidos", dimension: 'P' } },
+  { id: 51, text: "Você normalmente é mais interessado em:", optionA: { text: "Um fato isolado", dimension: 'E' }, optionB: { text: "Um caso geral", dimension: 'I' } },
+  { id: 52, text: "Você se sente:", optionA: { text: "Mais prático do que engenhoso", dimension: 'S' }, optionB: { text: "Mais engenhoso do que prático", dimension: 'N' } },
+  { id: 53, text: "Você tipicamente é uma pessoa com:", optionA: { text: "Claros propósitos", dimension: 'T' }, optionB: { text: "Sentimentos fortes", dimension: 'F' } },
+  { id: 54, text: "Você se inclina mais a ser:", optionA: { text: "Justo", dimension: 'J' }, optionB: { text: "Compreensivo", dimension: 'P' } },
+  { id: 55, text: "É mais preferível:", optionA: { text: "Certificar-se de que as coisas estão certas", dimension: 'E' }, optionB: { text: "Apenas deixar que as coisas aconteçam", dimension: 'I' } },
+  { id: 56, text: "É mais do seu jeito:", optionA: { text: "Deixar as coisas ajeitadas", dimension: 'S' }, optionB: { text: "Acomodar-se", dimension: 'N' } },
+  { id: 57, text: "Quando o telefone toca você:", optionA: { text: "Corre para atender", dimension: 'T' }, optionB: { text: "Espera que alguém atenda", dimension: 'F' } },
+  { id: 58, text: "Você acha que tem mais:", optionA: { text: "Um bom senso de realidade", dimension: 'J' }, optionB: { text: "Uma boa imaginação", dimension: 'P' } },
+  { id: 59, text: "Você é mais atraído a:", optionA: { text: "Fundamentos", dimension: 'E' }, optionB: { text: "Insinuações", dimension: 'I' } },
+  { id: 60, text: "Ao julgar você é mais:", optionA: { text: "Neutro", dimension: 'S' }, optionB: { text: "Cuidadoso", dimension: 'N' } },
   { id: 61, text: "Você considera a si mesmo uma pessoa:", optionA: { text: "Capaz de pensar claramente", dimension: 'T' }, optionB: { text: "De boa intenção", dimension: 'F' } },
-  { id: 62, text: "Você é mais tendencioso a:", optionA: { text: "Organizar atividades", dimension: 'J' }, optionB: { text: "Pegar as coisas quando vêm", dimension: 'P' } },
+  { id: 62, text: "Você é mais tendencioso a:", optionA: { text: "Organizar as atividades", dimension: 'J' }, optionB: { text: "Pegar as coisas quando elas vêm", dimension: 'P' } },
   { id: 63, text: "Você é uma pessoa mais:", optionA: { text: "Sistemática", dimension: 'J' }, optionB: { text: "Imprevisível", dimension: 'P' } },
-  { id: 64, text: "Você é mais inclinado a ser:", optionA: { text: "De fácil acesso", dimension: 'E' }, optionB: { text: "Reservado", dimension: 'I' } }
+  { id: 64, text: "Você é mais inclinado a ser:", optionA: { text: "De fácil acesso", dimension: 'E' }, optionB: { text: "De certa forma reservado", dimension: 'I' } }
 ];
 
 export interface MbtiProfile {
@@ -445,7 +445,7 @@ export const MBTI_PROFILES: Record<string, MbtiProfile> = {
     desc: "Protetores dedicados e acolhedores, sempre prontos para defender as pessoas de quem gostam. Valorizam a harmonia social.",
     caracteristicas: ["Empático", "Protetor", "Responsável", "Pacífico", "Tradicional"],
     pontosFortes: ["Apoio à equipe", "Grande senso de dever", "Excelente atenção aos outros", "Praticidade"],
-    pontosAtencao: ["Sobrecarga por não saber dizer não", "Relutância a inovações", "Guarda sentimentos para si"],
+    pontosAtencao: ["Sobrecarga por n?o saber dizer n?o", "Relut?ncia a inova??es", "Guarda sentimentos para si"],
     classColor: "text-emerald-700 bg-emerald-50 border-emerald-100",
     borderColor: "border-emerald-200",
     bgColor: "bg-emerald-500",
@@ -482,7 +482,7 @@ export const MBTI_PROFILES: Record<string, MbtiProfile> = {
     titulo: "Executor lógico",
     categoria: "Explorador",
     desc: "Experimentadores ousados e práticos, mestres em todos os tipos de ferramentas. Abordam a vida com racionalidade e curiosidade.",
-    caracteristicas: ["Prático", "Adaptável", "Racional", "Espontâneo", "Resoluto"],
+    caracteristicas: ["Pr?tico", "Adapt?vel", "Racional", "Espont?neo", "Resoluto"],
     pontosFortes: ["Excelente sob pressão", "Ótima solução prática de problemas", "Flexibilidade", "Otimismo natural"],
     pontosAtencao: ["Dificuldade em seguir rotinas rígidas", "Reservado demais", "Pode tomar riscos excessivos"],
     classColor: "text-amber-700 bg-amber-50 border-amber-100",
@@ -546,8 +546,8 @@ export const MBTI_PROFILES: Record<string, MbtiProfile> = {
     nome: "ESFP",
     titulo: "Animador sociável",
     categoria: "Explorador",
-    desc: "Animadores espontâneos, enérgicos e entusiasmados — a vida nunca é entediante perto deles. Adoram a interação social.",
-    caracteristicas: ["Sociável", "Espontâneo", "Alegre", "Expressivo", "Colaborativo"],
+    desc: "Animadores espont?neos, en?rgicos e entusiasmados - a vida nunca ? entediante perto deles. Adoram a intera??o social.",
+    caracteristicas: ["Soci?vel", "Espont?neo", "Alegre", "Expressivo", "Colaborativo"],
     pontosFortes: ["Facilidade em engajar pessoas", "Atitude positiva constante", "Excelente senso estético", "Praticidade cotidiana"],
     pontosAtencao: ["Falta de planejamento de longo prazo", "Dificuldade em lidar com críticas", "Tende a evitar conflitos sérios"],
     classColor: "text-amber-700 bg-amber-50 border-amber-100",
@@ -637,7 +637,7 @@ export const MBTI_PROFILES: Record<string, MbtiProfile> = {
 
 export const perfisDISC = {
   D: {
-    nome: "DOMINÂNCIA (Executor/Direto)",
+    nome: "DOMIN?NCIA (Executor/Direto)",
     desc: "Enfatiza a obtenção de resultados, competitividade e iniciativa. Características principais: Focado, determinado, motivado por desafios, prefere liderar e agir de forma rápida.",
     caracteristicas: ["Assertivo", "Competitivo", "Direto", "Focado em resultados", "Decidido"],
     pontosFortes: ["Foco em metas", "Liderança", "Rápido na tomada de decisão", "Independência"],
@@ -646,7 +646,7 @@ export const perfisDISC = {
     sobPressao: ["Torna-se ditatorial", "Foca excessivamente em metas e esquece das pessoas", "Pode ser ríspido ou impaciente"],
     classColor: "text-rose-600 bg-rose-50 border-rose-100",
     barColor: "bg-rose-500",
-    label: "Dominância"
+    label: "Domin?ncia"
   },
   I: {
     nome: "INFLUÊNCIA (Comunicador/Sociável)",
@@ -654,7 +654,7 @@ export const perfisDISC = {
     caracteristicas: ["Persuasivo", "Otimista", "Sociável", "Comunicativo", "Entusiasmado"],
     pontosFortes: ["Habilidade interpessoal", "Persuasão e vendas", "Clima organizacional positivo", "Criatividade"],
     pontosAtencao: ["Falta de foco e desorganização", "Dificuldade em dar feedback negativo", "Responsabilidade em cumprir prazos", "Impulsividade"],
-    motivadores: ["Reconhecimento social e elogios", "Ambientes dinâmicos e colaborativos", "Liberdade para expressar ideias", "Variedade de tarefas"],
+    motivadores: ["Reconhecimento social e elogios", "Ambientes din?micos e colaborativos", "Liberdade para expressar ideias", "Variedade de tarefas"],
     sobPressao: ["Fala excessivamente sem pensar", "Pode se tornar superficial ou desorganizado", "Evita conflitos a qualquer custo"],
     classColor: "text-indigo-600 bg-indigo-50 border-indigo-100",
     barColor: "bg-indigo-500",

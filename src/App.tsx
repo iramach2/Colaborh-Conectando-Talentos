@@ -120,6 +120,14 @@ export default function App() {
     return () => window.removeEventListener('popstate', syncAuthRoute);
   }, []);
 
+  const openAuthScreen = (mode: 'login' | 'register') => {
+    setSharedJobId(null);
+    setSharedJobData(null);
+    setLoginMode(mode);
+    setShowLogin(true);
+    pushAppPath(mode === 'register' ? '/cadastro' : '/login');
+  };
+
   const loadSharedJob = async (id: string) => {
     setIsLoadingSharedJob(true);
     try {
@@ -159,8 +167,7 @@ export default function App() {
       return;
     }
 
-    setLoginMode('register');
-    setShowLogin(true);
+    openAuthScreen('login');
   };
 
 
@@ -175,8 +182,7 @@ export default function App() {
       return;
     }
 
-    setLoginMode('register');
-    setShowLogin(true);
+    openAuthScreen('login');
   };
 
   const isPublicJobsRoute = typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/vagas';
@@ -272,8 +278,8 @@ export default function App() {
         isLoading={isLoadingSharedJob}
         job={sharedJobData}
         onBackHome={goBackHome}
-        onLogin={() => { setLoginMode('login'); setShowLogin(true); }}
-        onRegister={() => { setLoginMode('register'); setShowLogin(true); }}
+        onLogin={() => openAuthScreen('login')}
+        onRegister={() => openAuthScreen('register')}
         onApply={handleApplyClick}
       />
     );
@@ -352,8 +358,8 @@ export default function App() {
         isLoading={isLoadingSharedJob}
         job={sharedJobData}
         onBackHome={goBackHome}
-        onLogin={() => { setLoginMode('login'); setShowLogin(true); }}
-        onRegister={() => { setLoginMode('register'); setShowLogin(true); }}
+        onLogin={() => openAuthScreen('login')}
+        onRegister={() => openAuthScreen('register')}
         onApply={handleApplyClick}
       />
     );

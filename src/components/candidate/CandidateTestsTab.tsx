@@ -203,8 +203,8 @@ export function CandidateTestsTab({
                 </>
               )}
               instructions={[
-                'O teste é composto por 24 blocos com 4 adjetivos cada.',
-                <span>Em cada bloco, marque a opção que <strong>mais (M)</strong> o descreve e a que <strong>menos (N)</strong> o descreve.</span>,
+                'O teste ? composto por 25 blocos com 4 alternativas cada.',
+                <span>Para cada bloco, enumere as alternativas de <strong>1 a 4</strong>, onde 4 ? a op??o que MAIS identifica voc? e 1 ? a que MENOS identifica.</span>,
                 'Seja honesto e responda pensando em como você age no ambiente de trabalho.',
                 'Não há perfil certo ou errado. Todos possuem um valor único!'
               ]}

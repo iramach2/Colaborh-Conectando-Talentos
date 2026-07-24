@@ -103,9 +103,9 @@ export function CandidateDiscAssessmentStep({
 
           return (
             <div key={factor.key} className="rounded-2xl border border-slate-200/70 bg-white p-4 transition-colors hover:bg-[#fbfaff]">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <p className="text-[13px] font-semibold leading-relaxed text-[#343241] lg:max-w-[56%]">{factor.text}</p>
-                <div className="grid grid-cols-4 gap-2">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <p className="min-w-0 flex-1 whitespace-normal break-words text-[13px] font-semibold leading-relaxed text-[#343241]">{factor.text}</p>
+                <div className="grid shrink-0 grid-cols-4 gap-2">
                   {[4, 3, 2, 1].map((rank) => {
                     const isActive = val === rank;
                     return (

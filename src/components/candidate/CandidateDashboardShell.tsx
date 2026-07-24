@@ -45,7 +45,7 @@ export function CandidateDashboardShell({
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="company-dashboard-surface relative min-h-screen font-sans" style={{ backgroundColor: '#fbfaff' }}>
+    <div className="candidate-dashboard-surface company-dashboard-surface relative min-h-screen bg-white font-sans">
       <CandidateBackgroundDecor />
       <CandidateFloatingError message={errorMessage} />
       <CandidateNavigation
