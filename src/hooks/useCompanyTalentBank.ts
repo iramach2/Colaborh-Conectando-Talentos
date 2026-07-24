@@ -1,6 +1,6 @@
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { calculateAge, DF_REGIONS } from '../utils/companyDashboardUtils';
+import { calculateAge, DF_REGIONS, sortBrazilianCityNames } from '../utils/companyDashboardUtils';
 
 type CompanyWithSavedTalents = {
   id: string;
@@ -129,7 +129,7 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
       fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${talentFilters.state}/municipios`)
         .then((response) => response.json())
         .then((data) => {
-          setTalentCities(data.map((city: { nome: string }) => city.nome).sort());
+          setTalentCities(sortBrazilianCityNames(data.map((city: { nome: string }) => city.nome)));
           setIsTalentLoadingCities(false);
         })
         .catch((err) => {

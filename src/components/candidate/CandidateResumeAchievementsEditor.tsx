@@ -1,4 +1,4 @@
-import { Award, ChevronDown, X } from 'lucide-react';
+import { Award, ChevronDown, Trash2 } from 'lucide-react';
 import type { CandidateAchievement } from '../../types/candidate';
 import { ResumeEmptyState, ResumeFieldLabel, ResumeGhostButton, ResumePrimaryButton, ResumeSectionCard, resumeInputClass, resumeSelectClass, resumeTextareaClass } from './CandidateResumeEditorPrimitives';
 
@@ -21,7 +21,7 @@ export function CandidateResumeAchievementsEditor({
 }: CandidateResumeAchievementsEditorProps) {
   if (showAchModal) {
     return (
-      <ResumeSectionCard>
+      <ResumeSectionCard className="!border-0 !bg-white !p-0">
         <form className="space-y-4" onSubmit={(event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
@@ -54,7 +54,7 @@ export function CandidateResumeAchievementsEditor({
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <ResumeGhostButton onClick={onCloseModal}>Cancelar</ResumeGhostButton>
-            <ResumePrimaryButton type="submit">Adicionar</ResumePrimaryButton>
+            <ResumePrimaryButton type="submit" className="shadow-none">Adicionar</ResumePrimaryButton>
           </div>
         </form>
       </ResumeSectionCard>
@@ -62,13 +62,13 @@ export function CandidateResumeAchievementsEditor({
   }
 
   return (
-    <ResumeSectionCard>
+    <ResumeSectionCard className="!border-0 !bg-white !p-0">
       {(!achievements || achievements.length === 0) ? (
         <ResumeEmptyState icon={Award} title="Nenhuma conquista adicionada" description="Inclua cursos, certificados e reconhecimentos." />
       ) : (
         <div className="space-y-3">
           {achievements.map((item) => (
-            <div key={item.id} className="flex items-start justify-between gap-3 rounded-2xl border border-slate-200/70 bg-white p-4">
+            <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-[#940dff]/12 bg-white p-4 shadow-[0_8px_18px_rgba(148,13,255,0.055)]">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-[13px] font-semibold text-[#343241]">{item.title}</p>
@@ -76,8 +76,8 @@ export function CandidateResumeAchievementsEditor({
                 </div>
                 {item.description && <p className="mt-1 text-[12px] font-medium leading-relaxed text-slate-400">{item.description}</p>}
               </div>
-              <button type="button" onClick={() => onRemoveAchievement(item.id)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] text-[#940dff] transition-all hover:bg-[#940dff]/12" aria-label="Remover certificação">
-                <X size={14} />
+              <button type="button" onClick={() => onRemoveAchievement(item.id)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#ff4b8c] bg-[#ff4b8c] text-white transition-all hover:bg-[#f0387b]" aria-label="Remover certificação">
+                <Trash2 size={14} />
               </button>
             </div>
           ))}

@@ -155,7 +155,7 @@ export const TEMPERAMENTOS_QUESTIONS: TemperamentosQuestion[] = [
     text: "Eu gosto de mudanças se...",
     options: {
       A: "Me der uma vantagem competitiva",
-      C: "For divertido e compartilhável",
+      C: "For divertido e puder ser compartilhado",
       I: "Me der mais liberdade e variedade",
       O: "Melhorar ou me der mais controle"
     }
@@ -407,7 +407,8 @@ export const MBTI_QUESTIONS: MbtiQuestion[] = [
   { id: 61, text: "Você considera a si mesmo uma pessoa:", optionA: { text: "Capaz de pensar claramente", dimension: 'T' }, optionB: { text: "De boa intenção", dimension: 'F' } },
   { id: 62, text: "Você é mais tendencioso a:", optionA: { text: "Organizar as atividades", dimension: 'J' }, optionB: { text: "Pegar as coisas quando elas vêm", dimension: 'P' } },
   { id: 63, text: "Você é uma pessoa mais:", optionA: { text: "Sistemática", dimension: 'J' }, optionB: { text: "Imprevisível", dimension: 'P' } },
-  { id: 64, text: "Você é mais inclinado a ser:", optionA: { text: "De fácil acesso", dimension: 'E' }, optionB: { text: "De certa forma reservado", dimension: 'I' } }
+  { id: 64, text: "Você é mais inclinado a ser:", optionA: { text: "De fácil acesso", dimension: 'E' }, optionB: { text: "De certa forma reservado", dimension: 'I' } },
+  { id: 65, text: "Você se diverte mais com:", optionA: { text: "Experiências palpáveis", dimension: 'S' }, optionB: { text: "Imaginações", dimension: 'N' } }
 ];
 
 export interface MbtiProfile {

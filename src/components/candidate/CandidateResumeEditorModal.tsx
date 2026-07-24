@@ -103,7 +103,7 @@ export function CandidateResumeEditorModal({
             animate={{ x: 0 }}
             exit={{ x: '105%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 300 }}
-            className="relative z-10 flex h-full w-full max-w-2xl flex-col border-l border-slate-200/70 bg-[#fbf9ff] p-5 shadow-2xl sm:p-6"
+            className="relative z-10 flex h-full w-full max-w-2xl flex-col border-l border-slate-200/70 bg-white p-5 sm:p-6"
           >
             <CandidateResumeEditorModalHeader
               activeAccordion={activeAccordion}
@@ -123,6 +123,8 @@ export function CandidateResumeEditorModal({
                   <CandidateResumeEditorAddBar
                     activeAccordion={activeAccordion}
                     isFirstJob={resumeData.isFirstJob}
+                    experiencesCount={resumeData.experiences.length}
+                    onToggleFirstJob={(isFirstJob) => setResumeData({ ...resumeData, isFirstJob })}
                     onAddExperience={() => { setEditingExp(null); setShowExpModal(true); }}
                     onAddEducation={() => { setEditingEdu(null); setShowEduModal(true); }}
                     onAddLanguage={() => setShowLangModal(true)}
@@ -157,17 +159,17 @@ export function CandidateResumeEditorModal({
                       editingExperience={editingExp}
                       tempExperience={tempExp}
                       calculateDuration={calculateDuration}
-                      onToggleFirstJob={(isFirstJob) => setResumeData({ ...resumeData, isFirstJob })}
                       onTempExperienceChange={setTempExp}
                       onSaveExperience={() => {
                         if (!tempExp) return;
                         if (editingExp) {
                           setResumeData({
                             ...resumeData,
+                            isFirstJob: false,
                             experiences: resumeData.experiences.map((experience) => experience.id === editingExp.id ? tempExp : experience),
                           });
                         } else {
-                          setResumeData({ ...resumeData, experiences: [tempExp, ...resumeData.experiences] });
+                          setResumeData({ ...resumeData, isFirstJob: false, experiences: [tempExp, ...resumeData.experiences] });
                         }
                         setShowExpModal(false);
                       }}

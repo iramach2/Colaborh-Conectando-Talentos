@@ -13,24 +13,20 @@ export function CandidateResumeSummaryEditor({
   const isReady = summary.trim().length >= 300;
 
   return (
-    <ResumeSectionCard>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-[13px] font-semibold text-[#343241]">Resumo do perfil</p>
-          <p className="mt-1 text-[12px] font-medium text-slate-400">Use um texto direto sobre sua trajetória e objetivos.</p>
-        </div>
-        <div className={`flex h-7 items-center gap-1.5 rounded-xl px-3 text-[11px] font-semibold ${isReady ? 'bg-[#f3e5ff] text-[#940dff]' : 'bg-[#f3e5ff] text-[#940dff]'}`}>
+    <ResumeSectionCard className="!border-transparent !bg-white !p-0">
+      <textarea
+        value={summary}
+        onChange={(event) => onChange(event.target.value)}
+        className={resumeTextareaClass + ' min-h-[300px] resize-none'}
+        placeholder="Conte um pouco sobre sua trajetória..."
+        rows={11}
+      />
+      <div className="mt-2 flex justify-end">
+        <div className={(isReady ? 'bg-[#63e1a5] text-white' : 'bg-[#ff4b8c]/14 text-[#ff4b8c]') + ' flex h-7 min-w-[92px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 text-[11px] font-semibold'}>
           {isReady ? <CheckCircle2 size={12} /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
           {summary.length} / 300
         </div>
       </div>
-      <textarea
-        value={summary}
-        onChange={(event) => onChange(event.target.value)}
-        className={`${resumeTextareaClass} min-h-[220px] resize-none`}
-        placeholder="Conte um pouco sobre sua trajetória..."
-        rows={8}
-      />
     </ResumeSectionCard>
   );
 }

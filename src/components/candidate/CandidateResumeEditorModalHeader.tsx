@@ -35,24 +35,24 @@ export function CandidateResumeEditorModalHeader({
   const Icon = section.icon;
 
   return (
-    <div className="mb-5 flex shrink-0 items-start justify-between gap-4 border-b border-slate-200/70 pb-5">
-      <div className="flex min-w-0 items-start gap-3">
+    <div className="mb-3 flex shrink-0 items-center justify-between gap-3 border-b border-slate-200/60 pb-3">
+      <div className="flex min-w-0 items-center gap-3">
         <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/80 shadow-sm"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/80"
           style={{ backgroundColor: section.soft, color: section.color }}
         >
-          <Icon size={19} />
+          <Icon size={17} />
         </div>
-        <div className="min-w-0 pt-0.5">
-          <h2 className="text-[20px] font-semibold tracking-tight text-[#343241]">{section.title}</h2>
-          <p className="mt-1 text-[12px] font-medium text-slate-400">{section.description}</p>
+        <div className="min-w-0">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[#343241]">{section.title}</h2>
+          <p className="mt-0.5 text-[12px] font-medium leading-snug text-slate-400">{section.description}</p>
         </div>
       </div>
 
       <button
         type="button"
         onClick={onClose}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-[#940dff] shadow-sm transition-all hover:bg-[#f3e5ff] active:scale-95"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-95"
         title="Fechar"
       >
         <X size={17} />

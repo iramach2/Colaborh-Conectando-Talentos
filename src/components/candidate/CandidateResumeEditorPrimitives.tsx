@@ -1,8 +1,8 @@
 import type { ButtonHTMLAttributes, Key, ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
-export const resumeInputClass = 'h-10 w-full rounded-xl border border-slate-200/80 bg-white px-3 text-[12px] font-semibold text-[#343241] outline-none transition-all placeholder:text-slate-300 focus:border-[#940dff]/35 focus:ring-4 focus:ring-[#940dff]/8 disabled:cursor-not-allowed disabled:opacity-50';
-export const resumeTextareaClass = 'w-full rounded-xl border border-slate-200/80 bg-white px-3 py-3 text-[12px] font-medium leading-relaxed text-[#343241] outline-none transition-all placeholder:text-slate-300 focus:border-[#940dff]/35 focus:ring-4 focus:ring-[#940dff]/8 disabled:cursor-not-allowed disabled:opacity-50';
+export const resumeInputClass = 'h-10 w-full rounded-xl border !border-[#940dff]/12 !bg-white px-3 text-[12px] font-semibold text-[#343241] shadow-[0_8px_18px_rgba(148,13,255,0.055)] outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/35 focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
+export const resumeTextareaClass = 'w-full rounded-xl border !border-[#940dff]/12 !bg-white px-3 py-3 text-[12px] font-medium leading-relaxed text-[#343241] shadow-[0_8px_18px_rgba(148,13,255,0.055)] outline-none transition-colors placeholder:text-slate-300 focus:!border-[#940dff]/35 focus:!ring-0 disabled:cursor-not-allowed disabled:opacity-50';
 export const resumeSelectClass = `${resumeInputClass} appearance-none pr-9`;
 
 export function ResumeFieldLabel({ children }: { children: ReactNode }) {
@@ -11,7 +11,7 @@ export function ResumeFieldLabel({ children }: { children: ReactNode }) {
 
 export function ResumeSectionCard({ children, className = '' }: { children: ReactNode; className?: string; key?: Key }) {
   return (
-    <div className={`rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)] ${className}`}>
+    <div className={`rounded-2xl border border-slate-200/70 bg-white p-5 ${className}`}>
       {children}
     </div>
   );

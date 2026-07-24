@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CompanyJob } from '../types/companyDashboard';
+import { sortBrazilianCityNames } from '../utils/companyDashboardUtils';
 
 interface UseCandidateVacancyFiltersParams {
   vacancies: CompanyJob[];
@@ -36,7 +37,7 @@ export const useCandidateVacancyFilters = ({
       fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${vacancyStateFilter}/municipios`)
         .then((response) => response.json())
         .then((data: IbgeCity[]) => {
-          setVacancyCitiesList(data.map((city) => city.nome).sort());
+          setVacancyCitiesList(sortBrazilianCityNames(data.map((city) => city.nome)));
           setIsLoadingVacancyCities(false);
         })
         .catch((error) => {

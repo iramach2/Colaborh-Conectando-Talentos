@@ -21,7 +21,7 @@ export function CandidateResumeLanguagesEditor({
 }: CandidateResumeLanguagesEditorProps) {
   if (showLangModal) {
     return (
-      <ResumeSectionCard>
+      <ResumeSectionCard className="!border-0 !bg-white !p-0">
         <form className="space-y-4" onSubmit={(event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
@@ -49,7 +49,7 @@ export function CandidateResumeLanguagesEditor({
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <ResumeGhostButton onClick={onCloseModal}>Cancelar</ResumeGhostButton>
-            <ResumePrimaryButton type="submit">Adicionar idioma</ResumePrimaryButton>
+            <ResumePrimaryButton type="submit" className="shadow-none">Adicionar</ResumePrimaryButton>
           </div>
         </form>
       </ResumeSectionCard>
@@ -57,7 +57,7 @@ export function CandidateResumeLanguagesEditor({
   }
 
   return (
-    <ResumeSectionCard>
+    <ResumeSectionCard className="!border-0 !bg-white !p-0">
       {(!languages || languages.length === 0) ? (
         <ResumeEmptyState icon={Languages} title="Nenhum idioma adicionado" description="Inclua idiomas e o nível de fluência." />
       ) : (

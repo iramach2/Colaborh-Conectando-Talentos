@@ -2,7 +2,7 @@ export const QUESTIONS_CATEGORIES = {
   EXPERIENCE: {
     title: "Experiência Profissional",
     questions: [
-      "Conte sobre sua trajetória profissional e as principais atividades que desempenhou, na vaga para qual está se candidatando;",
+      "Conte sobre sua trajetória profissional e as principais atividades que desempenhou na vaga para a qual está se candidatando. Explique.",
       "Qual foi a experiência profissional mais significativa da sua carreira até o momento? Por quê?",
       "Quais habilidades você desenvolveu ao longo das suas experiências anteriores?",
       "Fale sobre um desafio profissional que enfrentou e como conseguiu solucioná-lo.",
@@ -26,7 +26,7 @@ export const QUESTIONS_CATEGORIES = {
       "Conte uma situação em que precisou colaborar com colegas para alcançar um objetivo.",
       "Como você reage quando existem opiniões diferentes dentro da equipe?",
       "Qual costuma ser seu papel dentro de uma equipe: líder, apoiador, organizador, executor ou outro? Explique.",
-      "O que você considera mais importante para manter um ambiente de trabalho saudável."
+      "O que você considera mais importante para manter um ambiente de trabalho saudável?"
     ]
   },
   BEHAVIORAL: {

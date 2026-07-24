@@ -1,5 +1,5 @@
 import { ArrowLeft, Check, CheckCheck, Loader2, MessageSquare, Search, Send, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { ChatMessage } from '../../services/messageService';
 import type { CandidateConversation } from '../../types/candidate';
@@ -57,6 +57,27 @@ export function CandidateChatDrawer({
   onSendMessage,
 }: CandidateChatDrawerProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const messageInputRef = useRef<HTMLInputElement | null>(null);
+  const shouldRestoreMessageFocusRef = useRef(false);
+
+  const focusMessageInput = () => {
+    window.setTimeout(() => messageInputRef.current?.focus(), 0);
+  };
+
+  const handleSendMessage = () => {
+    if (isSendingMessage || !newMessageText.trim()) return;
+
+    shouldRestoreMessageFocusRef.current = true;
+    onSendMessage();
+    focusMessageInput();
+  };
+
+  useEffect(() => {
+    if (isSendingMessage || !shouldRestoreMessageFocusRef.current) return;
+
+    shouldRestoreMessageFocusRef.current = false;
+    focusMessageInput();
+  }, [isSendingMessage]);
 
   const filteredConversations = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -84,14 +105,14 @@ export function CandidateChatDrawer({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 310 }}
-            className="company-dashboard-surface relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden border-l border-slate-200/70 bg-[#fbf9ff] text-left shadow-[0_24px_70px_rgba(15,23,42,0.16)]"
+            className="company-dashboard-surface relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden !rounded-none border-l border-slate-200/70 bg-white text-left shadow-[0_24px_70px_rgba(15,23,42,0.12)]"
           >
             {!selectedConversation ? (
               <>
-                <header className="shrink-0 px-6 pb-4 pt-6">
-                  <div className="flex items-start justify-between gap-4">
+                <header className="shrink-0 px-6 pb-3 pt-5">
+                  <div className="flex items-center justify-between gap-4">
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#533af6]/18 bg-[#533af6]/10 text-[#533af6]">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
                         <MessageSquare size={19} />
                       </div>
                       <div className="min-w-0">
@@ -103,36 +124,36 @@ export function CandidateChatDrawer({
                     <button
                       type="button"
                       onClick={onClose}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-400 shadow-sm transition-all hover:border-[#533af6]/20 hover:text-[#533af6] active:scale-95"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200/70 bg-white text-[#940dff] shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#8200e6] active:scale-95"
                       aria-label="Fechar mensagens"
                     >
                       <X size={15} />
                     </button>
                   </div>
 
-                  <div className="relative mt-5">
+                  <div className="relative mt-4">
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(event) => setSearchQuery(event.target.value)}
                       placeholder="Buscar conversa..."
-                      className="h-9 w-full rounded-[999px] border border-slate-200/70 bg-white px-4 pr-10 text-[12px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-400 focus:border-[#533af6]/35 focus:ring-2 focus:ring-[#533af6]/10"
+                      className="h-9 w-full rounded-full border border-[#940dff]/12 bg-white px-4 pr-10 text-[12px] font-medium text-slate-500 outline-none transition-all shadow-[0_8px_18px_rgba(148,13,255,0.055)] placeholder:text-slate-400 focus:border-[#940dff]/35 focus:ring-2 focus:ring-[#940dff]/10"
                     />
-                    <Search size={14} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#533af6]" />
+                    <Search size={14} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#940dff]" />
                   </div>
                 </header>
 
                 <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
                   {filteredConversations.length === 0 ? (
-                    <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200/80 bg-white/80 p-8 text-center">
-                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#533af6]/10 text-[#533af6]">
+                    <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-[#940dff]/12 bg-white p-8 text-center shadow-[0_8px_18px_rgba(148,13,255,0.055)]">
+                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#f3e5ff] text-[#940dff]">
                         <MessageSquare size={22} />
                       </div>
                       <p className="text-[14px] font-semibold text-[#343241]">Nenhuma conversa ativa</p>
-                      <p className="mt-2 text-[12px] font-medium leading-5 text-slate-400">Suas conversas aparecerao aqui quando uma empresa iniciar o contato com voce.</p>
+                      <p className="mt-2 text-[12px] font-medium leading-5 text-slate-400">Suas conversas aparecerão aqui quando uma empresa iniciar o contato com você.</p>
                     </div>
                   ) : (
-                    <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+                    <div className="space-y-3">
                       <div className="divide-y divide-slate-100/90">
                         {filteredConversations.map((conversation) => {
                           const title = getConversationTitle(conversation);
@@ -144,9 +165,9 @@ export function CandidateChatDrawer({
                               key={conversation.id}
                               type="button"
                               onClick={() => onOpenConversation(conversation)}
-                              className="flex w-full items-center gap-3 bg-white px-4 py-3 text-left transition-all hover:bg-[#fbf9ff]"
+                              className="company-chat-conversation-card flex w-full items-center gap-3 rounded-2xl border border-[#940dff]/12 bg-white p-4 text-left shadow-[0_8px_18px_rgba(148,13,255,0.055)] transition-all hover:border-[#940dff]/20 hover:bg-white"
                             >
-                              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#533af6]/18 bg-[#533af6]/10 text-[12px] font-semibold text-[#533af6]">
+                              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#940dff]/18 bg-[#940dff]/10 text-[12px] font-semibold text-[#940dff]">
                                 {getCompanyInitials(company)}
                               </span>
                               <span className="min-w-0 flex-1">
@@ -158,11 +179,11 @@ export function CandidateChatDrawer({
                                 {preview && (
                                   <span className="mt-1 flex items-center justify-between gap-2">
                                     <span className="truncate text-[12px] font-medium text-slate-500">
-                                      {conversation.lastMessage?.sender_type === 'company' ? 'Empresa: ' : 'Voce: '}
+                                      {conversation.lastMessage?.sender_type === 'company' ? 'Empresa: ' : 'Você: '}
                                       {preview}
                                     </span>
                                     {conversation.unreadCount > 0 && (
-                                      <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#533af6] px-1.5 text-[10px] font-semibold text-white">
+                                      <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#940dff] px-1.5 text-[10px] font-semibold text-white">
                                         {conversation.unreadCount}
                                       </span>
                                     )}
@@ -185,12 +206,12 @@ export function CandidateChatDrawer({
                       <button
                         type="button"
                         onClick={onBackToConversations}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-400 shadow-sm transition-all hover:border-[#533af6]/20 hover:text-[#533af6] active:scale-95"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200/70 bg-white text-[#940dff] shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#8200e6] active:scale-95"
                         aria-label="Voltar para conversas"
                       >
                         <ArrowLeft size={15} />
                       </button>
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#533af6]/18 bg-[#533af6]/10 text-[12px] font-semibold text-[#533af6]">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#940dff]/18 bg-[#940dff]/10 text-[12px] font-semibold text-[#940dff]">
                         {getCompanyInitials(getConversationCompany(selectedConversation))}
                       </span>
                       <div className="min-w-0">
@@ -202,7 +223,7 @@ export function CandidateChatDrawer({
                     <button
                       type="button"
                       onClick={onClose}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-400 shadow-sm transition-all hover:border-[#533af6]/20 hover:text-[#533af6] active:scale-95"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200/70 bg-white text-[#940dff] shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#8200e6] active:scale-95"
                       aria-label="Fechar mensagens"
                     >
                       <X size={15} />
@@ -213,7 +234,7 @@ export function CandidateChatDrawer({
                 <div className="min-h-0 flex-1 overflow-y-auto p-5">
                   {messages.length === 0 ? (
                     <div className="flex h-full min-h-[360px] flex-col items-center justify-center text-slate-400">
-                      <Loader2 className="mb-3 animate-spin text-[#533af6]" size={22} />
+                      <Loader2 className="mb-3 animate-spin text-[#940dff]" size={22} />
                       <span className="text-[12px] font-semibold">Carregando mensagens...</span>
                     </div>
                   ) : (
@@ -223,7 +244,7 @@ export function CandidateChatDrawer({
 
                         return (
                           <div key={message.id || index} className={`flex max-w-[82%] flex-col ${isCandidate ? 'self-end items-end' : 'self-start items-start'}`}>
-                            <div className={`flex min-h-8 items-center rounded-xl px-4 py-1.5 text-[12px] font-medium leading-relaxed shadow-sm ${isCandidate ? 'rounded-br-md bg-[#533af6] text-white' : 'rounded-bl-md border border-slate-200 bg-white text-slate-500'}`}>
+                            <div className={`flex min-h-8 items-center rounded-xl px-4 py-1.5 text-[12px] font-medium leading-relaxed shadow-sm ${isCandidate ? 'rounded-br-md bg-[#940dff] text-white' : 'rounded-bl-md border border-slate-200 bg-white text-slate-500'}`}>
                               <p className="whitespace-pre-wrap break-words">{message.content || message.message}</p>
                             </div>
                             <span className="mt-1 flex items-center gap-1 px-1 text-[10px] font-medium text-slate-400">
@@ -242,21 +263,22 @@ export function CandidateChatDrawer({
                 <div className="shrink-0 border-t border-slate-200/70 bg-white/90 p-4">
                   <div className="flex items-center gap-3">
                     <input
+                      ref={messageInputRef}
                       type="text"
                       value={newMessageText}
                       onChange={(event) => onMessageTextChange(event.target.value)}
                       onKeyDown={(event) => {
-                        if (event.key === 'Enter' && !isSendingMessage && newMessageText.trim()) onSendMessage();
+                        if (event.key === 'Enter' && !isSendingMessage && newMessageText.trim()) handleSendMessage();
                       }}
                       placeholder="Digite sua mensagem..."
                       disabled={isSendingMessage}
-                      className="h-8 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-[12px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-300 focus:border-[#533af6]/50 focus:ring-4 focus:ring-[#533af6]/10 sm:h-10"
+                      className="h-8 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-[12px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-300 focus:border-[#940dff]/50 focus:ring-4 focus:ring-[#940dff]/10 sm:h-10"
                     />
                     <button
                       type="button"
-                      onClick={onSendMessage}
+                      onClick={handleSendMessage}
                       disabled={isSendingMessage || !newMessageText.trim()}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#533af6] bg-[#533af6] text-white shadow-md shadow-[#533af6]/15 transition-all hover:bg-[#4326e5] disabled:cursor-not-allowed disabled:opacity-50 sm:h-10 sm:w-10"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#940dff] bg-[#940dff] text-white shadow-md shadow-[#940dff]/15 transition-all hover:bg-[#8200e6] disabled:cursor-not-allowed disabled:opacity-50 sm:h-10 sm:w-10"
                       aria-label={isSendingMessage ? 'Enviando mensagem' : 'Enviar mensagem'}
                       title={isSendingMessage ? 'Enviando...' : 'Enviar'}
                     >

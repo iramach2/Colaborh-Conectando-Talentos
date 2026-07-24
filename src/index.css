@@ -244,6 +244,11 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   border-radius: 9999px !important;
 }
 
+
+.company-dashboard-surface .company-chat-conversation-card {
+  border-radius: 16px !important;
+}
+
 .company-dashboard-surface .vacancy-field-label {
   color: #64748b;
   font-size: 11px;

@@ -1,6 +1,5 @@
 import { Plus, X } from 'lucide-react';
-import { ResumeFieldLabel, ResumeSectionCard, ResumeEmptyState, resumeInputClass } from './CandidateResumeEditorPrimitives';
-import { Star } from 'lucide-react';
+import { ResumeFieldLabel, ResumeSectionCard, resumeInputClass } from './CandidateResumeEditorPrimitives';
 
 interface CandidateResumeSkillsEditorProps {
   skills: string[];
@@ -17,28 +16,8 @@ export function CandidateResumeSkillsEditor({ skills, onChange }: CandidateResum
   };
 
   return (
-    <ResumeSectionCard>
+    <ResumeSectionCard className="!border-0 !bg-white !p-0">
       <div className="space-y-4">
-        {skills.length === 0 ? (
-          <ResumeEmptyState icon={Star} title="Nenhuma habilidade adicionada" description="Adicione competências técnicas ou comportamentais." />
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
-              <span key={`${skill}-${index}`} className="inline-flex h-8 items-center gap-2 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-3 text-[12px] font-semibold text-[#940dff]">
-                {skill}
-                <button
-                  type="button"
-                  onClick={() => onChange(skills.filter((_, skillIndex) => skillIndex !== index))}
-                  className="flex h-4 w-4 items-center justify-center rounded-full border-0 bg-transparent text-[#940dff] transition-colors hover:text-[#940dff]"
-                  aria-label={`Remover ${skill}`}
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-
         <div>
           <ResumeFieldLabel>Nova habilidade</ResumeFieldLabel>
           <div className="flex gap-2">
@@ -59,13 +38,36 @@ export function CandidateResumeSkillsEditor({ skills, onChange }: CandidateResum
                 const input = event.currentTarget.previousElementSibling as HTMLInputElement;
                 addSkill(input);
               }}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#940dff] text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 active:scale-95"
               aria-label="Adicionar habilidade"
             >
               <Plus size={16} />
             </button>
           </div>
         </div>
+
+        {skills.length === 0 ? (
+          <div className="px-4 py-6 text-center">
+            <p className="text-[13px] font-semibold text-[#343241]">Nenhuma habilidade adicionada</p>
+            <p className="mx-auto mt-1 max-w-xs text-[12px] font-medium text-slate-400">Adicione competências técnicas ou comportamentais.</p>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill, index) => (
+              <span key={`${skill}-${index}`} className="inline-flex h-8 items-center gap-2 rounded-xl border border-[#63e1a5]/35 bg-[#63e1a5]/14 px-3 text-[12px] font-semibold text-[#2f9f6b]">
+                {skill}
+                <button
+                  type="button"
+                  onClick={() => onChange(skills.filter((_, skillIndex) => skillIndex !== index))}
+                  className="flex h-4 w-4 items-center justify-center rounded-full border-0 bg-transparent text-[#2f9f6b] transition-colors hover:text-[#23845a]"
+                  aria-label={`Remover ${skill}`}
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </ResumeSectionCard>
   );

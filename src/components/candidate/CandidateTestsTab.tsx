@@ -203,8 +203,8 @@ export function CandidateTestsTab({
                 </>
               )}
               instructions={[
-                'O teste ? composto por 25 blocos com 4 alternativas cada.',
-                <span>Para cada bloco, enumere as alternativas de <strong>1 a 4</strong>, onde 4 ? a op??o que MAIS identifica voc? e 1 ? a que MENOS identifica.</span>,
+                'O teste é composto por 25 blocos com 4 alternativas cada.',
+                <span>Para cada bloco, enumere as alternativas de <strong>1 a 4</strong>, onde 4 é a opção que MAIS identifica você e 1 é a que MENOS identifica.</span>,
                 'Seja honesto e responda pensando em como você age no ambiente de trabalho.',
                 'Não há perfil certo ou errado. Todos possuem um valor único!'
               ]}
@@ -292,7 +292,7 @@ export function CandidateTestsTab({
               title="Teste de Personalidade MBTI"
               description="Este teste baseia-se na teoria dos tipos psicológicos de Carl Jung e no indicador MBTI. Ele identifica suas preferências em 4 dimensões básicas: Extroversão/Introversão, Sensação/Intuição, Pensamento/Sentimento e Julgamento/Percepção, revelando um perfil de 4 letras."
               instructions={[
-                <span>O teste é composto por <strong>64 perguntas</strong> divididas em <strong>8 etapas</strong> (8 perguntas por etapa).</span>,
+                <span>O teste é composto por <strong>{MBTI_QUESTIONS.length} perguntas</strong> divididas em etapas de até <strong>8 perguntas</strong>.</span>,
                 <span>Em cada pergunta, atribua uma nota de <strong>0 a 3</strong> para ambas as alternativas (Opção A e Opção B).</span>,
                 <span>A escala de avaliação é:<br />⬢ <strong>3</strong> = se parece muito comigo<br />⬢ <strong>2</strong> = se parece razoavelmente<br />⬢ <strong>1</strong> = se parece pouco<br />⬢ <strong>0</strong> = não se parece nada comigo</span>,
                 'Você avalia cada alternativa independentemente. Seja o mais espontâneo e sincero possível!'

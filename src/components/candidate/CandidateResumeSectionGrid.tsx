@@ -28,7 +28,7 @@ export function CandidateResumeSectionGrid({
         return (
           <article
             key={section.id}
-            className="group flex min-h-[140px] flex-col justify-between rounded-2xl border border-slate-200/70 bg-white/85 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#940dff]/18 hover:bg-white"
+            className="group flex min-h-[140px] flex-col justify-between rounded-2xl border border-[#940dff]/12 bg-white p-5 text-left shadow-[0_8px_18px_rgba(148,13,255,0.055)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#940dff]/20 hover:bg-white"
           >
             <div>
               <div className="flex min-h-6 items-start justify-between gap-3">

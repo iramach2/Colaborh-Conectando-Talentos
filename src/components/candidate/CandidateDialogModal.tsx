@@ -15,73 +15,72 @@ interface CandidateDialogModalProps {
   onClose: () => void;
 }
 
+const dialogTone = {
+  success: 'bg-[#63e1a5]/14 text-[#2f9f6b]',
+  confirm: 'bg-[#f3e5ff] text-[#940dff]',
+  alert: 'bg-[#ff4b8c]/10 text-[#ff4b8c]',
+};
+
 export const CandidateDialogModal = ({ dialog, onClose }: CandidateDialogModalProps) => {
   if (!dialog.isOpen) return null;
 
+  const title = dialog.title || (dialog.type === 'success' ? 'Sucesso' : dialog.type === 'confirm' ? 'Confirmação' : 'Aviso');
+
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    <div className="company-dashboard-surface fixed inset-0 z-[200] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={() => {
-          if (dialog.type !== 'confirm') {
-            onClose();
-          }
+          if (dialog.type !== 'confirm') onClose();
         }}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-950/30 backdrop-blur-sm"
       />
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        initial={{ opacity: 0, scale: 0.97, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl p-6 overflow-hidden flex flex-col z-10 text-left border border-slate-100"
+        exit={{ opacity: 0, scale: 0.97, y: 12 }}
+        transition={{ type: 'spring', damping: 24, stiffness: 260 }}
+        className="relative z-10 flex w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-5 text-left shadow-[0_18px_50px_rgba(106,66,220,0.10)]"
       >
-        <div className="flex items-start gap-4">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-            dialog.type === 'success'
-              ? 'bg-emerald-50 text-emerald-600'
-              : dialog.type === 'confirm'
-                ? 'bg-[#8959f5]/10 text-[#8959f5]'
-                : 'bg-amber-50 text-amber-600'
-          }`}>
+        <div className="flex items-start gap-3">
+          <div className={'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ' + dialogTone[dialog.type]}>
             {dialog.type === 'success' ? (
-              <Check size={20} className="stroke-[2.5]" />
+              <Check size={19} className="stroke-[2.5]" />
             ) : dialog.type === 'confirm' ? (
-              <HelpCircle size={20} className="stroke-[2.5]" />
+              <HelpCircle size={19} className="stroke-[2.5]" />
             ) : (
-              <AlertTriangle size={20} className="stroke-[2.5]" />
+              <AlertTriangle size={19} className="stroke-[2.5]" />
             )}
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-1 select-none">
-              {dialog.title || (dialog.type === 'success' ? 'Sucesso' : dialog.type === 'confirm' ? 'Confirmacao' : 'Aviso')}
+          <div className="min-w-0 flex-1">
+            <h3 className="select-none text-[20px] font-semibold leading-tight tracking-tight text-[#343241]">
+              {title}
             </h3>
-            <p className="text-[11px] font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
+            <p className="mt-1.5 whitespace-pre-line text-[12px] font-medium leading-relaxed text-slate-500">
               {dialog.message}
             </p>
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-slate-100">
+        <div className="mt-5 flex justify-end gap-2 border-t border-slate-200/70 pt-4">
           {dialog.type === 'confirm' ? (
             <>
               <button
                 type="button"
                 onClick={() => {
                   onClose();
-                  if (dialog.onCancel) dialog.onCancel();
+                  dialog.onCancel?.();
                 }}
-                className="px-5 py-2.5 hover:bg-slate-100 text-slate-500 hover:text-slate-800 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-slate-200/50 hover:border-slate-300"
+                className="h-8 rounded-xl border border-slate-200/80 bg-white px-4 text-[12px] font-semibold text-slate-500 transition-all hover:bg-slate-50 hover:text-[#343241] active:scale-95"
               >
                 Cancelar
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  if (dialog.onConfirm) dialog.onConfirm();
-                }}
-                className="px-5 py-2.5 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
+                onClick={() => dialog.onConfirm?.()}
+                className="h-8 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"
               >
                 Confirmar
               </button>
@@ -90,7 +89,7 @@ export const CandidateDialogModal = ({ dialog, onClose }: CandidateDialogModalPr
             <button
               type="button"
               onClick={onClose}
-              className="px-8 py-3 bg-[#8959f5] hover:bg-[#7846e3] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#8959f5]/15"
+              className="h-8 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"
             >
               Entendido
             </button>

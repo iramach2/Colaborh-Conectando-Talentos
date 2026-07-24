@@ -1,6 +1,8 @@
 import { ChangeEvent, RefObject } from 'react';
 import { Accessibility, Camera, ChevronDown, Loader2, MapPin, Phone, User } from 'lucide-react';
 import { ResumeFieldLabel, ResumeSectionCard, resumeInputClass, resumeSelectClass } from './CandidateResumeEditorPrimitives';
+import { findMatchingBrazilianCityName } from '../../utils/companyDashboardUtils';
+import { formatBrazilianPhone } from '../../utils/phoneFormat';
 
 interface PersonalResumeData {
   profilePic: string;
@@ -37,11 +39,13 @@ export function CandidateResumePersonalInfoEditor({
   onProfilePicSelect,
   onChange,
 }: CandidateResumePersonalInfoEditorProps) {
+  const selectedCity = resumeData.city ? findMatchingBrazilianCityName(resumeData.city, cities) : '';
+
   return (
     <div className="space-y-4">
-      <ResumeSectionCard>
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff] shadow-sm">
+      <ResumeSectionCard className="!border-transparent !bg-white !p-0">
+        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
             {resumeData.profilePic ? (
               <img src={resumeData.profilePic} alt="Perfil" className="h-full w-full object-cover" />
             ) : (
@@ -75,7 +79,7 @@ export function CandidateResumePersonalInfoEditor({
         </div>
       </ResumeSectionCard>
 
-      <ResumeSectionCard>
+      <ResumeSectionCard className="!border-transparent !bg-white !p-0">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <ResumeFieldLabel>E-mail</ResumeFieldLabel>
@@ -109,10 +113,12 @@ export function CandidateResumePersonalInfoEditor({
               <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#940dff]" />
               <input
                 type="tel"
-                value={resumeData.phone}
-                onChange={(event) => onChange({ phone: event.target.value })}
+                value={formatBrazilianPhone(resumeData.phone)}
+                onChange={(event) => onChange({ phone: formatBrazilianPhone(event.target.value) })}
                 className={`${resumeInputClass} pl-9`}
-                placeholder="(00) 00000-0000"
+                placeholder="(99)99999-9999"
+                inputMode="numeric"
+                maxLength={14}
               />
             </div>
           </div>
@@ -152,7 +158,7 @@ export function CandidateResumePersonalInfoEditor({
                   <MapPin size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#940dff]" />
                 )}
                 <select
-                  value={resumeData.city}
+                  value={selectedCity}
                   onChange={(event) => onChange({ city: event.target.value })}
                   disabled={isLoadingCities || !cities.length}
                   className={`${resumeSelectClass} pl-9`}

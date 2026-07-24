@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Bell, BellOff, Check, Clock3, Trash2, X } from 'lucide-react';
+import { Bell, BellOff, Clock3, Trash2, X } from 'lucide-react';
 import { ColaborhNotification } from '../utils/notificationUtils';
 
 interface NotificationsDrawerProps {
@@ -24,10 +24,10 @@ const formatTimeAgo = (dateStr: string) => {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffMins < 1) return 'Agora mesmo';
-    if (diffMins < 60) return `Há ${diffMins} min`;
-    if (diffHours < 24) return `Há ${diffHours} h`;
+    if (diffMins < 60) return `H\u00e1 ${diffMins} min`;
+    if (diffHours < 24) return `H\u00e1 ${diffHours} h`;
     if (diffDays === 1) return 'Ontem';
-    if (diffDays < 7) return `Há ${diffDays} dias`;
+    if (diffDays < 7) return `H\u00e1 ${diffDays} dias`;
     return date.toLocaleDateString('pt-BR');
   } catch {
     return '';
@@ -44,6 +44,14 @@ export const NotificationsDrawer = ({
 }: NotificationsDrawerProps) => {
   const [activeFilter, setActiveFilter] = useState<NotificationFilter>('unread');
   const unreadCount = notifications.filter(notification => !notification.read).length;
+
+  const handleClose = () => {
+    if (unreadCount > 0) {
+      void onMarkAllAsRead();
+    }
+
+    onClose();
+  };
 
   const filteredNotifications = useMemo(() => {
     if (activeFilter === 'unread') {
@@ -66,7 +74,7 @@ export const NotificationsDrawer = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute inset-0 bg-slate-950/28 backdrop-blur-[2px]"
           />
 
@@ -75,13 +83,13 @@ export const NotificationsDrawer = ({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 310 }}
-            className="company-dashboard-surface relative z-10 flex h-full w-full max-w-lg flex-col overflow-hidden border-l border-slate-200/70 bg-[#fbf9ff] text-left shadow-[0_24px_70px_rgba(15,23,42,0.16)]"
+            className="company-dashboard-surface relative z-10 flex h-full w-full max-w-lg flex-col overflow-hidden !rounded-none border-l border-slate-200/70 bg-white text-left shadow-[0_24px_70px_rgba(15,23,42,0.12)]"
           >
-            <header className="shrink-0 px-6 pb-4 pt-6">
-              <div className="flex items-start justify-between gap-4">
+            <header className="shrink-0 px-6 pb-3 pt-5">
+              <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
                       <Bell size={19} />
                     </div>
                     <div className="min-w-0">
@@ -95,15 +103,15 @@ export const NotificationsDrawer = ({
 
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-400 shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#940dff] active:scale-95"
+                  onClick={handleClose}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200/70 bg-white text-[#940dff] shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#8200e6] active:scale-95"
                   aria-label="Fechar notificações"
                 >
                   <X size={15} />
                 </button>
               </div>
 
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap gap-3">
                   {tabs.map(tab => {
                     const isActive = activeFilter === tab.id;
@@ -131,24 +139,13 @@ export const NotificationsDrawer = ({
                     );
                   })}
                 </div>
-
-                {unreadCount > 0 && (
-                  <button
-                    type="button"
-                    onClick={onMarkAllAsRead}
-                    className="flex h-8 items-center gap-2 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 active:scale-95"
-                  >
-                    <Check size={14} />
-                    Marcar lidas
-                  </button>
-                )}
               </div>
             </header>
 
             <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
               {filteredNotifications.length === 0 ? (
-                <div className="flex h-full min-h-[360px] flex-col items-center justify-center rounded-2xl border border-slate-200/70 bg-white/80 px-8 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200/70 bg-white text-slate-300 shadow-sm">
+                <div className="flex h-full min-h-[360px] flex-col items-center justify-center rounded-2xl border border-[#940dff]/12 bg-white px-8 text-center shadow-[0_8px_18px_rgba(148,13,255,0.055)]">
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[#940dff]/12 bg-white text-slate-300">
                     <BellOff size={24} />
                   </div>
                   <p className="text-[14px] font-semibold text-[#343241]">Tudo limpo por aqui</p>
@@ -159,18 +156,17 @@ export const NotificationsDrawer = ({
                   </p>
                 </div>
               ) : (
-                <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-                  <div className="divide-y divide-slate-100/80">
-                    {filteredNotifications.map((notification) => {
-                      const isUnread = !notification.read;
+                <div className="space-y-3">
+                  {filteredNotifications.map((notification) => {
+                    const isUnread = !notification.read;
 
-                      return (
-                        <article
-                          key={notification.id}
-                          onClick={() => isUnread && onMarkAsRead(notification.id)}
-                          className="group relative flex cursor-pointer items-start gap-4 px-5 py-4 transition-colors hover:bg-[#fbf9ff]"
-                        >
-                          <span className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border ${isUnread ? 'border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]' : 'border-slate-200/70 bg-white text-slate-400'}`}>
+                    return (
+                      <article
+                        key={notification.id}
+                        onClick={() => isUnread && onMarkAsRead(notification.id)}
+                        className="group relative flex cursor-pointer items-start gap-4 rounded-2xl border border-[#940dff]/12 bg-white p-4 shadow-[0_8px_18px_rgba(148,13,255,0.055)] transition-colors hover:border-[#940dff]/20 hover:bg-white"
+                      >
+                          <span className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${isUnread ? 'border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]' : 'border-slate-200/70 bg-white text-slate-400'}`}>
                             <Bell size={16} />
                           </span>
 
@@ -199,7 +195,7 @@ export const NotificationsDrawer = ({
                                   event.stopPropagation();
                                   onDelete(notification.id);
                                 }}
-                                className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#ff4b8c]/18 bg-[#ff4b8c]/10 text-[#ff4b8c] opacity-80 transition-all hover:border-[#ff4b8c]/30 hover:bg-[#ff4b8c]/14 hover:opacity-100 active:scale-95"
+                                className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#ff4b8c] bg-[#ff4b8c] text-white transition-all hover:bg-[#f0387b] active:scale-95"
                                 title="Excluir"
                                 aria-label="Excluir notificação"
                               >
@@ -207,10 +203,9 @@ export const NotificationsDrawer = ({
                               </button>
                             </div>
                           </div>
-                        </article>
-                      );
-                    })}
-                  </div>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
             </div>

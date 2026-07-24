@@ -43,7 +43,7 @@ export function CandidateResumeDiversityEditor({ diversity, onChange }: Candidat
 
   return (
     <div className="space-y-4">
-      <ResumeSectionCard className="border-[#940dff]/18 bg-[#f3e5ff]">
+      <ResumeSectionCard className="!border-0 !bg-white !p-0">
         <div className="flex gap-3 text-[#940dff]">
           <Info size={17} className="mt-0.5 shrink-0" />
           <p className="text-[12px] font-medium leading-relaxed">
@@ -52,7 +52,7 @@ export function CandidateResumeDiversityEditor({ diversity, onChange }: Candidat
         </div>
       </ResumeSectionCard>
 
-      <ResumeSectionCard>
+      <ResumeSectionCard className="!border-0 !bg-white !p-0">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <SelectField label="Pronome" value={current.pronoun} onChange={(value) => updateDiversity({ pronoun: value })}>
             <option value="">Selecione</option>

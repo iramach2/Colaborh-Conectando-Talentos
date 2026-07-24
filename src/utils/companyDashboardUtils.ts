@@ -15,15 +15,28 @@ export const cleanEmojiFromText = (text: string): string => {
   return text.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
 };
 
-export const DF_REGIONS = [
-  'Brasilia (Plano Piloto)', 'Aguas Claras', 'Ceilandia', 'Taguatinga', 'Samambaia', 'Guara', 'Gama',
-  'Vicente Pires', 'Sobradinho', 'Sobradinho II', 'Planaltina', 'Santa Maria', 'Sao Sebastiao',
-  'Recanto das Emas', 'Riacho Fundo', 'Riacho Fundo II', 'Nucleo Bandeirante', 'Cruzeiro',
-  'Lago Norte', 'Lago Sul', 'Jardim Botanico', 'Itapoa', 'Paranoa', 'Park Way', 'SCIA/Estrutural',
-  'SIA', 'Varjao', 'Brazlandia', 'Fercal', 'Arniqueira', 'Sol Nascente/Por do Sol',
-  'Valparaiso de Goias', 'Luziania', 'Novo Gama', 'Cidade Ocidental', 'Aguas Lindas de Goias',
-  'Santo Antonio do Descoberto', 'Formosa', 'Planaltina de Goias', 'Cristalina', 'Padre Bernardo',
-].sort();
+export const sortBrazilianCityNames = (cities: string[]) => [...cities].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+export const normalizeBrazilianCityName = (city: string) => city
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+  .trim();
+
+export const findMatchingBrazilianCityName = (city: string, cities: string[]) => {
+  const normalizedCity = normalizeBrazilianCityName(city);
+  return cities.find((option) => normalizeBrazilianCityName(option) === normalizedCity) || city;
+};
+
+export const DF_REGIONS = sortBrazilianCityNames([
+  'Brasília (Plano Piloto)', 'Águas Claras', 'Ceilândia', 'Taguatinga', 'Samambaia', 'Guará', 'Gama',
+  'Vicente Pires', 'Sobradinho', 'Sobradinho II', 'Planaltina', 'Santa Maria', 'São Sebastião',
+  'Recanto das Emas', 'Riacho Fundo', 'Riacho Fundo II', 'Núcleo Bandeirante', 'Cruzeiro',
+  'Lago Norte', 'Lago Sul', 'Jardim Botânico', 'Itapoã', 'Paranoá', 'Park Way', 'SCIA/Estrutural',
+  'SIA', 'Varjão', 'Brazlândia', 'Fercal', 'Arniqueira', 'Sol Nascente/Pôr do Sol',
+  'Valparaíso de Goiás', 'Luziânia', 'Novo Gama', 'Cidade Ocidental', 'Águas Lindas de Goiás',
+  'Santo Antônio do Descoberto', 'Formosa', 'Planaltina de Goiás', 'Cristalina', 'Padre Bernardo',
+]);
 
 export const formatDate = (dateStr: string | number | Date | null | undefined) => {
   if (!dateStr) return 'Nao inf.';

@@ -351,7 +351,7 @@ export function CompanyMbtiReportModal({
 
           <div className="p-4 border-t border-slate-100 bg-[#fbf9ff] flex justify-center items-center shrink-0">
             <p className="text-[11px] font-medium text-slate-400 text-center">
-              método myers-briggs type indicator • mbti premium 64q
+              método myers-briggs type indicator • mbti premium 65q
             </p>
           </div>
         </motion.div>

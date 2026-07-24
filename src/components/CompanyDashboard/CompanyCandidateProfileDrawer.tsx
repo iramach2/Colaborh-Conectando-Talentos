@@ -1,4 +1,4 @@
-import { ElementType, ReactNode, useEffect, useState } from 'react';
+import { ElementType, ReactNode, useEffect, useRef, useState } from 'react';
 import { BadgeDollarSign, Brain, Briefcase, Calendar, Check, CheckCheck, ChevronDown, Download, FileText, GraduationCap, Loader2, Mail, MapPin, MessageSquare, Phone, Send, Sparkles, Star, UserRound, X as CloseIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CompanyCandidateResumeTestsTab } from './CompanyCandidateResumeTestsTab';
@@ -163,6 +163,20 @@ export function CompanyCandidateProfileDrawer({
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
   const isTalentBankProfile = profileMode === 'talentBank';
   const visibleActiveTab: CandidateProfileTab = isTalentBankProfile ? 'curriculo' : activeTab;
+  const messageInputRef = useRef<HTMLInputElement | null>(null);
+  const shouldRestoreMessageFocusRef = useRef(false);
+
+  const focusMessageInput = () => {
+    window.setTimeout(() => messageInputRef.current?.focus(), 0);
+  };
+
+  const handleSendMessage = () => {
+    if (isSendingMessage || !newMessageText.trim()) return;
+
+    shouldRestoreMessageFocusRef.current = true;
+    void onSendMessage();
+    focusMessageInput();
+  };
   const visibleDrawerTabs = isTalentBankProfile ? drawerTabs.filter((tab) => tab.id === 'curriculo') : drawerTabs;
 
   useEffect(() => {
@@ -182,6 +196,13 @@ export function CompanyCandidateProfileDrawer({
     if (!applicant || isTalentBankProfile || activeTab !== 'mensagens') return;
     onOpenMessages(applicant);
   }, [activeTab, applicant, isTalentBankProfile, onOpenMessages]);
+
+  useEffect(() => {
+    if (isSendingMessage || !shouldRestoreMessageFocusRef.current) return;
+
+    shouldRestoreMessageFocusRef.current = false;
+    focusMessageInput();
+  }, [isSendingMessage]);
 
   const personalGroups: InfoGroup[] = applicant ? [
     { id: 'identificacao', items: [{ label: 'E-mail', value: applicant.candidate_email || applicant.email || talent?.email, icon: Mail }, { label: 'Telefone', value: displayPhone, icon: Phone }] },
@@ -313,7 +334,7 @@ export function CompanyCandidateProfileDrawer({
                       <div className="flex flex-col gap-3">{chatMessages.map((message, index) => { const isCompany = message.sender_type === 'company'; return <div key={message.id || index} className={`flex max-w-[82%] flex-col ${isCompany ? 'self-end items-end' : 'self-start items-start'}`}><div className={`flex min-h-8 items-center rounded-xl px-4 py-1.5 text-[12px] font-medium leading-relaxed shadow-sm ${isCompany ? 'rounded-br-md bg-[#533af6] text-white' : 'rounded-bl-md border border-slate-200 bg-white text-slate-500'}`}><p className="whitespace-pre-wrap break-words">{message.content || message.message}</p></div><span className="mt-1 flex items-center gap-1 px-1 text-[10px] font-medium text-slate-400">{message.created_at ? new Date(message.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}{isCompany ? (message.read ? <CheckCheck size={13} className="text-[#63e1a5]" aria-label="Mensagem lida" /> : <Check size={13} className="text-slate-300" aria-label="Mensagem enviada" />) : null}</span></div>; })}</div>
                     )}
                   </div>
-                  <div className="border-t border-slate-200/70 bg-white/90 p-4"><div className="flex items-center gap-2"><input type="text" value={newMessageText} onChange={(event) => setNewMessageText(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !isSendingMessage && newMessageText.trim()) onSendMessage(); }} placeholder="Digite sua mensagem..." disabled={isSendingMessage} className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-[12px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-300 focus:border-[#533af6]/50 focus:ring-4 focus:ring-[#533af6]/10" /><button type="button" onClick={onSendMessage} disabled={isSendingMessage || !newMessageText.trim()} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#533af6] bg-[#533af6] text-white shadow-md shadow-[#533af6]/15 transition-all hover:bg-[#4326e5] disabled:cursor-not-allowed disabled:opacity-50" aria-label={isSendingMessage ? 'Enviando mensagem' : 'Enviar mensagem'} title={isSendingMessage ? 'Enviando...' : 'Enviar'}><span className="sr-only">{isSendingMessage ? 'Enviando...' : 'Enviar'}</span>{isSendingMessage ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} className="stroke-[2.4]" />}</button></div></div>
+                  <div className="border-t border-slate-200/70 bg-white/90 p-4"><div className="flex items-center gap-2"><input ref={messageInputRef} type="text" value={newMessageText} onChange={(event) => setNewMessageText(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !isSendingMessage && newMessageText.trim()) handleSendMessage(); }} placeholder="Digite sua mensagem..." disabled={isSendingMessage} className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-[12px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-300 focus:border-[#533af6]/50 focus:ring-4 focus:ring-[#533af6]/10" /><button type="button" onClick={handleSendMessage} disabled={isSendingMessage || !newMessageText.trim()} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#533af6] bg-[#533af6] text-white shadow-md shadow-[#533af6]/15 transition-all hover:bg-[#4326e5] disabled:cursor-not-allowed disabled:opacity-50" aria-label={isSendingMessage ? 'Enviando mensagem' : 'Enviar mensagem'} title={isSendingMessage ? 'Enviando...' : 'Enviar'}><span className="sr-only">{isSendingMessage ? 'Enviando...' : 'Enviar'}</span>{isSendingMessage ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} className="stroke-[2.4]" />}</button></div></div>
                 </section>
               </div>
             )}

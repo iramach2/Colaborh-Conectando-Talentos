@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { sortBrazilianCityNames } from '../utils/companyDashboardUtils';
 
 interface UseBrazilCitiesParams {
   stateCode?: string;
@@ -25,7 +26,7 @@ export const useBrazilCities = ({ stateCode, dfRegions }: UseBrazilCitiesParams)
       fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateCode}/municipios`)
         .then((response) => response.json())
         .then((data: IbgeCity[]) => {
-          setCities(data.map((city) => city.nome).sort());
+          setCities(sortBrazilianCityNames(data.map((city) => city.nome)));
           setIsLoadingCities(false);
         })
         .catch((error) => {

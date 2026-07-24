@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { AlertTriangle, Check, ChevronLeft, X as CloseIconComponent } from 'lucide-react';
-import { DF_REGIONS } from '../../../utils/companyDashboardUtils';
+import { DF_REGIONS, sortBrazilianCityNames } from '../../../utils/companyDashboardUtils';
 import type { VacancyFormData } from '../../../utils/vacancyPayload';
 import { CreateVacancyStepBasics } from '../createVacancy/CreateVacancyStepBasics';
 import { CreateVacancyStepCompensation } from '../createVacancy/CreateVacancyStepCompensation';
@@ -71,7 +71,7 @@ export const CreateVacancyTab: React.FC<CreateVacancyTabProps> = ({
       fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${vacancyForm.state}/municipios`)
         .then((res) => res.json())
         .then((data: IbgeCity[]) => {
-          setCities(data.map((city) => city.nome).sort());
+          setCities(sortBrazilianCityNames(data.map((city) => city.nome)));
           setIsLoadingCities(false);
         })
         .catch((err) => {

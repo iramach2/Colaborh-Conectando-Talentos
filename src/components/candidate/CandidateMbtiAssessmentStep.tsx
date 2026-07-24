@@ -28,8 +28,10 @@ export function CandidateMbtiAssessmentStep({
   setMbtiState,
   handleFinishMBTITest,
 }: CandidateMbtiAssessmentStepProps) {
-  const stageQuestions = mbtiQuestions.slice(currentMbtiStageIndex * 8, (currentMbtiStageIndex + 1) * 8);
-  const progressPercent = Math.round(((currentMbtiStageIndex + 1) / 8) * 100);
+  const questionsPerStage = 8;
+  const totalStages = Math.ceil(mbtiQuestions.length / questionsPerStage);
+  const stageQuestions = mbtiQuestions.slice(currentMbtiStageIndex * questionsPerStage, (currentMbtiStageIndex + 1) * questionsPerStage);
+  const progressPercent = Math.round(((currentMbtiStageIndex + 1) / totalStages) * 100);
 
   const handleSelectMbtiScore = (qId: number, option: 'a' | 'b', score: number) => {
     setMbtiAnswers((prev) => ({
@@ -42,8 +44,8 @@ export function CandidateMbtiAssessmentStep({
   };
 
   const handleNextStep = () => {
-    const startIndex = currentMbtiStageIndex * 8;
-    const stageQs = mbtiQuestions.slice(startIndex, startIndex + 8);
+    const startIndex = currentMbtiStageIndex * questionsPerStage;
+    const stageQs = mbtiQuestions.slice(startIndex, startIndex + questionsPerStage);
     const firstMissing = stageQs.find((question) => {
       const qAns = mbtiAnswers[question.id];
       return !qAns || qAns.a === null || qAns.b === null;
@@ -55,7 +57,7 @@ export function CandidateMbtiAssessmentStep({
     }
 
     setMbtiErrorMessage(null);
-    if (currentMbtiStageIndex < 7) {
+    if (currentMbtiStageIndex < totalStages - 1) {
       setCurrentMbtiStageIndex((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -79,7 +81,7 @@ export function CandidateMbtiAssessmentStep({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <span className="inline-flex h-7 items-center rounded-xl border border-[#533af6]/20 bg-[#533af6]/10 px-3 text-[11px] font-semibold text-[#533af6]">
-              Etapa {currentMbtiStageIndex + 1} de 8
+              Etapa {currentMbtiStageIndex + 1} de {totalStages}
             </span>
             <h2 className="mt-3 text-[20px] font-semibold tracking-tight text-[#343241]">Dimensões de personalidade MBTI</h2>
           </div>
@@ -122,7 +124,7 @@ export function CandidateMbtiAssessmentStep({
       <footer className="mt-7 flex items-center justify-between gap-3 border-t border-slate-100 pt-5">
         <button type="button" onClick={handlePrevStep} className="h-8 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12">Anterior</button>
         <button type="button" disabled={isSavingMbti} onClick={handleNextStep} className="flex h-8 items-center gap-2 rounded-xl bg-[#940dff] px-5 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">
-          {isSavingMbti ? <><Loader2 size={13} className="animate-spin" /> Salvando...</> : currentMbtiStageIndex === 7 ? 'Finalizar e enviar' : 'Próxima etapa'}
+          {isSavingMbti ? <><Loader2 size={13} className="animate-spin" /> Salvando...</> : currentMbtiStageIndex === totalStages - 1 ? 'Finalizar e enviar' : 'Próxima etapa'}
         </button>
       </footer>
     </section>

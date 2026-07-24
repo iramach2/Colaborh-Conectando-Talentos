@@ -168,7 +168,7 @@ export const CompanyDashboardSidebar = ({
         </div>
       </aside>
 
-      <aside className={`company-mobile-sidebar fixed inset-0 z-[100] flex h-dvh w-full touch-auto flex-col overflow-y-auto overscroll-contain rounded-none bg-[#940dff] px-3 py-3 text-white shadow-2xl transition-transform duration-300 lg:hidden ${
+      <aside className={`company-mobile-sidebar fixed inset-0 z-[100] flex h-dvh w-full touch-auto flex-col overflow-y-auto overscroll-contain rounded-none bg-[#940dff] px-3 py-3 text-white transition-transform duration-300 lg:hidden ${
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="absolute right-3 top-3 z-30 flex items-center justify-end">

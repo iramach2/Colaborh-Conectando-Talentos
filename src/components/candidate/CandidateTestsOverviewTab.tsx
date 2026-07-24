@@ -70,7 +70,7 @@ function getVisual(type: CandidateAssessmentKind) {
 
 function getPendingDescription(item: CandidateAssessmentListItem) {
   if (item.type === 'DISC') return `Solicitado por ${item.companyName}. Responda para mapear seu perfil comportamental e prosseguir no processo seletivo.`;
-  if (item.type === 'MBTI') return `Solicitado por ${item.companyName}. Responda ao teste de 64 perguntas para mapear suas dimensões de personalidade.`;
+  if (item.type === 'MBTI') return `Solicitado por ${item.companyName}. Responda ao teste de 65 perguntas para mapear suas dimensões de personalidade.`;
   if (item.type === 'TEMPERAMENTOS') return `Solicitado por ${item.companyName}. Responda ao teste de 25 perguntas para mapear seu perfil comportamental e de temperamento.`;
   if (item.type === 'CUSTOM') return `Solicitado por ${item.companyName}. Responda ao questionário específico criado para esta vaga.`;
   return `Solicitado por ${item.companyName}. Responda ao mapeamento de perfil de 20 perguntas para prosseguir no processo seletivo.`;
@@ -167,11 +167,11 @@ function AssessmentCard({
   const Icon = visual.Icon;
 
   return (
-    <article className="group rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)] transition-all hover:-translate-y-0.5 hover:border-[#940dff]/16 hover:shadow-[0_16px_36px_rgba(15,23,42,0.06)]">
+    <article className="group rounded-2xl border border-[#940dff]/12 bg-white p-5 shadow-[0_8px_18px_rgba(148,13,255,0.055)] transition-all hover:border-[#940dff]/20 hover:shadow-[0_10px_22px_rgba(148,13,255,0.075)]">
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-4">
           <div
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border shadow-sm"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border shadow-[0_6px_14px_rgba(148,13,255,0.06)]"
             style={{ backgroundColor: visual.soft, borderColor: visual.border, color: visual.color }}
           >
             <Icon size={21} />
@@ -199,8 +199,8 @@ function AssessmentCard({
           type="button"
           onClick={() => (completed ? onViewResult(item) : onStartTest(item))}
           className={completed
-            ? 'h-8 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12'
-            : 'h-8 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95'}
+            ? 'h-8 rounded-full border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12'
+            : 'h-8 rounded-full bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95'}
         >
           {completed ? 'Ver resultado' : 'Começar teste'}
         </button>
@@ -212,8 +212,8 @@ function AssessmentCard({
 function EmptyTestsState({ completed }: { completed: boolean }) {
   const Icon = completed ? Award : CheckCircle2;
   return (
-    <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-14 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f3e5ff] text-[#940dff]">
+    <div className="rounded-2xl border border-[#940dff]/12 bg-white p-14 text-center shadow-[0_8px_18px_rgba(148,13,255,0.055)]">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#f3e5ff] text-[#940dff]">
         <Icon size={22} />
       </div>
       <h3 className="text-[16px] font-semibold text-[#343241]">

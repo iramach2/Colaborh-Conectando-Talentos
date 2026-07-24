@@ -44,7 +44,7 @@ export const useCandidateMbtiAssessment = ({
     });
 
     if (unansweredId !== -1) {
-      setMbtiErrorMessage(`Por favor, responda a todas as 64 questoes. A questao ${unansweredId + 1} esta com respostas pendentes.`);
+      setMbtiErrorMessage(`Por favor, responda a todas as ${questions.length} questões. A questão ${unansweredId + 1} está com respostas pendentes.`);
       return;
     }
 

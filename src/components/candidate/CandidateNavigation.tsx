@@ -104,9 +104,11 @@ export function CandidateNavigation({
   return (
     <>
       {isMobileSidebarOpen && (
-        <div
-          className="fixed inset-0 z-[90] bg-slate-950/40 backdrop-blur-sm lg:hidden"
+        <button
+          type="button"
+          className="fixed inset-0 z-[90] cursor-default bg-transparent lg:hidden"
           onClick={() => setIsMobileSidebarOpen(false)}
+          aria-label="Fechar menu"
         />
       )}
 
@@ -170,7 +172,7 @@ export function CandidateNavigation({
         </div>
       </aside>
 
-      <aside style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} className={`fixed left-0 top-0 z-[100] flex h-full w-64 flex-col !rounded-l-none rounded-r-3xl border-r border-slate-200 bg-white p-6 shadow-2xl transition-all duration-300 lg:hidden ${
+      <aside style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} className={`fixed left-0 top-0 z-[100] flex h-full w-[82vw] max-w-[300px] flex-col !rounded-l-none rounded-r-3xl border-r border-slate-200/70 bg-white/82 p-6 backdrop-blur-xl transition-all duration-300 lg:hidden ${
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="mb-8 flex w-full items-center justify-between">

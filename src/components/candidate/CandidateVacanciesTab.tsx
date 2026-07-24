@@ -4,6 +4,7 @@ import {
   Briefcase,
   CheckCircle2,
   Clock,
+  DollarSign,
   Filter,
   Loader2,
   MapPin,
@@ -286,28 +287,18 @@ function AllVacanciesList({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-      <div className="hidden grid-cols-[minmax(260px,1.6fr)_1fr_0.8fr_0.8fr_220px] gap-4 border-b border-slate-100 bg-[#fbfaff] px-5 py-3 text-[11px] font-semibold text-slate-400 lg:grid">
-        <span>Vaga</span>
-        <span>Local</span>
-        <span>Salário</span>
-        <span>Jornada</span>
-        <span className="text-right">Ações</span>
-      </div>
-      <div className="divide-y divide-slate-100">
-        {filteredVacancies.map((job) => {
-          const title = cleanEmojiFromText(job.title || 'Vaga sem título');
-          const description = cleanJobDescription(job.description) || 'Nenhuma descrição fornecida para esta oportunidade.';
-          const isApplied = Boolean(job.id && appliedJobIds.includes(job.id));
+    <div className="space-y-3">
+      {filteredVacancies.map((job) => {
+          const title = cleanEmojiFromText(job.title || 'Vaga sem título');          const isApplied = Boolean(job.id && appliedJobIds.includes(job.id));
           const isCurrentApplying = isApplying === job.id;
 
           return (
             <div
               key={job.id || title}
-              className="group grid gap-4 px-5 py-4 transition-colors hover:bg-[#fbfaff] lg:grid-cols-[minmax(260px,1.6fr)_1fr_0.8fr_0.8fr_220px] lg:items-center"
+              className="group grid gap-4 rounded-2xl border border-[#940dff]/12 bg-white p-5 shadow-[0_8px_18px_rgba(148,13,255,0.055)] transition-all hover:border-[#940dff]/20 hover:shadow-[0_10px_22px_rgba(148,13,255,0.075)] lg:grid-cols-[minmax(260px,1.45fr)_0.9fr_0.75fr_0.75fr_300px] lg:items-center"
             >
-              <div className="flex min-w-0 items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 select-none items-center justify-center rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff]">
+              <div className="flex min-w-0 items-start gap-3 lg:items-center">
+                <div className="flex h-11 w-11 shrink-0 select-none items-center justify-center rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff]">
                   {getJobInitials(title)}
                 </div>
                 <div className="min-w-0">
@@ -322,9 +313,6 @@ function AllVacanciesList({
                   <p className="mt-1 text-[12px] font-medium text-slate-400">
                     {cleanEmojiFromText(job.company_name || 'Empresa parceira')}
                   </p>
-                  <p className="mt-2 line-clamp-2 text-[12px] font-medium leading-relaxed text-slate-500 lg:hidden">
-                    {description}
-                  </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <span className="rounded-lg border border-[#940dff]/16 bg-[#f3e5ff] px-2 py-1 text-[10px] font-semibold text-[#940dff]">
                       {cleanEmojiFromText(job.modality || 'Remoto')}
@@ -338,11 +326,13 @@ function AllVacanciesList({
                 </div>
               </div>
 
-              <InfoCell icon={MapPin} label="Local" value={extractLocation(job)} />
-              <InfoCell label="Salário" value={cleanEmojiFromText(job.salary || 'A combinar')} />
-              <InfoCell icon={Clock} label="Jornada" value={cleanEmojiFromText(job.work_schedule || 'A combinar')} />
+              <div className="grid grid-cols-2 gap-4 lg:contents">
+                <InfoCell icon={MapPin} label="Local" value={extractLocation(job)} className="order-1 lg:order-none" />
+                <InfoCell icon={Clock} label="Jornada" value={cleanEmojiFromText(job.work_schedule || 'A combinar')} className="order-2 lg:order-none" />
+                <InfoCell icon={DollarSign} label="Salário" value={cleanEmojiFromText(job.salary || 'A combinar')} className="order-3 col-span-2 lg:order-none lg:col-auto" />
+              </div>
 
-              <div className="flex flex-wrap justify-start gap-2 lg:justify-end">
+              <div className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-3 lg:flex-nowrap lg:border-t-0 lg:pt-0 lg:justify-end">
                 <button
                   type="button"
                   onClick={() => openPublicJobPage(job)}
@@ -356,7 +346,7 @@ function AllVacanciesList({
                   disabled={isApplied || isCurrentApplying}
                   className={`flex h-8 items-center justify-center gap-2 rounded-xl px-4 text-[12px] font-semibold transition-all active:scale-95 disabled:cursor-default ${
                     isApplied
-                      ? 'border border-[#63e1a5]/20 bg-[#63e1a5]/14 text-[#2f9f6b]'
+                      ? 'border border-[#63e1a5] bg-[#63e1a5] text-white'
                       : 'bg-[#940dff] text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] hover:bg-[#8200e6]'
                   }`}
                 >
@@ -373,8 +363,7 @@ function AllVacanciesList({
               </div>
             </div>
           );
-        })}
-      </div>
+      })}
     </div>
   );
 }
@@ -395,15 +384,8 @@ function MyApplicationsList({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
-      <div className="hidden grid-cols-[minmax(260px,1.5fr)_1fr_1fr_160px] gap-4 border-b border-slate-100 bg-[#fbfaff] px-5 py-3 text-[11px] font-semibold text-slate-400 lg:grid">
-        <span>Vaga</span>
-        <span>Status</span>
-        <span>Enviado em</span>
-        <span className="text-right">Ações</span>
-      </div>
-      <div className="divide-y divide-slate-100">
-        {myApplications.map((app, index) => {
+    <div className="space-y-3">
+      {myApplications.map((app, index) => {
           const job = vacancies.find((vacancy) => vacancy.id === app.job_id) || app.job || app.jobs || null;
           const title = cleanEmojiFromText(job?.title || 'Candidatura enviada');
           const stagesList = job ? getCurrentJobStages(job) : [];
@@ -414,10 +396,10 @@ function MyApplicationsList({
           return (
             <div
               key={app.id || `${app.job_id}-${index}`}
-              className="group grid gap-4 px-5 py-4 transition-colors hover:bg-[#fbfaff] lg:grid-cols-[minmax(260px,1.5fr)_1fr_1fr_160px] lg:items-center"
+              className="group grid gap-4 rounded-2xl border border-[#940dff]/12 bg-white p-5 shadow-[0_8px_18px_rgba(148,13,255,0.055)] transition-all hover:border-[#940dff]/20 hover:shadow-[0_10px_22px_rgba(148,13,255,0.075)] lg:grid-cols-[minmax(260px,1.45fr)_0.9fr_0.9fr_160px] lg:items-center"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 select-none items-center justify-center rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff]">
+                <div className="flex h-11 w-11 shrink-0 select-none items-center justify-center rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff]">
                   {getJobInitials(title)}
                 </div>
                 <div className="min-w-0">
@@ -429,20 +411,21 @@ function MyApplicationsList({
                   </p>
                 </div>
               </div>
+              <div className="grid grid-cols-2 items-start gap-4 lg:contents">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold text-slate-400 lg:hidden">Status</p>
+                  <span className="inline-flex h-7 items-center rounded-lg border border-[#940dff]/16 bg-[#f3e5ff] px-3 text-[11px] font-semibold text-[#940dff]">
+                    {cleanEmojiFromText(normalizedStatus)}
+                  </span>
+                </div>
 
-              <div>
-                <p className="text-[11px] font-semibold text-slate-400 lg:hidden">Status</p>
-                <span className="inline-flex h-7 items-center rounded-lg border border-[#940dff]/16 bg-[#f3e5ff] px-3 text-[11px] font-semibold text-[#940dff]">
-                  {cleanEmojiFromText(normalizedStatus)}
-                </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold text-slate-400 lg:hidden">Enviado em</p>
+                  <p className="text-[12px] font-medium text-slate-500">{formatApplicationDate(app.created_at)}</p>
+                </div>
               </div>
 
-              <div>
-                <p className="text-[11px] font-semibold text-slate-400 lg:hidden">Enviado em</p>
-                <p className="text-[12px] font-medium text-slate-500">{formatApplicationDate(app.created_at)}</p>
-              </div>
-
-              <div className="flex justify-start lg:justify-end">
+              <div className="flex justify-end border-t border-slate-100 pt-3 lg:border-t-0 lg:pt-0 lg:justify-end">
                 {job && (
                   <button
                     type="button"
@@ -455,21 +438,21 @@ function MyApplicationsList({
               </div>
             </div>
           );
-        })}
-      </div>
+      })}
     </div>
   );
 }
 
-function InfoCell({ icon: Icon, label, value }: { icon?: LucideIcon; label: string; value: string }) {
+function InfoCell({ icon: Icon, label, value, className = '' }: { icon?: LucideIcon; label: string; value: string; className?: string }) {
   return (
-    <div className="min-w-0">
+    <div className={`min-w-0 ${className}`}>
       <p className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 lg:hidden">
         {Icon && <Icon size={12} className="text-[#940dff]" />}
         {label}
       </p>
-      <p className="truncate text-[12px] font-medium text-slate-500" title={value}>
-        {value}
+      <p className="flex min-w-0 items-center gap-1.5 text-[12px] font-medium text-slate-500" title={value}>
+        {Icon && <Icon size={14} className="hidden shrink-0 text-[#940dff] lg:block" />}
+        <span className="truncate">{value}</span>
       </p>
     </div>
   );

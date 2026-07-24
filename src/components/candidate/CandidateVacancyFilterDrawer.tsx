@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Briefcase, MapPin, SlidersHorizontal, X } from 'lucide-react';
+import { Briefcase, ChevronDown, MapPin, SlidersHorizontal, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 interface CandidateVacancyFilterDrawerProps {
@@ -56,30 +56,30 @@ export function CandidateVacancyFilterDrawer({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 26, stiffness: 210 }}
-            className="company-dashboard-surface fixed right-0 top-0 z-[100] flex h-full w-full max-w-md flex-col overflow-hidden rounded-l-2xl border-l border-slate-200/70 bg-[#fbf9ff] text-left shadow-[0_24px_70px_rgba(15,23,42,0.16)]"
+            className="company-dashboard-surface fixed right-0 top-0 z-[100] flex h-full w-full max-w-md flex-col overflow-hidden !rounded-none border-l border-slate-200/70 bg-white text-left shadow-[0_24px_70px_rgba(15,23,42,0.14)]"
           >
-            <header className="flex items-start justify-between gap-4 border-b border-slate-200/70 px-6 py-5">
+            <header className="flex items-center justify-between gap-4 px-6 py-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
                   <SlidersHorizontal size={20} />
                 </div>
                 <div>
                   <h2 className="text-[20px] font-semibold tracking-tight text-[#343241]">Filtros de vagas</h2>
-                  <p className="mt-1 text-[12px] font-medium text-slate-400">Refine sua busca por local, modelo e contrato.</p>
+                  <p className="mt-1 text-[12px] font-medium text-slate-400">Refine sua busca</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-400 shadow-sm transition-all hover:text-[#940dff] active:scale-95"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200/70 bg-white text-[#940dff] shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#8200e6] active:scale-95"
                 aria-label="Fechar filtros"
               >
-                <X size={18} />
+                <X size={15} />
               </button>
             </header>
 
-            <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
-              <section className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+            <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-5 pt-2">
+              <section className="rounded-2xl border border-[#940dff]/12 bg-white p-5 shadow-[0_8px_18px_rgba(148,13,255,0.055)]">
                 <div className="mb-4 flex items-center gap-2 text-[#343241]">
                   <MapPin size={17} className="text-[#940dff]" />
                   <h3 className="text-[14px] font-semibold">Local da vaga</h3>
@@ -87,41 +87,47 @@ export function CandidateVacancyFilterDrawer({
 
                 <div className="space-y-4">
                   <FilterSelect label="Estado">
-                    <select
-                      value={vacancyStateFilter}
-                      onChange={(event) => setVacancyStateFilter(event.target.value)}
-                      className="h-10 w-full rounded-xl border border-slate-200/80 bg-white px-3 text-[12px] font-semibold text-[#343241] outline-none transition-all focus:border-[#940dff]/30 focus:ring-4 focus:ring-[#940dff]/10"
-                    >
-                      <option value="">Todos os estados</option>
-                      {brazilStates.map((state) => (
-                        <option key={state} value={state}>{state}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={vacancyStateFilter}
+                        onChange={(event) => setVacancyStateFilter(event.target.value)}
+                        className="h-10 w-full appearance-none rounded-xl border border-[#940dff]/12 bg-white px-3 pr-9 text-[12px] font-semibold text-[#343241] shadow-[0_8px_18px_rgba(148,13,255,0.055)] outline-none transition-colors focus:border-[#940dff]/35 focus:ring-0"
+                      >
+                        <option value="">Todos os estados</option>
+                        {brazilStates.map((state) => (
+                          <option key={state} value={state}>{state}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#940dff]" />
+                    </div>
                   </FilterSelect>
 
                   <FilterSelect label="Cidade">
-                    <select
-                      value={vacancyCityFilter}
-                      onChange={(event) => setVacancyCityFilter(event.target.value)}
-                      disabled={!vacancyStateFilter || isLoadingVacancyCities}
-                      className="h-10 w-full rounded-xl border border-slate-200/80 bg-white px-3 text-[12px] font-semibold text-[#343241] outline-none transition-all focus:border-[#940dff]/30 focus:ring-4 focus:ring-[#940dff]/10 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <option value="">
-                        {isLoadingVacancyCities
-                          ? 'Carregando cidades...'
-                          : !vacancyStateFilter
-                            ? 'Selecione um estado primeiro'
-                            : 'Todas as cidades'}
-                      </option>
-                      {vacancyCitiesList.map((city) => (
-                        <option key={city} value={city}>{city}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={vacancyCityFilter}
+                        onChange={(event) => setVacancyCityFilter(event.target.value)}
+                        disabled={!vacancyStateFilter || isLoadingVacancyCities}
+                        className="h-10 w-full appearance-none rounded-xl border border-[#940dff]/12 bg-white px-3 pr-9 text-[12px] font-semibold text-[#343241] shadow-[0_8px_18px_rgba(148,13,255,0.055)] outline-none transition-colors focus:border-[#940dff]/35 focus:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <option value="">
+                          {isLoadingVacancyCities
+                            ? 'Carregando cidades...'
+                            : !vacancyStateFilter
+                              ? 'Selecione um estado primeiro'
+                              : 'Todas as cidades'}
+                        </option>
+                        {vacancyCitiesList.map((city) => (
+                          <option key={city} value={city}>{city}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#940dff]" />
+                    </div>
                   </FilterSelect>
                 </div>
               </section>
 
-              <section className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
+              <section className="rounded-2xl border border-[#940dff]/12 bg-white p-5 shadow-[0_8px_18px_rgba(148,13,255,0.055)]">
                 <div className="mb-4 flex items-center gap-2 text-[#343241]">
                   <Briefcase size={17} className="text-[#940dff]" />
                   <h3 className="text-[14px] font-semibold">Formato da oportunidade</h3>
@@ -145,19 +151,19 @@ export function CandidateVacancyFilterDrawer({
               </section>
             </div>
 
-            <footer className="flex items-center justify-between gap-3 border-t border-slate-200/70 bg-white/75 px-6 py-4">
+            <footer className="flex items-center justify-between gap-3 border-t border-[#940dff]/10 bg-white px-6 py-4">
               <button
                 type="button"
                 onClick={clearVacancyFilters}
                 disabled={!hasActiveFilters}
-                className="h-8 rounded-xl border border-[#ff4b8c]/18 bg-[#ff4b8c]/10 px-4 text-[12px] font-semibold text-[#ff4b8c] transition-all hover:border-[#ff4b8c]/30 hover:bg-[#ff4b8c]/14 disabled:cursor-not-allowed disabled:opacity-45"
+                className="h-8 rounded-xl bg-[#ff4b8c] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(255,75,140,0.18)] transition-all hover:bg-[#f0387b] active:scale-95 disabled:cursor-not-allowed disabled:opacity-45"
               >
                 Limpar filtros
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="h-8 rounded-xl bg-[#940dff] px-5 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"
+                className="h-8 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"
               >
                 Aplicar filtros
               </button>
@@ -201,10 +207,10 @@ function FilterChips({
               key={option}
               type="button"
               onClick={() => onChange(isActive ? '' : option)}
-              className={`h-8 rounded-xl border px-4 text-[12px] font-semibold transition-all ${
+              className={`h-9 rounded-full border px-4 text-[12px] font-semibold transition-all ${
                 isActive
-                  ? 'border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff] shadow-sm'
-                  : 'border-slate-200/80 bg-white text-slate-500 hover:border-[#940dff]/20 hover:text-[#940dff]'
+                  ? 'border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]'
+                  : 'border-[#940dff]/12 bg-white text-slate-500 hover:border-[#940dff]/24 hover:text-[#940dff]'
               }`}
             >
               {option}
