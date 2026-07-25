@@ -23,9 +23,13 @@ export type AssessmentRow = CompanyApplicant & {
   customTestData: unknown;
 };
 
+const stripCompletedDate = (value: string) => value.split('===DATE===')[0].trim();
+
+const getCompletedBody = (value: string) => stripCompletedDate(value).replace('COMPLETED===', '').trim();
+
 const parseCompletedJson = <T>(value: string): T | null => {
   try {
-    return JSON.parse(value.replace('COMPLETED===', '').trim()) as T;
+    return JSON.parse(getCompletedBody(value)) as T;
   } catch {
     return null;
   }
@@ -43,7 +47,7 @@ export const getAssessmentRows = (companyApplications: CompanyApplication[], job
       if (parsedData.disc === 'PENDING') discStatus = 'PENDING';
       else if (parsedData.disc.startsWith('COMPLETED===')) {
         discStatus = 'COMPLETED';
-        discScores = parsedData.disc.replace('COMPLETED===', '').split(',').map(Number);
+        discScores = getCompletedBody(parsedData.disc).split(',').map(Number);
       }
     }
 

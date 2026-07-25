@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { parseCandidatePhoneData } from '../utils/companyDashboardUtils';
+import { parseCandidatePhoneData, serializeCandidatePhoneData } from '../utils/companyDashboardUtils';
 
 export type AssessmentType = 'disc' | 'questions' | 'mbti' | 'temperamentos' | 'custom';
 export type AssessmentStatus = 'pending' | 'completed' | 'cancelled';
@@ -31,12 +31,12 @@ const getCurrentUserId = async () => {
   return data.user?.id || null;
 };
 
-const markerByType: Record<AssessmentType, string> = {
-  disc: 'DISC',
-  questions: 'QUESTIONS',
-  mbti: 'MBTI',
-  temperamentos: 'TEMPERAMENTOS',
-  custom: 'CUSTOM_TEST',
+const fieldByType: Record<AssessmentType, keyof ReturnType<typeof parseCandidatePhoneData>> = {
+  disc: 'disc',
+  questions: 'questions',
+  mbti: 'mbti',
+  temperamentos: 'temperamentos',
+  custom: 'customTest',
 };
 
 const toLegacyAssessmentValue = (assessment: AssessmentRow): string => {
@@ -126,13 +126,25 @@ export const hydrateApplicationsWithAssessments = async <T extends { id?: string
 
       let candidatePhone = app.candidate_phone || '';
       for (const assessment of assessments) {
-        const marker = markerByType[assessment.assessment_type];
-        if (candidatePhone.includes(`===${marker}===`)) continue;
-
         const legacyValue = toLegacyAssessmentValue(assessment);
-        if (legacyValue) {
-          candidatePhone = `${candidatePhone.trim()} ===${marker}===${legacyValue}`.trim();
-        }
+        if (!legacyValue) continue;
+
+        const parsed = parseCandidatePhoneData(candidatePhone);
+        const field = fieldByType[assessment.assessment_type];
+        const currentValue = parsed[field];
+
+        if (currentValue === legacyValue) continue;
+        if (currentValue && currentValue !== 'PENDING' && !legacyValue.startsWith('COMPLETED')) continue;
+
+        candidatePhone = serializeCandidatePhoneData(
+          parsed.phone,
+          assessment.assessment_type === 'disc' ? legacyValue : parsed.disc,
+          parsed.notes,
+          assessment.assessment_type === 'questions' ? legacyValue : parsed.questions,
+          assessment.assessment_type === 'mbti' ? legacyValue : parsed.mbti,
+          assessment.assessment_type === 'temperamentos' ? legacyValue : parsed.temperamentos,
+          assessment.assessment_type === 'custom' ? legacyValue : parsed.customTest,
+        );
       }
 
       return { ...app, candidate_phone: candidatePhone };
