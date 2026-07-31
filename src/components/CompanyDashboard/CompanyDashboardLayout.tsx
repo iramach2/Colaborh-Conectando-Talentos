@@ -9,6 +9,16 @@ interface SidebarItemProps {
   isSidebarExpanded: boolean;
 }
 
+const sidebarLabelAliases = new Map<string, string>([
+  ['Avalia????es', 'Avalia\u00e7\u00f5es'],
+  ['Avalia\u00e7\u00f5es', 'Avalia\u00e7\u00f5es'],
+  ['AvaliaÃ§Ãµes', 'Avalia\u00e7\u00f5es'],
+  ['Ele se fez sentir por um', 'Avalia\u00e7\u00f5es'],
+  ['Configura????es', 'Configura\u00e7\u00f5es'],
+  ['ConfiguraÃ§Ãµes', 'Configura\u00e7\u00f5es'],
+]);
+
+const getSidebarLabel = (label: string) => sidebarLabelAliases.get(label) || label;
 export const DashboardSectionFallback = () => (
   <div className="w-full min-h-[320px] flex items-center justify-center">
     <LoadingAnimation message="Carregando modulo..." compact />
@@ -22,12 +32,14 @@ export const OverlayFallback = () => (
 );
 
 export const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSidebarExpanded }: SidebarItemProps) => {
-  const isActive = activeTab === label;
+  const displayLabel = getSidebarLabel(label);
+  const isActive = activeTab === displayLabel || activeTab === label;
 
   return (
     <div className="relative group/item w-full flex justify-center">
       <button
-        onClick={() => setActiveTab(label)}
+        onClick={() => setActiveTab(displayLabel)}
+        aria-label={displayLabel}
         className={`flex items-center transition-all duration-200 ease-in-out h-10 rounded-xl
           ${isSidebarExpanded ? 'w-full px-3 justify-start gap-3' : 'w-10 px-0 justify-center gap-0'}
           ${isActive
@@ -44,13 +56,13 @@ export const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab, isSide
           ${isSidebarExpanded ? 'opacity-100 w-auto' : 'lg:w-0 lg:opacity-0 lg:overflow-hidden'}
           ${isActive ? 'text-[#6a42dc]' : 'text-slate-500'}
         `}>
-          {label}
+          {displayLabel}
         </span>
       </button>
 
       {!isSidebarExpanded && (
         <div className="hidden lg:block absolute left-[calc(100%+10px)] top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg bg-white text-slate-600 border border-slate-100 text-[11px] font-semibold whitespace-nowrap opacity-0 pointer-events-none group-hover/item:opacity-100 transition-opacity duration-150 shadow-xl z-[120]">
-          {label}
+          {displayLabel}
         </div>
       )}
     </div>

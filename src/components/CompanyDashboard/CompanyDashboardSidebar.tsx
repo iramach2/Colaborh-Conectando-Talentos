@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import type { CompanyRecord } from '../../services/companyService';
 import { SidebarItem } from './CompanyDashboardLayout';
-import { navigateToCompanyTab } from '../../utils/appRoutes';
 
 export interface CompanyDashboardSidebarProps {
   activeTab: string;
@@ -33,18 +32,21 @@ export interface CompanyDashboardSidebarProps {
   onLogout: () => void;
 }
 
+const COMPANY_TAB_ASSESSMENTS = 'Avalia\u00e7\u00f5es';
+const COMPANY_TAB_SETTINGS = 'Configura\u00e7\u00f5es';
+
 const menuItems = [
   { icon: BarChart3, label: 'Dashboard' },
   { icon: PlusCircle, label: 'Cadastrar Vaga' },
   { icon: Briefcase, label: 'Minhas Vagas' },
   { icon: Search, label: 'Banco de Talentos' },
   { icon: Building, label: 'Empresas' },
-  { icon: Award, label: 'Avaliações' },
+  { icon: Award, label: COMPANY_TAB_ASSESSMENTS },
   { icon: Video, label: 'Entrevistas' },
   { icon: CreditCard, label: 'Faturamento' },
 ];
 
-const settingsItem = { icon: Settings, label: 'Configurações' };
+const settingsItem = { icon: Settings, label: COMPANY_TAB_SETTINGS };
 
 export const CompanyDashboardSidebar = ({
   activeTab,
