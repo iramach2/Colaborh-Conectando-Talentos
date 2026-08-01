@@ -65,7 +65,7 @@ export function CandidateResumeActionMenu({
           type="button"
           onClick={() => setShowActionDropdown(!showActionDropdown)}
           className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-500 shadow-sm transition-all hover:border-[#940dff]/20 hover:text-[#940dff]"
-          title="Mais op\u00e7\u00f5es"
+          title="Mais opções"
         >
           <MoreHorizontal size={17} />
         </button>

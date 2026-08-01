@@ -202,14 +202,14 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
         }
 
         if (formData.password !== formData.confirmPassword) {
-          setErrorMessage('As senhas nÃ£o coincidem. Verifique e tente novamente.');
+          setErrorMessage('As senhas não coincidem. Verifique e tente novamente.');
           setIsLoading(false);
           return;
         }
 
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
         if (!passwordRegex.test(formData.password)) {
-          setErrorMessage('A senha deve conter pelo menos 6 caracteres, uma letra maiÃºscula e um nÃºmero.');
+          setErrorMessage('A senha deve conter pelo menos 6 caracteres, uma letra maiúscula e um número.');
           setIsLoading(false);
           return;
         }
@@ -259,7 +259,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
         persistPendingOtpSignup(normalizedEmail, regType);
         setOtpEmail(normalizedEmail);
         setIsVerifyingOtp(true);
-        alert('Cadastro realizado! Por favor, insira o cÃ³digo enviado para o seu e-mail.');
+        alert('Cadastro realizado! Por favor, insira o código enviado para o seu e-mail.');
       } else {
         // Login
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -272,7 +272,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
             persistPendingOtpSignup(normalizedEmail, regType);
             setOtpEmail(normalizedEmail);
             setIsVerifyingOtp(true);
-            throw new Error('E-mail nÃ£o confirmado. Enviamos um cÃ³digo para vocÃª.');
+            throw new Error('E-mail não confirmado. Enviamos um código para você.');
           }
           throw authError;
         }
@@ -282,7 +282,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
         onLoginSuccess(role);
       }
     } catch (error: unknown) {
-      console.error('Erro de autenticaÃ§Ã£o:', error);
+      console.error('Erro de autenticação:', error);
       setErrorMessage(getReadableErrorMessage(error) || 'Ocorreu um erro no processo.');
       
     } finally {
@@ -292,7 +292,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
 
   const handleVerifyOtp = async () => {
     if (!otpCode || otpCode.length < 6) {
-      alert('Por favor, insira o cÃ³digo de verificaÃ§Ã£o recebido.');
+      alert('Por favor, insira o código de verificação recebido.');
       return;
     }
 
@@ -315,8 +315,8 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
       const role = data.user?.user_metadata?.role || regType || 'candidate';
       onLoginSuccess(role);
     } catch (error: unknown) {
-      console.error('Erro na verificaÃ§Ã£o:', error);
-      alert(getReadableErrorMessage(error) || 'CÃ³digo invÃ¡lido ou expirado.');
+      console.error('Erro na verificação:', error);
+      alert(getReadableErrorMessage(error) || 'Código inválido ou expirado.');
     } finally {
       setIsLoading(false);
     }
@@ -491,12 +491,12 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                 {isVerifyingOtp ? (
                   <div className="space-y-6 max-w-[400px] mx-auto text-center">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-loose">
-                      Enviamos um cÃ³digo de 8 dÃ­gitos para <br/>
+                      Enviamos um código de 8 dígitos para <br/>
                       <span className="text-primary-600 underline">{otpEmail}</span>
                     </p>
                     
                     <div className="space-y-1 text-left">
-                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">CÃ³digo de VerificaÃ§Ã£o</label>
+                      <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">Código de Verificação</label>
                       <input 
                         type="text" 
                         maxLength={8}
@@ -513,7 +513,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       disabled={isLoading}
                       className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-xl hover:bg-slate-800 hover:-translate-y-0.5 transition-all uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2"
                     >
-                      {isLoading ? <Loader2 size={18} className="animate-spin" /> : 'Confirmar CÃ³digo'}
+                      {isLoading ? <Loader2 size={18} className="animate-spin" /> : 'Confirmar Código'}
                     </button>
 
                     <button
@@ -538,7 +538,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                 ) : mode === 'forgot' ? (
                   <div className="mx-auto max-w-[420px] space-y-6 text-center">
                     <p className="text-sm font-medium leading-7 text-slate-500">
-                      Digite o e-mail cadastrado para receber o link de recuperaÃ§Ã£o de senha.
+                      Digite o e-mail cadastrado para receber o link de recuperação de senha.
                     </p>
 
                     <div className="space-y-1 text-left">
@@ -561,7 +561,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       disabled={isLoading}
                       className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary-600 to-highlight-500 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-highlight-500/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-highlight-500/30"
                     >
-                      {isLoading ? <Loader2 className="animate-spin" size={18} /> : 'Enviar link de recuperaÃ§Ã£o'}
+                      {isLoading ? <Loader2 className="animate-spin" size={18} /> : 'Enviar link de recuperação'}
                     </button>
 
                     <button
@@ -733,7 +733,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                           value={formData.password}
                           onChange={(e) => setFormData({...formData, password: e.target.value})}
                           className="w-full pl-12 pr-12 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-medium text-sm"
-                          placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                          placeholder="••••••••"
                         />
                         <button 
                           type="button"
@@ -759,7 +759,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                               ? 'border-green-500 focus:border-green-500 focus:ring-green-50' 
                               : 'border-transparent focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50'
                             }`}
-                            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                            placeholder="••••••••"
                           />
                           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                             {formData.confirmPassword && formData.password === formData.confirmPassword && (
@@ -789,7 +789,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                   <div className={`space-y-3 pt-3 max-w-[380px] mx-auto ${mode === 'register' ? 'sm:col-span-2' : ''}`}>
                     {mode === 'register' && (
                       <p className="text-[10px] text-slate-400 text-center mb-2 px-4 leading-tight">
-                        Ao clicar em cadastrar, vocÃª aceita nossos termos de uso.
+                        Ao clicar em cadastrar, você aceita nossos termos de uso.
                       </p>
                     )}
                     <button 
@@ -825,7 +825,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                 {/* Mobile alternator link - visible ONLY on mobile */}
                 <div className="mt-6 text-center block md:hidden">
                   <p className="text-xs text-slate-500 font-semibold">
-                    {mode === 'login' ? 'NÃ£o tem uma conta?' : 'JÃ¡ possui uma conta?'}
+                    {mode === 'login' ? 'Não tem uma conta?' : 'Já possui uma conta?'}
                     <button
                       type="button"
                       onClick={() => toggleMode(mode === 'login' ? 'register' : 'login')}
@@ -874,17 +874,17 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                 className="relative z-10 text-center text-white w-full max-w-[280px]"
               >
                 <h2 className="text-3xl font-extrabold mb-4 leading-tight">
-                  {mode === 'login' ? 'OlÃ¡, amigo(a)' : 'Seja bem-vindo!'}
+                  {mode === 'login' ? 'Olá, amigo(a)' : 'Seja bem-vindo!'}
                 </h2>
                 <p className="text-sm text-primary-50 font-medium mb-8 leading-relaxed opacity-90 mx-auto">
                   {mode === 'login' 
                     ? 'Informe seu e-mail e senha para entrar na plataforma' 
-                    : 'Cadastre-se para comeÃ§ar sua jornada com a gente.'}
+                    : 'Cadastre-se para começar sua jornada com a gente.'}
                 </p>
 
                 <div className="space-y-4 pt-4 border-t border-white/20">
                   <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">
-                    {mode === 'login' ? 'NÃ£o tem uma conta?' : 'JÃ¡ possui conta?'}
+                    {mode === 'login' ? 'Não tem uma conta?' : 'Já possui conta?'}
                   </p>
                   <button 
                     type="button"
@@ -904,9 +904,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
       </div>
 
       {/* Footer mimic */}
-      <footer className="p-4 md:p-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] relative z-10">
-        Â© {new Date().getFullYear()} Colaborh - Tecnologia e Empatia
-      </footer>
+      <footer className="p-4 md:p-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] relative z-10">© {new Date().getFullYear()} Colaborh - Tecnologia e Empatia</footer>
     </div>
   );
 }

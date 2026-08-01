@@ -32,8 +32,8 @@ export interface CompanyDashboardSidebarProps {
   onLogout: () => void;
 }
 
-const COMPANY_TAB_ASSESSMENTS = 'Avalia\u00e7\u00f5es';
-const COMPANY_TAB_SETTINGS = 'Configura\u00e7\u00f5es';
+const COMPANY_TAB_ASSESSMENTS = 'Avaliações';
+const COMPANY_TAB_SETTINGS = 'Configurações';
 
 const menuItems = [
   { icon: BarChart3, label: 'Dashboard' },

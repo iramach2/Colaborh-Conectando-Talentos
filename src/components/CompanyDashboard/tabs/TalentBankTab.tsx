@@ -165,7 +165,7 @@ export const TalentBankTab = ({
                             {talent.name || 'Talento sem nome'}
                           </p>
                           <p className="mt-1 truncate text-[11px] font-medium text-slate-400">
-                            {talent.role || talent.education || 'Perfil profissional n?o informado'}
+                            {talent.role || talent.education || 'Perfil profissional não informado'}
                           </p>
                         </div>
                       </button>
@@ -181,7 +181,7 @@ export const TalentBankTab = ({
                         <p className="mt-1 text-[12px] font-medium text-slate-500">{age ? age + ' anos' : 'Não informada'}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Pretens?o</p>
+                        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Pretensão</p>
                         <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{talent.salary || 'Não informada'}</p>
                       </div>
                       <div>
@@ -189,7 +189,7 @@ export const TalentBankTab = ({
                         <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{talent.phone || 'Não informado'}</p>
                       </div>
                     </div>
-                    <p className="mt-3 truncate text-[11px] font-medium text-slate-500"><Mail size={12} className="mr-1 inline text-slate-400" />{talent.email || 'E-mail n?o informado'}</p>
+                    <p className="mt-3 truncate text-[11px] font-medium text-slate-500"><Mail size={12} className="mr-1 inline text-slate-400" />{talent.email || 'E-mail não informado'}</p>
 
                     <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
                       <button

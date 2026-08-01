@@ -1,7 +1,7 @@
-const COMPANY_TAB_ASSESSMENTS = 'Avalia\u00e7\u00f5es';
-const COMPANY_TAB_SETTINGS = 'Configura\u00e7\u00f5es';
-const CANDIDATE_TAB_RESUME = 'Meu Curr\u00edculo';
-const CANDIDATE_TAB_SETTINGS = 'Configura\u00e7\u00f5es';
+const COMPANY_TAB_ASSESSMENTS = 'Avaliações';
+const COMPANY_TAB_SETTINGS = 'Configurações';
+const CANDIDATE_TAB_RESUME = 'Meu Currículo';
+const CANDIDATE_TAB_SETTINGS = 'Configurações';
 
 export const COMPANY_ROUTES = [
   { tab: 'Dashboard', path: '/empresa/dashboard' },
@@ -23,15 +23,9 @@ export const CANDIDATE_ROUTES = [
   { tab: CANDIDATE_TAB_SETTINGS, path: '/candidato/configuracoes' },
 ] as const;
 
-const companyAliases = new Map<string, string>([
-  ['Avalia????es', COMPANY_TAB_ASSESSMENTS],
-  ['Configurações', COMPANY_TAB_SETTINGS],
-]);
+const companyAliases = new Map<string, string>([]);
 
-const candidateAliases = new Map<string, string>([
-  ['Meu Curr??culo', CANDIDATE_TAB_RESUME],
-  ['Configurações', CANDIDATE_TAB_SETTINGS],
-]);
+const candidateAliases = new Map<string, string>([]);
 
 const trailingSlashPattern = new RegExp('/+$');
 const sharedJobPathPattern = new RegExp('^/vaga/([^/]+)$');

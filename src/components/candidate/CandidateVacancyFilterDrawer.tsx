@@ -19,8 +19,8 @@ interface CandidateVacancyFilterDrawerProps {
   onClose: () => void;
 }
 
-const modalityOptions = ['Remoto', 'Presencial', 'H\u00edbrido'];
-const contractOptions = ['CLT', 'PJ', 'Est\u00e1gio', 'Tempor\u00e1rio'];
+const modalityOptions = ['Remoto', 'Presencial', 'Híbrido'];
+const contractOptions = ['CLT', 'PJ', 'Estágio', 'Temporário'];
 
 export function CandidateVacancyFilterDrawer({
   isOpen,

@@ -319,8 +319,8 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
           type="button"
           onClick={() => setIsBulkDrawerOpen(true)}
           className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#533af6] bg-[#533af6] text-white shadow-[0_10px_22px_rgba(83,58,246,0.18)] transition-all hover:bg-[#4630df] active:scale-95"
-          title="A??es em massa"
-          aria-label="A??es em massa"
+          title="Ações em massa"
+          aria-label="Ações em massa"
         >
           <MoreHorizontal size={16} className="stroke-[2.5]" />
         </button>,

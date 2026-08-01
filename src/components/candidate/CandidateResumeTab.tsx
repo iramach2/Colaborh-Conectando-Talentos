@@ -30,7 +30,7 @@ export function CandidateResumeTab({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="max-w-2xl text-[12px] font-medium leading-relaxed text-slate-400">
-              {'Complete as se\u00e7\u00f5es do seu perfil para deixar seu curr\u00edculo mais claro para as empresas.'}
+              {'Complete as seções do seu perfil para deixar seu currículo mais claro para as empresas.'}
             </p>
           </div>
 
@@ -60,7 +60,7 @@ export function CandidateResumeTab({
           <div className="rounded-2xl border border-[#63e1a5] bg-[#63e1a5] p-4 text-white shadow-[0_14px_30px_rgba(99,225,165,0.22)]">
             <div className="flex items-center gap-2 text-white">
               <CheckCircle2 size={16} />
-              <p className="text-[11px] font-semibold">{'Se\u00e7\u00f5es completas'}</p>
+              <p className="text-[11px] font-semibold">{'Seções completas'}</p>
             </div>
             <p className="mt-2 text-2xl font-semibold text-white">{completedSections}</p>
           </div>

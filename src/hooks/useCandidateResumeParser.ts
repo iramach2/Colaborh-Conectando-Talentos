@@ -481,4 +481,3 @@ export const useCandidateResumeParser = ({
     handleAIParse,
   };
 };
-

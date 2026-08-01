@@ -10,12 +10,8 @@ interface SidebarItemProps {
 }
 
 const sidebarLabelAliases = new Map<string, string>([
-  ['Avalia????es', 'Avalia\u00e7\u00f5es'],
-  ['Avalia\u00e7\u00f5es', 'Avalia\u00e7\u00f5es'],
-  ['AvaliaÃ§Ãµes', 'Avalia\u00e7\u00f5es'],
-  ['Ele se fez sentir por um', 'Avalia\u00e7\u00f5es'],
-  ['Configura????es', 'Configura\u00e7\u00f5es'],
-  ['ConfiguraÃ§Ãµes', 'Configura\u00e7\u00f5es'],
+  ['Avaliações', 'Avaliações'],
+  ['Configurações', 'Configurações'],
 ]);
 
 const getSidebarLabel = (label: string) => sidebarLabelAliases.get(label) || label;

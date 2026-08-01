@@ -170,10 +170,10 @@ export const CompanyAssessmentReportsTable = ({
         </div>
         <h3 className="text-[18px] font-semibold text-[#343241]">Nenhum teste iniciado</h3>
         <p className="mt-2 max-w-md text-[12px] font-medium leading-relaxed text-slate-500">
-          Nenhum candidato desta empresa possui solicita??es ou respostas de testes no momento.
+          Nenhum candidato desta empresa possui solicitações ou respostas de testes no momento.
         </p>
         <div className="mt-6 rounded-2xl border border-slate-200/70 bg-[#fbfaff] p-4 text-left text-[12px] font-medium leading-relaxed text-slate-500">
-          Para solicitar um teste, acesse <span className="font-semibold text-[#343241]">Minhas Vagas</span>, abra o processo seletivo de uma vaga e solicite a avalia??o no perfil do candidato.
+          Para solicitar um teste, acesse <span className="font-semibold text-[#343241]">Minhas Vagas</span>, abra o processo seletivo de uma vaga e solicite a avaliação no perfil do candidato.
         </div>
       </div>
     );
@@ -206,7 +206,7 @@ export const CompanyAssessmentReportsTable = ({
                   </div>
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-semibold text-[#343241]">{app.candidate_name || app.name}</p>
-                    <p className="truncate text-[12px] font-medium text-slate-400">{parseCandidatePhoneData(app.candidate_phone).phone || 'Telefone n?o informado'}</p>
+                    <p className="truncate text-[12px] font-medium text-slate-400">{parseCandidatePhoneData(app.candidate_phone).phone || 'Telefone não informado'}</p>
                   </div>
                 </div>
 
@@ -229,7 +229,7 @@ export const CompanyAssessmentReportsTable = ({
       <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/90 shadow-[0_10px_28px_rgba(15,23,42,0.035)] lg:hidden">
         <div className="divide-y divide-slate-100">
           {candidatesWithTests.map((app) => {
-            const phone = parseCandidatePhoneData(app.candidate_phone).phone || 'Telefone n?o informado';
+            const phone = parseCandidatePhoneData(app.candidate_phone).phone || 'Telefone não informado';
             const actions = getAssessmentActions(app);
 
             return (

@@ -158,7 +158,7 @@ export const CompanyDashboardHeader = ({
           <button
             onClick={() => setIsNotificationsDrawerOpen(true)}
             className="relative flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#940dff] bg-[#940dff] text-white shadow-sm shadow-[#940dff]/15 transition-all hover:scale-105 hover:bg-[#8200e6] active:scale-95 lg:h-9 lg:w-9"
-            title={'Notifica\u00e7\u00f5es'}
+            title={'Notificações'}
           >
             <Bell size={15} />
             {unreadCount > 0 && (

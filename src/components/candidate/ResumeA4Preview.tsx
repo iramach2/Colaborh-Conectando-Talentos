@@ -79,7 +79,7 @@ export const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }:
             <ul style={{ listStyleType: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start', width: '100%' }}>
               {resumeData.skills.map((skill: string, index: number) => (
                 <li key={index} style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0, paddingLeft: '5px' }}>
-                  • {skill}
+                  â€¢ {skill}
                 </li>
               ))}
             </ul>
@@ -94,7 +94,7 @@ export const ResumeA4Preview = ({ resumeData, calculateAge, calculateDuration }:
               <ul style={{ listStyleType: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start', width: '100%' }}>
                 {resumeData.languages.map((item: CandidateLanguage) => (
                   <li key={item.id} style={{ fontSize: '13px', color: '#334155', fontWeight: 500, margin: 0, paddingLeft: '5px' }}>
-                    • {item.language} ({item.level})
+                    â€¢ {item.language} ({item.level})
                   </li>
                 ))}
               </ul>

@@ -27,19 +27,19 @@ export const CompanyCustomAssessmentsLibrary = ({
         <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f3e5ff] text-[#940dff]">
           <FileText size={24} />
         </div>
-        <p className="text-[13px] font-semibold text-[#343241]">Nenhum question?rio cadastrado</p>
+        <p className="text-[13px] font-semibold text-[#343241]">Nenhum questionário cadastrado</p>
         <p className="mt-2 max-w-md text-[12px] font-medium leading-relaxed text-slate-500">
-          Voc? ainda n?o possui question?rios customizados. Crie o primeiro para usar em processos seletivos futuros.
+          Você ainda não possui questionários customizados. Crie o primeiro para usar em processos seletivos futuros.
         </p>
       </div>
     ) : (
       <>
         <div className="hidden lg:block">
           <div className="grid grid-cols-[1.5fr_0.8fr_0.8fr_180px] items-center gap-4 px-5 pb-3 text-[11px] font-semibold text-slate-500">
-            <span>Question?rio</span>
+            <span>Questionário</span>
             <span className="text-center">Perguntas</span>
             <span className="text-center">Criado em</span>
-            <span className="text-right">A??es</span>
+            <span className="text-right">Ações</span>
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/90 shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
@@ -48,7 +48,7 @@ export const CompanyCustomAssessmentsLibrary = ({
                 <div key={template.id} className="grid grid-cols-[1.5fr_0.8fr_0.8fr_180px] items-center gap-4 px-5 py-4 transition-colors hover:bg-[#fbfaff]">
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-semibold text-[#343241]">{template.title}</p>
-                    <p className="mt-1 truncate text-[12px] font-medium text-slate-400">Question?rio customizado</p>
+                    <p className="mt-1 truncate text-[12px] font-medium text-slate-400">Questionário customizado</p>
                   </div>
                   <span className="flex items-center justify-center gap-2 text-[12px] font-medium text-slate-500">
                     <MessageSquare size={14} className="text-[#940dff]" />
@@ -69,7 +69,7 @@ export const CompanyCustomAssessmentsLibrary = ({
                       type="button"
                       onClick={() => onDeleteCustomTemplate(template.id)}
                       className="flex h-8 w-10 items-center justify-center rounded-xl border border-[#ff4b8c]/18 bg-[#ff4b8c]/10 text-[#ff4b8c] transition-all hover:border-[#ff4b8c]/30 hover:bg-[#ff4b8c]/14"
-                      title="Excluir question?rio"
+                      title="Excluir questionário"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -90,7 +90,7 @@ export const CompanyCustomAssessmentsLibrary = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-semibold text-[#343241]">{template.title}</p>
-                    <p className="mt-1 text-[12px] font-medium text-slate-400">Question?rio customizado</p>
+                    <p className="mt-1 text-[12px] font-medium text-slate-400">Questionário customizado</p>
                   </div>
                 </div>
 
@@ -120,8 +120,8 @@ export const CompanyCustomAssessmentsLibrary = ({
                     type="button"
                     onClick={() => onDeleteCustomTemplate(template.id)}
                     className="flex h-8 w-10 items-center justify-center rounded-xl border border-[#ff4b8c]/18 bg-[#ff4b8c]/10 text-[#ff4b8c] transition-all hover:border-[#ff4b8c]/30 hover:bg-[#ff4b8c]/14"
-                    title="Excluir question?rio"
-                    aria-label="Excluir question?rio"
+                    title="Excluir questionário"
+                    aria-label="Excluir questionário"
                   >
                     <Trash2 size={14} />
                   </button>

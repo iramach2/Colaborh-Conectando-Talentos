@@ -104,18 +104,18 @@ export const CompanyCompaniesTab = ({
                         {company.nomeFantasia || 'Empresa sem nome'}
                       </p>
                       <p className="mt-1 truncate text-[11px] font-medium text-slate-400">
-                        {company.razaoSocial || 'Raz?o social n?o informada'}
+                        {company.razaoSocial || 'Razão social não informada'}
                       </p>
                     </div>
                   </button>
 
                   <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl border border-slate-100 bg-white/70 p-3">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Respons?vel</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Responsável</p>
                       <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{company.solicitante || 'Não informado'}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Atua??o</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Atuação</p>
                       <p className="mt-1 truncate text-[12px] font-medium text-slate-500">{company.sector || 'Geral'}</p>
                     </div>
                     <div>
@@ -128,7 +128,7 @@ export const CompanyCompaniesTab = ({
                     </div>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Status</p>
-                      <p className="mt-2 text-[12px] font-semibold text-slate-500">{isActive ? 'Selecionada' : 'Dispon?vel'}</p>
+                      <p className="mt-2 text-[12px] font-semibold text-slate-500">{isActive ? 'Selecionada' : 'Disponível'}</p>
                     </div>
                   </div>
 
@@ -151,7 +151,7 @@ export const CompanyCompaniesTab = ({
                       type="button"
                       onClick={(event) => handleEditCompany(company, event)}
                       className="flex h-8 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-white px-4 text-[12px] font-semibold text-slate-500 transition-all hover:border-[#940dff]/18 hover:bg-[#f3e5ff] hover:text-[#940dff]"
-                      title="Editar configura??es"
+                      title="Editar configurações"
                     >
                       Editar
                     </button>
