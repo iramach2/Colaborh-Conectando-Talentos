@@ -82,3 +82,33 @@ export const getSharedJobIdFromLocation = () => {
 export const isLoginPath = () => typeof window !== 'undefined' && normalizePath(window.location.pathname) === '/login';
 export const isRegisterPath = () => typeof window !== 'undefined' && normalizePath(window.location.pathname) === '/cadastro';
 export const isResetPasswordPath = () => typeof window !== 'undefined' && normalizePath(window.location.pathname) === '/reset-password';
+
+export const getPublicSiteUrl = () => {
+  const configuredSiteUrl = (
+    import.meta.env.VITE_PUBLIC_SITE_URL ||
+    import.meta.env.VITE_SITE_URL ||
+    import.meta.env.VITE_APP_URL ||
+    ''
+  ).replace(/\/$/, '');
+
+  if (configuredSiteUrl) return configuredSiteUrl;
+  if (typeof window === 'undefined') return 'https://colaborh.com.br';
+
+  const currentOrigin = window.location.origin.replace(/\/$/, '');
+  const hostname = window.location.hostname;
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '';
+
+  return isLocalhost ? 'https://colaborh.com.br' : currentOrigin;
+};
+
+export const getPasswordResetRedirectUrl = () => `${getPublicSiteUrl()}/reset-password`;
+
+export const isPasswordRecoveryCallback = () => {
+  if (typeof window === 'undefined') return false;
+
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  const searchParams = new URLSearchParams(window.location.search);
+  const recoveryType = hashParams.get('type') || searchParams.get('type');
+
+  return recoveryType === 'recovery' || hashParams.has('access_token') || searchParams.has('access_token');
+};

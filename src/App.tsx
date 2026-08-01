@@ -4,13 +4,13 @@
  */
 
 import { lazy, Suspense, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { 
-  Search, 
-  Briefcase, 
-  Users, 
-  Building2, 
-  ChevronRight, 
-  Menu, 
+import {
+  Search,
+  Briefcase,
+  Users,
+  Building2,
+  ChevronRight,
+  Menu,
   X,
   ArrowUpRight,
   CheckCircle2,
@@ -37,7 +37,7 @@ import { hydrateJobsWithWorkflow } from './services/jobWorkflowService';
 import { fetchJobById } from './services/jobService';
 import type { CompanyJob } from './types/companyDashboard';
 import { simulatorQuestions, useLandingDemoSimulator, type DemoTab } from './hooks/useLandingDemoSimulator';
-import { getSharedJobIdFromLocation, isLoginPath, isRegisterPath, isResetPasswordPath, pushAppPath } from './utils/appRoutes';
+import { getSharedJobIdFromLocation, isLoginPath, isPasswordRecoveryCallback, isRegisterPath, isResetPasswordPath, pushAppPath } from './utils/appRoutes';
 
 const Login = lazy(() => import('./components/Login'));
 const CandidateDashboard = lazy(() => import('./components/CandidateDashboard'));
@@ -97,7 +97,7 @@ export default function App() {
 
   useEffect(() => {
     const syncAuthRoute = () => {
-      if (isResetPasswordPath()) {
+      if (isResetPasswordPath() || isPasswordRecoveryCallback()) {
         setLoginMode('reset-password');
         setShowLogin(true);
         return;
@@ -289,22 +289,6 @@ export default function App() {
     return <Loader fullScreen message="Restaurando sessão..." />;
   }
 
-  if (isLoggedIn && userRole === 'candidate') {
-    return (
-      <LazyScreen>
-        <CandidateDashboard onLogout={handleLogout} />
-      </LazyScreen>
-    );
-  }
-
-  if (isLoggedIn && userRole === 'company') {
-    return (
-      <LazyScreen>
-        <CompanyDashboard onLogout={handleLogout} />
-      </LazyScreen>
-    );
-  }
-
   if (showLogin && loginMode === 'reset-password') {
     return (
       <LazyScreen>
@@ -317,6 +301,22 @@ export default function App() {
             setShowLogin(false);
           }}
         />
+      </LazyScreen>
+    );
+  }
+
+  if (isLoggedIn && userRole === 'candidate') {
+    return (
+      <LazyScreen>
+        <CandidateDashboard onLogout={handleLogout} />
+      </LazyScreen>
+    );
+  }
+
+  if (isLoggedIn && userRole === 'company') {
+    return (
+      <LazyScreen>
+        <CompanyDashboard onLogout={handleLogout} />
       </LazyScreen>
     );
   }
@@ -864,7 +864,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
-

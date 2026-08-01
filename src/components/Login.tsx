@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, User, Mail, Lock, Phone, Building, Loader2, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { getReadableErrorMessage } from '../utils/errorUtils';
+import { getPasswordResetRedirectUrl } from '../utils/appRoutes';
 
 type AuthMode = 'login' | 'register' | 'forgot' | 'reset-password';
 
@@ -29,10 +30,10 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
     // Alinha o background global do body/html com o da tela de login
     const origHtmlBg = document.documentElement.style.backgroundColor;
     const origBodyBg = document.body.style.backgroundColor;
-    
+
     document.documentElement.style.backgroundColor = '#f3f0ff';
     document.body.style.backgroundColor = '#f3f0ff';
-    
+
     return () => {
       document.documentElement.style.backgroundColor = origHtmlBg;
       document.body.style.backgroundColor = origBodyBg;
@@ -284,7 +285,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
     } catch (error: unknown) {
       console.error('Erro de autenticação:', error);
       setErrorMessage(getReadableErrorMessage(error) || 'Ocorreu um erro no processo.');
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -310,7 +311,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
       clearPendingOtpSignup();
 
       alert('E-mail confirmado com sucesso!');
-      
+
       // Get role and finish
       const role = data.user?.user_metadata?.role || regType || 'candidate';
       onLoginSuccess(role);
@@ -359,10 +360,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
 
     setIsLoading(true);
     try {
-      const configuredSiteUrl = (import.meta.env.VITE_PUBLIC_SITE_URL || '').replace(/\/$/, '');
-      const currentOrigin = window.location.origin.replace(/\/$/, '');
-      const publicOrigin = currentOrigin.includes('localhost') ? 'https://colaborh.com.br' : currentOrigin;
-      const redirectTo = `${configuredSiteUrl || publicOrigin}/reset-password`;
+      const redirectTo = getPasswordResetRedirectUrl();
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 
       if (error) throw error;
@@ -412,11 +410,11 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
       {/* Abstract Background Shapes */}
       <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary-100 rounded-full blur-[100px] opacity-50" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-indigo-100 rounded-full blur-[120px] opacity-40" />
-      
+
       {/* Navigation Header for Login */}
       <header className="p-4 md:p-6 relative z-10 grid grid-cols-3 items-center w-full">
         <div className="flex justify-start">
-          <button 
+          <button
             onClick={onBack}
             className="text-primary-600 hover:text-primary-700 transition-colors group p-2 -ml-2 flex items-center justify-center"
             aria-label="Voltar"
@@ -425,9 +423,9 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
           </button>
         </div>
         <div className="flex justify-center">
-          <img 
-            src="/logo.png" 
-            alt="Colaborh Logo" 
+          <img
+            src="/logo.png"
+            alt="Colaborh Logo"
             className="h-8 md:h-12 w-auto object-contain"
           />
         </div>
@@ -436,7 +434,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
 
       {/* Auth Card Container */}
       <div className="flex-1 flex items-center justify-center p-4 md:py-4 py-8 relative z-10 md:-mt-6 mt-2">
-        <motion.div 
+        <motion.div
           layout
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -444,12 +442,12 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
           className={`bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(124,58,237,0.15)] overflow-hidden flex flex-col md:flex-row max-w-[1100px] w-full md:h-[650px] h-auto min-h-0 md:max-h-[95vh] max-h-none ${mode === 'register' ? 'md:flex-row-reverse' : ''}`}
         >
           {/* Form Side (60%) */}
-          <motion.div 
+          <motion.div
             layout
             className="md:flex-[1.5] p-6 md:p-10 flex flex-col items-center justify-center bg-white md:overflow-y-auto overflow-visible w-full min-h-0"
           >
             <AnimatePresence mode="wait">
-              <motion.div 
+              <motion.div
                 key={`${mode}-${regType}`}
                 initial={{ opacity: 0, x: mode === 'login' ? -15 : 15 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -465,7 +463,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                 </div>
 
                 {errorMessage && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl"
@@ -494,11 +492,11 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       Enviamos um código de 8 dígitos para <br/>
                       <span className="text-primary-600 underline">{otpEmail}</span>
                     </p>
-                    
+
                     <div className="space-y-1 text-left">
                       <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">Código de Verificação</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         maxLength={8}
                         value={otpCode}
                         onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
@@ -507,7 +505,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       />
                     </div>
 
-                    <button 
+                    <button
                       type="button"
                       onClick={handleVerifyOtp}
                       disabled={isLoading}
@@ -525,7 +523,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       Reenviar codigo
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => {
                         clearPendingOtpSignup();
                         setIsVerifyingOtp(false);
@@ -636,14 +634,14 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                     {mode === 'register' && (
                   <div className="mb-6">
                     <div className="flex bg-slate-100 p-1 rounded-full max-w-[300px] mx-auto">
-                      <button 
+                      <button
                         type="button"
                         onClick={() => toggleRegType('candidate')}
                         className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${regType === 'candidate' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500'}`}
                       >
                         Candidato
                       </button>
-                      <button 
+                      <button
                         type="button"
                         onClick={handleUnavailableCompanySignup}
                         className="flex-1 py-2 text-xs font-bold rounded-full transition-all text-slate-400 cursor-not-allowed opacity-70"
@@ -665,8 +663,8 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">Nome Completo</label>
                         <div className="relative">
                           <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={formData.fullName}
                             onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                             className="w-full pl-12 pr-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-medium text-sm"
@@ -680,8 +678,8 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">E-mail</label>
                       <div className="relative">
                         <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                        <input 
-                          type="email" 
+                        <input
+                          type="email"
                           value={formData.email}
                           onChange={(e) => setFormData({...formData, email: e.target.value})}
                           className="w-full pl-12 pr-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-medium text-sm"
@@ -695,8 +693,8 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">WhatsApp</label>
                         <div className="relative">
                           <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                          <input 
-                            type="tel" 
+                          <input
+                            type="tel"
                             value={formData.whatsapp}
                             onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
                             className="w-full pl-12 pr-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-medium text-sm"
@@ -711,8 +709,8 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">Nome da Primeira Empresa</label>
                         <div className="relative">
                           <Building className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={formData.companyName}
                             onChange={(e) => setFormData({...formData, companyName: e.target.value})}
                             className="w-full pl-12 pr-5 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-medium text-sm"
@@ -728,14 +726,14 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                       <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">Senha</label>
                       <div className="relative">
                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                        <input 
-                          type={showPassword ? "text" : "password"} 
+                        <input
+                          type={showPassword ? "text" : "password"}
                           value={formData.password}
                           onChange={(e) => setFormData({...formData, password: e.target.value})}
                           className="w-full pl-12 pr-12 py-3 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50 transition-all text-slate-900 font-medium text-sm"
                           placeholder="••••••••"
                         />
-                        <button 
+                        <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary-500 transition-colors"
@@ -750,13 +748,13 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                         <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest pl-4">Confirmar Senha</label>
                         <div className="relative">
                           <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                          <input 
-                            type={showConfirmPassword ? "text" : "password"} 
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
                             value={formData.confirmPassword}
                             onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                             className={`w-full pl-12 pr-12 py-3 bg-slate-50 border-2 rounded-xl outline-none transition-all text-slate-900 font-medium text-sm ${
-                              formData.confirmPassword && formData.password === formData.confirmPassword 
-                              ? 'border-green-500 focus:border-green-500 focus:ring-green-50' 
+                              formData.confirmPassword && formData.password === formData.confirmPassword
+                              ? 'border-green-500 focus:border-green-500 focus:ring-green-50'
                               : 'border-transparent focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-50'
                             }`}
                             placeholder="••••••••"
@@ -765,7 +763,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                             {formData.confirmPassword && formData.password === formData.confirmPassword && (
                               <CheckCircle2 size={16} className="text-green-500" />
                             )}
-                            <button 
+                            <button
                               type="button"
                               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                               className="text-slate-400 hover:text-primary-500 transition-colors"
@@ -792,7 +790,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                         Ao clicar em cadastrar, você aceita nossos termos de uso.
                       </p>
                     )}
-                    <button 
+                    <button
                       type="button"
                       onClick={handleAuth}
                       disabled={isLoading}
@@ -806,7 +804,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                     </button>
 
                     {mode === 'login' && (
-                      <button 
+                      <button
                         type="button"
                         className="w-full py-3 bg-white border-2 border-slate-100 text-slate-600 font-bold rounded-full hover:bg-slate-50 transition-all flex items-center justify-center uppercase tracking-widest text-[10px]"
                       >
@@ -842,14 +840,14 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
           </motion.div>
 
           {/* Welcome/Decoration Side (40%) */}
-          <motion.div 
+          <motion.div
             layout
             className="hidden md:flex flex-1 bg-gradient-to-br from-primary-600 via-primary-700 to-highlight-600 p-8 relative items-center justify-center overflow-hidden"
           >
             {/* Decorative shapes and blobs */}
             <div className="absolute inset-0 overflow-hidden opacity-20">
                {[...Array(12)].map((_, i) => (
-                 <div 
+                 <div
                    key={i}
                    className="absolute bg-white rounded-xl border-2 border-white/20"
                    style={{
@@ -865,7 +863,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
             </div>
 
             <AnimatePresence mode="wait">
-              <motion.div 
+              <motion.div
                 key={mode}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -877,8 +875,8 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                   {mode === 'login' ? 'Olá, amigo(a)' : 'Seja bem-vindo!'}
                 </h2>
                 <p className="text-sm text-primary-50 font-medium mb-8 leading-relaxed opacity-90 mx-auto">
-                  {mode === 'login' 
-                    ? 'Informe seu e-mail e senha para entrar na plataforma' 
+                  {mode === 'login'
+                    ? 'Informe seu e-mail e senha para entrar na plataforma'
                     : 'Cadastre-se para começar sua jornada com a gente.'}
                 </p>
 
@@ -886,7 +884,7 @@ export default function Login({ onBack, onLoginSuccess, initialMode = 'login' }:
                   <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">
                     {mode === 'login' ? 'Não tem uma conta?' : 'Já possui conta?'}
                   </p>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => toggleMode(mode === 'login' ? 'register' : 'login')}
                     className="w-full py-3 bg-white/10 backdrop-blur-md border border-white/30 text-white font-bold rounded-full hover:bg-white/20 transition-all uppercase tracking-widest text-[10px]"
