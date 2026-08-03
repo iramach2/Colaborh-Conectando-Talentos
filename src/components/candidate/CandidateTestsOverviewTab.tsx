@@ -199,7 +199,7 @@ function AssessmentCard({
           type="button"
           onClick={() => (completed ? onViewResult(item) : onStartTest(item))}
           className={completed
-            ? 'h-8 rounded-full border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12'
+            ? 'flex h-8 items-center justify-center rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98]'
             : 'h-8 rounded-full bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95'}
         >
           {completed ? 'Ver resultado' : 'Começar teste'}

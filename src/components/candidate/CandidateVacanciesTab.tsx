@@ -336,7 +336,7 @@ function AllVacanciesList({
                 <button
                   type="button"
                   onClick={() => openPublicJobPage(job)}
-                  className="h-8 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
+                  className="flex h-8 items-center justify-center rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98]"
                 >
                   Detalhes
                 </button>
@@ -430,7 +430,7 @@ function MyApplicationsList({
                   <button
                     type="button"
                     onClick={() => openPublicJobPage(job)}
-                    className="h-8 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
+                    className="flex h-8 items-center justify-center rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98]"
                   >
                     Ver detalhes
                   </button>

@@ -3,6 +3,7 @@ import { CalendarDays, Camera, Lock, Loader2, Mail, Phone, User, type LucideIcon
 import { motion } from 'motion/react';
 import type { CandidateResumeData } from '../../types/candidate';
 import { formatBrazilianPhone } from '../../utils/phoneFormat';
+import { ResumeFieldLabel, resumeInputClass } from './CandidateResumeEditorPrimitives';
 
 interface CandidateSettingsResumeData {
   fullName: string;
@@ -28,7 +29,7 @@ interface CandidateSettingsTabProps {
 }
 
 
-const settingsInputClass = 'h-10 w-full rounded-xl border border-[#940dff]/12 bg-white px-3 text-[12px] font-semibold text-[#343241] shadow-[0_8px_18px_rgba(148,13,255,0.055)] outline-none transition-colors placeholder:text-slate-300 focus:border-[#940dff]/35 focus:ring-0';
+const settingsInputClass = resumeInputClass;
 
 export function CandidateSettingsTab({
   resumeData,
@@ -114,9 +115,10 @@ export function CandidateSettingsTab({
                 <input
                   type="email"
                   value={resumeData.email}
-                  onChange={(event) => setResumeData({ ...resumeData, email: event.target.value })}
+                  readOnly
+                  aria-readonly="true"
                   placeholder="seu@email.com"
-                  className={settingsInputClass}
+                  className={`${settingsInputClass} cursor-not-allowed text-slate-500`}
                 />
               </Field>
 
@@ -144,12 +146,12 @@ export function CandidateSettingsTab({
                 />
               </Field>
 
-              <div className="md:col-start-2">
+              <div className="flex justify-end md:col-start-2">
                 <button
                   type="button"
                   onClick={handleSaveToSupabase}
                   disabled={isSaving}
-                  className="flex h-8 w-full items-center justify-center gap-2 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                  className="flex h-8 items-center justify-center gap-2 rounded-xl bg-[#940dff] px-4 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                 >
                   {isSaving && <Loader2 size={13} className="animate-spin" />}
                   {isSaving ? 'Salvando...' : 'Salvar alterações'}
@@ -210,10 +212,10 @@ export function CandidateSettingsTab({
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="block space-y-2">
-      <span className="block text-[12px] font-semibold text-slate-500">{label}</span>
+    <div>
+      <ResumeFieldLabel>{label}</ResumeFieldLabel>
       {children}
-    </label>
+    </div>
   );
 }
 
