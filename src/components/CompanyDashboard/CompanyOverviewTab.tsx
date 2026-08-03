@@ -41,7 +41,7 @@ interface CompanyOverviewTabProps {
 
 type ColorTone = 'purple' | 'blue' | 'green' | 'yellow' | 'pink';
 
-const cardClass = 'rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]';
+const cardClass = 'rounded-2xl border border-[#940dff]/12 bg-white p-5 shadow-[0_8px_18px_rgba(148,13,255,0.055)]';
 
 const toneMap: Record<ColorTone, { text: string; bg: string; border: string; bar: string }> = {
   purple: { text: 'text-[#940dff]', bg: 'bg-[#f3e5ff]', border: 'border-[#940dff]/18', bar: '#940dff' },
@@ -49,6 +49,29 @@ const toneMap: Record<ColorTone, { text: string; bg: string; border: string; bar
   green: { text: 'text-[#2f9f6b]', bg: 'bg-[#63e1a5]/14', border: 'border-[#63e1a5]/22', bar: '#63e1a5' },
   yellow: { text: 'text-[#ffa303]', bg: 'bg-[#ffc24b]/16', border: 'border-[#ffc24b]/24', bar: '#ffc24b' },
   pink: { text: 'text-[#ff4b8c]', bg: 'bg-[#ff4b8c]/10', border: 'border-[#ff4b8c]/20', bar: '#ff4b8c' },
+};
+
+const metricToneMap: Record<ColorTone, { card: string; icon: string }> = {
+  purple: {
+    card: 'bg-[#940dff] text-white shadow-[0_12px_28px_rgba(148,13,255,0.22)]',
+    icon: 'bg-white/18 text-white',
+  },
+  blue: {
+    card: 'bg-[#533af6] text-white shadow-[0_12px_28px_rgba(83,58,246,0.18)]',
+    icon: 'bg-white/18 text-white',
+  },
+  green: {
+    card: 'bg-[#63e1a5] text-white shadow-[0_12px_28px_rgba(99,225,165,0.20)]',
+    icon: 'bg-white/18 text-white',
+  },
+  yellow: {
+    card: 'bg-[#ffc24b] text-white shadow-[0_12px_28px_rgba(255,194,75,0.22)]',
+    icon: 'bg-white/18 text-white',
+  },
+  pink: {
+    card: 'bg-[#ff4b8c] text-white shadow-[0_12px_28px_rgba(255,75,140,0.20)]',
+    icon: 'bg-white/18 text-white',
+  },
 };
 
 const normalizeStatus = (status?: string | null) =>
@@ -109,28 +132,28 @@ export const CompanyOverviewTab = ({
       value: totalCandidatesReal,
       helper: recentCandidatesCount > 0 ? `+${recentCandidatesCount} nos últimos 7 dias` : 'Sem novas candidaturas na semana',
       icon: Users,
-      tone: 'blue' as ColorTone,
+      tone: 'purple' as ColorTone,
     },
     {
       label: 'Vagas abertas',
       value: activeJobsCount,
       helper: recentJobsCount > 0 ? `+${recentJobsCount} novas esta semana` : `${closedOrPausedJobsCount} pausadas ou encerradas`,
       icon: Briefcase,
-      tone: 'purple' as ColorTone,
+      tone: 'green' as ColorTone,
     },
     {
       label: 'Em entrevista',
       value: candidatesInInterview,
       helper: `${interviewRate}% dos candidatos avançaram`,
       icon: CalendarCheck,
-      tone: 'green' as ColorTone,
+      tone: 'yellow' as ColorTone,
     },
     {
       label: 'Avaliações concluídas',
       value: assessmentCompletedCount,
       helper: `${assessmentRate}% do funil com teste finalizado`,
       icon: ClipboardCheck,
-      tone: 'yellow' as ColorTone,
+      tone: 'pink' as ColorTone,
     },
   ];
 
@@ -176,7 +199,7 @@ export const CompanyOverviewTab = ({
           <button
             type="button"
             onClick={onOpenTalentBank}
-            className="flex h-8 items-center justify-center gap-2 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 active:scale-95"
+            className="flex h-8 items-center justify-center gap-2 rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-95"
           >
             <Search size={14} />
             Banco de talentos
@@ -195,24 +218,24 @@ export const CompanyOverviewTab = ({
       <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => {
           const MetricIcon = metric.icon;
-          const tone = toneMap[metric.tone];
+          const tone = metricToneMap[metric.tone];
 
           return (
             <motion.article
               key={metric.label}
               whileHover={{ y: -3 }}
-              className={`${cardClass} text-left transition-all hover:border-[#940dff]/18 hover:bg-white`}
+              className={`rounded-2xl p-5 text-left transition-all ${tone.card}`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[12px] font-medium text-slate-400">{metric.label}</p>
-                  <strong className="mt-2 block text-[30px] font-semibold leading-none tracking-tight text-[#343241]">{metric.value}</strong>
+                  <p className="text-[12px] font-semibold text-white/86">{metric.label}</p>
+                  <strong className="mt-2 block text-[30px] font-semibold leading-none tracking-tight text-white">{metric.value}</strong>
                 </div>
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${tone.border} ${tone.bg} ${tone.text}`}>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tone.icon}`}>
                   <MetricIcon size={18} />
                 </div>
               </div>
-              <p className="mt-4 text-[11px] font-medium text-slate-400">{metric.helper}</p>
+              <p className="mt-4 text-[11px] font-semibold text-white/78">{metric.helper}</p>
             </motion.article>
           );
         })}
@@ -294,7 +317,7 @@ export const CompanyOverviewTab = ({
               const tone = toneMap[card.tone];
 
               return (
-                <div key={card.title} className="rounded-xl border border-slate-200/70 bg-white p-3 text-center">
+                <div key={card.title} className="rounded-xl border border-[#940dff]/12 bg-white p-3 text-center shadow-[0_8px_18px_rgba(148,13,255,0.045)]">
                   <InsightIcon size={14} className={`mx-auto mb-2 ${tone.text}`} />
                   <p className="text-[18px] font-semibold leading-none text-[#343241]">{card.value}</p>
                   <p className="mt-1 text-[9px] font-medium leading-tight text-slate-400">{card.helper}</p>
@@ -318,7 +341,7 @@ export const CompanyOverviewTab = ({
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
           {topSkills.map((skill) => (
-            <div key={skill.name} className="rounded-xl border border-slate-200/70 bg-white p-4">
+            <div key={skill.name} className="rounded-xl border border-[#940dff]/12 bg-white p-4 shadow-[0_8px_18px_rgba(148,13,255,0.045)]">
               <p className="truncate text-[13px] font-semibold text-[#343241]">{skill.name}</p>
               <p className="mt-2 text-[11px] font-medium text-slate-400">{skill.count} vaga{skill.count === 1 ? '' : 's'}</p>
             </div>

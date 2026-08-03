@@ -30,7 +30,7 @@ type DashboardAnalyticsChartsProps = {
 
 const chartColors = ['#940dff', '#63e1a5', '#ffc24b', '#ff4b8c', '#533af6'];
 
-const chartCardClass = 'rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.035)]';
+const chartCardClass = 'rounded-2xl border border-[#940dff]/12 bg-white p-5 shadow-[0_8px_18px_rgba(148,13,255,0.055)]';
 
 export const DashboardAnalyticsCharts = ({
   applicationData,
@@ -75,8 +75,8 @@ export const DashboardAnalyticsCharts = ({
             <Tooltip
               contentStyle={{
                 borderRadius: '14px',
-                border: '1px solid rgba(226,232,240,0.9)',
-                boxShadow: '0 18px 50px rgba(57,39,96,0.10)',
+                border: '1px solid rgba(148,13,255,0.12)',
+                boxShadow: '0 18px 50px rgba(148,13,255,0.12)',
                 padding: '10px 14px',
                 fontSize: '12px',
               }}
@@ -121,7 +121,7 @@ export const DashboardAnalyticsCharts = ({
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ borderRadius: '14px', border: '1px solid rgba(226,232,240,0.9)', fontSize: '12px' }}
+                contentStyle={{ borderRadius: '14px', border: '1px solid rgba(148,13,255,0.12)', fontSize: '12px' }}
               />
             </PieChart>
           </ResponsiveContainer>

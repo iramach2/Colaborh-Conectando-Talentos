@@ -12,6 +12,12 @@ type ApplicationLike = {
   created_at?: string | null;
 };
 
+const normalizeStatusLabel = (status?: string | null) =>
+  (status || 'Triagem')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
 const isWithinLastSevenDays = (dateValue?: string | null) => {
   if (!dateValue) return false;
 
@@ -68,7 +74,7 @@ export const useCompanyDashboardMetrics = (
   const dynamicDistribution = (() => {
     const total = companyApplications.length;
     if (total === 0) {
-      return [{ name: 'Triagem', value: 100, color: '#6366f1' }];
+      return [{ name: 'Triagem', value: 100, color: '#533af6' }];
     }
 
     const counts: Record<string, number> = {
@@ -80,14 +86,14 @@ export const useCompanyDashboardMetrics = (
     };
 
     companyApplications.forEach((application) => {
-      const status = application.status || 'Triagem';
-      if (status === 'Triagem' || status === 'Analise de Curriculo' || status === 'Análise de Currículo') {
+      const status = normalizeStatusLabel(application.status);
+      if (status === 'triagem' || status === 'analise de curriculo' || status.includes('curriculo')) {
         counts.Triagem += 1;
-      } else if (status === 'Entrevista') {
+      } else if (status.includes('entrevista')) {
         counts.Entrevista += 1;
-      } else if (status === 'Contratado') {
+      } else if (status.includes('contrat')) {
         counts.Contratado += 1;
-      } else if (status === 'Reprovado') {
+      } else if (status.includes('reprov')) {
         counts.Reprovado += 1;
       } else {
         counts.Outros += 1;
@@ -95,15 +101,15 @@ export const useCompanyDashboardMetrics = (
     });
 
     const distribution = [
-      { name: 'Triagem', value: Math.round((counts.Triagem / total) * 100), color: '#6366f1' },
-      { name: 'Entrevista', value: Math.round((counts.Entrevista / total) * 100), color: '#8b5cf6' },
-      { name: 'Contratado', value: Math.round((counts.Contratado / total) * 100), color: '#10b981' },
-      { name: 'Reprovado', value: Math.round((counts.Reprovado / total) * 100), color: '#f43f5e' },
-      { name: 'Outros', value: Math.round((counts.Outros / total) * 100), color: '#f59e0b' },
+      { name: 'Triagem', value: Math.round((counts.Triagem / total) * 100), color: '#533af6' },
+      { name: 'Entrevista', value: Math.round((counts.Entrevista / total) * 100), color: '#63e1a5' },
+      { name: 'Contratado', value: Math.round((counts.Contratado / total) * 100), color: '#940dff' },
+      { name: 'Reprovado', value: Math.round((counts.Reprovado / total) * 100), color: '#ff4b8c' },
+      { name: 'Outros', value: Math.round((counts.Outros / total) * 100), color: '#ffc24b' },
     ];
 
     const filtered = distribution.filter((item) => item.value > 0);
-    return filtered.length > 0 ? filtered : [{ name: 'Triagem', value: 100, color: '#6366f1' }];
+    return filtered.length > 0 ? filtered : [{ name: 'Triagem', value: 100, color: '#533af6' }];
   })();
 
   const dynamicApplicationData = (() => {
