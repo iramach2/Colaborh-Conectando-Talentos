@@ -1,8 +1,9 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { BriefcaseBusiness, ChevronDown, MapPin } from 'lucide-react';
 import { BRAZIL_STATES } from '../../../utils/companyDashboardUtils';
 import type { VacancyFormData } from '../../../utils/vacancyPayload';
+import { VacancyFieldLabel, vacancyInputClass, vacancySelectClass } from './createVacancyStyles';
 
 interface CreateVacancyStepBasicsProps {
   vacancyForm: VacancyFormData;
@@ -10,13 +11,6 @@ interface CreateVacancyStepBasicsProps {
   cities: string[];
   isLoadingCities: boolean;
 }
-
-const inputClass = 'h-10 w-full rounded-xl border border-slate-200/80 bg-white px-4 text-[12px] font-medium text-[#343241] outline-none transition-all placeholder:text-slate-400 focus:border-[#940dff]/35 focus:ring-2 focus:ring-[#940dff]/10';
-const selectClass = `${inputClass} appearance-none cursor-pointer pr-9`;
-
-const FieldLabel = ({ children }: { children: React.ReactNode }) => (
-  <label className="text-[12px] font-semibold text-slate-500">{children}</label>
-);
 
 const SectionTitle = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
   <div className="mb-5 flex items-center gap-3 text-left">
@@ -49,8 +43,8 @@ export const CreateVacancyStepBasics: React.FC<CreateVacancyStepBasicsProps> = (
       <SectionTitle icon={<BriefcaseBusiness size={18} />} title="Dados básicos" description="Identifique a oportunidade e o formato de trabalho." />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <div className="flex flex-col gap-1.5 text-left">
-          <FieldLabel>Título da vaga <span className="text-[#ff4b8c]">*</span></FieldLabel>
+        <div className="text-left">
+          <VacancyFieldLabel>Título da vaga <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
           <input
             type="text"
             value={vacancyForm.title}
@@ -59,32 +53,32 @@ export const CreateVacancyStepBasics: React.FC<CreateVacancyStepBasicsProps> = (
               setVacancyForm((prev) => ({ ...prev, title: cleanValue.toUpperCase() }));
             }}
             placeholder="Ex: Desenvolvedor React Sênior"
-            className={inputClass}
+            className={vacancyInputClass}
           />
-          <p className="text-[11px] font-medium leading-normal text-slate-400">Evite siglas, abreviações e separadores como "_", "-" e "/".</p>
+          <p className="mt-2 text-[11px] font-medium leading-normal text-slate-400">Evite siglas, abreviações e separadores como "_", "-" e "/".</p>
         </div>
 
-        <div className="flex flex-col gap-1.5 text-left">
-          <FieldLabel>Cargo <span className="text-[#ff4b8c]">*</span></FieldLabel>
+        <div className="text-left">
+          <VacancyFieldLabel>Cargo <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
           <input
             type="text"
             value={vacancyForm.role}
             onChange={(event) => setVacancyForm((prev) => ({ ...prev, role: event.target.value }))}
             placeholder="Ex: Vendedor, Programador..."
-            className={inputClass}
+            className={vacancyInputClass}
           />
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-6">
-        <div className="flex flex-col gap-1.5 text-left lg:col-span-2">
-          <FieldLabel>Modalidade <span className="text-[#ff4b8c]">*</span></FieldLabel>
+        <div className="text-left lg:col-span-2">
+          <VacancyFieldLabel>Modalidade <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
           <div className="relative">
             <SelectChevron />
             <select
               value={vacancyForm.modality}
               onChange={(event) => setVacancyForm((prev) => ({ ...prev, modality: event.target.value, state: '', city: '' }))}
-              className={selectClass}
+              className={vacancySelectClass}
             >
               <option value="Presencial">Presencial</option>
               <option value="Home Office">Home Office</option>
@@ -95,12 +89,12 @@ export const CreateVacancyStepBasics: React.FC<CreateVacancyStepBasicsProps> = (
 
         {(vacancyForm.modality === 'Presencial' || vacancyForm.modality === 'Hibrido') && (
           <>
-            <div className="flex flex-col gap-1.5 text-left lg:col-span-1">
-              <FieldLabel>UF <span className="text-[#ff4b8c]">*</span></FieldLabel>
+            <div className="text-left lg:col-span-1">
+              <VacancyFieldLabel>UF <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
               <div className="relative">
                 <SelectChevron size={12} />
                 <select
-                  className={selectClass}
+                  className={vacancySelectClass}
                   value={vacancyForm.state}
                   onChange={(event) => setVacancyForm((prev) => ({ ...prev, state: event.target.value, city: '' }))}
                 >
@@ -110,12 +104,12 @@ export const CreateVacancyStepBasics: React.FC<CreateVacancyStepBasicsProps> = (
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5 text-left lg:col-span-3">
-              <FieldLabel>Cidade <span className="text-[#ff4b8c]">*</span></FieldLabel>
+            <div className="text-left lg:col-span-3">
+              <VacancyFieldLabel>Cidade <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
               <div className="relative">
                 <SelectChevron />
                 <select
-                  className={`${selectClass} disabled:cursor-not-allowed disabled:opacity-50`}
+                  className={`${vacancySelectClass} disabled:cursor-not-allowed disabled:opacity-50`}
                   value={vacancyForm.city}
                   onChange={(event) => setVacancyForm((prev) => ({ ...prev, city: event.target.value }))}
                   disabled={isLoadingCities || !cities.length}
@@ -130,14 +124,14 @@ export const CreateVacancyStepBasics: React.FC<CreateVacancyStepBasicsProps> = (
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="flex flex-col gap-1.5 text-left">
-          <FieldLabel>Contratação <span className="text-[#ff4b8c]">*</span></FieldLabel>
+        <div className="text-left">
+          <VacancyFieldLabel>Contratação <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
           <div className="relative">
             <SelectChevron />
             <select
               value={vacancyForm.contractType}
               onChange={(event) => setVacancyForm((prev) => ({ ...prev, contractType: event.target.value }))}
-              className={selectClass}
+              className={vacancySelectClass}
             >
               <option value="CLT">CLT</option>
               <option value="PJ">PJ</option>
@@ -149,14 +143,14 @@ export const CreateVacancyStepBasics: React.FC<CreateVacancyStepBasicsProps> = (
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5 text-left">
-          <FieldLabel>Escala <span className="text-[#ff4b8c]">*</span></FieldLabel>
+        <div className="text-left">
+          <VacancyFieldLabel>Escala <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
           <div className="relative">
             <SelectChevron />
             <select
               value={vacancyForm.workSchedule}
               onChange={(event) => setVacancyForm((prev) => ({ ...prev, workSchedule: event.target.value }))}
-              className={selectClass}
+              className={vacancySelectClass}
             >
               <option value="5x2">5x2 (Seg. a Sex.)</option>
               <option value="6x1">6x1 (6 dias de trabalho e 1 folga)</option>

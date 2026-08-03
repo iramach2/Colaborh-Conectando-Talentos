@@ -1,7 +1,8 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { ListChecks, Plus, Trash2 } from 'lucide-react';
 import type { VacancyFormData } from '../../../utils/vacancyPayload';
+import { vacancyInputClass } from './createVacancyStyles';
 
 interface CreateVacancyStepStagesProps {
   vacancyForm: VacancyFormData;
@@ -9,8 +10,6 @@ interface CreateVacancyStepStagesProps {
   newStage: string;
   setNewStage: React.Dispatch<React.SetStateAction<string>>;
 }
-
-const inputClass = 'h-10 w-full rounded-xl border border-slate-200/80 bg-white px-4 text-[12px] font-medium text-[#343241] outline-none transition-all placeholder:text-slate-400 focus:border-[#940dff]/35 focus:ring-2 focus:ring-[#940dff]/10';
 
 export const CreateVacancyStepStages: React.FC<CreateVacancyStepStagesProps> = ({ vacancyForm, setVacancyForm, newStage, setNewStage }) => {
   const addStage = () => {
@@ -57,7 +56,7 @@ export const CreateVacancyStepStages: React.FC<CreateVacancyStepStagesProps> = (
           <div className="rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-4 text-left">
             <p className="text-[14px] font-semibold text-[#343241]">Adicionar nova etapa</p>
             <div className="mt-3 flex gap-2">
-              <input type="text" value={newStage} onChange={(event) => setNewStage(event.target.value)} placeholder="Ex: Dinâmica em grupo..." className={`${inputClass} flex-1`} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addStage(); } }} />
+              <input type="text" value={newStage} onChange={(event) => setNewStage(event.target.value)} placeholder="Ex: Dinâmica em grupo..." className={`${vacancyInputClass} flex-1`} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addStage(); } }} />
               <button type="button" onClick={addStage} className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#940dff] text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95"><Plus size={14} /></button>
             </div>
             <p className="mt-3 text-[12px] font-medium leading-relaxed text-slate-400">A etapa inicial de análise de currículo é padrão e não pode ser removida.</p>

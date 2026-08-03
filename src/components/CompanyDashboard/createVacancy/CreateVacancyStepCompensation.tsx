@@ -1,7 +1,8 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, Gift, Plus, Wallet, X as CloseIconComponent } from 'lucide-react';
 import type { VacancyFormData } from '../../../utils/vacancyPayload';
+import { VacancyFieldLabel, vacancyInputClass, vacancySelectClass } from './createVacancyStyles';
 
 type BenefitWithValueId = 'vt' | 'va';
 type BooleanBenefitId = 'healthInsurance' | 'dentalPlan';
@@ -25,13 +26,6 @@ interface CreateVacancyStepCompensationProps {
   onSalaryMinChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSalaryMaxChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
-
-const inputClass = 'h-10 w-full rounded-xl border border-slate-200/80 bg-white px-4 text-[12px] font-medium text-[#343241] outline-none transition-all placeholder:text-slate-400 focus:border-[#940dff]/35 focus:ring-2 focus:ring-[#940dff]/10';
-const selectClass = `${inputClass} appearance-none cursor-pointer pr-9`;
-
-const FieldLabel = ({ children }: { children: React.ReactNode }) => (
-  <label className="text-[12px] font-semibold text-slate-500">{children}</label>
-);
 
 const SelectChevron = ({ size = 14 }: { size?: number }) => (
   <ChevronDown size={size} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -69,14 +63,14 @@ export const CreateVacancyStepCompensation: React.FC<CreateVacancyStepCompensati
           <SectionTitle icon={<Wallet size={18} />} title="Remuneração" description="Defina salário fixo, faixa ou valor a combinar." />
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="flex flex-col gap-1.5 text-left">
-              <FieldLabel>Remuneração <span className="text-[#ff4b8c]">*</span></FieldLabel>
+            <div className="text-left">
+              <VacancyFieldLabel>Remuneração <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
               <div className="relative">
                 <SelectChevron />
                 <select
                   value={vacancyForm.remunerationType}
                   onChange={(event) => setVacancyForm((prev) => ({ ...prev, remunerationType: event.target.value }))}
-                  className={selectClass}
+                  className={vacancySelectClass}
                 >
                   <option value="Fixo">Salário Fixo</option>
                   <option value="Faixa Salarial">Faixa Salarial</option>
@@ -86,21 +80,21 @@ export const CreateVacancyStepCompensation: React.FC<CreateVacancyStepCompensati
             </div>
 
             {vacancyForm.remunerationType === 'Fixo' && (
-              <div className="flex flex-col gap-1.5 text-left">
-                <FieldLabel>Salário proposto <span className="text-[#ff4b8c]">*</span></FieldLabel>
-                <input type="text" value={vacancyForm.salary} onChange={onSalaryChange} placeholder="R$ 0,00" className={inputClass} />
+              <div className="text-left">
+                <VacancyFieldLabel>Salário proposto <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
+                <input type="text" value={vacancyForm.salary} onChange={onSalaryChange} placeholder="R$ 0,00" className={vacancyInputClass} />
               </div>
             )}
 
             {vacancyForm.remunerationType === 'Faixa Salarial' && (
               <div className="grid grid-cols-2 gap-3 md:col-span-1">
-                <div className="flex flex-col gap-1.5 text-left">
-                  <FieldLabel>Mínimo <span className="text-[#ff4b8c]">*</span></FieldLabel>
-                  <input type="text" value={vacancyForm.salaryMin} onChange={onSalaryMinChange} placeholder="R$ 0,00" className={inputClass} />
+                <div className="text-left">
+                  <VacancyFieldLabel>Mínimo <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
+                  <input type="text" value={vacancyForm.salaryMin} onChange={onSalaryMinChange} placeholder="R$ 0,00" className={vacancyInputClass} />
                 </div>
-                <div className="flex flex-col gap-1.5 text-left">
-                  <FieldLabel>Máximo <span className="text-[#ff4b8c]">*</span></FieldLabel>
-                  <input type="text" value={vacancyForm.salaryMax} onChange={onSalaryMaxChange} placeholder="R$ 0,00" className={inputClass} />
+                <div className="text-left">
+                  <VacancyFieldLabel>Máximo <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
+                  <input type="text" value={vacancyForm.salaryMax} onChange={onSalaryMaxChange} placeholder="R$ 0,00" className={vacancyInputClass} />
                 </div>
               </div>
             )}
@@ -125,7 +119,7 @@ export const CreateVacancyStepCompensation: React.FC<CreateVacancyStepCompensati
                 <select
                   value={vacancyForm.bonusType}
                   onChange={(event) => setVacancyForm((prev) => ({ ...prev, bonusType: event.target.value }))}
-                  className={selectClass}
+                  className={vacancySelectClass}
                 >
                   <option value="Comissao">Comissão</option>
                   <option value="Premiacao">Premiação</option>
@@ -136,7 +130,7 @@ export const CreateVacancyStepCompensation: React.FC<CreateVacancyStepCompensati
                 placeholder="Ex: R$ 500,00 ou 2%"
                 value={vacancyForm.bonusValue}
                 onChange={(event) => setVacancyForm((prev) => ({ ...prev, bonusValue: event.target.value }))}
-                className={inputClass}
+                className={vacancyInputClass}
               />
             </div>
           )}
@@ -183,7 +177,7 @@ export const CreateVacancyStepCompensation: React.FC<CreateVacancyStepCompensati
                       ...prev,
                       benefits: { ...prev.benefits, [benefit.id]: { ...prev.benefits[benefit.id], value: event.target.value } },
                     }))}
-                    className={`${inputClass} mt-2 h-9`}
+                    className={`${vacancyInputClass} mt-2 h-9`}
                   />
                 )}
 
@@ -232,7 +226,7 @@ export const CreateVacancyStepCompensation: React.FC<CreateVacancyStepCompensati
             placeholder="Outro benefício (ex: Gympass)..."
             value={newBenefit}
             onChange={(event) => setNewBenefit(event.target.value.toUpperCase())}
-            className={`${inputClass} flex-1`}
+            className={`${vacancyInputClass} flex-1`}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault();

@@ -1,7 +1,8 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, Plus, SlidersHorizontal, Trash2, UserRoundCheck } from 'lucide-react';
 import type { VacancyFormData } from '../../../utils/vacancyPayload';
+import { VacancyFieldLabel, vacancyInputClass, vacancySelectClass } from './createVacancyStyles';
 
 const commonRequirements = [
   'Experiência prévia',
@@ -17,13 +18,6 @@ interface CreateVacancyStepRequirementsProps {
   newRequirement: string;
   setNewRequirement: React.Dispatch<React.SetStateAction<string>>;
 }
-
-const inputClass = 'h-10 w-full rounded-xl border border-slate-200/80 bg-white px-4 text-[12px] font-medium text-[#343241] outline-none transition-all placeholder:text-slate-400 focus:border-[#940dff]/35 focus:ring-2 focus:ring-[#940dff]/10';
-const selectClass = `${inputClass} appearance-none cursor-pointer pr-9`;
-
-const FieldLabel = ({ children }: { children: React.ReactNode }) => (
-  <label className="text-[12px] font-semibold text-slate-500">{children}</label>
-);
 
 const SectionTitle = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
   <div className="mb-5 flex items-center gap-3 text-left">
@@ -47,16 +41,16 @@ export const CreateVacancyStepRequirements: React.FC<CreateVacancyStepRequiremen
         <SectionTitle icon={<SlidersHorizontal size={18} />} title="Configurações da vaga" description="Informe volume, motivo e critérios gerais." />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="flex flex-col gap-1.5 text-left">
-            <FieldLabel>Vagas disponíveis <span className="text-[#ff4b8c]">*</span></FieldLabel>
-            <input type="number" min="1" value={vacancyForm.positions} onChange={(event) => setVacancyForm((prev) => ({ ...prev, positions: event.target.value }))} placeholder="Ex: 2" className={inputClass} />
+          <div className="text-left">
+            <VacancyFieldLabel>Vagas disponíveis <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
+            <input type="number" min="1" value={vacancyForm.positions} onChange={(event) => setVacancyForm((prev) => ({ ...prev, positions: event.target.value }))} placeholder="Ex: 2" className={vacancyInputClass} />
           </div>
 
-          <div className="flex flex-col gap-1.5 text-left">
-            <FieldLabel>Motivo da requisição <span className="text-[#ff4b8c]">*</span></FieldLabel>
+          <div className="text-left">
+            <VacancyFieldLabel>Motivo da requisição <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
             <div className="relative">
               <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <select value={vacancyForm.requestReason} onChange={(event) => setVacancyForm((prev) => ({ ...prev, requestReason: event.target.value }))} className={selectClass}>
+              <select value={vacancyForm.requestReason} onChange={(event) => setVacancyForm((prev) => ({ ...prev, requestReason: event.target.value }))} className={vacancySelectClass}>
                 <option value="">Selecione o motivo</option>
                 <option value="Aumento de Quadro">Aumento de Quadro (Nova Posição)</option>
                 <option value="Substituicao">Substituição (Reposição de Funcionário)</option>
@@ -86,15 +80,15 @@ export const CreateVacancyStepRequirements: React.FC<CreateVacancyStepRequiremen
         </div>
 
         {vacancyForm.isPcd && (
-          <div className="mt-4 flex flex-col gap-1.5 text-left">
-            <FieldLabel>Detalhes sobre a PcD</FieldLabel>
-            <input type="text" value={vacancyForm.pcdDetails} onChange={(event) => setVacancyForm((prev) => ({ ...prev, pcdDetails: event.target.value }))} placeholder="Ex: Acessibilidade física, auditiva, visual leve..." className={inputClass} />
+          <div className="mt-4 text-left">
+            <VacancyFieldLabel>Detalhes sobre a PcD</VacancyFieldLabel>
+            <input type="text" value={vacancyForm.pcdDetails} onChange={(event) => setVacancyForm((prev) => ({ ...prev, pcdDetails: event.target.value }))} placeholder="Ex: Acessibilidade física, auditiva, visual leve..." className={vacancyInputClass} />
           </div>
         )}
 
         <div className="mt-4 rounded-2xl border border-slate-200/70 bg-[#fbf9ff] p-4">
           <div className="mb-2 flex items-center justify-between">
-            <FieldLabel>Idade mínima</FieldLabel>
+            <span className="text-[12px] font-semibold text-slate-500">Idade mínima</span>
             <span className="text-[12px] font-semibold text-[#2f9f6b]">{vacancyForm.minAge} anos</span>
           </div>
           <input type="range" min="16" max="50" value={vacancyForm.minAge} onChange={(event) => setVacancyForm((prev) => ({ ...prev, minAge: parseInt(event.target.value) }))} className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-[#63e1a5]" />
@@ -119,7 +113,7 @@ export const CreateVacancyStepRequirements: React.FC<CreateVacancyStepRequiremen
         </div>
 
         <div className="mt-4 flex gap-2">
-          <input type="text" value={newRequirement} onChange={(event) => setNewRequirement(event.target.value)} placeholder="Outro requisito (ex: Certificação Scrum Master)..." className={`${inputClass} flex-1`} onKeyDown={(event) => {
+          <input type="text" value={newRequirement} onChange={(event) => setNewRequirement(event.target.value)} placeholder="Outro requisito (ex: Certificação Scrum Master)..." className={`${vacancyInputClass} flex-1`} onKeyDown={(event) => {
             if (event.key === 'Enter') {
               event.preventDefault();
               if (newRequirement.trim()) {

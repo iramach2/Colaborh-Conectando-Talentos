@@ -1,14 +1,13 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { FileText } from 'lucide-react';
 import type { VacancyFormData } from '../../../utils/vacancyPayload';
+import { VacancyFieldLabel, vacancyTextareaClass } from './createVacancyStyles';
 
 interface CreateVacancyStepDescriptionProps {
   vacancyForm: VacancyFormData;
   setVacancyForm: React.Dispatch<React.SetStateAction<VacancyFormData>>;
 }
-
-const textareaClass = 'min-h-[220px] w-full resize-y rounded-xl border border-slate-200/80 bg-white px-4 py-3 text-[12px] font-medium leading-relaxed text-[#343241] outline-none transition-all placeholder:text-slate-400 focus:border-[#940dff]/35 focus:ring-2 focus:ring-[#940dff]/10';
 
 const TextAreaField = ({ label, value, placeholder, helper, onChange }: {
   label: string;
@@ -17,10 +16,10 @@ const TextAreaField = ({ label, value, placeholder, helper, onChange }: {
   helper: string;
   onChange: (value: string) => void;
 }) => (
-  <div className="flex flex-col gap-1.5 text-left">
-    <label className="text-[12px] font-semibold text-slate-500">{label} <span className="text-[#ff4b8c]">*</span></label>
-    <textarea rows={8} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={textareaClass} />
-    <p className="text-[11px] font-medium leading-normal text-slate-400">{helper}</p>
+  <div className="text-left">
+    <VacancyFieldLabel>{label} <span className="text-[#ff4b8c]">*</span></VacancyFieldLabel>
+    <textarea rows={8} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={vacancyTextareaClass} />
+    <p className="mt-2 text-[11px] font-medium leading-normal text-slate-400">{helper}</p>
   </div>
 );
 

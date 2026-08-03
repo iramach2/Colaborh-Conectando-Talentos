@@ -1,6 +1,6 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertTriangle, Check, ChevronLeft, X as CloseIconComponent } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, X as CloseIconComponent } from 'lucide-react';
 import { DF_REGIONS, sortBrazilianCityNames } from '../../../utils/companyDashboardUtils';
 import type { VacancyFormData } from '../../../utils/vacancyPayload';
 import { CreateVacancyStepBasics } from '../createVacancy/CreateVacancyStepBasics';
@@ -209,7 +209,7 @@ export const CreateVacancyTab: React.FC<CreateVacancyTabProps> = ({
           )}
         </div>
 
-        <div className="mt-5 -mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+        <div className="mt-5 -mx-4 flex items-center gap-8 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
           {steps.map((step) => {
             const isActive = registerStep === step.id;
             const isDone = registerStep > step.id;
@@ -219,18 +219,23 @@ export const CreateVacancyTab: React.FC<CreateVacancyTabProps> = ({
                 type="button"
                 onClick={() => isDone && setRegisterStep(step.id)}
                 disabled={!isDone && !isActive}
-                className={`flex h-[38px] min-w-[132px] shrink-0 items-center justify-center gap-2 rounded-xl border px-3 text-[12px] font-semibold transition-all sm:shrink ${
+                className={`relative flex h-[42px] min-w-[132px] shrink-0 items-center justify-center gap-2 bg-transparent px-2 text-[12px] font-semibold transition-colors ${
                   isActive
-                    ? 'border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]'
+                    ? 'text-[#940dff]'
                     : isDone
-                      ? 'border-white/70 bg-white text-slate-500 hover:text-[#940dff]'
-                      : 'border-white/60 bg-white/60 text-slate-300'
+                      ? 'text-slate-500 hover:text-[#940dff]'
+                      : 'cursor-not-allowed text-slate-300'
                 }`}
               >
-                <span className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold ${isActive ? 'bg-white/80 text-[#940dff]' : isDone ? 'bg-[#63e1a5]/14 text-[#2f9f6b]' : 'bg-white/70 text-slate-300'}`}>
-                  {isDone ? <Check size={11} /> : step.id}
-                </span>
-                {step.title}
+                <span className="text-[11px] font-semibold text-current">{step.id}</span>
+                <span className="truncate">{step.title}</span>
+                {isActive && (
+                  <motion.span
+                    layoutId="company-create-vacancy-step-underline"
+                    className="absolute inset-x-1 bottom-0 h-[3px] rounded-full bg-[#940dff]"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                  />
+                )}
               </button>
             );
           })}
