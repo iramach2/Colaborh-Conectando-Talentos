@@ -242,7 +242,16 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   z-index: 10;
 }
 
-.company-dashboard-surface {
+html:has(.company-dashboard-surface),
+body:has(.company-dashboard-surface),
+#root:has(.company-dashboard-surface) {
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+.company-dashboard-surface,
+.company-dashboard-surface::before,
+.company-dashboard-surface::after {
   font-family: "Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif;
   color: #343241;
   background-color: #ffffff !important;
@@ -251,7 +260,13 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
 
 .company-dashboard-surface > div,
 .company-dashboard-surface main,
-.company-dashboard-surface header {
+.company-dashboard-surface header,
+.company-dashboard-surface [data-company-dashboard-shell],
+.company-dashboard-surface [data-company-dashboard-body],
+.company-dashboard-surface [data-company-dashboard-header-frame],
+.company-dashboard-surface [data-company-dashboard-content-frame],
+.company-dashboard-surface [data-company-dashboard-header],
+.company-dashboard-surface [data-company-dashboard-content] {
   background-color: #ffffff !important;
   background-image: none !important;
 }

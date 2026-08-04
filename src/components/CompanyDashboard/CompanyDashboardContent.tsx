@@ -295,7 +295,7 @@ export const CompanyDashboardContent = ({
     setCompanies,
   } = billing;
 
-  return (  <main className="flex-1 bg-[#ffffff] p-6 pt-3 lg:pt-5 lg:pb-10 lg:px-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
+  return (  <main data-company-dashboard-content className="min-h-[calc(100vh-64px)] flex-1 bg-white p-6 pt-3 lg:pt-5 lg:pb-10 lg:px-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
     <div className="w-full">
       <React.Suspense fallback={<DashboardSectionFallback />}>
         <AnimatePresence mode="wait">

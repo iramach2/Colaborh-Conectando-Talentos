@@ -82,7 +82,7 @@ export const CompanyDashboardHeader = ({
   const showTalentSearch = activeTab === 'Banco de Talentos';
 
   return (
-    <header className="sticky top-0 z-40 w-full rounded-none bg-transparent px-4 py-3 transition-all duration-300 lg:px-10">
+    <header data-company-dashboard-header className="sticky top-0 z-40 w-full rounded-none bg-white px-4 py-3 transition-all duration-300 lg:px-10">
       <div className="flex w-full flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-3 lg:hidden">
