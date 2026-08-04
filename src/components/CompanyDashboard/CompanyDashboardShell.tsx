@@ -20,10 +20,7 @@ export const CompanyDashboardShell = ({
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   return (
-    <div className="company-dashboard-surface min-h-screen relative font-sans" style={{ backgroundColor: '#fbfaff' }}>
-      <div className="fixed top-[-12%] right-[-8%] w-[42%] h-[42%] bg-[#ede7ff] rounded-full blur-[130px] opacity-35 pointer-events-none" />
-      <div className="fixed bottom-[-14%] left-[18%] w-[34%] h-[34%] bg-[#f4f0ff] rounded-full blur-[120px] opacity-45 pointer-events-none" />
-
+    <div className="company-dashboard-surface min-h-screen relative bg-white font-sans">
       <CompanyDashboardSidebar
         {...sidebarProps}
         isSidebarExpanded={isSidebarExpanded}

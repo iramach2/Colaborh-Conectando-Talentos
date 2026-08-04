@@ -50,7 +50,7 @@ input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
 }
 
-/* Evita zoom autom?tico do iOS/Safari ao focar campos menores que 16px */
+/* Evita zoom automático do iOS/Safari ao focar campos menores que 16px */
 @media (max-width: 768px) {
   input,
   select,
@@ -245,6 +245,15 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
 .company-dashboard-surface {
   font-family: "Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif;
   color: #343241;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+.company-dashboard-surface > div,
+.company-dashboard-surface main,
+.company-dashboard-surface header {
+  background-color: #ffffff !important;
+  background-image: none !important;
 }
 
 .company-dashboard-surface h1,
@@ -375,3 +384,4 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   background-color: #ffffff !important;
   background-image: none !important;
 }
+
