@@ -79,6 +79,11 @@ const getTestLabel = (testKey: string) => {
   if (testKey === 'customizado') return 'Quest.';
   return testKey.toUpperCase();
 };
+const getAiMatchToneClass = (score: number) => {
+  if (score <= 30) return 'text-[#ff4b8c]';
+  if (score <= 60) return 'text-[#ffa303]';
+  return 'text-[#63e1a5]';
+};
 
 const buildWhatsappUrl = (phone: string) => {
   const cleanedPhone = (phone || '').replace(/\D/g, '');
@@ -212,9 +217,17 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
     setBulkStage(defaultStage);
   }, [defaultStage]);
 
+  const getApplicantMatchScore = React.useCallback((applicant: CompanyApplicant) => (
+    calculateAiMatchScore(selectedJob, getFullApplicantInfo(applicant))
+  ), [selectedJob, getFullApplicantInfo]);
+
+  const sortApplicantsByMatch = React.useCallback((applicants: CompanyApplicant[]) => (
+    [...applicants].sort((a, b) => getApplicantMatchScore(b) - getApplicantMatchScore(a))
+  ), [getApplicantMatchScore]);
+
   const visibleApplicants = React.useMemo(
-    () => jobApplicants.filter((app) => matchesSearch(app, candidateSearch)),
-    [jobApplicants, candidateSearch],
+    () => sortApplicantsByMatch(jobApplicants.filter((app) => matchesSearch(app, candidateSearch))),
+    [jobApplicants, candidateSearch, sortApplicantsByMatch],
   );
 
   const applicantsByStage = React.useMemo(() => {
@@ -234,8 +247,13 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
     return grouped;
   }, [defaultStage, stages, visibleApplicants]);
 
-  const rejectedApplicants = visibleApplicants.filter((app) => ['reprovado', 'desclassificado'].includes(String(app.status || '').toLowerCase().trim()));
-  const activeApplicants = isRejectedView ? rejectedApplicants : (applicantsByStage.get(activeStage) || []);
+  const rejectedApplicants = React.useMemo(
+    () => visibleApplicants.filter((app) => ['reprovado', 'desclassificado'].includes(String(app.status || '').toLowerCase().trim())),
+    [visibleApplicants],
+  );
+  const activeApplicants = React.useMemo(() => (
+    sortApplicantsByMatch(isRejectedView ? rejectedApplicants : (applicantsByStage.get(activeStage) || []))
+  ), [activeStage, applicantsByStage, isRejectedView, rejectedApplicants, sortApplicantsByMatch]);
   const requiredTests = (stageTests[activeStage] || []).filter((test) => (test.split(':')[1] || 'auto') === 'manual');
   const activeApplicantIds = activeApplicants.map((app) => app.id).filter(Boolean) as string[];
   const selectedApplicants = activeApplicants.filter((app) => app.id && selectedApplicantIds.includes(app.id));
@@ -397,6 +415,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
             const info = getFullApplicantInfo(app);
             const parsedData = parseCandidatePhoneData(app.candidate_phone || app.phone || '');
             const matchScore = calculateAiMatchScore(selectedJob, info);
+            const matchToneClass = getAiMatchToneClass(matchScore);
             const age = info.talentMatched?.birth_date
               ? calculateAge(info.talentMatched.birth_date)
               : info.talentMatched?.age;
@@ -454,7 +473,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                     </div>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Match IA</p>
-                      <p className="mt-1 text-[12px] font-semibold text-[#343241]">{matchScore}%</p>
+                      <p className={`mt-1 text-[12px] font-semibold ${matchToneClass}`}>{matchScore}%</p>
                     </div>
                   </div>
 
@@ -578,7 +597,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
 
                   <span className="text-[12px] font-medium text-slate-500 text-center">{age ? `${age} anos` : 'Não informada'}</span>
 
-                  <span className="text-[12px] font-semibold text-[#343241] text-center">{matchScore}%</span>
+                  <span className={`text-center text-[12px] font-semibold ${matchToneClass}`}>{matchScore}%</span>
 
                   <div className="flex justify-center min-w-0">
                     <div className="relative w-[140px]">

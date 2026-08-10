@@ -134,7 +134,6 @@ export const hydrateApplicationsWithAssessments = async <T extends { id?: string
         const currentValue = parsed[field];
 
         if (currentValue === legacyValue) continue;
-        if (currentValue && currentValue !== 'PENDING' && !legacyValue.startsWith('COMPLETED')) continue;
 
         candidatePhone = serializeCandidatePhoneData(
           parsed.phone,
