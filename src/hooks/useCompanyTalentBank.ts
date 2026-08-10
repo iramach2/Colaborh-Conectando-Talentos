@@ -73,6 +73,94 @@ export const initialTalentFilters: TalentFilters = {
   salary: '',
 };
 
+const normalizeTalentText = (value?: string | number | null) => String(value ?? '').trim().toLowerCase();
+
+const getTalentAge = (talent: TalentProfile) => {
+  const numericAge = Number(talent.age);
+  if (Number.isFinite(numericAge) && numericAge > 0) {
+    return numericAge;
+  }
+
+  const calculatedAge = calculateAge(talent.birth_date);
+  return calculatedAge > 0 ? calculatedAge : null;
+};
+
+const isCandidateTalent = (talent?: TalentProfile | null) => {
+  if (!talent) return false;
+  const role = normalizeTalentText(talent.role);
+  return role !== 'empresa' && role !== 'company';
+};
+
+export const filterTalentProfiles = (
+  talents: TalentProfile[],
+  options: {
+    talentSubTab: 'all' | 'saved';
+    savedTalentIds?: string[];
+    talentSearch: string;
+    talentFilters: TalentFilters;
+  },
+) => {
+  const { talentSubTab, savedTalentIds = [], talentSearch, talentFilters } = options;
+  const normalizedSearch = normalizeTalentText(talentSearch);
+
+  return talents.filter((talent) => {
+    if (!isCandidateTalent(talent)) return false;
+
+    if (talentSubTab === 'saved' && !savedTalentIds.includes(talent.id)) {
+      return false;
+    }
+
+    const talentAge = getTalentAge(talent);
+    const searchableValues = [
+      talent.name,
+      talent.email,
+      talent.phone,
+      talent.role,
+      talent.city,
+      talent.state,
+      talent.salary,
+      talent.summary,
+      ...(Array.isArray(talent.skills) ? talent.skills : []),
+      ...(Array.isArray(talent.experiences)
+        ? talent.experiences.flatMap((experience) => [
+          experience.role,
+          experience.company,
+          experience.description,
+          experience.duration,
+        ])
+        : []),
+      ...(Array.isArray(talent.educations)
+        ? talent.educations.flatMap((education) => [
+          education.course,
+          education.institution,
+          education.status,
+          education.gradYear,
+        ])
+        : []),
+    ];
+
+    const matchesSearch = !normalizedSearch
+      || searchableValues.some((value) => normalizeTalentText(value).includes(normalizedSearch));
+
+    const ageFilterIsDefault = talentFilters.minAge === initialTalentFilters.minAge
+      && talentFilters.maxAge === initialTalentFilters.maxAge;
+    const matchesAge = ageFilterIsDefault
+      || (talentAge !== null && talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge);
+
+    const matchesFilters = (!talentFilters.role || normalizeTalentText(talent.role).includes(normalizeTalentText(talentFilters.role)))
+      && matchesAge
+      && (!talentFilters.city || normalizeTalentText(talent.city).includes(normalizeTalentText(talentFilters.city)))
+      && (!talentFilters.state || talent.state === talentFilters.state)
+      && (!talentFilters.first_job || talent.first_job === true)
+      && (!talentFilters.education || talent.education === talentFilters.education)
+      && (!talentFilters.experience || talent.experience === talentFilters.experience)
+      && (!talentFilters.modality || talent.modality === talentFilters.modality)
+      && (!talentFilters.salary || normalizeTalentText(talent.salary).includes(normalizeTalentText(talentFilters.salary)));
+
+    return matchesSearch && matchesFilters;
+  });
+};
+
 type UseCompanyTalentBankParams<TOrg extends CompanyWithSavedTalents> = {
   companies: TOrg[];
   selectedCompanyId: string;
@@ -154,45 +242,13 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
     }));
   };
 
-  const filteredTalents = talents.filter((talent) => {
-    if (!talent) return false;
-    if (talent.role && (talent.role.toLowerCase() === 'empresa' || talent.role.toLowerCase() === 'company')) {
-      return false;
-    }
-
-    if (talentSubTab === 'saved') {
-      const selectedCompany = companies.find((company) => company.id === selectedCompanyId);
-      const savedIds = selectedCompany?.savedTalents || [];
-      if (!savedIds.includes(talent.id)) {
-        return false;
-      }
-    }
-
-    const talentAge = talent.age || calculateAge(talent.birth_date) || 0;
-    const talentName = talent.name || '';
-    const talentRole = talent.role || '';
-    const talentCity = talent.city || '';
-    const talentState = talent.state || '';
-    const talentSalary = talent.salary || '';
-    const normalizedSearch = talentSearch.toLowerCase();
-
-    const matchesSearch = talentName.toLowerCase().includes(normalizedSearch)
-      || talentRole.toLowerCase().includes(normalizedSearch)
-      || (talent.skills && Array.isArray(talent.skills) && talent.skills.some((skill: string) => skill && skill.toLowerCase().includes(normalizedSearch)));
-
-    const matchesFilters = (!talentFilters.role || talentRole.toLowerCase().includes(talentFilters.role.toLowerCase()))
-      && (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge)
-      && (!talentFilters.city || talentCity.toLowerCase().includes(talentFilters.city.toLowerCase()))
-      && (!talentFilters.state || talentState === talentFilters.state)
-      && (!talentFilters.first_job || talent.first_job === true)
-      && (!talentFilters.education || talent.education === talentFilters.education)
-      && (!talentFilters.experience || talent.experience === talentFilters.experience)
-      && (!talentFilters.modality || talent.modality === talentFilters.modality)
-      && (!talentFilters.salary || talentSalary.includes(talentFilters.salary));
-
-    return matchesSearch && matchesFilters;
+  const selectedCompany = companies.find((company) => company.id === selectedCompanyId);
+  const filteredTalents = filterTalentProfiles(talents, {
+    talentSubTab,
+    savedTalentIds: selectedCompany?.savedTalents || [],
+    talentSearch,
+    talentFilters,
   });
-
   const handleAiSearch = () => {
     if (!aiPrompt.trim()) return;
     setIsAiSearching(true);

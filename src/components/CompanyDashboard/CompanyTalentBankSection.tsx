@@ -1,9 +1,8 @@
 import { type Dispatch, type SetStateAction } from 'react';
 import { motion } from 'motion/react';
 import { Bookmark, User } from 'lucide-react';
-import { calculateAge } from '../../utils/companyDashboardUtils';
 import { TalentBankTab } from './tabs/TalentBankTab';
-import type { TalentFilters, TalentProfile } from '../../hooks/useCompanyTalentBank';
+import { filterTalentProfiles, type TalentFilters, type TalentProfile } from '../../hooks/useCompanyTalentBank';
 import type { CompanyRecord } from '../../services/companyService';
 import type { CompanyApplicant } from '../../types/companyDashboard';
 
@@ -51,34 +50,18 @@ export const CompanyTalentBankSection = ({
   onPlanFeatureBlocked
 }: CompanyTalentBankSectionProps) => {
   const selectedCompany = companies.find(company => company.id === selectedCompanyId);
-  const savedCount = selectedCompany?.savedTalents?.length || 0;
-  const allCount = talents.filter((talent) => {
-    if (!talent) return false;
-    if (talent.role && (talent.role.toLowerCase() === 'empresa' || talent.role.toLowerCase() === 'company')) {
-      return false;
-    }
-
-    const talentAge = talent.age || calculateAge(talent.birth_date) || 0;
-    const searchQuery = talentSearch.toLowerCase();
-    const talentName = talent.name || '';
-    const talentRole = talent.role || '';
-    const talentCity = talent.city || '';
-    const talentSalary = talent.salary || '';
-    const matchesSearch = talentName.toLowerCase().includes(searchQuery) ||
-      talentRole.toLowerCase().includes(searchQuery) ||
-      (talent.skills && Array.isArray(talent.skills) && talent.skills.some((skill: string) => skill && skill.toLowerCase().includes(searchQuery)));
-
-    const matchesFilters = (!talentFilters.role || talentRole.toLowerCase().includes(talentFilters.role.toLowerCase())) &&
-      (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge) &&
-      (!talentFilters.city || talentCity.toLowerCase().includes(talentFilters.city.toLowerCase())) &&
-      (!talentFilters.state || talent.state === talentFilters.state) &&
-      (!talentFilters.first_job || talent.first_job === true) &&
-      (!talentFilters.education || talent.education === talentFilters.education) &&
-      (!talentFilters.experience || talent.experience === talentFilters.experience) &&
-      (!talentFilters.modality || talent.modality === talentFilters.modality) &&
-      (!talentFilters.salary || talentSalary.includes(talentFilters.salary));
-
-    return matchesSearch && matchesFilters;
+  const savedTalentIds = selectedCompany?.savedTalents || [];
+  const allCount = filterTalentProfiles(talents, {
+    talentSubTab: 'all',
+    savedTalentIds,
+    talentSearch,
+    talentFilters,
+  }).length;
+  const savedCount = filterTalentProfiles(talents, {
+    talentSubTab: 'saved',
+    savedTalentIds,
+    talentSearch,
+    talentFilters,
   }).length;
 
   const tabs = [

@@ -197,7 +197,7 @@ export const CompanyAssessmentReportsTable = ({
             {candidatesWithTests.map((app) => (
               <div key={app.id} className="grid grid-cols-[1.5fr_1.1fr_repeat(5,0.9fr)] items-center gap-4 px-5 py-4 transition-colors hover:bg-[#fbfaff]">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
                     {app.profile_pic ? (
                       <img src={app.profile_pic} alt={app.candidate_name || app.name || 'Candidato'} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                     ) : (
@@ -235,7 +235,7 @@ export const CompanyAssessmentReportsTable = ({
             return (
               <article key={app.id} className="p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[#940dff]">
                     {app.profile_pic ? (
                       <img src={app.profile_pic} alt={app.candidate_name || app.name || 'Candidato'} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                     ) : (
