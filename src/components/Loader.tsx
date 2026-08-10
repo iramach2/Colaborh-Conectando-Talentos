@@ -54,7 +54,7 @@ export function LoadingAnimation({
           height: 100%;
           width: 100%;
           object-fit: contain;
-          filter: hue-rotate(274deg) saturate(1.2) contrast(1.04);
+          filter: hue-rotate(118deg) saturate(3.2) brightness(1.08) contrast(1.12) drop-shadow(0 10px 24px rgba(148, 13, 255, 0.22));
         }
       `}</style>
 
