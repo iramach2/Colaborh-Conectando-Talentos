@@ -202,7 +202,7 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
                     <div className="xl:hidden">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
                             {getJobInitials(title)}
                           </div>
                           <div className="min-w-0">
@@ -248,7 +248,7 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
                       <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
                         <button
                           onClick={() => handleViewApplicants(job)}
-                          className="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 active:scale-95 cursor-pointer whitespace-nowrap"
+                          className="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98] cursor-pointer whitespace-nowrap"
                           title="Ver processo seletivo"
                         >
                           Ver processo
@@ -308,7 +308,7 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
 
                     <div className="hidden xl:grid xl:grid-cols-[minmax(240px,0.9fr)_110px_minmax(130px,0.7fr)_minmax(130px,0.7fr)_120px_110px_120px_246px] gap-3 xl:items-center">
                       <div className="col-span-2 flex min-w-0 items-center gap-3 pr-24 xl:col-span-1 xl:pr-0">
-                        <div className="w-11 h-11 bg-[#f3e5ff] text-[#940dff] rounded-2xl flex items-center justify-center font-semibold text-[12px] shrink-0 border border-[#940dff]/18 select-none">
+                        <div className="w-11 h-11 bg-[#f3e5ff] text-[#940dff] rounded-full flex items-center justify-center font-semibold text-[12px] shrink-0 border border-[#940dff]/18 select-none">
                           {getJobInitials(title)}
                         </div>
                         <div className="min-w-0">
@@ -358,7 +358,7 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
                         <div className="flex items-center justify-between gap-2 sm:justify-end">
                           <button
                             onClick={() => handleViewApplicants(job)}
-                            className="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 active:scale-95 cursor-pointer whitespace-nowrap sm:flex-none"
+                            className="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98] cursor-pointer whitespace-nowrap sm:flex-none"
                             title="Ver processo seletivo"
                           >
                             Ver processo

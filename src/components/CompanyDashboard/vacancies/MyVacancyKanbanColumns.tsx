@@ -425,7 +425,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                       onClick={() => setSelectedResumeApplicant(info)}
                       className="flex min-w-0 flex-1 items-center gap-3 border-0 bg-transparent p-0 text-left cursor-pointer group"
                     >
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#533af6]/15 bg-[#533af6]/10 text-[#533af6]">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#533af6]/15 bg-[#533af6]/10 text-[#533af6]">
                         {info.profile_pic ? (
                           <img src={info.profile_pic} alt="Foto" className="h-full w-full object-cover" />
                         ) : (
@@ -511,7 +511,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                     <button
                       type="button"
                       onClick={() => setSelectedResumeApplicant(info)}
-                      className="flex h-8 flex-1 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 cursor-pointer"
+                      className="flex h-8 flex-1 items-center justify-center rounded-full border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98] cursor-pointer"
                     >
                       Perfil
                     </button>
@@ -519,7 +519,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleUpdateApplicantStatus(app.id || '', 'Reprovado')}
-                        className="flex h-8 flex-1 items-center justify-center rounded-xl border border-[#ff4b8c]/18 bg-[#ff4b8c]/10 px-4 text-[12px] font-semibold text-[#ff4b8c] transition-all hover:border-[#ff4b8c]/30 hover:bg-[#ff4b8c]/14 cursor-pointer"
+                        className="flex h-8 flex-1 items-center justify-center rounded-full border border-[#ff4b8c] bg-white px-4 text-[12px] font-semibold text-[#ff4b8c] transition-all hover:bg-[#ff4b8c]/10 active:scale-[0.98] cursor-pointer"
                       >
                         Reprovar
                       </button>
@@ -534,7 +534,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                           onPlanFeatureBlocked?.('Contato direto por WhatsApp');
                         }
                       }}
-                      className="flex h-8 w-10 items-center justify-center rounded-xl border border-[#63e1a5]/35 bg-[#63e1a5]/14 text-[#40b87f] transition-all hover:border-[#63e1a5]/55 hover:bg-[#63e1a5] hover:text-white"
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-[#63e1a5]/35 bg-[#63e1a5]/14 text-[#40b87f] transition-all hover:border-[#63e1a5]/55 hover:bg-[#63e1a5] hover:text-white"
                       title="Chamar no WhatsApp"
                     >
                       <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
@@ -559,7 +559,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                     onClick={() => setSelectedResumeApplicant(info)}
                     className="flex items-center gap-3 min-w-0 text-left bg-transparent border-0 p-0 cursor-pointer group justify-self-stretch"
                   >
-                    <div className="w-11 h-11 rounded-2xl bg-[#533af6]/10 text-[#533af6] border border-[#533af6]/15 overflow-hidden flex items-center justify-center shrink-0">
+                    <div className="w-11 h-11 rounded-full bg-[#533af6]/10 text-[#533af6] border border-[#533af6]/15 overflow-hidden flex items-center justify-center shrink-0">
                       {info.profile_pic ? (
                         <img src={info.profile_pic} alt="Foto" className="w-full h-full object-cover" />
                       ) : (
@@ -629,7 +629,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                     <button
                       type="button"
                       onClick={() => setSelectedResumeApplicant(info)}
-                      className="h-8 px-4 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] text-[#940dff] text-[12px] font-semibold transition-all cursor-pointer hover:border-[#940dff]/28 hover:bg-[#940dff]/12 flex items-center justify-center"
+                      className="flex h-8 items-center justify-center rounded-full border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98] cursor-pointer"
                     >
                       Perfil
                     </button>
@@ -637,7 +637,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                     <button
                       type="button"
                       onClick={() => handleUpdateApplicantStatus(app.id || '', 'Reprovado')}
-                      className="h-8 px-4 rounded-xl border border-[#ff4b8c]/18 bg-[#ff4b8c]/10 text-[#ff4b8c] text-[12px] font-semibold transition-all cursor-pointer hover:border-[#ff4b8c]/30 hover:bg-[#ff4b8c]/14 flex items-center justify-center"
+                      className="flex h-8 items-center justify-center rounded-full border border-[#ff4b8c] bg-white px-4 text-[12px] font-semibold text-[#ff4b8c] transition-all hover:bg-[#ff4b8c]/10 active:scale-[0.98] cursor-pointer"
                     >
                       Reprovar
                     </button>
@@ -652,7 +652,7 @@ export const MyVacancyKanbanColumns: React.FC<MyVacancyKanbanColumnsProps> = ({
                           onPlanFeatureBlocked?.('Contato direto por WhatsApp');
                         }
                       }}
-                      className="h-8 w-10 rounded-xl bg-[#63e1a5]/14 hover:bg-[#63e1a5] text-[#40b87f] hover:text-white flex items-center justify-center transition-all border border-[#63e1a5]/35 hover:border-[#63e1a5]/55"
+                      className="h-8 w-8 rounded-full bg-[#63e1a5]/14 hover:bg-[#63e1a5] text-[#40b87f] hover:text-white flex items-center justify-center transition-all border border-[#63e1a5]/35 hover:border-[#63e1a5]/55"
                       title="Chamar no WhatsApp"
                     >
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
