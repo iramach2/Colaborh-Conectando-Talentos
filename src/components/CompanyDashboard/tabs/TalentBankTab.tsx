@@ -153,7 +153,7 @@ export const TalentBankTab = ({
                         onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
                         className="flex min-w-0 flex-1 items-center gap-3 border-0 bg-transparent p-0 text-left cursor-pointer"
                       >
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
                           {talent.profile_pic ? (
                             <img src={talent.profile_pic} alt={talent.name || 'Foto do talento'} className="h-full w-full object-cover" />
                           ) : (
@@ -195,7 +195,7 @@ export const TalentBankTab = ({
                       <button
                         type="button"
                         onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
-                        className="flex h-8 flex-1 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
+                        className="flex h-8 flex-1 items-center justify-center rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-95"
                       >
                         Perfil
                       </button>
@@ -242,7 +242,7 @@ export const TalentBankTab = ({
                       onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
                       className="flex min-w-0 items-center gap-3 border-0 bg-transparent p-0 text-left cursor-pointer"
                     >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
                         {talent.profile_pic ? (
                           <img src={talent.profile_pic} alt={talent.name || 'Foto do talento'} className="h-full w-full object-cover" />
                         ) : (
@@ -272,7 +272,7 @@ export const TalentBankTab = ({
                       <button
                         type="button"
                         onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
-                        className="flex h-8 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
+                        className="flex h-8 items-center justify-center rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-95"
                       >
                         Perfil
                       </button>
