@@ -217,7 +217,10 @@ export function CompanyCandidateProfileDrawer({
   return createPortal(
     <AnimatePresence>
       {applicant && (
-        <div className="company-dashboard-surface fixed inset-0 z-[110] flex justify-end">
+        <div
+          className="fixed inset-0 z-[110] flex justify-end"
+          style={{ fontFamily: '"Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif' }}
+        >
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-950/25 backdrop-blur-sm" />
           <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }} className="relative z-10 flex h-full w-full max-w-6xl flex-col overflow-hidden border-l border-white/80 bg-[#fbf9ff] shadow-[0_24px_80px_rgba(57,39,96,0.20)]">
             <header className="shrink-0 px-6 pb-4 pt-5 text-left">
