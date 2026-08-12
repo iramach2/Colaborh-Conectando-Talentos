@@ -56,21 +56,7 @@ const buildApplicantFromTalent = (talent: TalentProfile): CompanyApplicant => ({
   city: talent.city,
   state: talent.state,
   profile_pic: talent.profile_pic,
-  talentMatched: {
-    id: talent.id,
-    name: talent.name,
-    email: talent.email,
-    phone: talent.phone,
-    role: talent.role,
-    city: talent.city,
-    state: talent.state,
-    birth_date: talent.birth_date,
-    age: talent.age,
-    skills: talent.skills,
-    summary: talent.summary,
-    experiences: talent.experiences || [],
-    educations: talent.educations || []
-  }
+  talentMatched: talent
 });
 
 export const TalentBankTab = ({
