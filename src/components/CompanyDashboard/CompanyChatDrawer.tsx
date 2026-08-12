@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowLeft, Check, CheckCheck, Loader2, MessageSquare, Search, Send, X as CloseIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { fetchMessagesForApplications, type ChatMessage } from '../../services/messageService';
@@ -171,7 +172,9 @@ export function CompanyChatDrawer({
 
   const showConversation = isConversationView && applicant;
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[150] flex justify-end">
@@ -390,6 +393,7 @@ export function CompanyChatDrawer({
           </motion.aside>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

@@ -1,4 +1,5 @@
 import { ElementType, ReactNode, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { BadgeDollarSign, Brain, Briefcase, Calendar, Check, CheckCheck, ChevronDown, Download, FileText, GraduationCap, Loader2, Mail, MapPin, MessageSquare, Phone, Send, Sparkles, Star, UserRound, X as CloseIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CompanyCandidateResumeTestsTab } from './CompanyCandidateResumeTestsTab';
@@ -211,7 +212,9 @@ export function CompanyCandidateProfileDrawer({
     { id: 'trabalho', items: [{ label: 'Pretensão salarial', value: talent?.salary, icon: BadgeDollarSign }, { label: 'Primeiro emprego', value: talent?.first_job ? 'Sim' : talent?.first_job === false ? 'Não' : '', icon: Briefcase }] },
   ] : [];
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {applicant && (
         <div className="fixed inset-0 z-[110] flex justify-end">
@@ -365,6 +368,7 @@ export function CompanyCandidateProfileDrawer({
           </AnimatePresence>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
