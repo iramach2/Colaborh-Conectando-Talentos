@@ -27,8 +27,12 @@ interface CompanyTalentBankSectionProps {
   setIsFilterSidebarOpen: Dispatch<SetStateAction<boolean>>;
   filteredTalents: TalentProfile[];
   isFetchingTalents: boolean;
+  talentPage: number;
+  talentTotalPages: number;
+  talentTotalCount: number;
   setSelectedResumeApplicant: Dispatch<SetStateAction<CompanyApplicant | null>>;
   handleToggleSaveTalent: (talentId: string) => void;
+  handleTalentPageChange: (page: number) => void;
   canUseDirectWhatsApp: boolean;
   onPlanFeatureBlocked: (feature: string) => void;
 }
@@ -40,16 +44,29 @@ export const CompanyTalentBankSection = ({
   talentFilters,
   talentSearch,
   talentSubTab,
-  setTalentSubTab,  setTalentSearch,
+  setTalentSubTab,
+  isAiSearching,
+  aiPrompt,
+  setAiPrompt,
+  handleAiSearch,
+  isFiltersVisible,
+  setIsFiltersVisible,
+  setTalentFilters,
+  isTalentLoadingCities,
+  talentCities,
+  setTalentSearch,
   setIsFilterSidebarOpen,
   filteredTalents,
   isFetchingTalents,
+  talentPage,
+  talentTotalPages,
+  talentTotalCount,
   setSelectedResumeApplicant,
   handleToggleSaveTalent,
+  handleTalentPageChange,
   canUseDirectWhatsApp,
   onPlanFeatureBlocked
-}: CompanyTalentBankSectionProps) => {
-  const selectedCompany = companies.find(company => company.id === selectedCompanyId);
+}: CompanyTalentBankSectionProps) => {  const selectedCompany = companies.find(company => company.id === selectedCompanyId);
   const savedTalentIds = selectedCompany?.savedTalents || [];
   const allCount = filterTalentProfiles(talents, {
     talentSubTab: 'all',
@@ -106,9 +123,13 @@ export const CompanyTalentBankSection = ({
       <TalentBankTab
         filteredTalents={filteredTalents}
         isFetchingTalents={isFetchingTalents}
+        talentPage={talentPage}
+        talentTotalPages={talentTotalPages}
+        talentTotalCount={talentTotalCount}
         setSelectedResumeApplicant={setSelectedResumeApplicant}
         selectedCompany={selectedCompany}
         handleToggleSaveTalent={handleToggleSaveTalent}
+        onTalentPageChange={handleTalentPageChange}
         talentSubTab={talentSubTab}
         canUseDirectWhatsApp={canUseDirectWhatsApp}
         onPlanFeatureBlocked={onPlanFeatureBlocked}
@@ -116,3 +137,4 @@ export const CompanyTalentBankSection = ({
     </div>
   );
 };
+

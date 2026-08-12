@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DashboardSectionFallback } from './CompanyDashboardLayout';
 import { CompanyAssessmentsSection } from './CompanyAssessmentsSection';
@@ -113,8 +113,12 @@ export type CompanyDashboardTalentBankProps = {
   setIsFilterSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   filteredTalents: TalentProfile[];
   isFetchingTalents: boolean;
+  talentPage: number;
+  talentTotalPages: number;
+  talentTotalCount: number;
   setSelectedResumeApplicant: React.Dispatch<React.SetStateAction<CompanyApplicant | null>>;
   handleToggleSaveTalent: (talentId: string) => void;
+  handleTalentPageChange: (page: number) => void;
   canUseDirectWhatsApp: boolean;
   onPlanFeatureBlocked: (feature: string) => void;
 };
@@ -256,7 +260,11 @@ export const CompanyDashboardContent = ({
     setIsFilterSidebarOpen,
     filteredTalents,
     isFetchingTalents,
+    talentPage,
+    talentTotalPages,
+    talentTotalCount,
     handleToggleSaveTalent,
+    handleTalentPageChange,
     canUseDirectWhatsApp: canUseTalentDirectWhatsApp,
     onPlanFeatureBlocked: onTalentPlanFeatureBlocked,
   } = talentBank;
@@ -402,8 +410,12 @@ export const CompanyDashboardContent = ({
               setIsFilterSidebarOpen={setIsFilterSidebarOpen}
               filteredTalents={filteredTalents}
               isFetchingTalents={isFetchingTalents}
+              talentPage={talentPage}
+              talentTotalPages={talentTotalPages}
+              talentTotalCount={talentTotalCount}
               setSelectedResumeApplicant={setSelectedResumeApplicant}
               handleToggleSaveTalent={handleToggleSaveTalent}
+              handleTalentPageChange={handleTalentPageChange}
               canUseDirectWhatsApp={canUseTalentDirectWhatsApp}
               onPlanFeatureBlocked={onTalentPlanFeatureBlocked}
             />
@@ -421,7 +433,7 @@ export const CompanyDashboardContent = ({
             />
           )}
 
-          {activeTab === 'Avaliações' && (
+          {activeTab === 'AvaliaÃ§Ãµes' && (
             <CompanyAssessmentsSection
               isFetchingCompanyApps={isFetchingCompanyApps}
               resultsSubTab={resultsSubTab}
@@ -445,7 +457,7 @@ export const CompanyDashboardContent = ({
             />
           )}
 
-          {activeTab === 'Configurações' && (
+          {activeTab === 'ConfiguraÃ§Ãµes' && (
             <SettingsTab />
           )}
 
@@ -475,3 +487,4 @@ export const CompanyDashboardContent = ({
   </main>
   );
 };
+

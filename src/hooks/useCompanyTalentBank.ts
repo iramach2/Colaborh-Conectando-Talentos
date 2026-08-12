@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { calculateAge, DF_REGIONS, sortBrazilianCityNames } from '../utils/companyDashboardUtils';
 
@@ -72,6 +72,9 @@ export const initialTalentFilters: TalentFilters = {
   modality: '',
   salary: '',
 };
+
+const TALENT_PAGE_SIZE = 50;
+const TALENT_SELECT_COLUMNS = 'id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, experiences, educations';
 
 const normalizeTalentText = (value?: string | number | null) => String(value ?? '').trim().toLowerCase();
 
@@ -165,12 +168,14 @@ type UseCompanyTalentBankParams<TOrg extends CompanyWithSavedTalents> = {
   companies: TOrg[];
   selectedCompanyId: string;
   setCompanies: Dispatch<SetStateAction<TOrg[]>>;
+  enabled?: boolean;
 };
 
 export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
   companies,
   selectedCompanyId,
   setCompanies,
+  enabled = true,
 }: UseCompanyTalentBankParams<TOrg>) => {
   const [talentSubTab, setTalentSubTab] = useState<'all' | 'saved'>('all');
   const [talentSearch, setTalentSearch] = useState('');
@@ -180,30 +185,48 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
   const [talentFilters, setTalentFilters] = useState<TalentFilters>(initialTalentFilters);
   const [talents, setTalents] = useState<TalentProfile[]>([]);
   const [isFetchingTalents, setIsFetchingTalents] = useState(false);
+  const [hasLoadedTalents, setHasLoadedTalents] = useState(false);
+  const [talentPage, setTalentPage] = useState(1);
+  const [talentTotalCount, setTalentTotalCount] = useState(0);
   const [talentCities, setTalentCities] = useState<string[]>([]);
   const [isTalentLoadingCities, setIsTalentLoadingCities] = useState(false);
 
-  useEffect(() => {
-    async function loadTalents() {
-      if (!import.meta.env.VITE_SUPABASE_URL) return;
+  const loadTalentsPage = useCallback(async (page = 1) => {
+    if (!enabled || isFetchingTalents || !import.meta.env.VITE_SUPABASE_URL) return;
 
-      setIsFetchingTalents(true);
-      try {
-        const { data, error } = await supabase
-          .from('talents')
-          .select('id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, experiences, educations');
+    const safePage = Math.max(1, page);
+    const start = (safePage - 1) * TALENT_PAGE_SIZE;
+    const end = start + TALENT_PAGE_SIZE - 1;
 
-        if (error) throw error;
-        setTalents(data || []);
-      } catch (err) {
-        console.error('Erro ao buscar talentos do Supabase:', err);
-      } finally {
-        setIsFetchingTalents(false);
-      }
+    setIsFetchingTalents(true);
+    try {
+      const { data, error, count } = await supabase
+        .from('talents')
+        .select(TALENT_SELECT_COLUMNS, { count: 'exact' })
+        .order('name', { ascending: true })
+        .range(start, end);
+
+      if (error) throw error;
+
+      const nextTalents = (data || []) as TalentProfile[];
+      setTalents(nextTalents);
+      setTalentPage(safePage);
+      setTalentTotalCount(count ?? nextTalents.length);
+      setHasLoadedTalents(true);
+    } catch (err) {
+      console.error('Erro ao buscar talentos do Supabase:', err);
+      setTalents([]);
+      setTalentTotalCount(0);
+      setHasLoadedTalents(true);
+    } finally {
+      setIsFetchingTalents(false);
     }
+  }, [enabled, isFetchingTalents]);
 
-    loadTalents();
-  }, []);
+  useEffect(() => {
+    if (!enabled || hasLoadedTalents) return;
+    void loadTalentsPage(1);
+  }, [enabled, hasLoadedTalents, loadTalentsPage]);
 
   useEffect(() => {
     if (talentFilters.state) {
@@ -265,10 +288,21 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
     setAiPrompt('');
   };
 
+  const talentTotalPages = Math.max(1, Math.ceil(talentTotalCount / TALENT_PAGE_SIZE));
+
+  const handleTalentPageChange = (page: number) => {
+    const safePage = Math.max(1, Math.min(page, talentTotalPages));
+    if (safePage === talentPage || isFetchingTalents) return;
+    void loadTalentsPage(safePage);
+  };
+
   return {
     talents,
     filteredTalents,
     isFetchingTalents,
+    talentPage,
+    talentTotalPages,
+    talentTotalCount,
     talentSubTab,
     setTalentSubTab,
     talentSearch,
@@ -284,5 +318,9 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
     isTalentLoadingCities,
     handleToggleSaveTalent,
     handleAiSearch,
+    handleTalentPageChange,
   };
 };
+
+
+
