@@ -1,4 +1,4 @@
-export const APPLICATION_COLUMNS = 'id, job_id, candidate_user_id, talent_id, candidate_name, candidate_email, candidate_phone, status, city, state, profile_pic, created_at' as const;
+export const APPLICATION_COLUMNS = 'id, job_id, candidate_name, candidate_email, candidate_phone, status, city, state, profile_pic, created_at' as const;
 
 export const JOB_COLUMNS = 'id, company_id, title, role, company_name, modality, state, city, salary, salary_min, salary_max, remuneration_type, has_bonus, bonus_type, bonus_value, contract_type, description, requirements, stages, work_schedule, min_age, is_first_job, is_pcd, pcd_details, positions, request_reason, is_urgent, responsibilities, benefits, status, created_at' as const;
 

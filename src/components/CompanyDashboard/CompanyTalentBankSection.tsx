@@ -64,12 +64,13 @@ export const CompanyTalentBankSection = ({
     const talentRole = talent.role || '';
     const talentCity = talent.city || '';
     const talentSalary = talent.salary || '';
+    const ageFilterIsDefault = talentFilters.minAge === 16 && talentFilters.maxAge === 60;
     const matchesSearch = talentName.toLowerCase().includes(searchQuery) ||
       talentRole.toLowerCase().includes(searchQuery) ||
       (talent.skills && Array.isArray(talent.skills) && talent.skills.some((skill: string) => skill && skill.toLowerCase().includes(searchQuery)));
 
     const matchesFilters = (!talentFilters.role || talentRole.toLowerCase().includes(talentFilters.role.toLowerCase())) &&
-      (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge) &&
+      (ageFilterIsDefault || (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge)) &&
       (!talentFilters.city || talentCity.toLowerCase().includes(talentFilters.city.toLowerCase())) &&
       (!talentFilters.state || talent.state === talentFilters.state) &&
       (!talentFilters.first_job || talent.first_job === true) &&

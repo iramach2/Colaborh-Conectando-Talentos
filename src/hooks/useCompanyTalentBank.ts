@@ -9,7 +9,6 @@ type CompanyWithSavedTalents = {
 
 export type TalentProfile = {
   id: string;
-  user_id?: string;
   name?: string;
   email?: string;
   phone?: string;
@@ -91,6 +90,9 @@ export const initialTalentFilters: TalentFilters = {
   salary: '',
 };
 
+const TALENT_CORE_COLUMNS = 'id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, experiences, educations';
+const TALENT_OPTIONAL_COLUMNS = 'id, is_pcd, CID, languages, achievements';
+
 type UseCompanyTalentBankParams<TOrg extends CompanyWithSavedTalents> = {
   companies: TOrg[];
   selectedCompanyId: string;
@@ -119,12 +121,30 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
 
       setIsFetchingTalents(true);
       try {
-        const { data, error } = await supabase
+        const { data: coreData, error: coreError } = await supabase
           .from('talents')
-          .select('id, user_id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, is_pcd, CID, experiences, educations, languages, achievements');
+          .select(TALENT_CORE_COLUMNS);
 
-        if (error) throw error;
-        setTalents(data || []);
+        if (coreError) throw coreError;
+
+        const coreTalents = (coreData || []) as TalentProfile[];
+        const { data: optionalData, error: optionalError } = await supabase
+          .from('talents')
+          .select(TALENT_OPTIONAL_COLUMNS);
+
+        if (optionalError) {
+          console.warn('Dados complementares dos talentos não puderam ser carregados:', optionalError);
+          setTalents(coreTalents);
+          return;
+        }
+
+        const optionalByTalentId = new Map(
+          ((optionalData || []) as TalentProfile[]).map((talent) => [talent.id, talent]),
+        );
+        setTalents(coreTalents.map((talent) => ({
+          ...talent,
+          ...optionalByTalentId.get(talent.id),
+        })));
       } catch (err) {
         console.error('Erro ao buscar talentos do Supabase:', err);
       } finally {
@@ -193,13 +213,15 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
     const talentState = talent.state || '';
     const talentSalary = talent.salary || '';
     const normalizedSearch = talentSearch.toLowerCase();
+    const ageFilterIsDefault = talentFilters.minAge === initialTalentFilters.minAge
+      && talentFilters.maxAge === initialTalentFilters.maxAge;
 
     const matchesSearch = talentName.toLowerCase().includes(normalizedSearch)
       || talentRole.toLowerCase().includes(normalizedSearch)
       || (talent.skills && Array.isArray(talent.skills) && talent.skills.some((skill: string) => skill && skill.toLowerCase().includes(normalizedSearch)));
 
     const matchesFilters = (!talentFilters.role || talentRole.toLowerCase().includes(talentFilters.role.toLowerCase()))
-      && (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge)
+      && (ageFilterIsDefault || (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge))
       && (!talentFilters.city || talentCity.toLowerCase().includes(talentFilters.city.toLowerCase()))
       && (!talentFilters.state || talentState === talentFilters.state)
       && (!talentFilters.first_job || talent.first_job === true)
