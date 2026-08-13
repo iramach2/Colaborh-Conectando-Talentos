@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   Bookmark,
+  ChevronLeft,
+  ChevronRight,
   DollarSign,
   Filter,
   Mail,
@@ -15,6 +17,8 @@ import type { TalentProfile } from '../../../hooks/useCompanyTalentBank';
 import type { CompanyApplicant } from '../../../types/companyDashboard';
 import { calculateAge } from '../../../utils/companyDashboardUtils';
 import { LoadingAnimation } from '../../Loader';
+
+const TALENTS_PER_PAGE = 50;
 
 interface TalentBankTabProps {
   filteredTalents: TalentProfile[];
@@ -52,21 +56,7 @@ const buildApplicantFromTalent = (talent: TalentProfile): CompanyApplicant => ({
   city: talent.city,
   state: talent.state,
   profile_pic: talent.profile_pic,
-  talentMatched: {
-    id: talent.id,
-    name: talent.name,
-    email: talent.email,
-    phone: talent.phone,
-    role: talent.role,
-    city: talent.city,
-    state: talent.state,
-    birth_date: talent.birth_date,
-    age: talent.age,
-    skills: talent.skills,
-    summary: talent.summary,
-    experiences: talent.experiences || [],
-    educations: talent.educations || []
-  }
+  talentMatched: talent,
 });
 
 export const TalentBankTab = ({
@@ -79,7 +69,32 @@ export const TalentBankTab = ({
   canUseDirectWhatsApp,
   onPlanFeatureBlocked
 }: TalentBankTabProps) => {
+  const [currentPage, setCurrentPage] = useState(1);
   const resultLabel = filteredTalents.length === 1 ? 'talento encontrado' : 'talentos encontrados';
+  const totalPages = Math.max(1, Math.ceil(filteredTalents.length / TALENTS_PER_PAGE));
+  const filteredTalentIds = filteredTalents.map((talent) => talent.id).join('|');
+  const pageStart = (currentPage - 1) * TALENTS_PER_PAGE;
+  const paginatedTalents = filteredTalents.slice(pageStart, pageStart + TALENTS_PER_PAGE);
+  const visiblePageNumbers = useMemo(() => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, index) => index + 1);
+
+    const candidates = [1, currentPage - 1, currentPage, currentPage + 1, totalPages]
+      .filter((page) => page >= 1 && page <= totalPages);
+    return [...new Set(candidates)].sort((a, b) => a - b);
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredTalentIds, talentSubTab]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.min(Math.max(page, 1), totalPages));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const renderEmptyState = () => {
     const isSaved = talentSubTab === 'saved';
@@ -135,7 +150,7 @@ export const TalentBankTab = ({
           </div>
 
           <div className="overflow-visible rounded-2xl border border-slate-200/70 bg-white/75 shadow-[0_10px_28px_rgba(15,23,42,0.035)] divide-y divide-slate-200/80">
-            {filteredTalents.map((talent, index) => {
+            {paginatedTalents.map((talent, index) => {
               const isSaved = selectedCompany?.savedTalents?.includes(talent.id) || false;
               const age = getAge(talent);
               const rowKey = talent.id || `${talent.email}-${index}`;
@@ -318,6 +333,63 @@ export const TalentBankTab = ({
               );
             })}
           </div>
+
+          {totalPages > 1 && (
+            <nav
+              className="mt-4 flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/85 px-4 py-3 shadow-[0_10px_28px_rgba(15,23,42,0.035)] sm:flex-row sm:items-center sm:justify-between"
+              aria-label="Paginação do banco de talentos"
+            >
+              <p className="text-center text-[11px] font-medium text-slate-400 sm:text-left">
+                Exibindo <span className="font-semibold text-[#343241]">{pageStart + 1}–{Math.min(pageStart + TALENTS_PER_PAGE, filteredTalents.length)}</span> de{' '}
+                <span className="font-semibold text-[#343241]">{filteredTalents.length}</span> candidatos
+              </p>
+
+              <div className="flex items-center justify-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="flex h-8 items-center gap-1 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-3 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-300"
+                >
+                  <ChevronLeft size={14} />
+                  <span className="hidden sm:inline">Anterior</span>
+                </button>
+
+                {visiblePageNumbers.map((page, index) => {
+                  const previousPage = visiblePageNumbers[index - 1];
+                  return (
+                    <React.Fragment key={page}>
+                      {previousPage && page - previousPage > 1 && (
+                        <span className="flex h-8 w-6 items-center justify-center text-[12px] font-semibold text-slate-300">…</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => goToPage(page)}
+                        aria-current={currentPage === page ? 'page' : undefined}
+                        className={`h-8 min-w-8 rounded-xl border px-2 text-[12px] font-semibold transition-all ${
+                          currentPage === page
+                            ? 'border-[#940dff] bg-[#940dff] text-white shadow-[0_8px_18px_rgba(148,13,255,0.18)]'
+                            : 'border-slate-200 bg-white text-slate-500 hover:border-[#940dff]/24 hover:bg-[#f3e5ff] hover:text-[#940dff]'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    </React.Fragment>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="flex h-8 items-center gap-1 rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-3 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-300"
+                >
+                  <span className="hidden sm:inline">Próxima</span>
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </nav>
+          )}
         </div>
       ) : (
         renderEmptyState()

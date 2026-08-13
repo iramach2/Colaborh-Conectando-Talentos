@@ -9,6 +9,7 @@ type CompanyWithSavedTalents = {
 
 export type TalentProfile = {
   id: string;
+  user_id?: string;
   name?: string;
   email?: string;
   phone?: string;
@@ -23,11 +24,15 @@ export type TalentProfile = {
   skills?: string[];
   profile_pic?: string;
   first_job?: boolean;
+  is_pcd?: boolean;
+  CID?: string;
   education?: string;
   experience?: string;
   modality?: string;
   experiences?: TalentExperience[];
   educations?: TalentEducation[];
+  languages?: TalentLanguage[];
+  achievements?: TalentAchievement[];
 };
 
 export type TalentExperience = {
@@ -45,6 +50,19 @@ export type TalentEducation = {
   gradYear?: string;
   status?: string;
   institution?: string;
+};
+
+export type TalentLanguage = {
+  id?: string;
+  language?: string;
+  level?: string;
+};
+
+export type TalentAchievement = {
+  id?: string;
+  type?: string;
+  title?: string;
+  description?: string;
 };
 
 export type TalentFilters = {
@@ -103,7 +121,7 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
       try {
         const { data, error } = await supabase
           .from('talents')
-          .select('id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, experiences, educations');
+          .select('id, user_id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, is_pcd, CID, experiences, educations, languages, achievements');
 
         if (error) throw error;
         setTalents(data || []);

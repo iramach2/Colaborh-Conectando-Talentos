@@ -1,5 +1,6 @@
 ﻿import { useCompanyNotifications } from '../hooks/useCompanyNotifications';
 import { useCompanyChat } from '../hooks/useCompanyChat';
+import { useEffect } from 'react';
 import { useCompanyInterviews } from '../hooks/useCompanyInterviews';
 import { useCompanyJobs } from '../hooks/useCompanyJobs';
 import { useCompanyDashboardMetrics } from '../hooks/useCompanyDashboardMetrics';
@@ -217,6 +218,16 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
   });
 
   const getFullApplicantInfo = useCompanyApplicantResolver(talents);
+
+  useEffect(() => {
+    setSelectedResumeApplicant((currentApplicant) => {
+      if (!currentApplicant || currentApplicant.talentMatched) return currentApplicant;
+
+      const resolvedApplicant = getFullApplicantInfo(currentApplicant);
+      return resolvedApplicant.talentMatched ? resolvedApplicant : currentApplicant;
+    });
+  }, [getFullApplicantInfo, setSelectedResumeApplicant]);
+
   const {
     isNotesModalOpen,
     selectedApplicantForNotes,

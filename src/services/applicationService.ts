@@ -18,18 +18,16 @@ export const fetchCandidateApplications = async (email: string) => {
 
   const normalizedEmail = email.toLowerCase().trim();
 
-  const queries = [
-    supabase.from('applications').select(APPLICATION_COLUMNS).eq('candidate_email', normalizedEmail),
-    supabase.from('applications').select(APPLICATION_COLUMNS).eq('email', normalizedEmail),
-  ];
-
-  const results = await Promise.all(queries);
-  const firstError = results.find((result) => result.error)?.error;
+  const result = await supabase
+    .from('applications')
+    .select(APPLICATION_COLUMNS)
+    .eq('candidate_email', normalizedEmail);
+  const firstError = result.error;
   if (firstError) {
     console.warn('Nao foi possivel buscar candidaturas diretamente. Tentando RPC list_candidate_applications:', firstError);
   }
 
-  const merged = mergeById(results.flatMap((result) => result.data || []));
+  const merged = mergeById(result.data || []);
   if (merged.length > 0) {
     return hydrateApplicationsWithAssessments(merged);
   }

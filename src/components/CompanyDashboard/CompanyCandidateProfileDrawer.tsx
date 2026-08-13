@@ -1,5 +1,5 @@
 import { ElementType, ReactNode, useEffect, useRef, useState } from 'react';
-import { BadgeDollarSign, Brain, Briefcase, Calendar, Check, CheckCheck, ChevronDown, Download, FileText, GraduationCap, Loader2, Mail, MapPin, MessageSquare, Phone, Send, Sparkles, Star, UserRound, X as CloseIcon } from 'lucide-react';
+import { Award, BadgeDollarSign, Brain, Briefcase, Calendar, Check, CheckCheck, ChevronDown, Download, FileText, GraduationCap, Languages, Loader2, Mail, MapPin, MessageSquare, Phone, Send, Sparkles, Star, UserRound, X as CloseIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CompanyCandidateResumeTestsTab } from './CompanyCandidateResumeTestsTab';
 import { parseRecruitmentNote } from '../../hooks/useCompanyApplicantNotes';
@@ -207,7 +207,7 @@ export function CompanyCandidateProfileDrawer({
   const personalGroups: InfoGroup[] = applicant ? [
     { id: 'identificacao', items: [{ label: 'E-mail', value: applicant.candidate_email || applicant.email || talent?.email, icon: Mail }, { label: 'Telefone', value: displayPhone, icon: Phone }] },
     { id: 'localizacao', items: [{ label: 'Local', value: getLocation(applicant), icon: MapPin }, { label: 'Gênero', value: talent?.gender, icon: UserRound }] },
-    { id: 'nascimento', items: [{ label: 'PCD', value: pcdValue === true ? 'Sim' : 'Não', icon: UserRound }, { label: 'Idade', value: age ? `${age} anos` : '', icon: Calendar }] },
+    { id: 'nascimento', items: [{ label: 'PCD', value: pcdValue === true ? `Sim${talent?.CID ? ` — CID ${talent.CID}` : ''}` : 'Não', icon: UserRound }, { label: 'Idade', value: age ? `${age} anos` : '', icon: Calendar }] },
     { id: 'trabalho', items: [{ label: 'Pretensão salarial', value: talent?.salary, icon: BadgeDollarSign }, { label: 'Primeiro emprego', value: talent?.first_job ? 'Sim' : talent?.first_job === false ? 'Não' : '', icon: Briefcase }] },
   ] : [];
 
@@ -303,6 +303,35 @@ export function CompanyCandidateProfileDrawer({
                           ))}
                         </div>
                       ) : <EmptyState text="Nenhuma formação cadastrada." />}
+                    </Section>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    <Section title="Idiomas" icon={Languages}>
+                      {talent?.languages && talent.languages.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          {talent.languages.map((language, index) => (
+                            <div key={language.id || `${language.language || 'idioma'}-${index}`} className="rounded-2xl border border-[#940dff]/12 bg-white p-4 shadow-[0_8px_18px_rgba(148,13,255,0.055)]">
+                              <h5 className="text-sm font-semibold text-[#343241]">{language.language || 'Idioma não informado'}</h5>
+                              <p className="mt-1 text-[12px] font-medium text-slate-500">{language.level || 'Nível não informado'}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : <EmptyState text="Nenhum idioma cadastrado." />}
+                    </Section>
+                    <Section title="Certificações e cursos" icon={Award}>
+                      {talent?.achievements && talent.achievements.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-3">
+                          {talent.achievements.map((achievement, index) => (
+                            <div key={achievement.id || `${achievement.title || 'certificacao'}-${index}`} className="rounded-2xl border border-[#940dff]/12 bg-white p-4 shadow-[0_8px_18px_rgba(148,13,255,0.055)]">
+                              <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                                <h5 className="text-sm font-semibold text-[#343241]">{achievement.title || 'Título não informado'}</h5>
+                                {achievement.type && <span className="text-[11px] font-semibold text-[#533af6]">{achievement.type}</span>}
+                              </div>
+                              {achievement.description && <p className="mt-2 whitespace-pre-line text-[12px] font-medium leading-relaxed text-slate-500">{achievement.description}</p>}
+                            </div>
+                          ))}
+                        </div>
+                      ) : <EmptyState text="Nenhuma certificação ou curso cadastrado." />}
                     </Section>
                   </div>
                 </div>
