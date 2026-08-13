@@ -1,4 +1,4 @@
-﻿import type { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { CompanyDashboardContentProps } from '../components/CompanyDashboard/CompanyDashboardContent';
 import type { CompanyDashboardHeaderProps } from '../components/CompanyDashboard/CompanyDashboardHeader';
 import type { CompanyDashboardOverlaysProps } from '../components/CompanyDashboard/CompanyDashboardOverlays';
@@ -176,12 +176,8 @@ export const buildCompanyContentProps = (context: CompanyDashboardViewContext): 
     setIsFilterSidebarOpen: context.setIsFilterSidebarOpen,
     filteredTalents: context.filteredTalents,
     isFetchingTalents: context.isFetchingTalents,
-    talentPage: context.talentPage,
-    talentTotalPages: context.talentTotalPages,
-    talentTotalCount: context.talentTotalCount,
     setSelectedResumeApplicant: context.setSelectedResumeApplicant,
     handleToggleSaveTalent: context.handleToggleSaveTalent,
-    handleTalentPageChange: context.handleTalentPageChange,
     canUseDirectWhatsApp: context.canUseDirectWhatsApp,
     onPlanFeatureBlocked: context.onPlanFeatureBlocked,
   },
@@ -403,6 +399,5 @@ export const buildCompanyOverlayProps = (context: CompanyDashboardViewContext): 
     handleRequestTemperamentosTest: context.handleRequestTemperamentosTest,
   },
 });
-
 
 

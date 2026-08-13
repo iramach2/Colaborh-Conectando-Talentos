@@ -44,7 +44,6 @@ export const useCandidateResumeProfile = () => {
       case 'info':
         return !!(
           resumeData.fullName?.trim() &&
-          resumeData.profilePic?.trim() &&
           resumeData.email?.trim() &&
           resumeData.phone?.trim() &&
           resumeData.birthDate?.trim() &&

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DashboardSectionFallback } from './CompanyDashboardLayout';
 import { CompanyAssessmentsSection } from './CompanyAssessmentsSection';
@@ -113,12 +113,8 @@ export type CompanyDashboardTalentBankProps = {
   setIsFilterSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   filteredTalents: TalentProfile[];
   isFetchingTalents: boolean;
-  talentPage: number;
-  talentTotalPages: number;
-  talentTotalCount: number;
   setSelectedResumeApplicant: React.Dispatch<React.SetStateAction<CompanyApplicant | null>>;
   handleToggleSaveTalent: (talentId: string) => void;
-  handleTalentPageChange: (page: number) => void;
   canUseDirectWhatsApp: boolean;
   onPlanFeatureBlocked: (feature: string) => void;
 };
@@ -260,11 +256,7 @@ export const CompanyDashboardContent = ({
     setIsFilterSidebarOpen,
     filteredTalents,
     isFetchingTalents,
-    talentPage,
-    talentTotalPages,
-    talentTotalCount,
     handleToggleSaveTalent,
-    handleTalentPageChange,
     canUseDirectWhatsApp: canUseTalentDirectWhatsApp,
     onPlanFeatureBlocked: onTalentPlanFeatureBlocked,
   } = talentBank;
@@ -303,7 +295,7 @@ export const CompanyDashboardContent = ({
     setCompanies,
   } = billing;
 
-  return (  <main data-company-dashboard-content className="min-h-[calc(100vh-64px)] flex-1 bg-white p-6 pt-3 lg:pt-5 lg:pb-10 lg:px-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
+  return (  <main className="flex-1 p-6 pt-3 lg:pt-5 lg:pb-10 lg:px-12 relative transition-all duration-300 z-10 min-w-0 overflow-x-hidden">
     <div className="w-full">
       <React.Suspense fallback={<DashboardSectionFallback />}>
         <AnimatePresence mode="wait">
@@ -410,12 +402,8 @@ export const CompanyDashboardContent = ({
               setIsFilterSidebarOpen={setIsFilterSidebarOpen}
               filteredTalents={filteredTalents}
               isFetchingTalents={isFetchingTalents}
-              talentPage={talentPage}
-              talentTotalPages={talentTotalPages}
-              talentTotalCount={talentTotalCount}
               setSelectedResumeApplicant={setSelectedResumeApplicant}
               handleToggleSaveTalent={handleToggleSaveTalent}
-              handleTalentPageChange={handleTalentPageChange}
               canUseDirectWhatsApp={canUseTalentDirectWhatsApp}
               onPlanFeatureBlocked={onTalentPlanFeatureBlocked}
             />
@@ -433,7 +421,7 @@ export const CompanyDashboardContent = ({
             />
           )}
 
-          {activeTab === 'AvaliaÃ§Ãµes' && (
+          {activeTab === 'Avaliações' && (
             <CompanyAssessmentsSection
               isFetchingCompanyApps={isFetchingCompanyApps}
               resultsSubTab={resultsSubTab}
@@ -457,7 +445,7 @@ export const CompanyDashboardContent = ({
             />
           )}
 
-          {activeTab === 'ConfiguraÃ§Ãµes' && (
+          {activeTab === 'Configurações' && (
             <SettingsTab />
           )}
 
@@ -487,4 +475,3 @@ export const CompanyDashboardContent = ({
   </main>
   );
 };
-

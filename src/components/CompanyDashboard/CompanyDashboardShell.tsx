@@ -20,20 +20,23 @@ export const CompanyDashboardShell = ({
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   return (
-    <div data-company-dashboard-shell className="company-dashboard-surface min-h-screen relative bg-white font-sans">
+    <div className="company-dashboard-surface min-h-screen relative font-sans" style={{ backgroundColor: '#fbfaff' }}>
+      <div className="fixed top-[-12%] right-[-8%] w-[42%] h-[42%] bg-[#ede7ff] rounded-full blur-[130px] opacity-35 pointer-events-none" />
+      <div className="fixed bottom-[-14%] left-[18%] w-[34%] h-[34%] bg-[#f4f0ff] rounded-full blur-[120px] opacity-45 pointer-events-none" />
+
       <CompanyDashboardSidebar
         {...sidebarProps}
         isSidebarExpanded={isSidebarExpanded}
         setIsSidebarExpanded={setIsSidebarExpanded}
       />
 
-      <div className={`relative z-10 min-h-screen min-w-0 max-w-full bg-white transition-[padding] duration-300 ${
+      <div className={`relative z-10 min-h-screen min-w-0 max-w-full bg-transparent transition-[padding] duration-300 ${
         isSidebarExpanded ? 'lg:pl-52' : 'lg:pl-14'
       }`}>
-        <div data-company-dashboard-header-frame className="relative z-20 bg-white">
+        <div className="relative z-20">
           <CompanyDashboardHeader {...headerProps} />
         </div>
-        <div data-company-dashboard-content-frame className="min-w-0 max-w-full bg-white">
+        <div className="min-w-0 max-w-full">
           <CompanyDashboardContent {...contentProps} />
         </div>
       </div>

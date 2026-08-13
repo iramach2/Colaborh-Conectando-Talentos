@@ -4,12 +4,12 @@
 html {
   zoom: 100%;
   font-size: 108%;
-  background-color: #ffffff;
+  background-color: #faf8ff;
   overflow-x: hidden;
 }
 
 body {
-  background-color: #ffffff;
+  background-color: #faf8ff;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -50,7 +50,7 @@ input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
 }
 
-/* Evita zoom automático do iOS/Safari ao focar campos menores que 16px */
+/* Evita zoom autom?tico do iOS/Safari ao focar campos menores que 16px */
 @media (max-width: 768px) {
   input,
   select,
@@ -242,33 +242,9 @@ div.bg-white.shadow-2xl:not(.fixed):not(.rounded-r-none) {
   z-index: 10;
 }
 
-html:has(.company-dashboard-surface),
-body:has(.company-dashboard-surface),
-#root:has(.company-dashboard-surface) {
-  background-color: #ffffff !important;
-  background-image: none !important;
-}
-
-.company-dashboard-surface,
-.company-dashboard-surface::before,
-.company-dashboard-surface::after {
+.company-dashboard-surface {
   font-family: "Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif;
   color: #343241;
-  background-color: #ffffff !important;
-  background-image: none !important;
-}
-
-.company-dashboard-surface > div,
-.company-dashboard-surface main,
-.company-dashboard-surface header,
-.company-dashboard-surface [data-company-dashboard-shell],
-.company-dashboard-surface [data-company-dashboard-body],
-.company-dashboard-surface [data-company-dashboard-header-frame],
-.company-dashboard-surface [data-company-dashboard-content-frame],
-.company-dashboard-surface [data-company-dashboard-header],
-.company-dashboard-surface [data-company-dashboard-content] {
-  background-color: #ffffff !important;
-  background-image: none !important;
 }
 
 .company-dashboard-surface h1,
@@ -399,4 +375,3 @@ body:has(.company-dashboard-surface),
   background-color: #ffffff !important;
   background-image: none !important;
 }
-

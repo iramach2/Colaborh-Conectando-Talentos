@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useCallback, useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { calculateAge, DF_REGIONS, sortBrazilianCityNames } from '../utils/companyDashboardUtils';
 
@@ -73,109 +73,16 @@ export const initialTalentFilters: TalentFilters = {
   salary: '',
 };
 
-const TALENT_PAGE_SIZE = 50;
-const TALENT_SELECT_COLUMNS = 'id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, experiences, educations';
-
-const normalizeTalentText = (value?: string | number | null) => String(value ?? '').trim().toLowerCase();
-
-const getTalentAge = (talent: TalentProfile) => {
-  const numericAge = Number(talent.age);
-  if (Number.isFinite(numericAge) && numericAge > 0) {
-    return numericAge;
-  }
-
-  const calculatedAge = calculateAge(talent.birth_date);
-  return calculatedAge > 0 ? calculatedAge : null;
-};
-
-const isCandidateTalent = (talent?: TalentProfile | null) => {
-  if (!talent) return false;
-  const role = normalizeTalentText(talent.role);
-  return role !== 'empresa' && role !== 'company';
-};
-
-export const filterTalentProfiles = (
-  talents: TalentProfile[],
-  options: {
-    talentSubTab: 'all' | 'saved';
-    savedTalentIds?: string[];
-    talentSearch: string;
-    talentFilters: TalentFilters;
-  },
-) => {
-  const { talentSubTab, savedTalentIds = [], talentSearch, talentFilters } = options;
-  const normalizedSearch = normalizeTalentText(talentSearch);
-
-  return talents.filter((talent) => {
-    if (!isCandidateTalent(talent)) return false;
-
-    if (talentSubTab === 'saved' && !savedTalentIds.includes(talent.id)) {
-      return false;
-    }
-
-    const talentAge = getTalentAge(talent);
-    const searchableValues = [
-      talent.name,
-      talent.email,
-      talent.phone,
-      talent.role,
-      talent.city,
-      talent.state,
-      talent.salary,
-      talent.summary,
-      ...(Array.isArray(talent.skills) ? talent.skills : []),
-      ...(Array.isArray(talent.experiences)
-        ? talent.experiences.flatMap((experience) => [
-          experience.role,
-          experience.company,
-          experience.description,
-          experience.duration,
-        ])
-        : []),
-      ...(Array.isArray(talent.educations)
-        ? talent.educations.flatMap((education) => [
-          education.course,
-          education.institution,
-          education.status,
-          education.gradYear,
-        ])
-        : []),
-    ];
-
-    const matchesSearch = !normalizedSearch
-      || searchableValues.some((value) => normalizeTalentText(value).includes(normalizedSearch));
-
-    const ageFilterIsDefault = talentFilters.minAge === initialTalentFilters.minAge
-      && talentFilters.maxAge === initialTalentFilters.maxAge;
-    const matchesAge = ageFilterIsDefault
-      || (talentAge !== null && talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge);
-
-    const matchesFilters = (!talentFilters.role || normalizeTalentText(talent.role).includes(normalizeTalentText(talentFilters.role)))
-      && matchesAge
-      && (!talentFilters.city || normalizeTalentText(talent.city).includes(normalizeTalentText(talentFilters.city)))
-      && (!talentFilters.state || talent.state === talentFilters.state)
-      && (!talentFilters.first_job || talent.first_job === true)
-      && (!talentFilters.education || talent.education === talentFilters.education)
-      && (!talentFilters.experience || talent.experience === talentFilters.experience)
-      && (!talentFilters.modality || talent.modality === talentFilters.modality)
-      && (!talentFilters.salary || normalizeTalentText(talent.salary).includes(normalizeTalentText(talentFilters.salary)));
-
-    return matchesSearch && matchesFilters;
-  });
-};
-
 type UseCompanyTalentBankParams<TOrg extends CompanyWithSavedTalents> = {
   companies: TOrg[];
   selectedCompanyId: string;
   setCompanies: Dispatch<SetStateAction<TOrg[]>>;
-  enabled?: boolean;
 };
 
 export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
   companies,
   selectedCompanyId,
   setCompanies,
-  enabled = true,
 }: UseCompanyTalentBankParams<TOrg>) => {
   const [talentSubTab, setTalentSubTab] = useState<'all' | 'saved'>('all');
   const [talentSearch, setTalentSearch] = useState('');
@@ -185,48 +92,30 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
   const [talentFilters, setTalentFilters] = useState<TalentFilters>(initialTalentFilters);
   const [talents, setTalents] = useState<TalentProfile[]>([]);
   const [isFetchingTalents, setIsFetchingTalents] = useState(false);
-  const [hasLoadedTalents, setHasLoadedTalents] = useState(false);
-  const [talentPage, setTalentPage] = useState(1);
-  const [talentTotalCount, setTalentTotalCount] = useState(0);
   const [talentCities, setTalentCities] = useState<string[]>([]);
   const [isTalentLoadingCities, setIsTalentLoadingCities] = useState(false);
 
-  const loadTalentsPage = useCallback(async (page = 1) => {
-    if (!enabled || isFetchingTalents || !import.meta.env.VITE_SUPABASE_URL) return;
-
-    const safePage = Math.max(1, page);
-    const start = (safePage - 1) * TALENT_PAGE_SIZE;
-    const end = start + TALENT_PAGE_SIZE - 1;
-
-    setIsFetchingTalents(true);
-    try {
-      const { data, error, count } = await supabase
-        .from('talents')
-        .select(TALENT_SELECT_COLUMNS, { count: 'exact' })
-        .order('name', { ascending: true })
-        .range(start, end);
-
-      if (error) throw error;
-
-      const nextTalents = (data || []) as TalentProfile[];
-      setTalents(nextTalents);
-      setTalentPage(safePage);
-      setTalentTotalCount(count ?? nextTalents.length);
-      setHasLoadedTalents(true);
-    } catch (err) {
-      console.error('Erro ao buscar talentos do Supabase:', err);
-      setTalents([]);
-      setTalentTotalCount(0);
-      setHasLoadedTalents(true);
-    } finally {
-      setIsFetchingTalents(false);
-    }
-  }, [enabled, isFetchingTalents]);
-
   useEffect(() => {
-    if (!enabled || hasLoadedTalents) return;
-    void loadTalentsPage(1);
-  }, [enabled, hasLoadedTalents, loadTalentsPage]);
+    async function loadTalents() {
+      if (!import.meta.env.VITE_SUPABASE_URL) return;
+
+      setIsFetchingTalents(true);
+      try {
+        const { data, error } = await supabase
+          .from('talents')
+          .select('id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, experiences, educations');
+
+        if (error) throw error;
+        setTalents(data || []);
+      } catch (err) {
+        console.error('Erro ao buscar talentos do Supabase:', err);
+      } finally {
+        setIsFetchingTalents(false);
+      }
+    }
+
+    loadTalents();
+  }, []);
 
   useEffect(() => {
     if (talentFilters.state) {
@@ -265,13 +154,45 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
     }));
   };
 
-  const selectedCompany = companies.find((company) => company.id === selectedCompanyId);
-  const filteredTalents = filterTalentProfiles(talents, {
-    talentSubTab,
-    savedTalentIds: selectedCompany?.savedTalents || [],
-    talentSearch,
-    talentFilters,
+  const filteredTalents = talents.filter((talent) => {
+    if (!talent) return false;
+    if (talent.role && (talent.role.toLowerCase() === 'empresa' || talent.role.toLowerCase() === 'company')) {
+      return false;
+    }
+
+    if (talentSubTab === 'saved') {
+      const selectedCompany = companies.find((company) => company.id === selectedCompanyId);
+      const savedIds = selectedCompany?.savedTalents || [];
+      if (!savedIds.includes(talent.id)) {
+        return false;
+      }
+    }
+
+    const talentAge = talent.age || calculateAge(talent.birth_date) || 0;
+    const talentName = talent.name || '';
+    const talentRole = talent.role || '';
+    const talentCity = talent.city || '';
+    const talentState = talent.state || '';
+    const talentSalary = talent.salary || '';
+    const normalizedSearch = talentSearch.toLowerCase();
+
+    const matchesSearch = talentName.toLowerCase().includes(normalizedSearch)
+      || talentRole.toLowerCase().includes(normalizedSearch)
+      || (talent.skills && Array.isArray(talent.skills) && talent.skills.some((skill: string) => skill && skill.toLowerCase().includes(normalizedSearch)));
+
+    const matchesFilters = (!talentFilters.role || talentRole.toLowerCase().includes(talentFilters.role.toLowerCase()))
+      && (talentAge >= talentFilters.minAge && talentAge <= talentFilters.maxAge)
+      && (!talentFilters.city || talentCity.toLowerCase().includes(talentFilters.city.toLowerCase()))
+      && (!talentFilters.state || talentState === talentFilters.state)
+      && (!talentFilters.first_job || talent.first_job === true)
+      && (!talentFilters.education || talent.education === talentFilters.education)
+      && (!talentFilters.experience || talent.experience === talentFilters.experience)
+      && (!talentFilters.modality || talent.modality === talentFilters.modality)
+      && (!talentFilters.salary || talentSalary.includes(talentFilters.salary));
+
+    return matchesSearch && matchesFilters;
   });
+
   const handleAiSearch = () => {
     if (!aiPrompt.trim()) return;
     setIsAiSearching(true);
@@ -288,21 +209,10 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
     setAiPrompt('');
   };
 
-  const talentTotalPages = Math.max(1, Math.ceil(talentTotalCount / TALENT_PAGE_SIZE));
-
-  const handleTalentPageChange = (page: number) => {
-    const safePage = Math.max(1, Math.min(page, talentTotalPages));
-    if (safePage === talentPage || isFetchingTalents) return;
-    void loadTalentsPage(safePage);
-  };
-
   return {
     talents,
     filteredTalents,
     isFetchingTalents,
-    talentPage,
-    talentTotalPages,
-    talentTotalCount,
     talentSubTab,
     setTalentSubTab,
     talentSearch,
@@ -318,9 +228,5 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
     isTalentLoadingCities,
     handleToggleSaveTalent,
     handleAiSearch,
-    handleTalentPageChange,
   };
 };
-
-
-

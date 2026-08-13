@@ -1,6 +1,5 @@
 import { ArrowLeft, Check, CheckCheck, Loader2, MessageSquare, Search, Send, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import type { ChatMessage } from '../../services/messageService';
 import type { CandidateConversation } from '../../types/candidate';
@@ -89,9 +88,7 @@ export function CandidateChatDrawer({
     ));
   }, [conversations, searchQuery]);
 
-  if (typeof document === 'undefined') return null;
-
-  return createPortal(
+  return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[150] flex justify-end">
@@ -295,7 +292,6 @@ export function CandidateChatDrawer({
           </motion.aside>
         </div>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
   );
 }

@@ -1,4 +1,4 @@
-import { useCompanyNotifications } from '../hooks/useCompanyNotifications';
+﻿import { useCompanyNotifications } from '../hooks/useCompanyNotifications';
 import { useCompanyChat } from '../hooks/useCompanyChat';
 import { useCompanyInterviews } from '../hooks/useCompanyInterviews';
 import { useCompanyJobs } from '../hooks/useCompanyJobs';
@@ -197,10 +197,6 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     talents,
     filteredTalents,
     isFetchingTalents,
-    talentPage,
-    talentTotalPages,
-    talentTotalCount,
-    handleTalentPageChange,
     talentSubTab,
     setTalentSubTab,
     talentSearch,
@@ -218,7 +214,6 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     companies,
     selectedCompanyId,
     setCompanies,
-    enabled: activeTab === 'Banco de Talentos' || Boolean(selectedJob),
   });
 
   const getFullApplicantInfo = useCompanyApplicantResolver(talents);
@@ -505,10 +500,6 @@ export default function CompanyDashboard({ onLogout }: CompanyDashboardProps) {
     setIsFilterSidebarOpen,
     filteredTalents,
     isFetchingTalents,
-    talentPage,
-    talentTotalPages,
-    talentTotalCount,
-    handleTalentPageChange,
     handleToggleSaveTalent,
     setSelectedCompanyId,
     resetCompanyForm,

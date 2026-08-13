@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import {
   Bookmark,
@@ -19,13 +19,9 @@ import { LoadingAnimation } from '../../Loader';
 interface TalentBankTabProps {
   filteredTalents: TalentProfile[];
   isFetchingTalents: boolean;
-  talentPage: number;
-  talentTotalPages: number;
-  talentTotalCount: number;
   setSelectedResumeApplicant: (val: CompanyApplicant | null) => void;
   selectedCompany?: CompanyRecord | null;
   handleToggleSaveTalent: (talentId: string) => void;
-  onTalentPageChange: (page: number) => void;
   talentSubTab: 'all' | 'saved';
   canUseDirectWhatsApp: boolean;
   onPlanFeatureBlocked: (feature: string) => void;
@@ -56,36 +52,34 @@ const buildApplicantFromTalent = (talent: TalentProfile): CompanyApplicant => ({
   city: talent.city,
   state: talent.state,
   profile_pic: talent.profile_pic,
-  talentMatched: talent
+  talentMatched: {
+    id: talent.id,
+    name: talent.name,
+    email: talent.email,
+    phone: talent.phone,
+    role: talent.role,
+    city: talent.city,
+    state: talent.state,
+    birth_date: talent.birth_date,
+    age: talent.age,
+    skills: talent.skills,
+    summary: talent.summary,
+    experiences: talent.experiences || [],
+    educations: talent.educations || []
+  }
 });
 
 export const TalentBankTab = ({
   filteredTalents,
   isFetchingTalents,
-  talentPage,
-  talentTotalPages,
-  talentTotalCount,
   setSelectedResumeApplicant,
   selectedCompany,
   handleToggleSaveTalent,
-  onTalentPageChange,
   talentSubTab,
   canUseDirectWhatsApp,
   onPlanFeatureBlocked
 }: TalentBankTabProps) => {
   const resultLabel = filteredTalents.length === 1 ? 'talento encontrado' : 'talentos encontrados';
-
-  const paginationPages = useMemo(() => {
-    const pages: number[] = [];
-    const start = Math.max(1, talentPage - 2);
-    const end = Math.min(talentTotalPages, talentPage + 2);
-
-    for (let page = start; page <= end; page += 1) {
-      pages.push(page);
-    }
-
-    return pages.length > 0 ? pages : [1];
-  }, [talentPage, talentTotalPages]);
 
   const renderEmptyState = () => {
     const isSaved = talentSubTab === 'saved';
@@ -125,7 +119,7 @@ export const TalentBankTab = ({
 
       </div>
 
-      {isFetchingTalents && filteredTalents.length === 0 ? (
+      {isFetchingTalents ? (
         <div className="rounded-2xl border border-slate-200/70 bg-white/85 px-6 py-16 text-center shadow-[0_10px_28px_rgba(15,23,42,0.035)]">
           <LoadingAnimation message="Buscando perfis cadastrados." />
         </div>
@@ -159,7 +153,7 @@ export const TalentBankTab = ({
                         onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
                         className="flex min-w-0 flex-1 items-center gap-3 border-0 bg-transparent p-0 text-left cursor-pointer"
                       >
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
                           {talent.profile_pic ? (
                             <img src={talent.profile_pic} alt={talent.name || 'Foto do talento'} className="h-full w-full object-cover" />
                           ) : (
@@ -201,7 +195,7 @@ export const TalentBankTab = ({
                       <button
                         type="button"
                         onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
-                        className="flex h-8 flex-1 items-center justify-center rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-95"
+                        className="flex h-8 flex-1 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
                       >
                         Perfil
                       </button>
@@ -248,7 +242,7 @@ export const TalentBankTab = ({
                       onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
                       className="flex min-w-0 items-center gap-3 border-0 bg-transparent p-0 text-left cursor-pointer"
                     >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
                         {talent.profile_pic ? (
                           <img src={talent.profile_pic} alt={talent.name || 'Foto do talento'} className="h-full w-full object-cover" />
                         ) : (
@@ -278,7 +272,7 @@ export const TalentBankTab = ({
                       <button
                         type="button"
                         onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
-                        className="flex h-8 items-center justify-center rounded-xl border border-[#940dff] bg-white px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-95"
+                        className="flex h-8 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
                       >
                         Perfil
                       </button>
@@ -324,84 +318,6 @@ export const TalentBankTab = ({
               );
             })}
           </div>
-
-          {talentSubTab === 'all' && talentTotalPages > 1 && (
-            <div className="mt-5 flex flex-col items-center justify-between gap-3 rounded-2xl border border-[#940dff]/12 bg-white px-4 py-3 sm:flex-row">
-              <p className="text-[12px] font-semibold text-slate-500">
-                Pagina <span className="text-[#343241]">{talentPage}</span> de{' '}
-                <span className="text-[#343241]">{talentTotalPages}</span>
-                <span className="ml-2 text-slate-400">{talentTotalCount} talentos</span>
-              </p>
-
-              <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1">
-                <button
-                  type="button"
-                  onClick={() => onTalentPageChange(talentPage - 1)}
-                  disabled={talentPage <= 1 || isFetchingTalents}
-                  className="h-8 rounded-xl border border-[#940dff]/25 bg-white px-3 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] disabled:cursor-not-allowed disabled:opacity-45"
-                >
-                  Anterior
-                </button>
-
-                {paginationPages[0] > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => onTalentPageChange(1)}
-                      disabled={isFetchingTalents}
-                      className="h-8 min-w-[32px] rounded-xl border border-[#940dff]/25 bg-white px-3 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      1
-                    </button>
-                    <span className="px-1 text-[12px] font-semibold text-slate-400">...</span>
-                  </>
-                )}
-
-                {paginationPages.map((page) => {
-                  const isActive = page === talentPage;
-
-                  return (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() => onTalentPageChange(page)}
-                      disabled={isFetchingTalents}
-                      className={`h-8 min-w-[32px] rounded-xl px-3 text-[12px] font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
-                        isActive
-                          ? 'bg-[#940dff] text-white shadow-[0_8px_18px_rgba(148,13,255,0.18)]'
-                          : 'border border-[#940dff]/25 bg-white text-[#940dff] hover:bg-[#f3e5ff]'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-
-                {paginationPages[paginationPages.length - 1] < talentTotalPages && (
-                  <>
-                    <span className="px-1 text-[12px] font-semibold text-slate-400">...</span>
-                    <button
-                      type="button"
-                      onClick={() => onTalentPageChange(talentTotalPages)}
-                      disabled={isFetchingTalents}
-                      className="h-8 min-w-[32px] rounded-xl border border-[#940dff]/25 bg-white px-3 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {talentTotalPages}
-                    </button>
-                  </>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => onTalentPageChange(talentPage + 1)}
-                  disabled={talentPage >= talentTotalPages || isFetchingTalents}
-                  className="h-8 rounded-xl border border-[#940dff]/25 bg-white px-3 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] disabled:cursor-not-allowed disabled:opacity-45"
-                >
-                  Proxima
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         renderEmptyState()

@@ -1,5 +1,4 @@
 import { ElementType, ReactNode, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { BadgeDollarSign, Brain, Briefcase, Calendar, Check, CheckCheck, ChevronDown, Download, FileText, GraduationCap, Loader2, Mail, MapPin, MessageSquare, Phone, Send, Sparkles, Star, UserRound, X as CloseIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CompanyCandidateResumeTestsTab } from './CompanyCandidateResumeTestsTab';
@@ -212,15 +211,10 @@ export function CompanyCandidateProfileDrawer({
     { id: 'trabalho', items: [{ label: 'Pretensão salarial', value: talent?.salary, icon: BadgeDollarSign }, { label: 'Primeiro emprego', value: talent?.first_job ? 'Sim' : talent?.first_job === false ? 'Não' : '', icon: Briefcase }] },
   ] : [];
 
-  if (typeof document === 'undefined') return null;
-
-  return createPortal(
+  return (
     <AnimatePresence>
       {applicant && (
-        <div
-          className="fixed inset-0 z-[110] flex justify-end"
-          style={{ fontFamily: '"Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif' }}
-        >
+        <div className="fixed inset-0 z-[110] flex justify-end">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-950/25 backdrop-blur-sm" />
           <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }} className="relative z-10 flex h-full w-full max-w-6xl flex-col overflow-hidden border-l border-white/80 bg-[#fbf9ff] shadow-[0_24px_80px_rgba(57,39,96,0.20)]">
             <header className="shrink-0 px-6 pb-4 pt-5 text-left">
@@ -243,8 +237,8 @@ export function CompanyCandidateProfileDrawer({
                       <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     </div>
                   )}
-                  <button type="button" onClick={onDownloadResume} disabled={isExportingResume} className="flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-[#940dff] bg-white px-3 text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:gap-2 sm:px-4">{isExportingResume ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}Baixar PDF</button>
-                  {!isTalentBankProfile && applicant.id && <button type="button" onClick={() => onUpdateApplicantStatus(applicant.id || '', 'Reprovado')} className="h-8 shrink-0 rounded-full border border-[#ff4b8c] bg-white px-3 text-[12px] font-semibold text-[#ff4b8c] transition-all hover:bg-[#ff4b8c]/10 active:scale-[0.98] sm:px-4">Reprovar</button>}
+                  <button type="button" onClick={onDownloadResume} disabled={isExportingResume} className="flex h-8 shrink-0 items-center gap-1.5 rounded-xl bg-[#940dff] px-3 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] disabled:cursor-not-allowed disabled:opacity-60 sm:gap-2 sm:px-4">{isExportingResume ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}Baixar PDF</button>
+                  {!isTalentBankProfile && applicant.id && <button type="button" onClick={() => onUpdateApplicantStatus(applicant.id || '', 'Reprovado')} className="h-8 shrink-0 rounded-xl bg-[#ff4b8c] px-3 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(255,75,140,0.18)] transition-all hover:bg-[#f0387b] sm:px-4">Reprovar</button>}
                   <button type="button" onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/80 bg-white text-slate-400 shadow-sm transition-all hover:bg-[#f3e5ff] hover:text-[#940dff] active:scale-95 sm:h-[34px] sm:w-[34px]" title="Fechar perfil"><CloseIcon size={17} className="stroke-[2.4]" /></button>
                 </div>
               </div>
@@ -371,7 +365,6 @@ export function CompanyCandidateProfileDrawer({
           </AnimatePresence>
         </div>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
   );
 }

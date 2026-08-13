@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { Bell, BellOff, Clock3, Trash2, X } from 'lucide-react';
 import { ColaborhNotification } from '../utils/notificationUtils';
@@ -67,9 +66,7 @@ export const NotificationsDrawer = ({
     { id: 'all' as const, label: 'Todas', count: notifications.length },
   ];
 
-  if (typeof document === 'undefined') return null;
-
-  return createPortal(
+  return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[150] flex justify-end">
@@ -215,7 +212,6 @@ export const NotificationsDrawer = ({
           </motion.aside>
         </div>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
   );
 };

@@ -20,14 +20,13 @@ const getResumeApplicationBlockers = (resumeData: CandidateResumeData) => {
   const blockers: string[] = [];
 
   const personalFields = [
-    ['Foto de perfil', resumeData.profilePic],
     ['Nome completo', resumeData.fullName],
     ['E-mail', resumeData.email],
     ['Telefone', resumeData.phone],
-    ['Pretens\u00e3o salarial', resumeData.salary],
+    ['Pretensão salarial', resumeData.salary],
     ['Estado', resumeData.state],
     ['Cidade', resumeData.city],
-    ['G\u00eanero', resumeData.gender],
+    ['Gênero', resumeData.gender],
     ['Data de nascimento', resumeData.birthDate],
   ] as const;
 
@@ -52,7 +51,7 @@ const getResumeApplicationBlockers = (resumeData: CandidateResumeData) => {
   ));
 
   if (!resumeData.isFirstJob && !hasCompleteExperience) {
-    blockers.push('Experi\u00eancia profissional ou marque Primeiro emprego');
+    blockers.push('Experiência profissional ou marque Primeiro emprego');
   }
 
   const hasCompleteEducation = resumeData.educations?.some((education) => (
@@ -63,7 +62,7 @@ const getResumeApplicationBlockers = (resumeData: CandidateResumeData) => {
   ));
 
   if (!hasCompleteEducation) {
-    blockers.push('Forma\u00e7\u00e3o acad\u00eamica');
+    blockers.push('Formação acadêmica');
   }
 
   const hasCompleteLanguage = resumeData.languages?.some((language) => (
@@ -79,7 +78,7 @@ const getResumeApplicationBlockers = (resumeData: CandidateResumeData) => {
   ));
 
   if (!hasCompleteAchievement) {
-    blockers.push('Certifica\u00e7\u00f5es ou cursos');
+    blockers.push('Certificações ou cursos');
   }
 
   return blockers;
@@ -101,7 +100,7 @@ export const useCandidateJobApplication = ({
 
     if (resumeBlockers.length > 0) {
       onError(
-        'Complete seu curr\u00edculo antes de se candidatar. Pend\u00eancias: ' + resumeBlockers.join(', ') + '. A se\u00e7\u00e3o Diversidade \u00e9 opcional.',
+        'Complete seu currículo antes de se candidatar. Pendências: ' + resumeBlockers.join(', ') + '. A seção Diversidade é opcional.',
         9000
       );
       return;
@@ -112,7 +111,7 @@ export const useCandidateJobApplication = ({
     const rawMinAgeRequired = vacancy.min_age !== undefined ? vacancy.min_age : (vacancy.minAge || 16);
     const minAgeRequired = Number(rawMinAgeRequired) || 16;
     if (age < minAgeRequired) {
-      onError(`Esta vaga exige idade m\u00ednima de ${minAgeRequired} anos. Voc\u00ea tem ${age} anos.`, 5000);
+      onError(`Esta vaga exige idade minima de ${minAgeRequired} anos. Voce tem ${age} anos.`, 5000);
       return;
     }
 
