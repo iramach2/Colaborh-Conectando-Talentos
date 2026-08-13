@@ -1,5 +1,5 @@
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, supabasePublicRead } from '../lib/supabase';
 import { calculateAge, DF_REGIONS, sortBrazilianCityNames } from '../utils/companyDashboardUtils';
 
 type CompanyWithSavedTalents = {
@@ -93,6 +93,35 @@ export const initialTalentFilters: TalentFilters = {
 const TALENT_CORE_COLUMNS = 'id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, experiences, educations';
 const TALENT_OPTIONAL_COLUMNS = 'id, is_pcd, CID, languages, achievements';
 
+type TalentQueryClient = Pick<typeof supabase, 'from'>;
+
+const loadTalentRows = async (client: TalentQueryClient) => {
+  const { data: coreData, error: coreError } = await client
+    .from('talents')
+    .select(TALENT_CORE_COLUMNS);
+
+  if (coreError) throw coreError;
+
+  const coreTalents = (coreData || []) as TalentProfile[];
+  const { data: optionalData, error: optionalError } = await client
+    .from('talents')
+    .select(TALENT_OPTIONAL_COLUMNS);
+
+  if (optionalError) {
+    console.warn('Dados complementares dos talentos não puderam ser carregados:', optionalError);
+    return coreTalents;
+  }
+
+  const optionalByTalentId = new Map(
+    ((optionalData || []) as TalentProfile[]).map((talent) => [talent.id, talent]),
+  );
+
+  return coreTalents.map((talent) => ({
+    ...talent,
+    ...optionalByTalentId.get(talent.id),
+  }));
+};
+
 type UseCompanyTalentBankParams<TOrg extends CompanyWithSavedTalents> = {
   companies: TOrg[];
   selectedCompanyId: string;
@@ -121,30 +150,19 @@ export const useCompanyTalentBank = <TOrg extends CompanyWithSavedTalents>({
 
       setIsFetchingTalents(true);
       try {
-        const { data: coreData, error: coreError } = await supabase
-          .from('talents')
-          .select(TALENT_CORE_COLUMNS);
+        let loadedTalents: TalentProfile[] = [];
 
-        if (coreError) throw coreError;
-
-        const coreTalents = (coreData || []) as TalentProfile[];
-        const { data: optionalData, error: optionalError } = await supabase
-          .from('talents')
-          .select(TALENT_OPTIONAL_COLUMNS);
-
-        if (optionalError) {
-          console.warn('Dados complementares dos talentos não puderam ser carregados:', optionalError);
-          setTalents(coreTalents);
-          return;
+        try {
+          loadedTalents = await loadTalentRows(supabase);
+        } catch (authenticatedError) {
+          console.warn('A sessão autenticada não conseguiu carregar os talentos. Tentando leitura pública:', authenticatedError);
         }
 
-        const optionalByTalentId = new Map(
-          ((optionalData || []) as TalentProfile[]).map((talent) => [talent.id, talent]),
-        );
-        setTalents(coreTalents.map((talent) => ({
-          ...talent,
-          ...optionalByTalentId.get(talent.id),
-        })));
+        if (loadedTalents.length === 0) {
+          loadedTalents = await loadTalentRows(supabasePublicRead);
+        }
+
+        setTalents(loadedTalents);
       } catch (err) {
         console.error('Erro ao buscar talentos do Supabase:', err);
       } finally {

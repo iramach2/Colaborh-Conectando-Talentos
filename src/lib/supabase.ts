@@ -19,3 +19,15 @@ export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
     detectSessionInUrl: true,
   },
 });
+
+// Read-only client without the browser session. Some legacy company sessions can
+// carry an invalid/stale Authorization token even while the dashboard remains
+// open. Public reads that are already allowed by the database can safely retry
+// through this client instead of being rendered as an empty result.
+export const supabasePublicRead = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  },
+});
