@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { isCompletedAssessmentValue } from '../utils/assessmentMarker';
 import { parseCandidatePhoneData, serializeCandidatePhoneData } from '../utils/companyDashboardUtils';
 
 export type AssessmentType = 'disc' | 'questions' | 'mbti' | 'temperamentos' | 'custom';
@@ -301,7 +302,7 @@ export const findPreviousCompletedAssessmentLegacyValue = async (
     for (const application of previousApplications || []) {
       const parsed = parseCandidatePhoneData(application.candidate_phone || '');
       const legacyValue = parsed[markerKey as keyof typeof parsed];
-      if (typeof legacyValue === 'string' && legacyValue.startsWith('COMPLETED===')) {
+      if (typeof legacyValue === 'string' && isCompletedAssessmentValue(legacyValue)) {
         foundValue = legacyValue;
         break;
       }

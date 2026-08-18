@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Clock, Loader2, X as CloseIcon, CheckCircle2 } from 'lucide-react';
 import type { CustomQuestionnaire } from '../../../services/customQuestionnaireService';
 import type { CompanyApplicant, CompanyJob, CustomQuestionItem } from '../../../types/companyDashboard';
+import { getAssessmentMarkerStatus, getCompletedAssessmentBody } from '../../../utils/assessmentMarker';
 import { parseCandidatePhoneData, formatDate, getCustomQuestionsFromJobDescription } from '../../../utils/companyDashboardUtils';
 import { findCustomQuestionnaireByResponseIds } from '../../../utils/customAssessmentResult';
 
@@ -34,28 +35,21 @@ export const CustomQuestionsModal = ({
   let responses: Record<string, string | number> = {};
   let reportTitle = 'Questionário Customizado';
 
-  if (parsedData.customTest) {
-    if (parsedData.customTest.includes(':::')) {
-      const parts = parsedData.customTest.split(':::');
-      const jsonPart = parts.slice(1).join(':::');
-      try {
-        const parsedObj = JSON.parse(jsonPart);
+  if (parsedData.customTest && getAssessmentMarkerStatus(parsedData.customTest) === 'COMPLETED') {
+    try {
+      const parsedObj = JSON.parse(getCompletedAssessmentBody(parsedData.customTest));
+
+      if (Array.isArray(parsedObj.questions)) {
         customQuestionsList = parsedObj.questions || [];
         responses = parsedObj.responses || {};
         reportTitle = parsedObj.title || reportTitle;
-      } catch (e) {
-        console.error('Erro ao ler JSON do teste customizado:', e);
-      }
-    } else if (parsedData.customTest.startsWith('COMPLETED===')) {
-      const jobDesc = selectedJob?.description || '';
-      customQuestionsList = getCustomQuestionsFromJobDescription(jobDesc);
-      try {
-        const jsonContent = parsedData.customTest.replace('COMPLETED===', '');
-        const parsedObj = JSON.parse(jsonContent);
+      } else {
+        const jobDesc = selectedJob?.description || '';
+        customQuestionsList = getCustomQuestionsFromJobDescription(jobDesc);
         responses = parsedObj.responses || parsedObj || {};
-      } catch (e) {
-        console.error('Erro ao ler respostas customizadas legadas:', e);
       }
+    } catch (e) {
+      console.error('Erro ao ler JSON do teste customizado:', e);
     }
   }
 

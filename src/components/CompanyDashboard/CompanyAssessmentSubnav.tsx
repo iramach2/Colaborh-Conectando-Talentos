@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 import type { CustomQuestionnaire } from '../../services/customQuestionnaireService';
 import type { CompanyApplication } from '../../types/companyDashboard';
+import { getAssessmentMarkerStatus } from '../../utils/assessmentMarker';
 import { parseCandidatePhoneData } from '../../utils/companyDashboardUtils';
 
 interface CompanyAssessmentSubnavProps {
@@ -26,11 +27,11 @@ export const CompanyAssessmentSubnav = ({
   const candidatesWithTestsCount = companyApplications.map(app => {
     const phoneStr = app.candidate_phone || '';
     const parsedData = parseCandidatePhoneData(phoneStr);
-    const discStatus = parsedData.disc ? (parsedData.disc.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.disc === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
-    const mbtiStatus = parsedData.mbti ? (parsedData.mbti.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.mbti === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
-    const questionsStatus = parsedData.questions ? (parsedData.questions.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.questions === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
-    const temperamentosStatus = parsedData.temperamentos ? (parsedData.temperamentos.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.temperamentos === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
-    const customTestStatus = parsedData.customTest ? (parsedData.customTest.startsWith('COMPLETED===') ? 'COMPLETED' : parsedData.customTest === 'PENDING' ? 'PENDING' : 'NONE') : 'NONE';
+    const discStatus = getAssessmentMarkerStatus(parsedData.disc);
+    const mbtiStatus = getAssessmentMarkerStatus(parsedData.mbti);
+    const questionsStatus = getAssessmentMarkerStatus(parsedData.questions);
+    const temperamentosStatus = getAssessmentMarkerStatus(parsedData.temperamentos);
+    const customTestStatus = getAssessmentMarkerStatus(parsedData.customTest);
 
     return {
       discStatus,

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Brain, Briefcase, ChevronRight, Compass, HelpCircle, Plus, Thermometer } from 'lucide-react';
 import type { CompanyApplicant, DiscReportResult, MbtiReportResult, TemperamentosReportResult } from '../../types/companyDashboard';
+import { getAssessmentMarkerStatus, getCompletedAssessmentBody } from '../../utils/assessmentMarker';
 import { parseCandidatePhoneData } from '../../utils/companyDashboardUtils';
 
 interface CompanyCandidateResumeTestsTabProps {
@@ -107,25 +108,20 @@ export function CompanyCandidateResumeTestsTab({
 }: CompanyCandidateResumeTestsTabProps) {
   const parsedData = parseCandidatePhoneData(applicant.candidate_phone || '');
 
-  let discStatus = 'NONE';
+  const discStatus = getAssessmentMarkerStatus(parsedData.disc);
   let discScores = [0, 0, 0, 0];
-  if (parsedData.disc) {
-    if (parsedData.disc === 'PENDING') discStatus = 'PENDING';
-    else if (parsedData.disc.startsWith('COMPLETED===')) {
-      discStatus = 'COMPLETED';
-      discScores = parsedData.disc.replace('COMPLETED===', '').split(',').map(Number);
-    }
+  if (discStatus === 'COMPLETED' && parsedData.disc) {
+    discScores = getCompletedAssessmentBody(parsedData.disc).split(',').map(Number);
   }
 
   const parseJsonStatus = (value?: string) => {
-    if (!value) return { status: 'NONE', responses: null };
-    if (value === 'PENDING') return { status: 'PENDING', responses: null };
-    if (!value.startsWith('COMPLETED===')) return { status: 'NONE', responses: null };
+    const status = getAssessmentMarkerStatus(value);
+    if (status !== 'COMPLETED' || !value) return { status, responses: null };
 
     try {
-      return { status: 'COMPLETED', responses: JSON.parse(value.replace('COMPLETED===', '').trim()) };
+      return { status, responses: JSON.parse(getCompletedAssessmentBody(value)) };
     } catch {
-      return { status: 'COMPLETED', responses: null };
+      return { status, responses: null };
     }
   };
 
@@ -211,9 +207,8 @@ export function CompanyCandidateResumeTestsTab({
           actionLabel="Ver respostas"
           onRequest={() => onRequestCustom(applicant)}
           onView={customTest.responses ? () => onViewCustom({
-            candidate_name: applicant.candidate_name,
+            ...applicant,
             completedAt: parsedData.customTestDate || applicant.created_at,
-            ...customTest.responses,
           }) : undefined}
         />
       </div>

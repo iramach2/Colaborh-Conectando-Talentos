@@ -5,9 +5,14 @@ import type {
   MbtiReportResult,
   TemperamentosReportResult,
 } from '../types/companyDashboard';
+import {
+  getAssessmentMarkerStatus,
+  getCompletedAssessmentBody,
+  type AssessmentMarkerStatus,
+} from './assessmentMarker';
 import { parseCandidatePhoneData } from './companyDashboardUtils';
 
-export type AssessmentStatus = 'NONE' | 'PENDING' | 'COMPLETED';
+export type AssessmentStatus = AssessmentMarkerStatus;
 
 export type AssessmentRow = CompanyApplicant & {
   job?: CompanyJob;
@@ -23,13 +28,9 @@ export type AssessmentRow = CompanyApplicant & {
   customTestData: unknown;
 };
 
-const stripCompletedDate = (value: string) => value.split('===DATE===')[0].trim();
-
-const getCompletedBody = (value: string) => stripCompletedDate(value).replace('COMPLETED===', '').trim();
-
 const parseCompletedJson = <T>(value: string): T | null => {
   try {
-    return JSON.parse(getCompletedBody(value)) as T;
+    return JSON.parse(getCompletedAssessmentBody(value)) as T;
   } catch {
     return null;
   }
@@ -41,54 +42,34 @@ export const getAssessmentRows = (companyApplications: CompanyApplication[], job
     const parsedData = parseCandidatePhoneData(phoneStr);
     const job = jobs.find((jobItem) => jobItem.id === app.job_id);
 
-    let discStatus: AssessmentStatus = 'NONE';
+    const discStatus = getAssessmentMarkerStatus(parsedData.disc);
     let discScores = [0, 0, 0, 0];
-    if (parsedData.disc) {
-      if (parsedData.disc === 'PENDING') discStatus = 'PENDING';
-      else if (parsedData.disc.startsWith('COMPLETED===')) {
-        discStatus = 'COMPLETED';
-        discScores = getCompletedBody(parsedData.disc).split(',').map(Number);
-      }
+    if (discStatus === 'COMPLETED' && parsedData.disc) {
+      discScores = getCompletedAssessmentBody(parsedData.disc).split(',').map(Number);
     }
 
-    let mbtiStatus: AssessmentStatus = 'NONE';
+    const mbtiStatus = getAssessmentMarkerStatus(parsedData.mbti);
     let mbtiData: MbtiReportResult | null = null;
-    if (parsedData.mbti) {
-      if (parsedData.mbti === 'PENDING') mbtiStatus = 'PENDING';
-      else if (parsedData.mbti.startsWith('COMPLETED===')) {
-        mbtiStatus = 'COMPLETED';
-        mbtiData = parseCompletedJson<MbtiReportResult>(parsedData.mbti);
-      }
+    if (mbtiStatus === 'COMPLETED' && parsedData.mbti) {
+      mbtiData = parseCompletedJson<MbtiReportResult>(parsedData.mbti);
     }
 
-    let questionsStatus: AssessmentStatus = 'NONE';
+    const questionsStatus = getAssessmentMarkerStatus(parsedData.questions);
     let questionsResponses: Record<string, unknown> | null = null;
-    if (parsedData.questions) {
-      if (parsedData.questions === 'PENDING') questionsStatus = 'PENDING';
-      else if (parsedData.questions.startsWith('COMPLETED===')) {
-        questionsStatus = 'COMPLETED';
-        questionsResponses = parseCompletedJson<Record<string, unknown>>(parsedData.questions);
-      }
+    if (questionsStatus === 'COMPLETED' && parsedData.questions) {
+      questionsResponses = parseCompletedJson<Record<string, unknown>>(parsedData.questions);
     }
 
-    let temperamentosStatus: AssessmentStatus = 'NONE';
+    const temperamentosStatus = getAssessmentMarkerStatus(parsedData.temperamentos);
     let temperamentosData: TemperamentosReportResult | null = null;
-    if (parsedData.temperamentos) {
-      if (parsedData.temperamentos === 'PENDING') temperamentosStatus = 'PENDING';
-      else if (parsedData.temperamentos.startsWith('COMPLETED===')) {
-        temperamentosStatus = 'COMPLETED';
-        temperamentosData = parseCompletedJson<TemperamentosReportResult>(parsedData.temperamentos);
-      }
+    if (temperamentosStatus === 'COMPLETED' && parsedData.temperamentos) {
+      temperamentosData = parseCompletedJson<TemperamentosReportResult>(parsedData.temperamentos);
     }
 
-    let customTestStatus: AssessmentStatus = 'NONE';
+    const customTestStatus = getAssessmentMarkerStatus(parsedData.customTest);
     let customTestData: unknown = null;
-    if (parsedData.customTest) {
-      if (parsedData.customTest === 'PENDING') customTestStatus = 'PENDING';
-      else if (parsedData.customTest.startsWith('COMPLETED===')) {
-        customTestStatus = 'COMPLETED';
-        customTestData = parseCompletedJson<unknown>(parsedData.customTest);
-      }
+    if (customTestStatus === 'COMPLETED' && parsedData.customTest) {
+      customTestData = parseCompletedJson<unknown>(parsedData.customTest);
     }
 
     return {
