@@ -607,6 +607,7 @@ export const CompanyDashboardOverlays = ({
         }}
         applicant={selectedApplicantForCustomTest}
         selectedJob={selectedJob}
+        customTemplates={customTemplates}
         onExportPDF={handleExportModalToPDF}
         isExportingPDF={isExportingTestPDF}
       />

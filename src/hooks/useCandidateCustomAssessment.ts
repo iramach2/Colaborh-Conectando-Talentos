@@ -77,15 +77,18 @@ export const useCandidateCustomAssessment = ({
       const app = applications.find((application) => application.id === activeCustomTestApplicationId);
       const parsedData = parseCandidatePhoneData(app?.candidate_phone || '');
       const customStatus = getCustomTestStatusForApp(app);
+      const completedQuestions = customStatus.questions?.length
+        ? customStatus.questions
+        : customTestQuestions;
+      const completedPayload = {
+        title: customStatus.title || 'Questionario Customizado',
+        questions: completedQuestions,
+        responses: customTestAnswers,
+      };
 
       let customTestVal = '';
-      if (customStatus.questions && customStatus.questions.length > 0) {
-        const payload = {
-          title: customStatus.title || 'Questionario Customizado',
-          questions: customStatus.questions,
-          responses: customTestAnswers,
-        };
-        customTestVal = `COMPLETED:::${JSON.stringify(payload)}===DATE===${new Date().toISOString()}`;
+      if (completedQuestions.length > 0) {
+        customTestVal = `COMPLETED:::${JSON.stringify(completedPayload)}===DATE===${new Date().toISOString()}`;
       } else {
         const payload = {
           responses: customTestAnswers,
@@ -108,7 +111,7 @@ export const useCandidateCustomAssessment = ({
         'custom',
         candidateEmail || '',
         { responses: customTestAnswers },
-        { responses: customTestAnswers }
+        completedPayload
       );
 
       if (!assessmentSaved) {

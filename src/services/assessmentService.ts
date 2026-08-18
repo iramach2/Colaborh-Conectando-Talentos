@@ -70,7 +70,13 @@ const toLegacyAssessmentValue = (assessment: AssessmentRow): string => {
   }
 
   if (assessment.assessment_type === 'custom') {
-    return `COMPLETED===${JSON.stringify(result.responses ? result : responses)}===DATE===${completedAt}`;
+    const customResult = result.responses
+      ? result
+      : { responses: responses.responses || responses };
+    const marker = Array.isArray(customResult.questions) && customResult.questions.length > 0
+      ? 'COMPLETED:::'
+      : 'COMPLETED===';
+    return `${marker}${JSON.stringify(customResult)}===DATE===${completedAt}`;
   }
 
   return `COMPLETED===${JSON.stringify(result)}===DATE===${completedAt}`;

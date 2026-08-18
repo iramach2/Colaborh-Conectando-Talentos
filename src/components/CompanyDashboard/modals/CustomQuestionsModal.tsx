@@ -1,8 +1,10 @@
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Clock, Loader2, X as CloseIcon, CheckCircle2 } from 'lucide-react';
+import type { CustomQuestionnaire } from '../../../services/customQuestionnaireService';
 import type { CompanyApplicant, CompanyJob, CustomQuestionItem } from '../../../types/companyDashboard';
 import { parseCandidatePhoneData, formatDate, getCustomQuestionsFromJobDescription } from '../../../utils/companyDashboardUtils';
+import { findCustomQuestionnaireByResponseIds } from '../../../utils/customAssessmentResult';
 
 interface CustomQuestionsModalProps {
   isOpen: boolean;
@@ -11,6 +13,7 @@ interface CustomQuestionsModalProps {
   selectedJob: CompanyJob | null;
   onExportPDF: (elementRef: React.RefObject<HTMLDivElement>, fileName: string) => Promise<void>;
   isExportingPDF: boolean;
+  customTemplates?: CustomQuestionnaire[];
 }
 
 export const CustomQuestionsModal = ({
@@ -19,7 +22,8 @@ export const CustomQuestionsModal = ({
   applicant,
   selectedJob,
   onExportPDF,
-  isExportingPDF
+  isExportingPDF,
+  customTemplates = [],
 }: CustomQuestionsModalProps) => {
   const customTestModalRef = useRef<HTMLDivElement>(null);
 
@@ -28,6 +32,7 @@ export const CustomQuestionsModal = ({
   const parsedData = parseCandidatePhoneData(applicant.candidate_phone || '');
   let customQuestionsList: CustomQuestionItem[] = [];
   let responses: Record<string, string | number> = {};
+  let reportTitle = 'Questionário Customizado';
 
   if (parsedData.customTest) {
     if (parsedData.customTest.includes(':::')) {
@@ -37,6 +42,7 @@ export const CustomQuestionsModal = ({
         const parsedObj = JSON.parse(jsonPart);
         customQuestionsList = parsedObj.questions || [];
         responses = parsedObj.responses || {};
+        reportTitle = parsedObj.title || reportTitle;
       } catch (e) {
         console.error('Erro ao ler JSON do teste customizado:', e);
       }
@@ -53,19 +59,17 @@ export const CustomQuestionsModal = ({
     }
   }
 
-  const getTitle = () => {
-    if (parsedData.customTest && parsedData.customTest.includes(':::')) {
-      try {
-        const parts = parsedData.customTest.split(':::');
-        const parsedObj = JSON.parse(parts.slice(1).join(':::'));
-        return parsedObj.title || 'Questionário Customizado';
-      } catch (e) {}
+  if (customQuestionsList.length === 0 && Object.keys(responses).length > 0) {
+    const matchingTemplate = findCustomQuestionnaireByResponseIds(responses, customTemplates);
+
+    if (matchingTemplate) {
+      customQuestionsList = matchingTemplate.questions;
+      reportTitle = matchingTemplate.title || reportTitle;
     }
-    return 'Questionário Customizado';
-  };
+  }
 
   const handleDownload = () => {
-    const title = getTitle().replace(/\s+/g, '_');
+    const title = reportTitle.replace(/\s+/g, '_');
     onExportPDF(customTestModalRef, `${title}_${applicant.candidate_name || applicant.name}`);
   };
 
@@ -93,7 +97,7 @@ export const CustomQuestionsModal = ({
             </div>
             <div>
               <h4 className="text-sm font-semibold tracking-tight text-[#343241] leading-tight">
-                {getTitle()}
+                {reportTitle}
               </h4>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
                 <p className="text-[12px] font-medium text-slate-400 pb-0.5">
@@ -142,8 +146,8 @@ export const CustomQuestionsModal = ({
               
               <div className="space-y-5">
                 {customQuestionsList.map((q, index) => {
-                  const questionId = q.id || String(index);
-                  const candidateAnswer = responses[questionId] || 'Sem resposta.';
+                  const questionId = String(q.id ?? index);
+                  const candidateAnswer = responses[questionId] ?? 'Sem resposta.';
 
                   return (
                     <div 
