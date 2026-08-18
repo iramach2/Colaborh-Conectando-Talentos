@@ -16,6 +16,7 @@ export const resolveCompanyApplicant = (
 
   const match = existingMatch || talents.find((talent) => {
     if (applicant.talent_id && talent.id === applicant.talent_id) return true;
+    if (applicant.candidate_user_id && talent.user_id === applicant.candidate_user_id) return true;
     if (email && talent.email && normalizeText(talent.email) === normalizeText(email)) return true;
     if (name && talent.name && normalizeText(talent.name) === normalizeText(name)) return true;
     if (phone && talent.phone && normalizePhone(talent.phone) === normalizePhone(phone)) return true;

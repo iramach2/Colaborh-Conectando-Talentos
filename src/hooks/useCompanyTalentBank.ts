@@ -9,6 +9,7 @@ type CompanyWithSavedTalents = {
 
 export type TalentProfile = {
   id: string;
+  user_id?: string;
   name?: string;
   email?: string;
   phone?: string;
@@ -90,7 +91,10 @@ export const initialTalentFilters: TalentFilters = {
   salary: '',
 };
 
-const TALENT_CORE_COLUMNS = 'id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, profile_pic, first_job, experiences, educations';
+// Profile pictures are intentionally loaded only for the current page. They are
+// stored as large data URLs and fetching every picture made the first talent-bank
+// request grow beyond 17 MB as the database increased.
+const TALENT_CORE_COLUMNS = 'id, user_id, name, email, phone, role, city, state, birth_date, age, gender, salary, summary, skills, first_job, experiences, educations';
 const TALENT_OPTIONAL_COLUMNS = 'id, is_pcd, CID, languages, achievements';
 
 type TalentQueryClient = Pick<typeof supabase, 'from'>;

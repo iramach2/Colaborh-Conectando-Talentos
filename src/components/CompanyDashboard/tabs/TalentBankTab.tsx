@@ -16,6 +16,7 @@ import type { CompanyRecord } from '../../../services/companyService';
 import type { TalentProfile } from '../../../hooks/useCompanyTalentBank';
 import type { CompanyApplicant } from '../../../types/companyDashboard';
 import { calculateAge } from '../../../utils/companyDashboardUtils';
+import { supabasePublicRead } from '../../../lib/supabase';
 import { LoadingAnimation } from '../../Loader';
 
 const TALENTS_PER_PAGE = 50;
@@ -70,11 +71,13 @@ export const TalentBankTab = ({
   onPlanFeatureBlocked
 }: TalentBankTabProps) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [profilePicturesByTalentId, setProfilePicturesByTalentId] = useState<Record<string, string | null>>({});
   const resultLabel = filteredTalents.length === 1 ? 'talento encontrado' : 'talentos encontrados';
   const totalPages = Math.max(1, Math.ceil(filteredTalents.length / TALENTS_PER_PAGE));
   const filteredTalentIds = filteredTalents.map((talent) => talent.id).join('|');
   const pageStart = (currentPage - 1) * TALENTS_PER_PAGE;
   const paginatedTalents = filteredTalents.slice(pageStart, pageStart + TALENTS_PER_PAGE);
+  const paginatedTalentIds = paginatedTalents.map((talent) => talent.id).filter(Boolean).join('|');
   const visiblePageNumbers = useMemo(() => {
     if (totalPages <= 5) return Array.from({ length: totalPages }, (_, index) => index + 1);
 
@@ -90,6 +93,55 @@ export const TalentBankTab = ({
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
   }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    let isActive = true;
+    const visibleIds = paginatedTalentIds.split('|').filter(Boolean);
+    const missingIds = visibleIds.filter((id) => !(id in profilePicturesByTalentId));
+
+    if (missingIds.length === 0) return undefined;
+
+    async function loadVisibleProfilePictures() {
+      const { data, error } = await supabasePublicRead
+        .from('talents')
+        .select('id, profile_pic')
+        .in('id', missingIds);
+
+      if (!isActive) return;
+
+      if (error) {
+        console.warn('Não foi possível carregar as fotos da página de talentos:', error);
+        setProfilePicturesByTalentId((current) => ({
+          ...current,
+          ...Object.fromEntries(missingIds.map((id) => [id, null])),
+        }));
+        return;
+      }
+
+      const loadedPictures = Object.fromEntries(
+        (data || []).map((row) => [row.id, row.profile_pic || null]),
+      );
+      setProfilePicturesByTalentId((current) => ({
+        ...current,
+        ...Object.fromEntries(missingIds.map((id) => [id, null])),
+        ...loadedPictures,
+      }));
+    }
+
+    void loadVisibleProfilePictures();
+    return () => {
+      isActive = false;
+    };
+  }, [paginatedTalentIds]);
+
+  const getTalentWithPicture = (talent: TalentProfile): TalentProfile => ({
+    ...talent,
+    profile_pic: talent.profile_pic || profilePicturesByTalentId[talent.id] || undefined,
+  });
+
+  const openTalentProfile = (talent: TalentProfile) => {
+    setSelectedResumeApplicant(buildApplicantFromTalent(getTalentWithPicture(talent)));
+  };
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.min(Math.max(page, 1), totalPages));
@@ -154,6 +206,7 @@ export const TalentBankTab = ({
               const isSaved = selectedCompany?.savedTalents?.includes(talent.id) || false;
               const age = getAge(talent);
               const rowKey = talent.id || `${talent.email}-${index}`;
+              const profilePicture = talent.profile_pic || profilePicturesByTalentId[talent.id];
 
               return (
                 <motion.div
@@ -165,12 +218,12 @@ export const TalentBankTab = ({
                     <div className="flex items-start gap-3">
                       <button
                         type="button"
-                        onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
+                        onClick={() => openTalentProfile(talent)}
                         className="flex min-w-0 flex-1 items-center gap-3 border-0 bg-transparent p-0 text-left cursor-pointer"
                       >
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
-                          {talent.profile_pic ? (
-                            <img src={talent.profile_pic} alt={talent.name || 'Foto do talento'} className="h-full w-full object-cover" />
+                          {profilePicture ? (
+                            <img src={profilePicture} alt={talent.name || 'Foto do talento'} className="h-full w-full object-cover" />
                           ) : (
                             talent.name ? getTalentInitials(talent.name) : <User size={17} className="stroke-[2.4]" />
                           )}
@@ -209,7 +262,7 @@ export const TalentBankTab = ({
                     <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
                       <button
                         type="button"
-                        onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
+                        onClick={() => openTalentProfile(talent)}
                         className="flex h-8 flex-1 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
                       >
                         Perfil
@@ -254,12 +307,12 @@ export const TalentBankTab = ({
                   <div className="hidden gap-3 xl:grid xl:grid-cols-[minmax(260px,1.2fr)_minmax(150px,0.8fr)_90px_minmax(130px,0.75fr)_minmax(190px,0.9fr)_190px] xl:items-center">
                     <button
                       type="button"
-                      onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
+                      onClick={() => openTalentProfile(talent)}
                       className="flex min-w-0 items-center gap-3 border-0 bg-transparent p-0 text-left cursor-pointer"
                     >
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#940dff]/18 bg-[#f3e5ff] text-[12px] font-semibold text-[#940dff] select-none">
-                        {talent.profile_pic ? (
-                          <img src={talent.profile_pic} alt={talent.name || 'Foto do talento'} className="h-full w-full object-cover" />
+                        {profilePicture ? (
+                          <img src={profilePicture} alt={talent.name || 'Foto do talento'} className="h-full w-full object-cover" />
                         ) : (
                           talent.name ? getTalentInitials(talent.name) : <User size={17} className="stroke-[2.4]" />
                         )}
@@ -286,7 +339,7 @@ export const TalentBankTab = ({
                     <div className="flex items-center justify-end gap-2">
                       <button
                         type="button"
-                        onClick={() => setSelectedResumeApplicant(buildApplicantFromTalent(talent))}
+                        onClick={() => openTalentProfile(talent)}
                         className="flex h-8 items-center justify-center rounded-xl border border-[#940dff]/16 bg-[#f3e5ff] px-4 text-[12px] font-semibold text-[#940dff] transition-all hover:border-[#940dff]/28 hover:bg-[#940dff]/12"
                       >
                         Perfil
