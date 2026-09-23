@@ -149,7 +149,7 @@ export const getTemperamentosStatusForApp = (application: CompanyApplication): T
   return { status: 'NONE', type: '', scores: null, answers: null };
 };
 
-export const getCustomTestStatusForApp = (application: CompanyApplication, vacancies: CompanyJob[] = []): CustomTestStatus => {
+const getLegacyCustomTestStatusForApp = (application: CompanyApplication, vacancies: CompanyJob[] = []): CustomTestStatus => {
   const parsed = parseCandidatePhoneData(application.candidate_phone || '');
   const customVal = parsed.customTest;
 
@@ -159,7 +159,7 @@ export const getCustomTestStatusForApp = (application: CompanyApplication, vacan
       const parsedCustomFromPending = (() => {
         if (!customVal.startsWith('PENDING:::')) return null;
         try {
-          return JSON.parse(customVal.replace('PENDING:::', '').trim()) as { title?: string; questions?: unknown };
+          return JSON.parse(customVal.replace('PENDING:::', '').trim()) as { templateId?: string; title?: string; questions?: unknown };
         } catch (error) {
           console.error('Erro ao fazer parse do JSON pendente de questionario customizado:', error);
           return null;
@@ -179,21 +179,25 @@ export const getCustomTestStatusForApp = (application: CompanyApplication, vacan
 
       return {
         status: 'PENDING',
+        assessmentKey: parsedCustomFromPending?.templateId || `legacy-${application.id || 'custom'}`,
         title: parsedCustomFromPending?.title || parsedCustomFromDesc?.title || 'Questionario Customizado',
         questions: parseCustomQuestionList(parsedCustomFromPending?.questions || parsedCustomFromDesc?.questions),
         answers: null,
+        completedAt: null,
       };
     }
 
     if (customVal.startsWith('COMPLETED:::')) {
       try {
         const jsonStr = customVal.replace('COMPLETED:::', '').trim();
-        const data = JSON.parse(jsonStr) as { title?: string; questions?: unknown; responses?: unknown };
+        const data = JSON.parse(jsonStr) as { templateId?: string; title?: string; questions?: unknown; responses?: unknown };
         return {
           status: 'COMPLETED',
+          assessmentKey: data.templateId || `legacy-${application.id || 'custom'}`,
           title: data.title || 'Questionario Customizado',
           questions: parseCustomQuestionList(data.questions),
           answers: parseStringRecord(data.responses),
+          completedAt: parsed.customTestDate,
         };
       } catch (error) {
         console.error('Erro ao fazer parse do JSON de questionario customizado:', error);
@@ -204,9 +208,11 @@ export const getCustomTestStatusForApp = (application: CompanyApplication, vacan
         const data = JSON.parse(jsonStr) as { responses?: unknown };
         return {
           status: 'COMPLETED',
+          assessmentKey: `legacy-${application.id || 'custom'}`,
           title: 'Questionario Customizado',
           questions: [],
           answers: parseStringRecord(data.responses),
+          completedAt: parsed.customTestDate,
         };
       } catch (error) {
         console.error('Erro ao fazer parse do JSON legado de questionario customizado:', error);
@@ -214,7 +220,72 @@ export const getCustomTestStatusForApp = (application: CompanyApplication, vacan
     }
   }
 
-  return { status: 'NONE', title: '', questions: [], answers: null };
+  return {
+    status: 'NONE',
+    assessmentKey: '',
+    title: '',
+    questions: [],
+    answers: null,
+    completedAt: null,
+  };
+};
+
+const getCustomTestStatusFromRecord = (record: NonNullable<CompanyApplication['assessment_records']>[number]): CustomTestStatus => {
+  const result = isRecord(record.result) ? record.result : {};
+  const rawResponses = result.responses
+    ?? (isRecord(record.responses) ? record.responses.responses ?? record.responses : null);
+  const resultTemplateId = typeof result.templateId === 'string' ? result.templateId : '';
+
+  return {
+    status: record.status === 'completed' ? 'COMPLETED' : 'PENDING',
+    assessmentKey: record.assessment_key || resultTemplateId || record.id || 'custom',
+    title: typeof result.title === 'string' && result.title.trim()
+      ? result.title
+      : 'Questionario Customizado',
+    questions: parseCustomQuestionList(result.questions),
+    answers: record.status === 'completed' ? parseStringRecord(rawResponses) : null,
+    completedAt: record.completed_at || null,
+    record,
+  };
+};
+
+export const getCustomTestStatusesForApp = (
+  application: CompanyApplication,
+  vacancies: CompanyJob[] = [],
+): CustomTestStatus[] => {
+  const normalizedRecords = (application.assessment_records || [])
+    .filter((record) => record.assessment_type === 'custom' && record.status !== 'cancelled')
+    .sort((left, right) => {
+      const leftDate = left.requested_at || left.completed_at || '';
+      const rightDate = right.requested_at || right.completed_at || '';
+      return rightDate.localeCompare(leftDate);
+    })
+    .map(getCustomTestStatusFromRecord);
+
+  const legacyStatus = getLegacyCustomTestStatusForApp(application, vacancies);
+  if (normalizedRecords.length === 0) {
+    return legacyStatus.status === 'NONE' ? [] : [legacyStatus];
+  }
+
+  const legacyRepresentsNewTemplate = legacyStatus.status !== 'NONE'
+    && !legacyStatus.assessmentKey.startsWith('legacy-')
+    && !normalizedRecords.some((status) => status.assessmentKey === legacyStatus.assessmentKey);
+
+  return legacyRepresentsNewTemplate ? [legacyStatus, ...normalizedRecords] : normalizedRecords;
+};
+
+export const getCustomTestStatusForApp = (application: CompanyApplication, vacancies: CompanyJob[] = []): CustomTestStatus => {
+  const statuses = getCustomTestStatusesForApp(application, vacancies);
+  return statuses.find((status) => status.status === 'PENDING')
+    || statuses[0]
+    || {
+      status: 'NONE',
+      assessmentKey: '',
+      title: '',
+      questions: [],
+      answers: null,
+      completedAt: null,
+    };
 };
 
 export const getCandidateAssessmentLists = (applications: CompanyApplication[], vacancies: CompanyJob[]) => {
@@ -254,12 +325,22 @@ export const getCandidateAssessmentLists = (applications: CompanyApplication[], 
       completedTests.push({ id: `${application.id}-TEMPERAMENTOS`, type: 'TEMPERAMENTOS', app: application, jobTitle, companyName, data: temperamentosStatus });
     }
 
-    const customTestStatus = getCustomTestStatusForApp(application, vacancies);
-    if (customTestStatus.status === 'PENDING') {
-      pendingTests.push({ id: `${application.id}-CUSTOM`, type: 'CUSTOM', app: application, jobTitle, companyName });
-    } else if (customTestStatus.status === 'COMPLETED') {
-      completedTests.push({ id: `${application.id}-CUSTOM`, type: 'CUSTOM', app: application, jobTitle, companyName, data: customTestStatus.answers });
-    }
+    getCustomTestStatusesForApp(application, vacancies).forEach((customTestStatus) => {
+      const item = {
+        id: `${application.id}-CUSTOM-${customTestStatus.assessmentKey}`,
+        type: 'CUSTOM' as const,
+        app: application,
+        jobTitle,
+        companyName,
+        customAssessment: customTestStatus,
+      };
+
+      if (customTestStatus.status === 'PENDING') {
+        pendingTests.push(item);
+      } else if (customTestStatus.status === 'COMPLETED') {
+        completedTests.push({ ...item, data: customTestStatus.answers });
+      }
+    });
   });
 
   return {

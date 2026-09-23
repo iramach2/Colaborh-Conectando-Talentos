@@ -1,23 +1,18 @@
 import { supabase } from '../lib/supabase';
+import type { ApplicationAssessmentRecord } from '../types/companyDashboard';
 import { isCompletedAssessmentValue } from '../utils/assessmentMarker';
 import { parseCandidatePhoneData, serializeCandidatePhoneData } from '../utils/companyDashboardUtils';
 
 export type AssessmentType = 'disc' | 'questions' | 'mbti' | 'temperamentos' | 'custom';
 export type AssessmentStatus = 'pending' | 'completed' | 'cancelled';
 
-type AssessmentRow = {
-  application_id: string;
-  assessment_type: AssessmentType;
-  status: AssessmentStatus;
-  responses: Record<string, unknown> | null;
-  result: Record<string, unknown> | null;
-  completed_at: string | null;
-};
+type AssessmentRow = ApplicationAssessmentRecord;
 
 type AssessmentPayload = {
   applicationId: string;
   candidateEmail?: string;
   assessmentType: AssessmentType;
+  assessmentKey?: string;
   status: AssessmentStatus;
   responses?: Record<string, unknown>;
   result?: Record<string, unknown>;
@@ -44,6 +39,7 @@ const toLegacyAssessmentValue = (assessment: AssessmentRow): string => {
   if (assessment.status === 'pending') {
     if (assessment.assessment_type === 'custom' && assessment.result) {
       const payload = {
+        templateId: assessment.assessment_key || assessment.result.templateId || undefined,
         title: assessment.result.title || 'Questionario Customizado',
         questions: assessment.result.questions || [],
       };
@@ -97,7 +93,7 @@ export const hydrateApplicationsWithAssessments = async <T extends { id?: string
   try {
     let { data, error } = await supabase
       .from('application_assessments')
-      .select('application_id, assessment_type, status, responses, result, completed_at')
+      .select('id, application_id, assessment_type, assessment_key, status, responses, result, requested_at, completed_at')
       .in('application_id', applicationIds);
 
     if (error || !data || data.length === 0) {
@@ -154,7 +150,7 @@ export const hydrateApplicationsWithAssessments = async <T extends { id?: string
         );
       }
 
-      return { ...app, candidate_phone: candidatePhone };
+      return { ...app, candidate_phone: candidatePhone, assessment_records: assessments };
     });
   } catch (error) {
     console.warn('Nao foi possivel hidratar candidaturas com assessments:', error);
@@ -166,6 +162,7 @@ export const upsertAssessment = async ({
   applicationId,
   candidateEmail,
   assessmentType,
+  assessmentKey = 'default',
   status,
   responses = {},
   result = {},
@@ -181,13 +178,14 @@ export const upsertAssessment = async ({
         application_id: applicationId,
         candidate_email: candidateEmail || null,
         assessment_type: assessmentType,
+        assessment_key: assessmentKey,
         status,
         requested_by: requestedBy,
         completed_at: completedAt,
         responses,
         result,
       }, {
-        onConflict: 'application_id,assessment_type',
+        onConflict: 'application_id,assessment_type,assessment_key',
       });
 
     if (error) throw error;
@@ -203,10 +201,12 @@ export const markAssessmentPending = async (
   assessmentType: AssessmentType,
   candidateEmail?: string,
   result: Record<string, unknown> = {},
+  assessmentKey = 'default',
 ) => upsertAssessment({
   applicationId,
   candidateEmail,
   assessmentType,
+  assessmentKey,
   status: 'pending',
   result,
 });
@@ -217,8 +217,9 @@ export const markAssessmentPendingWithLegacyFallback = async (
   candidateEmail: string | undefined,
   legacyCandidatePhone: string,
   result: Record<string, unknown> = {},
+  assessmentKey = 'default',
 ) => {
-  const assessmentSaved = await markAssessmentPending(applicationId, assessmentType, candidateEmail, result);
+  const assessmentSaved = await markAssessmentPending(applicationId, assessmentType, candidateEmail, result, assessmentKey);
 
   const { error } = await supabase
     .from('applications')
@@ -237,10 +238,12 @@ export const markAssessmentCompleted = async (
   candidateEmail?: string,
   responses: Record<string, unknown> = {},
   result: Record<string, unknown> = {},
+  assessmentKey = 'default',
 ) => upsertAssessment({
   applicationId,
   candidateEmail,
   assessmentType,
+  assessmentKey,
   status: 'completed',
   responses,
   result,
@@ -257,7 +260,7 @@ export const fetchPreviousCompletedAssessmentLegacyValue = async (
   try {
     const { data, error } = await supabase
       .from('application_assessments')
-      .select('application_id, assessment_type, status, responses, result, completed_at')
+      .select('id, application_id, assessment_type, assessment_key, status, responses, result, requested_at, completed_at')
       .eq('assessment_type', assessmentType)
       .eq('status', 'completed')
       .ilike('candidate_email', normalizedEmail)

@@ -1,5 +1,5 @@
 import type { ChatMessage } from '../services/messageService';
-import type { CompanyApplication, CompanyJob } from './companyDashboard';
+import type { ApplicationAssessmentRecord, CompanyApplication, CompanyJob } from './companyDashboard';
 
 export type CandidateExperience = {
   id: string;
@@ -158,9 +158,12 @@ export type QuestionsCategories = Record<QuestionsCategoryKey, QuestionsCategory
 
 export type CustomTestStatus = {
   status: 'PENDING' | 'COMPLETED' | 'NONE';
+  assessmentKey: string;
   title: string;
   questions: CustomQuestion[];
   answers: Record<string, string> | null;
+  completedAt?: string | null;
+  record?: ApplicationAssessmentRecord;
 };
 
 export type CandidateAssessmentListItem = {
@@ -169,5 +172,6 @@ export type CandidateAssessmentListItem = {
   app: CompanyApplication;
   jobTitle: string;
   companyName: string;
+  customAssessment?: CustomTestStatus;
   data?: DiscResult | QuestionsResult | MbtiCompletedResult | TemperamentosCompletedResult | Record<string, string> | null;
 };

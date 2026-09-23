@@ -49,6 +49,18 @@ export type CompanyJob = {
   candidates_count?: number;
 };
 
+export type ApplicationAssessmentRecord = {
+  id?: string;
+  application_id: string;
+  assessment_type: 'disc' | 'questions' | 'mbti' | 'temperamentos' | 'custom';
+  assessment_key?: string | null;
+  status: 'pending' | 'completed' | 'cancelled';
+  responses?: Record<string, unknown> | null;
+  result?: Record<string, unknown> | null;
+  requested_at?: string | null;
+  completed_at?: string | null;
+};
+
 export type CompanyApplication = {
   id?: string;
   job_id?: string | null;
@@ -71,6 +83,7 @@ export type CompanyApplication = {
   questions_result?: unknown;
   temperamentos_result?: unknown;
   custom_test_result?: unknown;
+  assessment_records?: ApplicationAssessmentRecord[];
   job?: CompanyJob | null;
   jobs?: CompanyJob | null;
 };
@@ -97,6 +110,7 @@ export type CompanyApplicant = CompanyApplication & {
   temperamentosResponses?: Record<string, unknown> & { type?: string };
   customTestStatus?: string;
   customTestDate?: string | null;
+  selectedCustomAssessmentKey?: string | null;
   completedAt?: string | null;
   matchScore?: number;
 };

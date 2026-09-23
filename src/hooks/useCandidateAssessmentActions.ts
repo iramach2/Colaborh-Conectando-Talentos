@@ -1,5 +1,4 @@
 import { getCustomQuestionsFromJobDescription } from '../utils/companyDashboardUtils';
-import { getCustomTestStatusForApp as getCustomAssessmentStatusForApp } from '../utils/candidateAssessmentStatus';
 import type {
   CandidateAssessmentDrawerKind,
   CandidateAssessmentListItem,
@@ -32,7 +31,7 @@ interface UseCandidateAssessmentActionsParams {
   setTemperamentosState: (state: CandidateAssessmentState) => void;
   setTemperamentosResult: (result: TemperamentosResult | null) => void;
   setSelectedTemperamentosResult: (result: TemperamentosCompletedResult | null) => void;
-  handleStartCustomTest: (application: CompanyApplication) => void;
+  handleStartCustomTest: (application: CompanyApplication, customAssessment?: CandidateAssessmentListItem['customAssessment']) => void;
   setSelectedCustomTestResult: (result: Record<string, string> | null) => void;
   setActiveCustomTestApplicationId: (id: string | null) => void;
   setCustomTestQuestions: (questions: CustomQuestion[]) => void;
@@ -87,7 +86,7 @@ export const useCandidateAssessmentActions = ({
       setCurrentTemperamentosStageIndex(0);
       setTemperamentosState('initial');
     } else if (item.type === 'CUSTOM') {
-      handleStartCustomTest(item.app);
+      handleStartCustomTest(item.app, item.customAssessment);
     } else {
       setActiveQuestionsApplicationId(item.app.id);
       setQuestionsAnswers({});
@@ -115,11 +114,10 @@ export const useCandidateAssessmentActions = ({
       setSelectedTemperamentosResult(result);
       setDrawerTestResult('TEMPERAMENTOS');
     } else if (item.type === 'CUSTOM') {
-      setSelectedCustomTestResult(item.data as Record<string, string>);
+      setSelectedCustomTestResult(item.customAssessment?.answers || item.data as Record<string, string>);
       setActiveCustomTestApplicationId(item.app.id);
 
-      const customStatus = getCustomAssessmentStatusForApp(item.app, vacancies);
-      let questionList = customStatus.questions || [];
+      let questionList = item.customAssessment?.questions || [];
       if (!questionList || questionList.length === 0) {
         const jobDescription = item.app.jobs?.description || item.app.job?.description || '';
         questionList = getCustomQuestionsFromJobDescription(jobDescription);

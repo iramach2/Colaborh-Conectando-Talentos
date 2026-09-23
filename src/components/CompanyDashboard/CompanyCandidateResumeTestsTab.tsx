@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Brain, Briefcase, ChevronRight, Compass, HelpCircle, Plus, Thermometer } from 'lucide-react';
 import type { CompanyApplicant, DiscReportResult, MbtiReportResult, TemperamentosReportResult } from '../../types/companyDashboard';
 import { getAssessmentMarkerStatus, getCompletedAssessmentBody } from '../../utils/assessmentMarker';
+import { getCustomTestStatusesForApp } from '../../utils/candidateAssessmentStatus';
 import { parseCandidatePhoneData } from '../../utils/companyDashboardUtils';
 
 interface CompanyCandidateResumeTestsTabProps {
@@ -128,7 +129,8 @@ export function CompanyCandidateResumeTestsTab({
   const mbti = parseJsonStatus(parsedData.mbti);
   const questions = parseJsonStatus(parsedData.questions);
   const temperamentos = parseJsonStatus(parsedData.temperamentos);
-  const customTest = parseJsonStatus(parsedData.customTest);
+  const applicantJob = applicant.job || applicant.jobs;
+  const customTests = getCustomTestStatusesForApp(applicant, applicantJob ? [applicantJob] : []);
 
   return (
     <div className="flex-1 overflow-y-auto bg-slate-50/20 p-6 text-left no-scrollbar">
@@ -199,18 +201,31 @@ export function CompanyCandidateResumeTestsTab({
           }) : undefined}
         />
 
-        <ResultRow
-          icon={<Briefcase size={18} className="text-[#40b87f]" />}
-          title="Questionário customizado"
-          description="Perguntas específicas e testes técnicos configurados para a vaga."
-          status={customTest.status}
-          actionLabel="Ver respostas"
-          onRequest={() => onRequestCustom(applicant)}
-          onView={customTest.responses ? () => onViewCustom({
-            ...applicant,
-            completedAt: parsedData.customTestDate || applicant.created_at,
-          }) : undefined}
-        />
+        {customTests.length === 0 ? (
+          <ResultRow
+            icon={<Briefcase size={18} className="text-[#40b87f]" />}
+            title="Questionário customizado"
+            description="Perguntas específicas e testes técnicos configurados para a vaga."
+            status="NONE"
+            actionLabel="Ver respostas"
+            onRequest={() => onRequestCustom(applicant)}
+          />
+        ) : customTests.map((customTest) => (
+          <div key={customTest.assessmentKey} className="contents">
+            <ResultRow
+              icon={<Briefcase size={18} className="text-[#40b87f]" />}
+              title={customTest.title || 'Questionário customizado'}
+              description="Questionário personalizado vinculado a uma etapa deste processo seletivo."
+              status={customTest.status}
+              actionLabel="Ver respostas"
+              onView={customTest.status === 'COMPLETED' ? () => onViewCustom({
+                ...applicant,
+                selectedCustomAssessmentKey: customTest.assessmentKey,
+                completedAt: customTest.completedAt || applicant.created_at,
+              }) : undefined}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

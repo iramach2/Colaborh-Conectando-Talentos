@@ -29,14 +29,16 @@ export const useCandidateCustomAssessment = ({
 }: UseCandidateCustomAssessmentParams) => {
   const [customTestState, setCustomTestState] = useState<CandidateAssessmentState>('none');
   const [activeCustomTestApplicationId, setActiveCustomTestApplicationId] = useState<string | null>(null);
+  const [activeCustomAssessmentKey, setActiveCustomAssessmentKey] = useState<string>('default');
+  const [activeCustomAssessmentTitle, setActiveCustomAssessmentTitle] = useState<string>('Questionario Customizado');
   const [customTestQuestions, setCustomTestQuestions] = useState<CustomQuestion[]>([]);
   const [customTestAnswers, setCustomTestAnswers] = useState<Record<string, string>>({});
   const [isSavingCustomTest, setIsSavingCustomTest] = useState(false);
   const [customTestErrorMessage, setCustomTestErrorMessage] = useState<string | null>(null);
   const [selectedCustomTestResult, setSelectedCustomTestResult] = useState<Record<string, string> | null>(null);
 
-  const handleStartCustomTest = (application: CompanyApplication) => {
-    const customTestStatus = getCustomTestStatusForApp(application);
+  const handleStartCustomTest = (application: CompanyApplication, selectedAssessment?: CustomTestStatus) => {
+    const customTestStatus = selectedAssessment || getCustomTestStatusForApp(application);
     let questionList = customTestStatus.questions || [];
 
     if (!questionList || questionList.length === 0) {
@@ -47,6 +49,8 @@ export const useCandidateCustomAssessment = ({
     setCustomTestQuestions(questionList);
     setCustomTestAnswers({});
     setActiveCustomTestApplicationId(application.id);
+    setActiveCustomAssessmentKey(customTestStatus.assessmentKey || 'default');
+    setActiveCustomAssessmentTitle(customTestStatus.title || 'Questionario Customizado');
     setCustomTestErrorMessage(null);
     setCustomTestState('initial');
   };
@@ -81,7 +85,8 @@ export const useCandidateCustomAssessment = ({
         ? customStatus.questions
         : customTestQuestions;
       const completedPayload = {
-        title: customStatus.title || 'Questionario Customizado',
+        templateId: activeCustomAssessmentKey === 'default' ? undefined : activeCustomAssessmentKey,
+        title: activeCustomAssessmentTitle || customStatus.title || 'Questionario Customizado',
         questions: completedQuestions,
         responses: customTestAnswers,
       };
@@ -111,7 +116,8 @@ export const useCandidateCustomAssessment = ({
         'custom',
         candidateEmail || '',
         { responses: customTestAnswers },
-        completedPayload
+        completedPayload,
+        activeCustomAssessmentKey,
       );
 
       if (!assessmentSaved) {
@@ -125,7 +131,27 @@ export const useCandidateCustomAssessment = ({
 
       setApplications((prev) =>
         prev.map((application) =>
-          application.id === activeCustomTestApplicationId ? { ...application, candidate_phone: updatedPhoneVal } : application
+          application.id === activeCustomTestApplicationId
+            ? {
+                ...application,
+                candidate_phone: updatedPhoneVal,
+                assessment_records: application.assessment_records?.map((record) => {
+                  const resultTemplateId = typeof record.result?.templateId === 'string'
+                    ? record.result.templateId
+                    : '';
+                  const recordKey = record.assessment_key || resultTemplateId || record.id || 'default';
+                  return record.assessment_type === 'custom' && recordKey === activeCustomAssessmentKey
+                    ? {
+                        ...record,
+                        status: 'completed' as const,
+                        responses: { responses: customTestAnswers },
+                        result: completedPayload,
+                        completed_at: new Date().toISOString(),
+                      }
+                    : record;
+                }),
+              }
+            : application
         )
       );
       setCustomTestState('none');
@@ -144,6 +170,8 @@ export const useCandidateCustomAssessment = ({
     setCustomTestState,
     activeCustomTestApplicationId,
     setActiveCustomTestApplicationId,
+    activeCustomAssessmentKey,
+    setActiveCustomAssessmentKey,
     customTestQuestions,
     setCustomTestQuestions,
     customTestAnswers,

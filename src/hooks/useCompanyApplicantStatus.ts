@@ -58,7 +58,30 @@ export const useCompanyApplicantStatus = ({
       else if (testKey === 'mbti') testStatus = parsedData.mbti;
       else if (testKey === 'temperamentos') testStatus = parsedData.temperamentos;
       else if (testKey === 'perguntas') testStatus = parsedData.questions;
-      else if (testKey === 'customizado') testStatus = parsedData.customTest;
+      else if (testKey === 'customizado') {
+        const matchingAssessment = templateId
+          ? application.assessment_records?.find((record) => {
+              const resultTemplateId = typeof record.result?.templateId === 'string'
+                ? record.result.templateId
+                : '';
+              const recordKey = record.assessment_key || resultTemplateId;
+              return record.assessment_type === 'custom' && recordKey === templateId;
+            })
+          : undefined;
+
+        if (matchingAssessment) {
+          testStatus = matchingAssessment.status === 'completed' ? 'COMPLETED' : 'PENDING';
+        } else if (!templateId) {
+          testStatus = parsedData.customTest;
+        } else if (parsedData.customTest.includes(':::')) {
+          try {
+            const payload = JSON.parse(parsedData.customTest.split(':::').slice(1).join(':::')) as { templateId?: string };
+            testStatus = payload.templateId === templateId ? parsedData.customTest : '';
+          } catch {
+            testStatus = '';
+          }
+        }
+      }
 
       const isCompleted = testStatus.startsWith('COMPLETED') || testStatus === 'COMPLETED' || (testStatus && testStatus !== 'PENDING');
       const isPending = testStatus === 'PENDING';

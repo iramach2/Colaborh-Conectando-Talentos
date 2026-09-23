@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Clock, Loader2, X as CloseIcon, CheckCircle2 } from 'lucide-react';
 import type { CustomQuestionnaire } from '../../../services/customQuestionnaireService';
 import type { CompanyApplicant, CompanyJob, CustomQuestionItem } from '../../../types/companyDashboard';
-import { getAssessmentMarkerStatus, getCompletedAssessmentBody } from '../../../utils/assessmentMarker';
-import { parseCandidatePhoneData, formatDate, getCustomQuestionsFromJobDescription } from '../../../utils/companyDashboardUtils';
+import { getCustomTestStatusesForApp } from '../../../utils/candidateAssessmentStatus';
+import { formatDate, getCustomQuestionsFromJobDescription } from '../../../utils/companyDashboardUtils';
 import { findCustomQuestionnaireByResponseIds } from '../../../utils/customAssessmentResult';
 
 interface CustomQuestionsModalProps {
@@ -30,27 +30,18 @@ export const CustomQuestionsModal = ({
 
   if (!isOpen || !applicant) return null;
 
-  const parsedData = parseCandidatePhoneData(applicant.candidate_phone || '');
+  const customStatuses = getCustomTestStatusesForApp(applicant, selectedJob ? [selectedJob] : []);
+  const selectedStatus = customStatuses.find((status) => status.assessmentKey === applicant.selectedCustomAssessmentKey)
+    || customStatuses.find((status) => status.status === 'COMPLETED')
+    || customStatuses[0];
   let customQuestionsList: CustomQuestionItem[] = [];
   let responses: Record<string, string | number> = {};
   let reportTitle = 'Questionário Customizado';
 
-  if (parsedData.customTest && getAssessmentMarkerStatus(parsedData.customTest) === 'COMPLETED') {
-    try {
-      const parsedObj = JSON.parse(getCompletedAssessmentBody(parsedData.customTest));
-
-      if (Array.isArray(parsedObj.questions)) {
-        customQuestionsList = parsedObj.questions || [];
-        responses = parsedObj.responses || {};
-        reportTitle = parsedObj.title || reportTitle;
-      } else {
-        const jobDesc = selectedJob?.description || '';
-        customQuestionsList = getCustomQuestionsFromJobDescription(jobDesc);
-        responses = parsedObj.responses || parsedObj || {};
-      }
-    } catch (e) {
-      console.error('Erro ao ler JSON do teste customizado:', e);
-    }
+  if (selectedStatus) {
+    customQuestionsList = selectedStatus.questions || [];
+    responses = selectedStatus.answers || {};
+    reportTitle = selectedStatus.title || reportTitle;
   }
 
   if (customQuestionsList.length === 0 && Object.keys(responses).length > 0) {
@@ -60,6 +51,10 @@ export const CustomQuestionsModal = ({
       customQuestionsList = matchingTemplate.questions;
       reportTitle = matchingTemplate.title || reportTitle;
     }
+  }
+
+  if (customQuestionsList.length === 0) {
+    customQuestionsList = getCustomQuestionsFromJobDescription(selectedJob?.description || '');
   }
 
   const handleDownload = () => {

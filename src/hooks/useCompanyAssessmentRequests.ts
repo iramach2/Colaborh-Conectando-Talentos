@@ -220,7 +220,7 @@ export const useCompanyAssessmentRequests = ({
       const jobTitle = getJobTitle(applicationJob);
       const companyName = getCompanyName(applicationJob);
       const templatePayload = template
-        ? { title: template.title, questions: template.questions }
+        ? { templateId: template.id, title: template.title, questions: template.questions }
         : null;
       const customTestValue = templatePayload
         ? `PENDING:::${JSON.stringify(templatePayload)}`
@@ -236,7 +236,7 @@ export const useCompanyAssessmentRequests = ({
         : {
             questions: customQuestions,
             source: 'job_description',
-          });
+          }, template?.id || 'job_description');
 
       updateApplicantCandidatePhone(appId, updatedPhoneVal);
       notifyCandidateAssessmentRequest(
@@ -274,6 +274,7 @@ export const useCompanyAssessmentRequests = ({
 
       const { appId, currentPhone, email } = getApplicationIdentity(application);
       const templatePayload = {
+        templateId: template.id,
         title: template.title,
         questions: template.questions,
       };
@@ -284,7 +285,7 @@ export const useCompanyAssessmentRequests = ({
         templateId: template.id,
         title: template.title,
         questions: template.questions || [],
-      });
+      }, template.id);
 
       updateApplicantCandidatePhone(appId, updatedPhoneVal);
 

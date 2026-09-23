@@ -162,7 +162,9 @@ function AssessmentCard({
   onViewResult: (item: CandidateAssessmentListItem) => void;
 }) {
   const visual = getVisual(item.type);
-  const title = completed ? visual.completedTitle : visual.title;
+  const title = item.type === 'CUSTOM' && item.customAssessment?.title
+    ? `${item.customAssessment.title}${completed ? ' concluído' : ''}`
+    : completed ? visual.completedTitle : visual.title;
   const description = completed ? getCompletedDescription(item) : getPendingDescription(item);
   const Icon = visual.Icon;
 
