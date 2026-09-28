@@ -2,6 +2,7 @@ import { type Dispatch, type SetStateAction, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { saveJobStages } from '../services/jobWorkflowService';
 import type { CompanyJob, CompanyLike } from '../types/companyDashboard';
+import { getMissingPayloadColumn } from '../utils/supabaseSchemaFallback';
 import {
   buildJobInsertPayload,
   buildVacancyFormFromJob,
@@ -172,7 +173,7 @@ export const useCompanyVacancyPublishing = ({
 
   const handlePublish = async () => {
     if (isPublishing) return;
-const currentStages = vacancyForm.stages;
+    const currentStages = vacancyForm.stages;
     if (currentStages.length === 0) {
       const error = 'A vaga deve ter ao menos uma etapa no processo seletivo.';
       setErrorMessage(error);
@@ -196,18 +197,40 @@ const currentStages = vacancyForm.stages;
       let insertedRow: CompanyJob | null = null;
 
       if (editingJob?.id) {
-        const updatePayload = {
+        const updatePayload: Record<string, unknown> = {
           ...payload,
           status: editingJob.status || payload.status,
         };
-        const { data: updatedData, error: updateError } = await supabase
-          .from('jobs')
-          .update(updatePayload)
-          .eq('id', editingJob.id)
-          .select()
-          .single();
+        let updateAttempt = 0;
+        let updatedData: CompanyJob | null = null;
 
-        if (updateError) throw updateError;
+        while (updateAttempt < maxAttempts) {
+          const { data, error: updateError } = await supabase
+            .from('jobs')
+            .update(updatePayload)
+            .eq('id', editingJob.id)
+            .select()
+            .single();
+
+          if (!updateError) {
+            updatedData = data as CompanyJob;
+            break;
+          }
+
+          const columnToDrop = getMissingPayloadColumn(updateError, updatePayload);
+          if (columnToDrop) {
+            console.warn(`[Compatibilidade de schema] Coluna '${columnToDrop}' ainda indisponivel ao editar; tentando novamente.`);
+            delete updatePayload[columnToDrop];
+            updateAttempt += 1;
+            continue;
+          }
+
+          throw updateError;
+        }
+
+        if (!updatedData) {
+          throw new Error('Falha ao atualizar os dados da vaga apos varias tentativas.');
+        }
 
         const stagesSynced = await saveJobStages(editingJob.id, currentStages);
         if (!stagesSynced) {
@@ -251,19 +274,12 @@ const currentStages = vacancyForm.stages;
         }
 
         console.error(`Tentativa ${attempt} falhou ao salvar vaga:`, saveError);
-        const isColumnError = saveError.code === 'PGRST204'
-          || (saveError.message && saveError.message.toLowerCase().includes('could not find the') && saveError.message.toLowerCase().includes('column'));
-
-        if (isColumnError) {
-          const match = saveError.message.match(/Could not find the '([^']+)' column/i);
-          const colToDrop = match ? match[1] : null;
-
-          if (colToDrop && colToDrop in payload) {
-            console.warn(`[Self-Healing] Removendo coluna inexistente '${colToDrop}' e tentando novamente.`);
-            delete (payload as Record<string, unknown>)[colToDrop];
-            attempt += 1;
-            continue;
-          }
+        const colToDrop = getMissingPayloadColumn(saveError, payload as Record<string, unknown>);
+        if (colToDrop) {
+          console.warn(`[Compatibilidade de schema] Coluna '${colToDrop}' ainda indisponivel ao publicar; tentando novamente.`);
+          delete (payload as Record<string, unknown>)[colToDrop];
+          attempt += 1;
+          continue;
         }
 
         throw saveError;
@@ -310,7 +326,7 @@ const currentStages = vacancyForm.stages;
       setIsRegisteringVacancy(false);
     } catch (err: unknown) {
       console.error('Erro ao salvar vaga:', err);
-      alert(`Erro ao publicar vaga: ${getErrorMessage(err)}`);
+      alert(`Erro ao ${editingJob ? 'atualizar' : 'publicar'} vaga: ${getErrorMessage(err)}`);
     } finally {
       setIsPublishing(false);
     }
