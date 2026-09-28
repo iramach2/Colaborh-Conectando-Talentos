@@ -21,6 +21,7 @@ interface CreateVacancyTabProps {
   handleNextStep: () => void;
   handlePublish: () => void;
   isPublishing?: boolean;
+  isEditing?: boolean;
   presentation?: 'drawer' | 'page';
 }
 
@@ -50,6 +51,7 @@ export const CreateVacancyTab: React.FC<CreateVacancyTabProps> = ({
   handleNextStep,
   handlePublish,
   isPublishing = false,
+  isEditing = false,
   presentation = 'drawer',
 }) => {
   const [newBenefit, setNewBenefit] = useState('');
@@ -192,7 +194,7 @@ export const CreateVacancyTab: React.FC<CreateVacancyTabProps> = ({
       <header className={`${isDrawer ? 'px-7 pb-4 pt-7 sm:px-8' : 'px-0 pb-5 pt-1'} relative`}>
         <div className="flex items-start justify-between gap-5">
           <div>
-            {isDrawer && <p className="text-[12px] font-semibold text-[#940dff]">Cadastrar vaga</p>}
+            {isDrawer && <p className="text-[12px] font-semibold text-[#940dff]">{isEditing ? 'Editar vaga' : 'Cadastrar vaga'}</p>}
             <h2 className="mt-1 text-[20px] font-semibold tracking-tight text-[#343241]">{steps[registerStep - 1]?.title || 'Cadastrar vaga'}</h2>
             <p className="mt-1 text-[12px] font-medium text-slate-400">{steps[registerStep - 1]?.description || 'Preencha os dados da oportunidade.'}</p>
           </div>
@@ -280,7 +282,9 @@ export const CreateVacancyTab: React.FC<CreateVacancyTabProps> = ({
               onClick={handleTriggerPublish}
               className="h-8 rounded-xl bg-[#940dff] px-5 text-[12px] font-semibold text-white shadow-[0_10px_22px_rgba(148,13,255,0.22)] transition-all hover:bg-[#8200e6] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isPublishing ? 'Publicando...' : 'Publicar vaga'}
+              {isPublishing
+                ? (isEditing ? 'Salvando...' : 'Publicando...')
+                : (isEditing ? 'Salvar alterações' : 'Publicar vaga')}
             </button>
           )}
         </div>

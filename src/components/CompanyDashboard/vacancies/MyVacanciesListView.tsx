@@ -7,6 +7,7 @@ import {
   Copy,
   MapPin,
   MoreVertical,
+  Pencil,
   Plus,
   Share2,
   Trash2,
@@ -29,6 +30,7 @@ interface MyVacanciesListViewProps {
   handleUpdateJobStatus: (jobId: string, status: string) => void;
   handleShareJob: (job: CompanyJob) => void;
   handleDeleteJob: (jobId: string, jobTitle: string) => void;
+  handleEditJob: (job: CompanyJob) => void;
   setIsRegisteringVacancy: (val: boolean) => void;
   setRegisterStep: (step: number) => void;
   onCreateVacancy?: () => void;
@@ -119,6 +121,7 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
   handleUpdateJobStatus,
   handleShareJob,
   handleDeleteJob,
+  handleEditJob,
   setIsRegisteringVacancy,
   setRegisterStep,
   onCreateVacancy,
@@ -280,7 +283,7 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
 
                             const rect = event.currentTarget.getBoundingClientRect();
                             const menuWidth = 224;
-                            const menuHeight = 190;
+                            const menuHeight = 236;
                             const gap = 8;
                             const top = rect.bottom + menuHeight + gap > window.innerHeight
                               ? Math.max(16, rect.top - menuHeight - gap)
@@ -391,7 +394,7 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
 
                                 const rect = event.currentTarget.getBoundingClientRect();
                                 const menuWidth = 224;
-                                const menuHeight = 190;
+                                const menuHeight = 236;
                                 const gap = 8;
                                 const top = rect.bottom + menuHeight + gap > window.innerHeight
                                   ? Math.max(16, rect.top - menuHeight - gap)
@@ -435,6 +438,19 @@ export const MyVacanciesListView: React.FC<MyVacanciesListViewProps> = ({
                                     <p className="mt-0.5 text-[12px] font-medium text-slate-400">Atualize a situação desta vaga</p>
                                   </div>
                                   <div className="space-y-1 pt-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        handleEditJob(job);
+                                        setActiveDropdownJobId(null);
+                                        setDropdownPosition(null);
+                                      }}
+                                      className="flex h-9 w-full items-center gap-2 rounded-xl border-0 px-3 text-left text-[12px] font-semibold text-[#940dff] transition-all hover:bg-[#f3e5ff] cursor-pointer"
+                                    >
+                                      <Pencil size={13} className="stroke-[2.5]" />
+                                      Editar vaga
+                                    </button>
+                                    <div className="my-1 border-t border-slate-100" />
                                     {statusOptions.map((option) => (
                                       <button
                                         key={option.value}

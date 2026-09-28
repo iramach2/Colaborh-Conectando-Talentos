@@ -142,6 +142,8 @@ export type CompanyDashboardVacancyPublishingProps = {
   handleNextStep: () => void;
   handlePublish: () => void | Promise<void>;
   isPublishing: boolean;
+  isEditing: boolean;
+  handleCloseVacancyForm: () => void;
 };
 
 export type CompanyDashboardCustomTemplateRequestProps = {
@@ -282,6 +284,8 @@ export const CompanyDashboardOverlays = ({
     handleNextStep,
     handlePublish,
     isPublishing,
+    isEditing,
+    handleCloseVacancyForm,
   } = vacancyPublishing;
 
   const {
@@ -467,8 +471,7 @@ export const CompanyDashboardOverlays = ({
         <CreateVacancyTab
           isOpen={isRegisteringVacancy}
           onClose={() => {
-            setIsRegisteringVacancy(false);
-            setRegisterStep(1);
+            handleCloseVacancyForm();
           }}
           registerStep={registerStep}
           setRegisterStep={setRegisterStep}
@@ -478,6 +481,7 @@ export const CompanyDashboardOverlays = ({
           handleNextStep={handleNextStep}
           handlePublish={handlePublish}
           isPublishing={isPublishing}
+          isEditing={isEditing}
         />
       )}
 

@@ -31,6 +31,7 @@ export const CompanyVacanciesSection = ({
   handleRequestCustomTest,
   handleOpenNotes,
   handleDeleteJob,
+  handleEditJob,
   handleOpenChat,
   canDownloadResumes,
   canUseDirectWhatsApp,
@@ -126,6 +127,7 @@ export const CompanyVacanciesSection = ({
         handleRequestCustomTest={handleRequestCustomTest}
         handleOpenNotes={handleOpenNotes}
         handleDeleteJob={handleDeleteJob}
+        handleEditJob={handleEditJob}
         handleOpenChat={handleOpenChat}
         canDownloadResumes={canDownloadResumes}
         canUseDirectWhatsApp={canUseDirectWhatsApp}

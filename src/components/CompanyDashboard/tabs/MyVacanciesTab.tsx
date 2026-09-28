@@ -33,6 +33,7 @@ interface MyVacanciesTabProps {
   handleRequestCustomTest: (applicant: CompanyApplicant) => void;
   handleOpenNotes: (applicant: CompanyApplication) => void;
   handleDeleteJob: (jobId: string, jobTitle: string) => void;
+  handleEditJob: (job: CompanyJob) => void;
   handleOpenChat: (applicant: CompanyApplication) => void;
   canDownloadResumes?: boolean;
   canUseDirectWhatsApp?: boolean;
@@ -66,6 +67,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
   handleRequestCustomTest,
   handleOpenNotes,
   handleDeleteJob,
+  handleEditJob,
   handleOpenChat,
   canDownloadResumes = true,
   canUseDirectWhatsApp = true,
@@ -208,6 +210,7 @@ export const MyVacanciesTab: React.FC<MyVacanciesTabProps> = ({
         handleUpdateJobStatus={handleUpdateJobStatus}
         handleShareJob={handleShareJob}
         handleDeleteJob={handleDeleteJob}
+        handleEditJob={handleEditJob}
         setIsRegisteringVacancy={setIsRegisteringVacancy}
         setRegisterStep={setRegisterStep}
         onCreateVacancy={onCreateVacancy}

@@ -58,6 +58,9 @@ export type CompanyDashboardVacancyCreationProps = {
   handleNextStep: () => void;
   handlePublish: () => void;
   isPublishing?: boolean;
+  isEditing: boolean;
+  handleStartCreateVacancy: () => void;
+  handleCloseVacancyForm: () => void;
 };
 
 export type CompanyDashboardCompaniesPanelProps = {
@@ -149,6 +152,7 @@ export type CompanyDashboardVacanciesProps = {
   handleRequestCustomTest: (applicant: CompanyApplicant) => void | Promise<void>;
   handleOpenNotes: (applicant: CompanyApplication) => void;
   handleDeleteJob: (jobId: string, jobTitle: string) => void | Promise<void>;
+  handleEditJob: (job: CompanyJob) => void;
   handleOpenChat: (applicant: CompanyApplication) => void;
   canDownloadResumes: boolean;
   canUseDirectWhatsApp: boolean;
@@ -312,10 +316,7 @@ export const CompanyDashboardContent = ({
               totalApplications={companyApplications.length}
               companyApplications={companyApplications}
               dynamicTopSkills={dynamicTopSkills}
-              onCreateVacancy={() => {
-                setActiveTab('Cadastrar Vaga');
-                setRegisterStep(1);
-              }}
+              onCreateVacancy={vacancyCreation.handleStartCreateVacancy}
               onOpenTalentBank={() => setActiveTab('Banco de Talentos')}
             />
           )}
@@ -349,6 +350,7 @@ export const CompanyDashboardContent = ({
               handleRequestCustomTest={handleRequestCustomTest}
               handleOpenNotes={handleOpenNotes}
               handleDeleteJob={handleDeleteJob}
+              handleEditJob={vacancies.handleEditJob}
               handleOpenChat={handleOpenChat}
               canDownloadResumes={canDownloadResumes}
               canUseDirectWhatsApp={canUseVacancyDirectWhatsApp}
@@ -357,17 +359,14 @@ export const CompanyDashboardContent = ({
               setJobSearch={setJobSearch}
               isJobSearchFocused={isJobSearchFocused}
               setIsJobSearchFocused={setIsJobSearchFocused}
-              onCreateVacancy={() => {
-                setActiveTab('Cadastrar Vaga');
-                setRegisterStep(1);
-              }}
+              onCreateVacancy={vacancyCreation.handleStartCreateVacancy}
             />
           )}
 
           {activeTab === 'Cadastrar Vaga' && (
             <CreateVacancyTab
               isOpen={true}
-              onClose={() => setActiveTab('Minhas Vagas')}
+              onClose={vacancyCreation.handleCloseVacancyForm}
               registerStep={vacancyCreation.registerStep}
               setRegisterStep={vacancyCreation.setRegisterStep}
               vacancyForm={vacancyCreation.vacancyForm}
@@ -376,6 +375,7 @@ export const CompanyDashboardContent = ({
               handleNextStep={vacancyCreation.handleNextStep}
               handlePublish={vacancyCreation.handlePublish}
               isPublishing={vacancyCreation.isPublishing}
+              isEditing={vacancyCreation.isEditing}
               presentation="page"
             />
           )}

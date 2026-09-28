@@ -12,6 +12,7 @@ export type CompanyDashboardViewContext =
     handleStartNewTemplate: CompanyDashboardHeaderProps['onStartNewTemplate'];
   } &
   CompanyDashboardContentProps['overview'] &
+  CompanyDashboardContentProps['vacancyCreation'] &
   CompanyDashboardContentProps['vacancies'] &
   CompanyDashboardContentProps['talentBank'] &
   CompanyDashboardContentProps['companiesPanel'] &
@@ -117,6 +118,9 @@ export const buildCompanyContentProps = (context: CompanyDashboardViewContext): 
     handleNextStep: context.handleNextStep,
     handlePublish: context.handlePublish,
     isPublishing: context.isPublishing,
+    isEditing: context.isEditing,
+    handleStartCreateVacancy: context.handleStartCreateVacancy,
+    handleCloseVacancyForm: context.handleCloseVacancyForm,
   },
   vacancies: {
     selectedJob: context.selectedJob,
@@ -146,6 +150,7 @@ export const buildCompanyContentProps = (context: CompanyDashboardViewContext): 
     handleRequestCustomTest: context.handleRequestCustomTest,
     handleOpenNotes: context.handleOpenNotes,
     handleDeleteJob: context.handleDeleteJob,
+    handleEditJob: context.handleEditJob,
     handleOpenChat: context.handleOpenChat,
     canDownloadResumes: context.canDownloadResumes,
     canUseDirectWhatsApp: context.canUseDirectWhatsApp,
@@ -236,6 +241,8 @@ export const buildCompanyOverlayProps = (context: CompanyDashboardViewContext): 
     handleNextStep: context.handleNextStep,
     handlePublish: context.handlePublish,
     isPublishing: context.isPublishing,
+    isEditing: context.isEditing,
+    handleCloseVacancyForm: context.handleCloseVacancyForm,
   },
   stageConfig: {
     isConfiguringStages: context.isConfiguringStages,

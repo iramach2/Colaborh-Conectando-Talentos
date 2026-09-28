@@ -1,3 +1,5 @@
+import type { CompanyJob } from '../types/companyDashboard';
+
 export type VacancyBenefits = {
   vt: { selected: boolean; value: string };
   va: { selected: boolean; value: string };
@@ -74,6 +76,158 @@ const buildBenefitsText = (vacancyForm: VacancyFormData) => {
   }
 
   return benefitTextList;
+};
+
+const emptyBenefits = (): VacancyBenefits => ({
+  vt: { selected: false, value: '' },
+  va: { selected: false, value: '' },
+  healthInsurance: false,
+  healthInsuranceCopay: false,
+  healthInsuranceFamily: false,
+  dentalPlan: false,
+  dentalPlanFamily: false,
+});
+
+const asRecord = (value: unknown): Record<string, unknown> => (
+  value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+);
+
+const readBenefitSelection = (value: unknown) => {
+  const record = asRecord(value);
+  return {
+    selected: Boolean(record.selected),
+    value: typeof record.value === 'string' ? record.value : '',
+  };
+};
+
+const normalizeBenefits = (value: unknown): VacancyBenefits => {
+  const record = asRecord(value);
+  return {
+    ...emptyBenefits(),
+    vt: readBenefitSelection(record.vt),
+    va: readBenefitSelection(record.va),
+    healthInsurance: Boolean(record.healthInsurance),
+    healthInsuranceCopay: Boolean(record.healthInsuranceCopay),
+    healthInsuranceFamily: Boolean(record.healthInsuranceFamily),
+    dentalPlan: Boolean(record.dentalPlan),
+    dentalPlanFamily: Boolean(record.dentalPlanFamily),
+  };
+};
+
+const parseStringArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === 'string');
+  if (typeof value !== 'string' || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string') : [];
+  } catch {
+    return value.split(',').map((item) => item.trim()).filter(Boolean);
+  }
+};
+
+const parseStoredStages = (job: CompanyJob): string[] => {
+  const stages = parseStringArray(job.stages);
+  if (stages.length > 0) return stages;
+
+  const match = (job.description || '').match(/===ETAPAS_JSON===([\s\S]*?)===FIM_ETAPAS===/);
+  if (match?.[1]) {
+    const legacyStages = parseStringArray(match[1]);
+    if (legacyStages.length > 0) return legacyStages;
+  }
+  return ['Analise de Curriculo'];
+};
+
+const removeStoredMetadata = (description: string) => {
+  let cleaned = description
+    .replace(/\n*===ETAPAS_JSON===[\s\S]*?===FIM_ETAPAS===/g, '')
+    .replace(/\n*===STAGE_TESTS_JSON===[\s\S]*?===FIM_STAGE_TESTS===/g, '')
+    .replace(/\n*===CUSTOM_QUESTIONS_JSON===[\s\S]*?===FIM_CUSTOM_QUESTIONS===/g, '')
+    .trim();
+
+  const blocks = cleaned.split(/\n\s*\n/);
+  const metadataPrefixes = [
+    'Cargo:',
+    'Modalidade:',
+    'Localizacao:',
+    'Localização:',
+    'Remuneracao:',
+    'Remuneração:',
+    'Extra:',
+    'Contratacao:',
+    'Contratação:',
+    'Escala:',
+    'Idade Minima:',
+    'Idade Mínima:',
+    'Oportunidade para 1o Emprego:',
+    'Vaga para PcD:',
+    'Posicoes Disponiveis:',
+    'Posições Disponíveis:',
+    'Motivo da Requisicao:',
+    'Motivo da Requisição:',
+    'Contratacao de Urgencia:',
+    'Contratação de Urgência:',
+  ];
+  const firstBlockLines = (blocks[0] || '').split('\n').map((line) => line.trim()).filter(Boolean);
+  if (firstBlockLines.length > 0 && firstBlockLines.every((line) => metadataPrefixes.some((prefix) => line.startsWith(prefix)))) {
+    blocks.shift();
+    cleaned = blocks.join('\n\n').trim();
+  }
+
+  const generatedSection = /\n\s*\n(?:Responsabilidades e Atribui(?:coes|ções)|Benef(?:icios|ícios)):\s*\n/i;
+  const generatedSectionIndex = cleaned.search(generatedSection);
+  return (generatedSectionIndex >= 0 ? cleaned.slice(0, generatedSectionIndex) : cleaned).trim();
+};
+
+const extractLegacyExtraBenefits = (description: string) => {
+  const benefitMatch = description.match(/Benef(?:icios|ícios):\s*\n([\s\S]*?)(?:\n\s*\n|$)/i);
+  if (!benefitMatch?.[1]) return [];
+
+  const knownPrefixes = ['Vale Transporte:', 'Vale Alimentacao/Refeicao:', 'Plano de Saude', 'Plano Odontologico'];
+  return benefitMatch[1]
+    .split('\n')
+    .map((item) => item.replace(/^\s*-\s*/, '').trim())
+    .filter((item) => item && !knownPrefixes.some((prefix) => item.startsWith(prefix)));
+};
+
+export const buildVacancyFormFromJob = (job: CompanyJob): VacancyFormData => {
+  const benefitsRecord = asRecord(job.benefits);
+  const remunerationType = job.remuneration_type || (
+    job.salary_min || job.salary_max ? 'Faixa Salarial' : job.salary === 'A Combinar' ? 'A Combinar' : 'Fixo'
+  );
+
+  return {
+    title: job.title || '',
+    role: job.role || '',
+    modality: job.modality || 'Presencial',
+    state: job.state || '',
+    city: job.city || '',
+    remunerationType,
+    salary: remunerationType === 'Fixo' ? job.salary || '' : '',
+    salaryMin: job.salary_min || '',
+    salaryMax: job.salary_max || '',
+    hasBonus: Boolean(job.has_bonus),
+    bonusType: job.bonus_type || 'Comissao',
+    bonusValue: job.bonus_value || '',
+    contractType: job.contract_type || 'CLT',
+    benefits: normalizeBenefits(job.benefits),
+    extraBenefits: parseStringArray(benefitsRecord.extraBenefits).length > 0
+      ? parseStringArray(benefitsRecord.extraBenefits)
+      : extractLegacyExtraBenefits(job.description || ''),
+    workSchedule: job.work_schedule || '5x2',
+    isFirstJob: Boolean(job.is_first_job),
+    isPcd: Boolean(job.is_pcd),
+    pcdDetails: job.pcd_details || '',
+    minAge: Number(job.min_age ?? job.minAge ?? 18) || 18,
+    positions: String(job.positions || 1),
+    requestReason: job.request_reason || 'Aumento de quadro',
+    isUrgent: Boolean(job.is_urgent),
+    description: removeStoredMetadata(job.description || ''),
+    responsibilities: job.responsibilities || '',
+    requirements: parseStringArray(job.requirements),
+    stages: parseStoredStages(job),
+  };
 };
 
 export const buildDetailedJobDescription = (vacancyForm: VacancyFormData) => {
@@ -178,7 +332,10 @@ export const buildJobInsertPayload = (
       request_reason: vacancyForm.requestReason,
       is_urgent: vacancyForm.isUrgent,
       responsibilities: vacancyForm.responsibilities,
-      benefits: vacancyForm.benefits,
+      benefits: {
+        ...vacancyForm.benefits,
+        extraBenefits: vacancyForm.extraBenefits,
+      },
       status: 'active',
     },
   };

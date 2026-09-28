@@ -2,7 +2,11 @@ import { type Dispatch, type SetStateAction, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { saveJobStages } from '../services/jobWorkflowService';
 import type { CompanyJob, CompanyLike } from '../types/companyDashboard';
-import { buildJobInsertPayload, type VacancyFormData } from '../utils/vacancyPayload';
+import {
+  buildJobInsertPayload,
+  buildVacancyFormFromJob,
+  type VacancyFormData,
+} from '../utils/vacancyPayload';
 
 type UseCompanyVacancyPublishingParams = {
   selectedCompany: CompanyLike;
@@ -117,6 +121,7 @@ export const useCompanyVacancyPublishing = ({
 }: UseCompanyVacancyPublishingParams) => {
   const [registerStep, setRegisterStep] = useState(1);
   const [vacancyForm, setVacancyForm] = useState<VacancyFormData>(initialVacancyForm);
+  const [editingJob, setEditingJob] = useState<CompanyJob | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishedJobLink, setPublishedJobLink] = useState<string | null>(null);
   const [hasCopiedPublishedLink, setHasCopiedPublishedLink] = useState<boolean>(false);
@@ -125,6 +130,28 @@ export const useCompanyVacancyPublishing = ({
   const resetVacancyForm = () => {
     setRegisterStep(1);
     setVacancyForm(initialVacancyForm());
+    setEditingJob(null);
+  };
+
+  const handleStartCreateVacancy = () => {
+    resetVacancyForm();
+    setIsRegisteringVacancy(false);
+    setActiveTab('Cadastrar Vaga');
+  };
+
+  const handleStartEditVacancy = (job: CompanyJob) => {
+    if (!job.id) return;
+    setEditingJob(job);
+    setVacancyForm(buildVacancyFormFromJob(job));
+    setRegisterStep(1);
+    setIsRegisteringVacancy(false);
+    setActiveTab('Cadastrar Vaga');
+  };
+
+  const handleCloseVacancyForm = () => {
+    resetVacancyForm();
+    setIsRegisteringVacancy(false);
+    setActiveTab('Minhas Vagas');
   };
 
   const clearPublishedJobLink = () => {
@@ -167,6 +194,47 @@ const currentStages = vacancyForm.stages;
       const maxAttempts = 15;
       let success = false;
       let insertedRow: CompanyJob | null = null;
+
+      if (editingJob?.id) {
+        const updatePayload = {
+          ...payload,
+          status: editingJob.status || payload.status,
+        };
+        const { data: updatedData, error: updateError } = await supabase
+          .from('jobs')
+          .update(updatePayload)
+          .eq('id', editingJob.id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+
+        const stagesSynced = await saveJobStages(editingJob.id, currentStages);
+        if (!stagesSynced) {
+          await supabase
+            .from('jobs')
+            .update({
+              description: `${detailedDescription}\n\n===ETAPAS_JSON===${JSON.stringify(currentStages)}===FIM_ETAPAS===`.trim(),
+            })
+            .eq('id', editingJob.id);
+        }
+
+        const updatedJob: CompanyJob = {
+          ...editingJob,
+          ...updatePayload,
+          ...(updatedData || {}),
+          stages: currentStages,
+          stageTests: editingJob.stageTests,
+          candidates_count: editingJob.candidates_count || 0,
+        };
+
+        setJobs((previousJobs) => previousJobs.map((job) => (
+          job.id === editingJob.id ? updatedJob : job
+        )));
+        alert('Vaga atualizada com sucesso.');
+        handleCloseVacancyForm();
+        return;
+      }
 
       while (attempt < maxAttempts) {
         const { data: insertedData, error: saveError } = await supabase
@@ -253,6 +321,7 @@ const currentStages = vacancyForm.stages;
     setRegisterStep,
     vacancyForm,
     setVacancyForm,
+    editingJob,
     isPublishing,
     publishedJobLink,
     setPublishedJobLink,
@@ -261,6 +330,9 @@ const currentStages = vacancyForm.stages;
     errorMessage,
     handleNextStep,
     handlePublish,
+    handleStartCreateVacancy,
+    handleStartEditVacancy,
+    handleCloseVacancyForm,
     resetVacancyForm,
     clearPublishedJobLink,
   };
